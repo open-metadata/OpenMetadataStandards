@@ -329,7 +329,23 @@
          <lastmod>2025-11-23</lastmod>
     </url>
     <url>
+         <loc>https://openmetadatastandards.org/metadata-standards/json-schemas/</loc>
+         <lastmod>2025-11-23</lastmod>
+    </url>
+    <url>
+         <loc>https://openmetadatastandards.org/metadata-standards/jsonld-contexts/</loc>
+         <lastmod>2025-11-23</lastmod>
+    </url>
+    <url>
          <loc>https://openmetadatastandards.org/metadata-standards/overview/</loc>
+         <lastmod>2025-11-23</lastmod>
+    </url>
+    <url>
+         <loc>https://openmetadatastandards.org/metadata-standards/rdf-ontology/</loc>
+         <lastmod>2025-11-23</lastmod>
+    </url>
+    <url>
+         <loc>https://openmetadatastandards.org/metadata-standards/shacl-validation/</loc>
          <lastmod>2025-11-23</lastmod>
     </url>
     <url>
