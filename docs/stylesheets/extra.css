@@ -200,7 +200,6 @@
 /* Navigation tabs - Direct styling with improved readability */
 .md-tabs {
   background-color: #0061f2 !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .md-tabs__link {
@@ -208,17 +207,20 @@
   font-weight: 500 !important;
   transition: all 0.2s ease !important;
   opacity: 1 !important;
+  text-decoration: none !important;
 }
 
 .md-tabs__link:hover {
   color: #ffffff !important;
-  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-.md-tabs__link--active {
+/* Active tab styling - simple and clean */
+.md-tabs__item--active .md-tabs__link {
   color: #ffffff !important;
   font-weight: 600 !important;
-  border-bottom: 2px solid #ffffff !important;
+  text-decoration: underline !important;
+  text-underline-offset: 0.3rem !important;
+  text-decoration-thickness: 2px !important;
 }
 
 /* Search */
@@ -232,28 +234,39 @@
 
 /* Left sidebar navigation - active item styling */
 .md-nav__link--active {
-  color: #6900c7 !important;
+  color: #0061f2 !important;
   font-weight: 600 !important;
-  background-color: rgba(105, 0, 199, 0.08) !important;
-  border-radius: 4px;
-  padding-left: 0.8rem !important;
+  background: linear-gradient(90deg, rgba(0, 97, 242, 0.12) 0%, rgba(0, 97, 242, 0.05) 100%) !important;
+  border-left: 3px solid #0061f2 !important;
+  border-radius: 0 4px 4px 0;
+  padding: 0.6rem 0.8rem 0.6rem 0.8rem !important;
+  box-shadow: 0 1px 3px rgba(0, 97, 242, 0.1);
+  margin: 0.2rem 0 !important;
 }
 
 /* Dark mode sidebar navigation */
 [data-md-color-scheme="slate"] .md-nav__link--active {
   color: #a78bfa !important;
-  background-color: rgba(167, 139, 250, 0.15) !important;
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.18) 0%, rgba(167, 139, 250, 0.08) 100%) !important;
+  border-left: 3px solid #a78bfa !important;
+  border-radius: 0 4px 4px 0;
   font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(167, 139, 250, 0.15);
+  padding: 0.6rem 0.8rem 0.6rem 0.8rem !important;
+  margin: 0.2rem 0 !important;
 }
 
 /* Sidebar hover effect */
 .md-nav__link:hover {
-  background-color: rgba(0, 97, 242, 0.05);
-  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(0, 97, 242, 0.08) 0%, rgba(0, 97, 242, 0.03) 100%);
+  border-radius: 0 4px 4px 0;
+  border-left: 3px solid transparent;
+  padding-left: 0.8rem !important;
 }
 
 [data-md-color-scheme="slate"] .md-nav__link:hover {
-  background-color: rgba(167, 139, 250, 0.08);
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.12) 0%, rgba(167, 139, 250, 0.05) 100%);
+  border-left: 3px solid rgba(167, 139, 250, 0.3);
 }
 
 /* Improve sidebar section titles */
@@ -266,7 +279,8 @@
 .md-nav__link {
   transition: all 0.2s ease;
   border-radius: 4px;
-  padding-left: 0.6rem !important;
+  padding: 0.4rem 0.6rem !important;
+  margin: 0.1rem 0;
 }
 
 [data-md-color-scheme="slate"] .md-nav__link {
