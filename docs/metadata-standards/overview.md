@@ -1,19 +1,58 @@
 
 # OpenMetadata Standards
 
-**A comprehensive metadata standard for the modern data ecosystem**
+**A comprehensive metadata standard for the modern data and AI ecosystem**
 
 ## What Are We Modeling?
 
-OpenMetadata Standards provide a **unified, open-source metadata model** that describes every aspect of your data ecosystem - from databases and pipelines to dashboards, ML models, data quality, governance, and organizational ownership.
+OpenMetadata Standards provide a **unified, open-source metadata model** that describes every aspect of your **data and AI ecosystem** - from traditional data assets to modern AI systems, covering both structured and unstructured data across your entire organization.
+
+### Comprehensive Coverage
+
+**Traditional Data Assets:**
+- Databases, tables, schemas, and stored procedures
+- Data pipelines, workflows, and DAGs
+- Dashboards, reports, and visualizations
+- Message queues, topics, and event streams
+- APIs, endpoints, and service contracts
+
+**Unstructured Data & Documents:**
+- Drive services (Google Drive, OneDrive, SharePoint)
+- Spreadsheets, worksheets, and collaborative documents
+- File systems, containers, and object storage
+- Directories, files, and document repositories
+
+**AI Governance & LLM Systems:**
+- Large Language Models (LLMs) and foundation models
+- AI Agents and autonomous systems
+- Model Context Protocol (MCP) servers and tools
+- Prompts, templates, and prompt engineering
+- Vector databases and embeddings
+- AI applications and integrations
+
+**Data Governance & Quality:**
+- Data quality tests, suites, and profiles
+- Classification, tags, and glossaries
+- Data contracts and SLAs
+- Lineage from source to consumption
+- Teams, users, roles, and ownership
+- Domains and data products
+
+!!! info "AI Governance Initiative"
+    OpenMetadata is pioneering **AI Governance** by extending metadata standards to cover the entire AI lifecycle - from LLMs and agents to prompts and vector databases. This enables organizations to govern AI systems with the same rigor as traditional data assets.
+
+    **Learn more**: [AI Governance Roadmap](https://github.com/open-metadata/OpenMetadata/issues/23853)
+
+### What This Enables
 
 Our standards enable:
-- **Interoperability** across tools and platforms
-- **Semantic understanding** through RDF and ontologies
-- **Data governance** with built-in classification and glossaries
-- **Data quality** with comprehensive testing frameworks
-- **Complete lineage** from source to consumption
-- **Clear ownership** and organizational structure
+- **Universal Interoperability** across data, document, and AI platforms
+- **Semantic Understanding** through RDF ontologies and knowledge graphs
+- **AI Governance** with comprehensive LLM and agent metadata
+- **Unified Data Governance** spanning structured and unstructured data
+- **Data Quality** with comprehensive testing and profiling frameworks
+- **Complete Lineage** from raw data through transformations to AI applications
+- **Clear Ownership** and organizational structure across all assets
 
 ---
 

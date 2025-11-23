@@ -14,13 +14,15 @@ The **DatabaseSchema** entity represents a logical namespace within a database t
 graph LR
     A[DatabaseService] --> B[Database]
     B --> C[Schema]
-    C --> D[Table]
-    D --> E[Column]
+    C --> D1[Table]
+    C --> D2[StoredProcedure]
+    D1 --> E[Column]
 
     style A fill:#667eea,color:#fff
     style B fill:#4facfe,color:#fff
     style C fill:#00f2fe,color:#333
-    style D fill:#00f2fe,color:#333
+    style D1 fill:#00f2fe,color:#333
+    style D2 fill:#00f2fe,color:#333
     style E fill:#e0f2fe,color:#333
 ```
 

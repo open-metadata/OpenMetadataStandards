@@ -1322,6 +1322,47 @@ for details on defining and using custom properties.
 
 ---
 
+## Followers
+
+**Stay informed about table changes**
+
+Followers allow users to "follow" a table and receive notifications when it changes. This is one of the most useful features for data practitioners:
+
+- **Monitor Dependencies**: Get notified when tables your applications or dashboards depend on change
+- **Schema Changes**: Receive alerts when columns are added, removed, or modified
+- **Data Quality**: Be notified of test failures, anomalies, or freshness issues
+- **Collaboration**: Track tables you're working on with others
+
+**Key Benefits**:
+- Receive notifications about schema changes (new columns, type changes)
+- Track data quality test results and failures
+- Monitor data profiling anomalies (unusual null rates, distribution changes)
+- Get alerts for deprecation, tier changes, or ownership updates
+- Stay informed about query usage patterns and popularity
+
+**Following vs Ownership**:
+- **Ownership** = Responsibility and accountability for the table's quality and accuracy
+- **Following** = Interest in being notified about changes to the table
+
+Any user can follow any table they have access to. Tables typically have multiple followers (analysts, engineers, data scientists who use the data).
+
+**Common Use Cases**:
+- Data scientists follow source tables for their ML models
+- Analysts follow tables used in their reports and dashboards
+- Data engineers follow tables in production pipelines
+- Compliance officers follow tables containing PII or sensitive data
+
+!!! tip "Learn More"
+    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about:
+
+    - How to follow tables via UI and API
+    - Configuring notification preferences (immediate vs digest)
+    - Best practices for avoiding notification overload
+    - Bulk following patterns (e.g., follow all tables in a domain)
+    - Integration with webhooks and Slack/Teams
+
+---
+
 ## API Operations
 
 All Table operations are available under the `/v1/tables` endpoint.
