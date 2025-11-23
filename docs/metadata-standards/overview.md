@@ -45,14 +45,57 @@ OpenMetadata Standards provide a **unified, open-source metadata model** that de
 
 ### What This Enables
 
-Our standards enable:
-- **Universal Interoperability** across data, document, and AI platforms
-- **Semantic Understanding** through RDF ontologies and knowledge graphs
-- **AI Governance** with comprehensive LLM and agent metadata
-- **Unified Data Governance** spanning structured and unstructured data
-- **Data Quality** with comprehensive testing and profiling frameworks
-- **Complete Lineage** from raw data through transformations to AI applications
-- **Clear Ownership** and organizational structure across all assets
+<div class="grid cards" markdown>
+
+-   :material-connection:{ .lg .middle } **Universal Interoperability**
+
+    ---
+
+    Seamlessly connect and integrate across data platforms, document systems, and AI tools using standardized metadata schemas.
+
+-   :material-graph:{ .lg .middle } **Semantic Understanding**
+
+    ---
+
+    Enable rich semantic queries and reasoning through RDF ontologies and knowledge graphs built on W3C standards.
+
+-   :material-robot:{ .lg .middle } **AI Governance**
+
+    ---
+
+    Govern AI systems with the same rigor as data - track LLMs, agents, prompts, and model lineage end-to-end.
+
+-   :material-shield-check:{ .lg .middle } **Unified Data Governance**
+
+    ---
+
+    Apply consistent governance policies across structured databases, unstructured documents, and AI systems.
+
+-   :material-test-tube:{ .lg .middle } **Data Quality**
+
+    ---
+
+    Comprehensive testing, profiling, and validation frameworks ensuring data reliability across all asset types.
+
+-   :material-source-branch:{ .lg .middle } **Complete Lineage**
+
+    ---
+
+    Track data flow from raw sources through transformations, ML pipelines, to AI applications and dashboards.
+
+-   :material-account-group:{ .lg .middle } **Clear Ownership**
+
+    ---
+
+    Define organizational structure, teams, roles, and responsibilities across all data and AI assets.
+
+-   :material-api:{ .lg .middle } **API-First Design**
+
+    ---
+
+    RESTful APIs enable real-time metadata updates and integrations without heavyweight infrastructure.
+
+</div>
 
 ---
 
