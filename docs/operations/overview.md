@@ -242,12 +242,26 @@ Run automated quality tests:
 
 ## Best Practices
 
-### 1. Schedule Appropriately
-Choose ingestion frequency based on data volatility:
-- **Real-time**: Streaming data, critical tables
+### 1. Choose the Right Ingestion Pattern
+Select the appropriate pattern based on your needs:
+
+**Push-based (Real-time APIs)**:
+- Real-time application metadata
+- Event-driven updates
+- Immediate lineage tracking
+- Live quality metrics
+
+**Pull-based (Scheduled)**:
+- Batch metadata discovery
+- Periodic synchronization
+- Historical data profiling
+- Low-frequency updates
+
+**Schedule Frequency** (for pull-based):
 - **Hourly**: Frequently changing data
 - **Daily**: Most production tables
 - **Weekly**: Static reference data
+- **On-demand**: Ad-hoc discovery
 
 ### 2. Filter Wisely
 Use filters to avoid ingesting unnecessary metadata:
@@ -321,6 +335,20 @@ Configure alerts for operational issues:
 
 ## Integration Patterns
 
+OpenMetadata supports multiple ingestion patterns to meet different needs:
+
+### Ingestion Pattern Comparison
+
+| Feature | Pull-based Ingestion | Push-based Ingestion (APIs) | Webhooks (Notifications) |
+|---------|---------------------|----------------------------|-------------------------|
+| **Direction** | OpenMetadata pulls from source | Source pushes to OpenMetadata | OpenMetadata pushes to destination |
+| **Timing** | Scheduled (batch) | Real-time (immediate) | Real-time (immediate) |
+| **Latency** | Minutes to hours | Milliseconds | Milliseconds |
+| **Use Case** | Metadata discovery | Application-driven updates | External system notifications |
+| **Complexity** | Higher (connector needed) | Lower (standard REST API) | Lower (standard webhooks) |
+| **Infrastructure** | Requires scheduler | No additional infrastructure | No additional infrastructure |
+| **Examples** | Database schema discovery | Lineage from Spark jobs | Slack alerts on schema changes |
+
 ### Pull-based Ingestion
 Scheduled extraction from source systems:
 
@@ -339,8 +367,56 @@ graph LR
     style E fill:#667eea,color:#fff
 ```
 
-### Push-based Notifications
-Real-time event delivery:
+**Use Cases**:
+- Batch metadata discovery
+- Scheduled profiling and quality checks
+- Historical data synchronization
+- Low-frequency updates
+
+### Push-based Ingestion (Real-time via APIs)
+Real-time metadata updates through REST APIs:
+
+```mermaid
+graph LR
+    A[Application/Service] --> B[OpenMetadata REST API]
+    B --> C[Metadata Store]
+    C --> D[Event Stream]
+    D --> E[Real-time Updates]
+
+    style A fill:#764ba2,color:#fff
+    style B fill:#4facfe,color:#fff,stroke:#4c51bf,stroke-width:3px
+    style C fill:#667eea,color:#fff
+    style D fill:#f093fb,color:#333
+    style E fill:#00f2fe,color:#333
+```
+
+**Use Cases**:
+- Real-time metadata updates from applications
+- Event-driven metadata synchronization
+- Immediate lineage tracking
+- Live data quality reporting
+- Dynamic schema registration
+
+**Why APIs are the Standard for Real-time**:
+
+OpenMetadata uses REST APIs for push-based, real-time ingestion - the same approach that powers the entire internet. Just as Stripe processes millions of real-time payments and Twilio handles real-time communications through APIs, OpenMetadata delivers real-time metadata updates without requiring heavyweight message queues.
+
+**Key Advantages**:
+
+- **Simplicity**: Standard HTTP/REST - no additional infrastructure required
+- **Universal**: Works with any programming language or platform
+- **Reliable**: Battle-tested pattern used by Stripe, Twilio, GitHub, and thousands of other services
+- **Scalable**: Modern API gateways handle millions of requests per second
+- **Developer-friendly**: Easy to integrate, test, and debug
+- **Secure**: Standard authentication and encryption (OAuth, JWT, TLS)
+
+!!! note "Real-time Without Kafka"
+    While some vendors claim you need Kafka for "real-time" capabilities, the reality is different. The world's most critical real-time systems - payment processing, communication platforms, ride-sharing, and financial services - all run on REST APIs. OpenMetadata follows this proven, simpler approach.
+
+    **Learn more**: [Why OpenMetadata is the Right Choice for You](https://blog.open-metadata.org/why-openmetadata-is-the-right-choice-for-you-59e329163cac)
+
+### Push-based Notifications (Webhooks)
+Real-time event delivery to external systems:
 
 ```mermaid
 graph LR
@@ -353,6 +429,12 @@ graph LR
     style C fill:#4facfe,color:#fff,stroke:#4c51bf,stroke-width:3px
     style D fill:#764ba2,color:#fff
 ```
+
+**Use Cases**:
+- Notify external systems of metadata changes
+- Trigger downstream workflows
+- Send alerts to Slack, email, or other tools
+- Maintain synchronization with other platforms
 
 ## Related Entities
 
