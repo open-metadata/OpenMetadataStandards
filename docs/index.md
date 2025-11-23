@@ -11,13 +11,13 @@
 
 **A comprehensive collection of schemas, ontologies, and specifications for metadata management**
 
-Welcome to the official home of OpenMetadata Standards - the unified approach to metadata across the data ecosystem.
+Welcome to the official home of OpenMetadata Standards - **unified metadata standards and schemas** powering the entire data ecosystem.
 
 </div>
 
 ## What is OpenMetadata Standards?
 
-OpenMetadata Standards is an open-source project that defines a unified approach to metadata management across the data ecosystem. It provides:
+OpenMetadata Standards is an open-source project that provides **unified metadata standards and schemas** for comprehensive metadata management across the data ecosystem. It delivers:
 
 - **700+ JSON Schemas** - Comprehensive schemas covering entities, APIs, configurations, events, and more
 - **RDF Ontologies** - Semantic web standards for linked metadata and knowledge graphs
