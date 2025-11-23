@@ -317,11 +317,11 @@ graph LR
 ## Related Entities
 
 - **[Application](./application.md)**: Detailed application entity specification
-- **[Table](../databases/table.md)**: Database tables accessed by applications
-- **[API Endpoint](../apis/api-endpoint.md)**: APIs called by applications
-- **[Topic](../messaging/topic.md)**: Message streams consumed/produced
-- **[ML Model](../ml/mlmodel.md)**: Models used by applications
-- **[Pipeline](../pipelines/pipeline.md)**: Data pipelines for application data
+- **[Table](../../data-assets/databases/table.md)**: Database tables accessed by applications
+- **[API Endpoint](../../data-assets/apis/api-endpoint.md)**: APIs called by applications
+- **[Topic](../../data-assets/messaging/topic.md)**: Message streams consumed/produced
+- **[ML Model](../../data-assets/ml/mlmodel.md)**: Models used by applications
+- **[Pipeline](../../data-assets/pipelines/pipeline.md)**: Data pipelines for application data
 - **[Data Contract](../../data-contracts/data-contract.md)**: Contracts between applications and data
 - **[Team](../../teams-users/team.md)**: Teams owning and operating applications
 

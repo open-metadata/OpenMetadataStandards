@@ -1126,7 +1126,7 @@ Content-Type: application/json
 
 - **[User](user.md)** - User entity
 - **[Team](team.md)** - Team entity
-- **[Policy](../../security/policies.md)** - Access policies
-- **[Authorization](../../security/authorization.md)** - Access control
-- **[Permissions](../../security/permissions.md)** - Permission system
-- **[RBAC](../../security/rbac.md)** - Role-based access control
+- **[Policy](../security/policies.md)** - Access policies
+- **[Authorization](../security/authorization.md)** - Access control
+- **[Permissions](../security/permissions.md)** - Permission system
+- **[RBAC](../security/rbac.md)** - Role-based access control

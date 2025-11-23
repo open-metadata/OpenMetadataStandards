@@ -1087,4 +1087,4 @@ Response: ChangeEvent
 - **[GlossaryTerm](glossary-term.md)** - Individual business terms
 - **[Classification](classification.md)** - Tag hierarchies
 - **[Domain](../domains/domain.md)** - Business domains
-- **[Governance](../../governance/overview.md)** - Governance framework
+- **[Governance](overview.md)** - Governance framework

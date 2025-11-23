@@ -1269,7 +1269,7 @@ Content-Type: application/json
 ## Related Documentation
 
 - **[User](user.md)** - User entity
-- **[Domain](../../governance/domain.md)** - Data domain
-- **[UI Customization](../../ui/customization.md)** - Interface customization
-- **[Workflows](../../workflows/overview.md)** - User workflows
-- **[User Experience](../../ui/user-experience.md)** - UX design
+- **[Domain](../governance/domain.md)** - Data domain
+- **[UI Customization](../ui/customization.md)** - Interface customization
+- **[Workflows](../workflows/overview.md)** - User workflows
+- **[User Experience](../ui/user-experience.md)** - UX design

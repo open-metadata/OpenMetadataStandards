@@ -1065,4 +1065,4 @@ When a tag is applied to a data asset, it creates a **TagLabel** with additional
 - **[Table](../data-assets/databases/table.md)** - Applying tags to tables
 - **[Column](../data-assets/databases/column.md)** - Applying tags to columns
 - **[SKOS Standard](https://www.w3.org/TR/skos-reference/)** - W3C Simple Knowledge Organization System
-- **[Data Governance](../../governance/overview.md)** - Governance framework
+- **[Data Governance](overview.md)** - Governance framework
