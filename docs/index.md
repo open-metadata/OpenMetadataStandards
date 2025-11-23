@@ -3,6 +3,10 @@
 
 <div class="hero-section" markdown>
 
+<div style="display: inline-block; background: linear-gradient(135deg, #7147E8 0%, #8D6AF1 100%); color: white; padding: 0.4rem 1rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(113, 71, 232, 0.3);">
+📦 Version 1.11.0 — November 2025
+</div>
+
 ## Open Standard for Metadata
 
 **A comprehensive collection of schemas, ontologies, and specifications for metadata management**

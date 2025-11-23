@@ -1069,10 +1069,137 @@ for details on defining and using custom properties.
 
 ## API Operations
 
+### List API Collections
+
+```http
+GET /v1/apiCollections
+Query Parameters:
+  - fields: Fields to include (owners, apiEndpoints, tags, extension, domains, sourceHash)
+  - service: Filter by API service name (e.g., "Users API")
+  - limit: Number of results (1-1000000, default 10)
+  - before: Cursor for previous page
+  - after: Cursor for next page
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: APICollectionList
+```
+
+**Example Request**:
+
+```http
+GET /v1/apiCollections?service=production_api_gateway&fields=owners,apiEndpoints,tags&limit=20
+```
+
+---
+
 ### Create API Collection
 
 ```http
-POST /api/v1/apiCollections
+POST /v1/apiCollections
+Content-Type: application/json
+
+{
+  "name": "payments_api",
+  "service": "production_api_gateway",
+  "displayName": "Payments API",
+  "description": "REST API for payment processing and transaction management",
+  "basePath": "/api/v2/payments",
+  "apiVersion": {
+    "version": "v2",
+    "versioningScheme": "URL",
+    "deprecated": false,
+    "releaseDate": "2024-01-15T00:00:00Z"
+  },
+  "rateLimit": {
+    "requestsPerMinute": 1000,
+    "requestsPerHour": 50000,
+    "requestsPerDay": 1000000
+  },
+  "authentication": {
+    "required": true,
+    "methods": ["OAuth2", "APIKey"],
+    "scopes": ["payments.read", "payments.write"]
+  },
+  "owner": {
+    "id": "team-uuid",
+    "type": "team"
+  },
+  "tags": [
+    {"tagFQN": "Tier.Gold"},
+    {"tagFQN": "Compliance.PCI-DSS"}
+  ]
+}
+
+Response: APICollection
+```
+
+---
+
+### Get API Collection by Name
+
+```http
+GET /v1/apiCollections/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (owners, apiEndpoints, tags, extension, domains)
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: APICollection
+```
+
+**Example Request**:
+
+```http
+GET /v1/apiCollections/name/production_api_gateway.payments_api?fields=owners,apiEndpoints,tags
+```
+
+---
+
+### Get API Collection by ID
+
+```http
+GET /v1/apiCollections/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: APICollection
+```
+
+---
+
+### Update API Collection (Partial)
+
+```http
+PATCH /v1/apiCollections/{id}
+Content-Type: application/json-patch+json
+
+[
+  {
+    "op": "add",
+    "path": "/tags/-",
+    "value": {"tagFQN": "Tier.Gold"}
+  },
+  {
+    "op": "replace",
+    "path": "/description",
+    "value": "Updated API collection description"
+  },
+  {
+    "op": "replace",
+    "path": "/rateLimit/requestsPerMinute",
+    "value": 2000
+  }
+]
+
+Response: APICollection
+```
+
+---
+
+### Create or Update API Collection
+
+```http
+PUT /v1/apiCollections
 Content-Type: application/json
 
 {
@@ -1084,44 +1211,110 @@ Content-Type: application/json
     "versioningScheme": "URL"
   }
 }
+
+Response: APICollection
 ```
 
-### Get API Collection
+---
+
+### Delete API Collection
 
 ```http
-GET /api/v1/apiCollections/name/production_api_gateway.payments_api?fields=endpoints,owner,tags
+DELETE /v1/apiCollections/{id}
+Query Parameters:
+  - hardDelete: true | false (default: false - soft delete)
+  - recursive: true | false (default: false)
+
+Response: APICollection
 ```
 
-### Update API Collection
+---
+
+### Delete API Collection (Async)
 
 ```http
-PATCH /api/v1/apiCollections/{id}
-Content-Type: application/json-patch+json
+DELETE /v1/apiCollections/async/{id}
+Query Parameters:
+  - hardDelete: true | false (default: false)
+  - recursive: true | false (default: false)
 
-[
-  {
-    "op": "add",
-    "path": "/tags/-",
-    "value": {"tagFQN": "Tier.Gold"}
-  }
-]
+Response: Async deletion job details
 ```
 
-### Add Endpoint to Collection
+---
+
+### Get API Collection Version
 
 ```http
-PUT /api/v1/apiCollections/{id}/endpoints
+GET /v1/apiCollections/{id}/versions/{version}
+
+Response: APICollection (specific version)
+```
+
+---
+
+### Get API Collection Versions
+
+```http
+GET /v1/apiCollections/{id}/versions
+
+Response: EntityHistory (all versions)
+```
+
+---
+
+### Restore API Collection
+
+```http
+PUT /v1/apiCollections/restore
 Content-Type: application/json
 
 {
-  "endpoints": [
+  "id": "collection-uuid"
+}
+
+Response: APICollection (restored)
+```
+
+---
+
+### Vote on API Collection
+
+```http
+PUT /v1/apiCollections/{id}/vote
+Content-Type: application/json
+
+{
+  "vote": "upvote"
+}
+
+Response: ChangeEvent
+```
+
+---
+
+### Bulk Create or Update API Collections
+
+```http
+PUT /v1/apiCollections/bulk
+Content-Type: application/json
+
+{
+  "entities": [
     {
-      "name": "refundPayment",
-      "path": "/{id}/refund",
-      "method": "POST"
+      "name": "users_api",
+      "service": "production_api_gateway",
+      "basePath": "/api/v2/users"
+    },
+    {
+      "name": "orders_api",
+      "service": "production_api_gateway",
+      "basePath": "/api/v2/orders"
     }
   ]
 }
+
+Response: BulkOperationResult
 ```
 
 ---

@@ -1365,34 +1365,162 @@ for details on defining and using custom properties.
 
 ## API Operations
 
+### List API Endpoints
+
+```http
+GET /v1/apiEndpoints
+Query Parameters:
+  - fields: Fields to include (owners, followers, tags, extension, domains, dataProducts, sourceHash)
+  - service: Filter by API service name (e.g., "OpenMetadata API Service")
+  - apiCollection: Filter by API collection name (e.g., "UsersAPI")
+  - limit: Number of results (1-1000000, default 10)
+  - before: Cursor for previous page
+  - after: Cursor for next page
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: APIEndpointList
+```
+
+**Example Request**:
+
+```http
+GET /v1/apiEndpoints?apiCollection=payments_api&fields=requestSchema,responseSchemas,tags&limit=50
+```
+
+---
+
 ### Create API Endpoint
 
 ```http
-POST /api/v1/apiEndpoints
+POST /v1/apiEndpoints
 Content-Type: application/json
 
 {
   "name": "createPayment",
   "apiCollection": "production_api_gateway.payments_api",
+  "displayName": "Create Payment",
+  "description": "Creates a new payment transaction",
   "endpointURL": "/api/v2/payments",
   "httpMethod": "POST",
   "requestSchema": {
     "schemaType": "JSON",
-    "contentType": "application/json"
-  }
+    "contentType": "application/json",
+    "schemaDefinition": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "minimum": 0.01,
+          "description": "Payment amount"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "ISO 4217 currency code"
+        },
+        "customerId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Customer UUID"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["card", "bank_transfer", "wallet"]
+        }
+      },
+      "required": ["amount", "currency", "customerId"]
+    },
+    "parameters": [
+      {
+        "name": "idempotencyKey",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Idempotency key to prevent duplicate requests"
+      }
+    ]
+  },
+  "responseSchemas": [
+    {
+      "statusCode": 200,
+      "description": "Payment created successfully",
+      "schemaType": "JSON",
+      "contentType": "application/json",
+      "schemaDefinition": {
+        "type": "object",
+        "properties": {
+          "paymentId": {"type": "string", "format": "uuid"},
+          "status": {"type": "string", "enum": ["pending", "processing", "completed"]},
+          "amount": {"type": "number"}
+        }
+      }
+    },
+    {
+      "statusCode": 400,
+      "description": "Invalid request",
+      "schemaType": "JSON",
+      "contentType": "application/json"
+    }
+  ],
+  "authentication": {
+    "required": true,
+    "type": "OAuth2",
+    "scopes": ["payments.write"]
+  },
+  "owner": {
+    "id": "team-uuid",
+    "type": "team"
+  },
+  "tags": [
+    {"tagFQN": "Tier.Gold"},
+    {"tagFQN": "Compliance.PCI-DSS"}
+  ]
 }
+
+Response: APIEndpoint
 ```
 
-### Get API Endpoint
+---
+
+### Get API Endpoint by Name
 
 ```http
-GET /api/v1/apiEndpoints/name/production_api_gateway.payments_api.createPayment?fields=requestSchema,responseSchemas,owner,tags
+GET /v1/apiEndpoints/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (requestSchema, responseSchemas, owners, followers, tags, extension)
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: APIEndpoint
 ```
 
-### Update API Endpoint
+**Example Request**:
 
 ```http
-PATCH /api/v1/apiEndpoints/{id}
+GET /v1/apiEndpoints/name/production_api_gateway.payments_api.createPayment?fields=requestSchema,responseSchemas,owner,tags
+```
+
+---
+
+### Get API Endpoint by ID
+
+```http
+GET /v1/apiEndpoints/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: APIEndpoint
+```
+
+---
+
+### Update API Endpoint (Partial)
+
+```http
+PATCH /v1/apiEndpoints/{id}
 Content-Type: application/json-patch+json
 
 [
@@ -1404,27 +1532,170 @@ Content-Type: application/json-patch+json
   {
     "op": "replace",
     "path": "/description",
-    "value": "Updated endpoint description"
+    "value": "Updated endpoint description with new details"
+  },
+  {
+    "op": "replace",
+    "path": "/authentication/scopes",
+    "value": ["payments.write", "payments.refund"]
   }
 ]
+
+Response: APIEndpoint
 ```
 
-### Update Request Schema
+---
+
+### Create or Update API Endpoint
 
 ```http
-PUT /api/v1/apiEndpoints/{id}/requestSchema
+PUT /v1/apiEndpoints
 Content-Type: application/json
 
 {
-  "schemaType": "JSON",
-  "contentType": "application/json",
-  "schemaDefinition": {
-    "type": "object",
-    "properties": {
-      "amount": {"type": "number"}
-    }
+  "name": "getPayment",
+  "apiCollection": "production_api_gateway.payments_api",
+  "endpointURL": "/api/v2/payments/{id}",
+  "httpMethod": "GET",
+  "requestSchema": {
+    "schemaType": "JSON",
+    "contentType": "application/json",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {"type": "string", "format": "uuid"}
+      }
+    ]
   }
 }
+
+Response: APIEndpoint
+```
+
+---
+
+### Delete API Endpoint
+
+```http
+DELETE /v1/apiEndpoints/{id}
+Query Parameters:
+  - hardDelete: true | false (default: false - soft delete)
+  - recursive: true | false (default: false)
+
+Response: APIEndpoint
+```
+
+---
+
+### Delete API Endpoint (Async)
+
+```http
+DELETE /v1/apiEndpoints/async/{id}
+Query Parameters:
+  - hardDelete: true | false (default: false)
+  - recursive: true | false (default: false)
+
+Response: Async deletion job details
+```
+
+---
+
+### Get Followers
+
+```http
+GET /v1/apiEndpoints/{id}/followers
+
+Response: List of followers (users following this endpoint)
+```
+
+---
+
+### Add Follower
+
+```http
+PUT /v1/apiEndpoints/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+---
+
+### Get API Endpoint Version
+
+```http
+GET /v1/apiEndpoints/{id}/versions/{version}
+
+Response: APIEndpoint (specific version)
+```
+
+---
+
+### Get API Endpoint Versions
+
+```http
+GET /v1/apiEndpoints/{id}/versions
+
+Response: EntityHistory (all versions)
+```
+
+---
+
+### Restore API Endpoint
+
+```http
+PUT /v1/apiEndpoints/restore
+Content-Type: application/json
+
+{
+  "id": "endpoint-uuid"
+}
+
+Response: APIEndpoint (restored)
+```
+
+---
+
+### Vote on API Endpoint
+
+```http
+PUT /v1/apiEndpoints/{id}/vote
+Content-Type: application/json
+
+{
+  "vote": "upvote"
+}
+
+Response: ChangeEvent
+```
+
+---
+
+### Bulk Create or Update API Endpoints
+
+```http
+PUT /v1/apiEndpoints/bulk
+Content-Type: application/json
+
+{
+  "entities": [
+    {
+      "name": "getCustomer",
+      "apiCollection": "production_api_gateway.customers_api",
+      "endpointURL": "/api/v2/customers/{id}",
+      "httpMethod": "GET"
+    },
+    {
+      "name": "listCustomers",
+      "apiCollection": "production_api_gateway.customers_api",
+      "endpointURL": "/api/v2/customers",
+      "httpMethod": "GET"
+    }
+  ]
+}
+
+Response: BulkOperationResult
 ```
 
 ---

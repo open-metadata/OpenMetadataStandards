@@ -1324,49 +1324,149 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Create Table
+All Table operations are available under the `/v1/tables` endpoint.
+
+### List Tables
+
+Get a list of tables, optionally filtered by database or schema.
 
 ```http
-POST /api/v1/tables
+GET /v1/tables
+Query Parameters:
+  - fields: Fields to include (columns, tags, owners, profile, joins, etc.)
+  - database: Filter by database FQN (e.g., snowflakeWestCoast.financeDB)
+  - databaseSchema: Filter by schema FQN
+  - includeEmptyTestSuite: Include tables without test cases (default: true)
+  - limit: Number of results (1-1000000, default 10)
+  - before/after: Cursor-based pagination
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: TableList
+```
+
+### Create Table
+
+Create a new table under a database schema.
+
+```http
+POST /v1/tables
 Content-Type: application/json
 
 {
   "name": "customers",
   "databaseSchema": "postgres_prod.ecommerce.public",
+  "description": "Customer master table",
   "columns": [
     {
       "name": "customer_id",
-      "dataType": "BIGINT"
+      "dataType": "BIGINT",
+      "description": "Unique customer identifier",
+      "constraint": "PRIMARY_KEY"
+    },
+    {
+      "name": "email",
+      "dataType": "VARCHAR",
+      "dataLength": 255,
+      "tags": [{"tagFQN": "PII.Email"}]
+    },
+    {
+      "name": "created_at",
+      "dataType": "TIMESTAMP"
+    }
+  ],
+  "tableConstraints": [
+    {
+      "constraintType": "PRIMARY_KEY",
+      "columns": ["customer_id"]
     }
   ]
 }
+
+Response: Table
 ```
 
-### Get Table
+### Get Table by Name
+
+Get a table by its fully qualified name.
 
 ```http
-GET /api/v1/tables/name/postgres_prod.ecommerce.public.customers?fields=columns,tags,owner,profile
+GET /v1/tables/name/{fqn}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Example:
+GET /v1/tables/name/postgres_prod.ecommerce.public.customers?fields=columns,tags,owner,profile,joins
+
+Response: Table
+```
+
+### Get Table by ID
+
+Get a table by its unique identifier.
+
+```http
+GET /v1/tables/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Response: Table
 ```
 
 ### Update Table
 
+Update a table using JSON Patch.
+
 ```http
-PATCH /api/v1/tables/{id}
+PATCH /v1/tables/name/{fqn}
 Content-Type: application/json-patch+json
 
 [
-  {
-    "op": "add",
-    "path": "/tags/-",
-    "value": {"tagFQN": "Tier.Gold"}
-  }
+  {"op": "add", "path": "/tags/-", "value": {"tagFQN": "Tier.Gold"}},
+  {"op": "replace", "path": "/description", "value": "Updated customer master table"},
+  {"op": "add", "path": "/owner", "value": {"id": "...", "type": "team"}}
 ]
+
+Response: Table
 ```
 
-### Add Column
+### Create or Update Table
+
+Create a new table or update if it exists.
 
 ```http
-PUT /api/v1/tables/{id}/columns
+PUT /v1/tables
+Content-Type: application/json
+
+{
+  "name": "orders",
+  "databaseSchema": "postgres_prod.ecommerce.public",
+  "columns": [...]
+}
+
+Response: Table
+```
+
+### Delete Table
+
+Delete a table by fully qualified name.
+
+```http
+DELETE /v1/tables/name/{fqn}
+Query Parameters:
+  - recursive: Delete with constraints (default: false)
+  - hardDelete: Permanently delete (default: false)
+
+Response: 200 OK
+```
+
+### Update Columns
+
+Update table column definitions.
+
+```http
+PUT /v1/tables/{id}/columns
 Content-Type: application/json
 
 {
@@ -1374,10 +1474,116 @@ Content-Type: application/json
     {
       "name": "loyalty_tier",
       "dataType": "VARCHAR",
-      "dataLength": 50
+      "dataLength": 50,
+      "description": "Customer loyalty tier",
+      "tags": [{"tagFQN": "BusinessCritical"}]
     }
   ]
 }
+
+Response: Table
+```
+
+### Get Table Profile
+
+Get the latest data profile for a table.
+
+```http
+GET /v1/tables/{fqn}/tableProfile/latest
+
+Response: TableProfile (row count, column stats, etc.)
+```
+
+### Get Table Sample Data
+
+Get sample data from a table.
+
+```http
+GET /v1/tables/{id}/sampleData
+
+Response: TableData (sample rows)
+```
+
+### Add Custom Metric
+
+Add a custom metric to track for this table.
+
+```http
+PUT /v1/tables/{id}/customMetric
+Content-Type: application/json
+
+{
+  "name": "revenue_per_customer",
+  "expression": "SUM(order_amount) / COUNT(DISTINCT customer_id)",
+  "columnName": "order_amount"
+}
+
+Response: CustomMetric
+```
+
+### Get Table Joins
+
+Get join information (tables joined with this table).
+
+```http
+GET /v1/tables/{id}/joins
+
+Response: JoinInfo[] (frequently joined tables)
+```
+
+### Get Table Versions
+
+Get all versions of a table.
+
+```http
+GET /v1/tables/{id}/versions
+
+Response: EntityHistory
+```
+
+### Follow Table
+
+Add a follower to a table.
+
+```http
+PUT /v1/tables/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+### Get Followers
+
+Get all followers of a table.
+
+```http
+GET /v1/tables/{id}/followers
+
+Response: EntityReference[]
+```
+
+### Export Table Metadata
+
+Export table metadata including schema and lineage.
+
+```http
+GET /v1/tables/name/{name}/export
+
+Response: CSV file with table metadata
+```
+
+### Bulk Operations
+
+Create or update multiple tables.
+
+```http
+PUT /v1/tables/bulk
+Content-Type: application/json
+
+{
+  "entities": [...]
+}
+
+Response: BulkOperationResult
 ```
 
 ---

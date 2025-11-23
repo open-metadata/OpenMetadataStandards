@@ -748,44 +748,167 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Create Database
+All Database operations are available under the `/v1/databases` endpoint.
+
+### List Databases
+
+Get a list of databases, optionally filtered by service.
 
 ```http
-POST /api/v1/databases
+GET /v1/databases
+Query Parameters:
+  - fields: Fields to include (databaseSchemas, owner, tags, domain, etc.)
+  - service: Filter by database service name
+  - limit: Number of results (1-1000000, default 10)
+  - before/after: Cursor-based pagination
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: DatabaseList
+```
+
+### Create Database
+
+Create a new database under a database service.
+
+```http
+POST /v1/databases
 Content-Type: application/json
 
 {
   "name": "ecommerce",
   "service": "postgres_prod",
-  "description": "E-commerce database"
+  "description": "E-commerce production database",
+  "owner": {
+    "id": "...",
+    "type": "team"
+  },
+  "tags": [
+    {"tagFQN": "Environment.Production"}
+  ]
 }
+
+Response: Database
 ```
 
-### Get Database
+### Get Database by Name
+
+Get a database by its fully qualified name.
 
 ```http
-GET /api/v1/databases/name/postgres_prod.ecommerce?fields=databaseSchemas,owner,tags,domain
+GET /v1/databases/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (databaseSchemas, owner, tags, domain, etc.)
+  - include: all | deleted | non-deleted
+
+Example:
+GET /v1/databases/name/postgres_prod.ecommerce?fields=databaseSchemas,owner,tags,domain
+
+Response: Database
+```
+
+### Get Database by ID
+
+Get a database by its unique identifier.
+
+```http
+GET /v1/databases/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Response: Database
 ```
 
 ### Update Database
 
+Update a database using JSON Patch.
+
 ```http
-PATCH /api/v1/databases/{id}
+PATCH /v1/databases/name/{fqn}
 Content-Type: application/json-patch+json
 
 [
-  {
-    "op": "add",
-    "path": "/tags/-",
-    "value": {"tagFQN": "Environment.Production"}
-  }
+  {"op": "add", "path": "/tags/-", "value": {"tagFQN": "Tier.Gold"}},
+  {"op": "replace", "path": "/description", "value": "Updated description"},
+  {"op": "add", "path": "/owner", "value": {"id": "...", "type": "team"}}
 ]
+
+Response: Database
 ```
 
-### List Databases in Service
+### Create or Update Database
+
+Create a new database or update if it exists.
 
 ```http
-GET /api/v1/databases?service=postgres_prod
+PUT /v1/databases
+Content-Type: application/json
+
+{
+  "name": "analytics",
+  "service": "snowflake_prod",
+  "description": "Analytics database"
+}
+
+Response: Database
+```
+
+### Delete Database
+
+Delete a database by fully qualified name.
+
+```http
+DELETE /v1/databases/name/{fqn}
+Query Parameters:
+  - recursive: Delete schemas and tables recursively (default: false)
+  - hardDelete: Permanently delete (default: false)
+
+Response: 200 OK
+```
+
+### Get Database Versions
+
+Get all versions of a database.
+
+```http
+GET /v1/databases/{id}/versions
+
+Response: EntityHistory
+```
+
+### Follow Database
+
+Add a follower to a database.
+
+```http
+PUT /v1/databases/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+### Get Followers
+
+Get all followers of a database.
+
+```http
+GET /v1/databases/{id}/followers
+
+Response: EntityReference[]
+```
+
+### Bulk Operations
+
+Create or update multiple databases.
+
+```http
+PUT /v1/databases/bulk
+Content-Type: application/json
+
+{
+  "entities": [...]
+}
+
+Response: BulkOperationResult
 ```
 
 ---

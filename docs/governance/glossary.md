@@ -788,39 +788,117 @@ for details on defining and using custom properties.
 
 ## API Operations
 
+### List Glossaries
+
+```http
+GET /v1/glossaries
+Query Parameters:
+  - fields: Fields to include (owners, tags, reviewers, usageCount, termCount, domains, extension)
+  - limit: Number of results (1-1000000, default 10)
+  - before: Cursor for previous page
+  - after: Cursor for next page
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: GlossaryList
+```
+
+**Example Request**:
+
+```http
+GET /v1/glossaries?fields=owners,termCount,reviewers&limit=20
+```
+
+---
+
 ### Create Glossary
 
 ```http
-POST /api/v1/glossaries
+POST /v1/glossaries
 Content-Type: application/json
 
 {
   "name": "BusinessGlossary",
   "displayName": "Business Glossary",
-  "description": "Standard business terminology",
+  "description": "# Business Glossary\n\nStandard business terminology and definitions for enterprise-wide consistency.",
   "owner": {
-    "type": "team",
-    "id": "team-uuid"
+    "id": "team-uuid",
+    "type": "team"
   },
   "reviewers": [
     {
-      "type": "user",
-      "id": "user-uuid"
+      "id": "user-uuid-1",
+      "type": "user"
+    },
+    {
+      "id": "user-uuid-2",
+      "type": "user"
     }
-  ]
+  ],
+  "tags": [
+    {"tagFQN": "Governance.Approved"},
+    {"tagFQN": "BusinessCritical"}
+  ],
+  "domain": {
+    "id": "domain-uuid",
+    "type": "domain"
+  },
+  "mutuallyExclusive": false
 }
+
+Response: Glossary
 ```
 
-### Get Glossary
+---
+
+### Get Glossary by Name
 
 ```http
-GET /api/v1/glossaries/name/BusinessGlossary?fields=terms,owner,reviewers
+GET /v1/glossaries/name/{name}
+Query Parameters:
+  - fields: Fields to include (owners, tags, reviewers, usageCount, termCount, domains)
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: Glossary
 ```
 
-### Update Glossary
+**Example Request**:
 
 ```http
-PATCH /api/v1/glossaries/{id}
+GET /v1/glossaries/name/BusinessGlossary?fields=owners,termCount,reviewers
+```
+
+---
+
+### Get Glossary by FQN
+
+```http
+GET /v1/glossaries/name/{fqn}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: Glossary
+```
+
+---
+
+### Get Glossary by ID
+
+```http
+GET /v1/glossaries/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: Glossary
+```
+
+---
+
+### Update Glossary (Partial)
+
+```http
+PATCH /v1/glossaries/{id}
 Content-Type: application/json-patch+json
 
 [
@@ -828,17 +906,178 @@ Content-Type: application/json-patch+json
     "op": "add",
     "path": "/reviewers/-",
     "value": {
-      "type": "user",
-      "id": "new-reviewer-uuid"
+      "id": "new-reviewer-uuid",
+      "type": "user"
     }
+  },
+  {
+    "op": "replace",
+    "path": "/description",
+    "value": "Updated glossary description"
+  },
+  {
+    "op": "add",
+    "path": "/tags/-",
+    "value": {"tagFQN": "Governance.Published"}
   }
 ]
+
+Response: Glossary
 ```
 
-### List Glossaries
+---
+
+### Create or Update Glossary
 
 ```http
-GET /api/v1/glossaries?fields=owner,termCount&limit=25
+PUT /v1/glossaries
+Content-Type: application/json
+
+{
+  "name": "BusinessGlossary",
+  "displayName": "Business Glossary",
+  "description": "Standard business terminology",
+  "owner": {
+    "id": "team-uuid",
+    "type": "team"
+  }
+}
+
+Response: Glossary
+```
+
+---
+
+### Delete Glossary
+
+```http
+DELETE /v1/glossaries/{id}
+Query Parameters:
+  - hardDelete: true | false (default: false - soft delete)
+  - recursive: true | false (default: false)
+
+Response: Glossary
+```
+
+---
+
+### Delete Glossary (Async)
+
+```http
+DELETE /v1/glossaries/async/{id}
+Query Parameters:
+  - hardDelete: true | false (default: false)
+  - recursive: true | false (default: false)
+
+Response: Async deletion job details
+```
+
+---
+
+### Export Glossary
+
+```http
+GET /v1/glossaries/name/{name}/export
+
+Response: CSV file with glossary terms
+```
+
+---
+
+### Export Glossary (Async)
+
+```http
+GET /v1/glossaries/name/{name}/exportAsync
+
+Response: Async export job details
+```
+
+---
+
+### Get CSV Documentation
+
+```http
+GET /v1/glossaries/documentation/csv
+
+Response: CSV template documentation
+```
+
+---
+
+### Import Glossary
+
+```http
+PUT /v1/glossaries/name/{name}/import
+Content-Type: multipart/form-data
+
+file: [CSV file with glossary terms]
+dryRun: false
+
+Response: Import result
+```
+
+---
+
+### Import Glossary (Async)
+
+```http
+PUT /v1/glossaries/name/{name}/importAsync
+Content-Type: multipart/form-data
+
+file: [CSV file with glossary terms]
+dryRun: false
+
+Response: Async import job details
+```
+
+---
+
+### Get Glossary Version
+
+```http
+GET /v1/glossaries/{id}/versions/{version}
+
+Response: Glossary (specific version)
+```
+
+---
+
+### Get Glossary Versions
+
+```http
+GET /v1/glossaries/{id}/versions
+
+Response: EntityHistory (all versions)
+```
+
+---
+
+### Restore Glossary
+
+```http
+PUT /v1/glossaries/restore
+Content-Type: application/json
+
+{
+  "id": "glossary-uuid"
+}
+
+Response: Glossary (restored)
+```
+
+---
+
+### Vote on Glossary
+
+```http
+PUT /v1/glossaries/{id}/vote
+Content-Type: application/json
+
+{
+  "vote": "upvote"
+}
+
+Response: ChangeEvent
 ```
 
 ---

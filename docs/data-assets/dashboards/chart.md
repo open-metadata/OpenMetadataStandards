@@ -1014,62 +1014,205 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Create Chart
+All Chart operations are available under the `/v1/charts` endpoint.
+
+### List Charts
+
+Get a list of charts, optionally filtered by service or dashboard.
 
 ```http
-POST /api/v1/charts
+GET /v1/charts
+Query Parameters:
+  - fields: Fields to include (tables, tags, owner, dashboard, dataModels, etc.)
+  - service: Filter by dashboard service name
+  - limit: Number of results (1-1000000, default 10)
+  - before/after: Cursor-based pagination
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: ChartList
+```
+
+### Create Chart
+
+Create a new chart under a dashboard service.
+
+```http
+POST /v1/charts
 Content-Type: application/json
 
 {
-  "name": "monthly_sales",
+  "name": "monthly_sales_trend",
   "service": "tableau_prod",
-  "dashboard": "tableau_prod.sales_overview",
+  "displayName": "Monthly Sales Trend",
+  "description": "Line chart showing monthly sales trends",
   "chartType": "Line",
-  "chartUrl": "https://tableau.example.com/views/sales_overview/monthly_sales"
+  "chartUrl": "https://tableau.example.com/views/sales/monthly_sales",
+  "tables": [
+    {
+      "id": "sales-table-uuid",
+      "type": "table"
+    }
+  ],
+  "tags": [
+    {"tagFQN": "Metric.Revenue"}
+  ]
 }
+
+Response: Chart
 ```
 
-### Get Chart
+### Get Chart by Name
+
+Get a chart by its fully qualified name.
 
 ```http
-GET /api/v1/charts/name/tableau_prod.sales_overview.monthly_sales?fields=tables,tags,owner
+GET /v1/charts/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (tables, tags, owner, dashboard, etc.)
+  - include: all | deleted | non-deleted
+
+Example:
+GET /v1/charts/name/tableau_prod.sales_overview.monthly_sales?fields=tables,tags,owner
+
+Response: Chart
+```
+
+### Get Chart by ID
+
+Get a chart by its unique identifier.
+
+```http
+GET /v1/charts/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Response: Chart
 ```
 
 ### Update Chart
 
+Update a chart using JSON Patch.
+
 ```http
-PATCH /api/v1/charts/{id}
+PATCH /v1/charts/name/{fqn}
 Content-Type: application/json-patch+json
 
 [
-  {
-    "op": "add",
-    "path": "/tags/-",
-    "value": {"tagFQN": "Metric.Revenue"}
-  }
+  {"op": "add", "path": "/tags/-", "value": {"tagFQN": "BusinessCritical"}},
+  {"op": "replace", "path": "/description", "value": "Updated chart description"},
+  {"op": "replace", "path": "/chartType", "value": "Bar"}
 ]
+
+Response: Chart
 ```
 
-### Add Data Sources to Chart
+### Create or Update Chart
+
+Create a new chart or update if it exists.
 
 ```http
-PUT /api/v1/charts/{id}/tables
+PUT /v1/charts
+Content-Type: application/json
+
+{
+  "name": "revenue_by_region",
+  "service": "powerbi_prod",
+  "chartType": "Bar",
+  "tables": [...]
+}
+
+Response: Chart
+```
+
+### Delete Chart
+
+Delete a chart by fully qualified name.
+
+```http
+DELETE /v1/charts/name/{fqn}
+Query Parameters:
+  - hardDelete: Permanently delete (default: false)
+
+Response: 200 OK
+```
+
+### Update Chart Data Sources
+
+Update the tables/data sources used by this chart.
+
+```http
+PUT /v1/charts/{id}/tables
 Content-Type: application/json
 
 {
   "tables": [
-    {
-      "id": "table-uuid",
-      "type": "table"
-    }
+    {"id": "table-uuid-1", "type": "table"},
+    {"id": "table-uuid-2", "type": "table"}
   ]
 }
+
+Response: Chart
 ```
 
-### Get Chart Lineage
+### Get Chart Versions
+
+Get all versions of a chart.
 
 ```http
-GET /api/v1/charts/{id}/lineage?upstreamDepth=3&downstreamDepth=1
+GET /v1/charts/{id}/versions
+
+Response: EntityHistory
+```
+
+### Follow Chart
+
+Add a follower to a chart.
+
+```http
+PUT /v1/charts/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+### Get Followers
+
+Get all followers of a chart.
+
+```http
+GET /v1/charts/{id}/followers
+
+Response: EntityReference[]
+```
+
+### Vote on Chart
+
+Upvote or downvote a chart.
+
+```http
+PUT /v1/charts/{id}/vote
+Content-Type: application/json
+
+{
+  "vote": "upvote"
+}
+
+Response: ChangeEvent
+```
+
+### Bulk Operations
+
+Create or update multiple charts.
+
+```http
+PUT /v1/charts/bulk
+Content-Type: application/json
+
+{
+  "entities": [...]
+}
+
+Response: BulkOperationResult
 ```
 
 ---

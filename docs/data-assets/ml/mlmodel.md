@@ -1421,82 +1421,225 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Create ML Model
+All ML Model operations are available under the `/v1/mlmodels` endpoint.
+
+### List ML Models
+
+Get a list of ML models, optionally filtered by service.
 
 ```http
-POST /api/v1/mlmodels
+GET /v1/mlmodels
+Query Parameters:
+  - fields: Fields to include (mlFeatures, mlHyperParameters, owner, tags, etc.)
+  - service: Filter by ML model service name
+  - limit: Number of results (1-1000000, default 10)
+  - before/after: Cursor-based pagination
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: MlModelList
+```
+
+### Create ML Model
+
+Create a new ML model under an ML model service.
+
+```http
+POST /v1/mlmodels
 Content-Type: application/json
 
 {
   "name": "customer_churn_predictor",
   "service": "mlflow_prod",
+  "displayName": "Customer Churn Predictor",
+  "description": "XGBoost model for predicting customer churn",
   "algorithm": "XGBoost",
   "mlFeatures": [
     {
       "name": "recency",
-      "dataType": "integer"
+      "dataType": "integer",
+      "description": "Days since last purchase",
+      "featureSources": [
+        {"name": "customer_activity", "dataType": "integer"}
+      ]
+    },
+    {
+      "name": "frequency",
+      "dataType": "integer",
+      "description": "Purchase frequency"
+    },
+    {
+      "name": "monetary",
+      "dataType": "numerical",
+      "description": "Total spend"
     }
-  ]
+  ],
+  "mlHyperParameters": [
+    {"name": "max_depth", "value": "6"},
+    {"name": "learning_rate", "value": "0.1"},
+    {"name": "n_estimators", "value": "100"}
+  ],
+  "target": "churned",
+  "dashboard": {"id": "dashboard-uuid", "type": "dashboard"}
 }
+
+Response: MlModel
 ```
 
-### Get ML Model
+### Get ML Model by Name
+
+Get an ML model by its fully qualified name.
 
 ```http
-GET /api/v1/mlmodels/name/mlflow_prod.customer_churn_predictor?fields=mlFeatures,mlHyperParameters,owner,tags
+GET /v1/mlmodels/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (mlFeatures, mlHyperParameters, owner, tags, etc.)
+  - include: all | deleted | non-deleted
+
+Example:
+GET /v1/mlmodels/name/mlflow_prod.customer_churn_predictor?fields=mlFeatures,mlHyperParameters,owner,tags
+
+Response: MlModel
+```
+
+### Get ML Model by ID
+
+Get an ML model by its unique identifier.
+
+```http
+GET /v1/mlmodels/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Response: MlModel
 ```
 
 ### Update ML Model
 
+Update an ML model using JSON Patch.
+
 ```http
-PATCH /api/v1/mlmodels/{id}
+PATCH /v1/mlmodels/name/{fqn}
 Content-Type: application/json-patch+json
 
 [
-  {
-    "op": "add",
-    "path": "/tags/-",
-    "value": {"tagFQN": "Tier.Production"}
-  }
+  {"op": "add", "path": "/tags/-", "value": {"tagFQN": "Tier.Production"}},
+  {"op": "replace", "path": "/algorithm", "value": "LightGBM"},
+  {"op": "add", "path": "/mlHyperParameters/-", "value": {"name": "num_leaves", "value": "31"}}
 ]
+
+Response: MlModel
 ```
 
-### Add Feature
+### Create or Update ML Model
+
+Create a new ML model or update if it exists.
 
 ```http
-PUT /api/v1/mlmodels/{id}/features
+PUT /v1/mlmodels
+Content-Type: application/json
+
+{
+  "name": "fraud_detector",
+  "service": "sagemaker_prod",
+  "algorithm": "RandomForest",
+  "mlFeatures": [...]
+}
+
+Response: MlModel
+```
+
+### Delete ML Model
+
+Delete an ML model by fully qualified name.
+
+```http
+DELETE /v1/mlmodels/name/{fqn}
+Query Parameters:
+  - hardDelete: Permanently delete (default: false)
+
+Response: 200 OK
+```
+
+### Update ML Features
+
+Update the features used by the ML model.
+
+```http
+PUT /v1/mlmodels/{id}/features
 Content-Type: application/json
 
 {
   "mlFeatures": [
     {
       "name": "customer_lifetime_value",
-      "dataType": "float",
+      "dataType": "numerical",
       "description": "Predicted customer lifetime value"
     }
   ]
 }
+
+Response: MlModel
 ```
 
-### Add Lineage
+### Get ML Model Versions
+
+Get all versions of an ML model.
 
 ```http
-PUT /api/v1/lineage
+GET /v1/mlmodels/{id}/versions
+
+Response: EntityHistory
+```
+
+### Follow ML Model
+
+Add a follower to an ML model.
+
+```http
+PUT /v1/mlmodels/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+### Get Followers
+
+Get all followers of an ML model.
+
+```http
+GET /v1/mlmodels/{id}/followers
+
+Response: EntityReference[]
+```
+
+### Vote on ML Model
+
+Upvote or downvote an ML model.
+
+```http
+PUT /v1/mlmodels/{id}/vote
 Content-Type: application/json
 
 {
-  "edge": {
-    "fromEntity": {
-      "id": "table-uuid",
-      "type": "table"
-    },
-    "toEntity": {
-      "id": "model-uuid",
-      "type": "mlmodel"
-    },
-    "lineageDetails": {
-      "source": "Manual",
-      "description": "Training data for model"
+  "vote": "upvote"
+}
+
+Response: ChangeEvent
+```
+
+### Bulk Operations
+
+Create or update multiple ML models.
+
+```http
+PUT /v1/mlmodels/bulk
+Content-Type: application/json
+
+{
+  "entities": [...]
+}
+
+Response: BulkOperationResult
     }
   }
 }

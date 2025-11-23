@@ -307,17 +307,173 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### List Directory Contents
+All Directory operations are available under the `/v1/drives/directories` endpoint.
+
+### List Directories
+
+Get a list of directories, optionally filtered by service or parent directory.
 
 ```http
-GET /api/v1/directories/{id}/files
-GET /api/v1/directories/{id}/spreadsheets
+GET /v1/drives/directories
+Query Parameters:
+  - fields: Fields to include (owners, children, parent, tags, etc.)
+  - service: Filter by drive service name (e.g., googleDrive)
+  - parent: Filter by parent directory FQN
+  - root: Include only root directories (boolean)
+  - limit: Number of results (1-1000000, default 10)
+  - before/after: Cursor-based pagination
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: DirectoryList
 ```
 
-### Get Directory Metadata
+### Create Directory
+
+Create a new directory under a drive service or parent directory.
 
 ```http
-GET /api/v1/directories/name/{fqn}?fields=files,spreadsheets,owner
+POST /v1/drives/directories
+Content-Type: application/json
+
+{
+  "name": "Marketing",
+  "driveService": "google_drive_workspace",
+  "parent": "google_drive_workspace.Shared",
+  "description": "Marketing team folder"
+}
+
+Response: Directory
+```
+
+### Get Directory by Name
+
+Get a directory by its fully qualified name.
+
+```http
+GET /v1/drives/directories/name/{fqn}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Example:
+GET /v1/drives/directories/name/googleDrive.Marketing.Campaigns?fields=files,spreadsheets,owner
+
+Response: Directory
+```
+
+### Get Directory by ID
+
+Get a directory by its unique identifier.
+
+```http
+GET /v1/drives/directories/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Response: Directory
+```
+
+### Update Directory
+
+Update a directory using JSON Patch.
+
+```http
+PATCH /v1/drives/directories/name/{fqn}
+Content-Type: application/json-patch+json
+
+[
+  {"op": "add", "path": "/tags", "value": [{"tagFQN": "Tier.Gold"}]},
+  {"op": "replace", "path": "/description", "value": "Updated description"}
+]
+
+Response: Directory
+```
+
+### Create or Update Directory
+
+Create a new directory or update if it exists.
+
+```http
+PUT /v1/drives/directories
+Content-Type: application/json
+
+{
+  "name": "Analytics",
+  "driveService": "google_drive_workspace",
+  "description": "Analytics team folder",
+  "owner": "data-team"
+}
+
+Response: Directory
+```
+
+### Delete Directory
+
+Delete a directory by fully qualified name.
+
+```http
+DELETE /v1/drives/directories/name/{fqn}
+Query Parameters:
+  - recursive: Delete children recursively (default: false)
+  - hardDelete: Permanently delete (default: false)
+
+Response: 200 OK
+```
+
+### Get Directory Versions
+
+Get all versions of a directory.
+
+```http
+GET /v1/drives/directories/{id}/versions
+
+Response: EntityHistory
+```
+
+### Get Specific Version
+
+Get a specific version of a directory.
+
+```http
+GET /v1/drives/directories/{id}/versions/{version}
+
+Response: Directory
+```
+
+### Follow Directory
+
+Add a follower to a directory.
+
+```http
+PUT /v1/drives/directories/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+### Get Followers
+
+Get all followers of a directory.
+
+```http
+GET /v1/drives/directories/{id}/followers
+
+Response: EntityReference[]
+```
+
+### Bulk Operations
+
+Create or update multiple directories.
+
+```http
+PUT /v1/drives/directories/bulk
+Content-Type: application/json
+
+{
+  "entities": [...]
+}
+
+Response: BulkOperationResult
 ```
 
 ---

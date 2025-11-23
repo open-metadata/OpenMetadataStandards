@@ -1509,45 +1509,143 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Create Container
+All Container operations are available under the `/v1/containers` endpoint.
+
+### List Containers
+
+Get a list of containers, optionally filtered by service.
 
 ```http
-POST /api/v1/containers
+GET /v1/containers
+Query Parameters:
+  - fields: Fields to include (dataModel, owner, tags, fileFormats, etc.)
+  - service: Filter by storage service name
+  - limit: Number of results (1-1000000, default 10)
+  - before/after: Cursor-based pagination
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: ContainerList
+```
+
+### Create Container
+
+Create a new container (bucket) under a storage service.
+
+```http
+POST /v1/containers
 Content-Type: application/json
 
 {
-  "name": "raw-data",
-  "service": "s3_prod",
-  "fileFormats": ["parquet"],
-  "prefix": "data/raw/"
+  "name": "raw-events",
+  "service": "s3_datalake",
+  "description": "Raw event data storage",
+  "prefix": "data/raw/events/",
+  "fileFormats": ["parquet", "json"],
+  "numberOfObjects": 150000,
+  "size": 524288000,
+  "dataModel": {
+    "isPartitioned": true,
+    "columns": [
+      {
+        "name": "event_timestamp",
+        "dataType": "TIMESTAMP",
+        "description": "Event occurrence time"
+      },
+      {
+        "name": "user_id",
+        "dataType": "BIGINT",
+        "tags": [{"tagFQN": "PII.UserId"}]
+      }
+    ]
+  }
 }
+
+Response: Container
 ```
 
-### Get Container
+### Get Container by Name
+
+Get a container by its fully qualified name.
 
 ```http
-GET /api/v1/containers/name/s3_prod.raw-data?fields=dataModel,owner,tags,fileFormats
+GET /v1/containers/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (dataModel, owner, tags, fileFormats, etc.)
+  - include: all | deleted | non-deleted
+
+Example:
+GET /v1/containers/name/s3_datalake.raw-events?fields=dataModel,owner,tags,numberOfObjects
+
+Response: Container
+```
+
+### Get Container by ID
+
+Get a container by its unique identifier.
+
+```http
+GET /v1/containers/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Response: Container
 ```
 
 ### Update Container
 
+Update a container using JSON Patch.
+
 ```http
-PATCH /api/v1/containers/{id}
+PATCH /v1/containers/name/{fqn}
 Content-Type: application/json-patch+json
 
 [
-  {
-    "op": "add",
-    "path": "/tags/-",
-    "value": {"tagFQN": "Tier.Gold"}
-  }
+  {"op": "add", "path": "/tags/-", "value": {"tagFQN": "Tier.Gold"}},
+  {"op": "replace", "path": "/description", "value": "Updated container description"},
+  {"op": "replace", "path": "/numberOfObjects", "value": 200000}
 ]
+
+Response: Container
 ```
 
-### Update Schema
+### Create or Update Container
+
+Create a new container or update if it exists.
 
 ```http
-PUT /api/v1/containers/{id}/dataModel
+PUT /v1/containers
+Content-Type: application/json
+
+{
+  "name": "curated-data",
+  "service": "gcs_analytics",
+  "fileFormats": ["parquet"],
+  "dataModel": {...}
+}
+
+Response: Container
+```
+
+### Delete Container
+
+Delete a container by fully qualified name.
+
+```http
+DELETE /v1/containers/name/{fqn}
+Query Parameters:
+  - recursive: Delete children recursively (default: false)
+  - hardDelete: Permanently delete (default: false)
+
+Response: 200 OK
+```
+
+### Update Container Data Model
+
+Update the schema/data model for files in the container.
+
+```http
+PUT /v1/containers/{id}/dataModel
 Content-Type: application/json
 
 {
@@ -1555,18 +1653,66 @@ Content-Type: application/json
     "isPartitioned": true,
     "columns": [
       {
-        "name": "event_timestamp",
-        "dataType": "TIMESTAMP"
+        "name": "partition_date",
+        "dataType": "DATE",
+        "description": "Partition key"
+      },
+      {
+        "name": "event_type",
+        "dataType": "VARCHAR",
+        "dataLength": 100
       }
     ]
   }
 }
+
+Response: Container
 ```
 
-### List Containers by Service
+### Get Container Versions
+
+Get all versions of a container.
 
 ```http
-GET /api/v1/containers?service=s3_prod&fields=numberOfObjects,size,fileFormats
+GET /v1/containers/{id}/versions
+
+Response: EntityHistory
+```
+
+### Follow Container
+
+Add a follower to a container.
+
+```http
+PUT /v1/containers/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+### Get Followers
+
+Get all followers of a container.
+
+```http
+GET /v1/containers/{id}/followers
+
+Response: EntityReference[]
+```
+
+### Bulk Operations
+
+Create or update multiple containers.
+
+```http
+PUT /v1/containers/bulk
+Content-Type: application/json
+
+{
+  "entities": [...]
+}
+
+Response: BulkOperationResult
+```
 ```
 
 ---

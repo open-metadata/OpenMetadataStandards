@@ -1036,61 +1036,227 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Create Dashboard
+All Dashboard operations are available under the `/v1/dashboards` endpoint.
+
+### List Dashboards
+
+Get a list of dashboards, optionally filtered by service.
 
 ```http
-POST /api/v1/dashboards
+GET /v1/dashboards
+Query Parameters:
+  - fields: Fields to include (charts, tags, owner, usageSummary, dataModels, etc.)
+  - service: Filter by dashboard service name
+  - limit: Number of results (1-1000000, default 10)
+  - before/after: Cursor-based pagination
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: DashboardList
+```
+
+### Create Dashboard
+
+Create a new dashboard under a dashboard service.
+
+```http
+POST /v1/dashboards
 Content-Type: application/json
 
 {
   "name": "sales_overview",
   "service": "tableau_prod",
+  "displayName": "Sales Overview Dashboard",
+  "description": "Executive sales performance dashboard",
   "dashboardUrl": "https://tableau.example.com/views/sales_overview",
-  "description": "Executive sales dashboard"
+  "dashboardType": "Dashboard",
+  "charts": [
+    {
+      "id": "chart-1-uuid",
+      "type": "chart"
+    },
+    {
+      "id": "chart-2-uuid",
+      "type": "chart"
+    }
+  ],
+  "dataModels": [
+    {
+      "id": "model-uuid",
+      "type": "dashboardDataModel"
+    }
+  ],
+  "tags": [
+    {"tagFQN": "BusinessCritical"}
+  ]
 }
+
+Response: Dashboard
 ```
 
-### Get Dashboard
+### Get Dashboard by Name
+
+Get a dashboard by its fully qualified name.
 
 ```http
-GET /api/v1/dashboards/name/tableau_prod.sales_overview?fields=charts,tags,owner,usageSummary
+GET /v1/dashboards/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (charts, tags, owner, usageSummary, dataModels, etc.)
+  - include: all | deleted | non-deleted
+
+Example:
+GET /v1/dashboards/name/tableau_prod.sales_overview?fields=charts,tags,owner,usageSummary
+
+Response: Dashboard
+```
+
+### Get Dashboard by ID
+
+Get a dashboard by its unique identifier.
+
+```http
+GET /v1/dashboards/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Response: Dashboard
 ```
 
 ### Update Dashboard
 
+Update a dashboard using JSON Patch.
+
 ```http
-PATCH /api/v1/dashboards/{id}
+PATCH /v1/dashboards/name/{fqn}
 Content-Type: application/json-patch+json
 
 [
-  {
-    "op": "add",
-    "path": "/tags/-",
-    "value": {"tagFQN": "Tier.Gold"}
-  }
+  {"op": "add", "path": "/tags/-", "value": {"tagFQN": "Tier.Gold"}},
+  {"op": "replace", "path": "/description", "value": "Updated sales dashboard"},
+  {"op": "add", "path": "/owner", "value": {"id": "...", "type": "team"}}
 ]
+
+Response: Dashboard
 ```
 
-### Add Charts to Dashboard
+### Create or Update Dashboard
+
+Create a new dashboard or update if it exists.
 
 ```http
-PUT /api/v1/dashboards/{id}/charts
+PUT /v1/dashboards
+Content-Type: application/json
+
+{
+  "name": "revenue_analytics",
+  "service": "powerbi_prod",
+  "dashboardUrl": "...",
+  "charts": [...]
+}
+
+Response: Dashboard
+```
+
+### Delete Dashboard
+
+Delete a dashboard by fully qualified name.
+
+```http
+DELETE /v1/dashboards/name/{fqn}
+Query Parameters:
+  - hardDelete: Permanently delete (default: false)
+
+Response: 200 OK
+```
+
+### Update Dashboard Charts
+
+Update the charts associated with a dashboard.
+
+```http
+PUT /v1/dashboards/{id}/charts
 Content-Type: application/json
 
 {
   "charts": [
-    {
-      "id": "chart-uuid",
-      "type": "chart"
-    }
+    {"id": "chart-uuid-1", "type": "chart"},
+    {"id": "chart-uuid-2", "type": "chart"}
   ]
 }
+
+Response: Dashboard
 ```
 
 ### Get Dashboard Usage
 
+Get usage statistics for a dashboard.
+
 ```http
-GET /api/v1/dashboards/{id}/usage?days=30
+GET /v1/dashboards/{id}/usage
+Query Parameters:
+  - days: Number of days for usage data (default: 30)
+
+Response: UsageDetails (view count, users, etc.)
+```
+
+### Get Dashboard Versions
+
+Get all versions of a dashboard.
+
+```http
+GET /v1/dashboards/{id}/versions
+
+Response: EntityHistory
+```
+
+### Follow Dashboard
+
+Add a follower to a dashboard.
+
+```http
+PUT /v1/dashboards/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+### Get Followers
+
+Get all followers of a dashboard.
+
+```http
+GET /v1/dashboards/{id}/followers
+
+Response: EntityReference[]
+```
+
+### Vote on Dashboard
+
+Upvote or downvote a dashboard.
+
+```http
+PUT /v1/dashboards/{id}/vote
+Content-Type: application/json
+
+{
+  "vote": "upvote"
+}
+
+Response: ChangeEvent
+```
+
+### Bulk Operations
+
+Create or update multiple dashboards.
+
+```http
+PUT /v1/dashboards/bulk
+Content-Type: application/json
+
+{
+  "entities": [...]
+}
+
+Response: BulkOperationResult
 ```
 
 ---

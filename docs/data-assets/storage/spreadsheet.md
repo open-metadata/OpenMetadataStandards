@@ -442,22 +442,194 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Get Spreadsheet Metadata
+All Spreadsheet operations are available under the `/v1/drives/spreadsheets` endpoint.
+
+### List Spreadsheets
+
+Get a list of spreadsheets, optionally filtered by service or directory.
 
 ```http
-GET /api/v1/spreadsheets/{id}?fields=worksheets,owner,tags,lineage
+GET /v1/drives/spreadsheets
+Query Parameters:
+  - fields: Fields to include (worksheets, owners, directory, tags, etc.)
+  - service: Filter by drive service name
+  - directory: Filter by parent directory FQN
+  - spreadsheetType: Filter by type (GoogleSheets, Excel, LibreOfficeCalc, CSV)
+  - limit: Number of results (1-1000000, default 10)
+  - before/after: Cursor-based pagination
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: SpreadsheetList
 ```
 
-### List Worksheets
+### Create Spreadsheet
+
+Create a new spreadsheet in a drive service.
 
 ```http
-GET /api/v1/spreadsheets/{id}/worksheets
+POST /v1/drives/spreadsheets
+Content-Type: application/json
+
+{
+  "name": "Sales_Report_2024",
+  "spreadsheetType": "GoogleSheets",
+  "driveService": "google_drive_analytics",
+  "directory": "google_drive_analytics.Reports",
+  "description": "Monthly sales report",
+  "worksheets": [
+    {"name": "Summary", "sheetIndex": 0},
+    {"name": "Details", "sheetIndex": 1}
+  ]
+}
+
+Response: Spreadsheet
 ```
 
-### Get Lineage
+### Get Spreadsheet by Name
+
+Get a spreadsheet by its fully qualified name.
 
 ```http
-GET /api/v1/spreadsheets/{id}/lineage?depth=2
+GET /v1/drives/spreadsheets/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (worksheets, owner, tags, lineage, etc.)
+  - include: all | deleted | non-deleted
+
+Example:
+GET /v1/drives/spreadsheets/name/googleDrive.Reports.Sales_Report_2024?fields=worksheets,owner,lineage
+
+Response: Spreadsheet
+```
+
+### Get Spreadsheet by ID
+
+Get a spreadsheet by its unique identifier.
+
+```http
+GET /v1/drives/spreadsheets/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Response: Spreadsheet
+```
+
+### Update Spreadsheet
+
+Update a spreadsheet using JSON Patch.
+
+```http
+PATCH /v1/drives/spreadsheets/name/{fqn}
+Content-Type: application/json-patch+json
+
+[
+  {"op": "add", "path": "/tags", "value": [{"tagFQN": "Tier.Gold"}]},
+  {"op": "replace", "path": "/description", "value": "Updated Q4 2024 sales report"},
+  {"op": "add", "path": "/owner", "value": {"id": "...", "type": "team"}}
+]
+
+Response: Spreadsheet
+```
+
+### Create or Update Spreadsheet
+
+Create a new spreadsheet or update if it exists.
+
+```http
+PUT /v1/drives/spreadsheets
+Content-Type: application/json
+
+{
+  "name": "Budget_2024",
+  "spreadsheetType": "Excel",
+  "driveService": "onedrive_finance",
+  "worksheets": [...]
+}
+
+Response: Spreadsheet
+```
+
+### Delete Spreadsheet
+
+Delete a spreadsheet by fully qualified name.
+
+```http
+DELETE /v1/drives/spreadsheets/name/{fqn}
+Query Parameters:
+  - recursive: Delete worksheets recursively (default: false)
+  - hardDelete: Permanently delete (default: false)
+
+Response: 200 OK
+```
+
+### Get Spreadsheet Versions
+
+Get all versions of a spreadsheet.
+
+```http
+GET /v1/drives/spreadsheets/{id}/versions
+
+Response: EntityHistory
+```
+
+### Get Specific Version
+
+Get a specific version of a spreadsheet.
+
+```http
+GET /v1/drives/spreadsheets/{id}/versions/{version}
+
+Response: Spreadsheet
+```
+
+### Follow Spreadsheet
+
+Add a follower to a spreadsheet.
+
+```http
+PUT /v1/drives/spreadsheets/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+### Get Followers
+
+Get all followers of a spreadsheet.
+
+```http
+GET /v1/drives/spreadsheets/{id}/followers
+
+Response: EntityReference[]
+```
+
+### Vote on Spreadsheet
+
+Upvote or downvote a spreadsheet.
+
+```http
+PUT /v1/drives/spreadsheets/{id}/vote
+Content-Type: application/json
+
+{
+  "vote": "upvote"
+}
+
+Response: ChangeEvent
+```
+
+### Bulk Operations
+
+Create or update multiple spreadsheets.
+
+```http
+PUT /v1/drives/spreadsheets/bulk
+Content-Type: application/json
+
+{
+  "entities": [...]
+}
+
+Response: BulkOperationResult
 ```
 
 ---

@@ -977,34 +977,135 @@ for details on defining and using custom properties.
 
 ## API Operations
 
+### List Test Cases
+
+```http
+GET /v1/dataQuality/testCases
+Query Parameters:
+  - fields: Fields to include (owners, reviewers, entityStatus, testSuite, testDefinition, testSuites, incidentId, domains, tags, followers)
+  - entityLink: Filter by entity link (e.g., table://service.database.schema.table)
+  - entityFQN: Filter by entity FQN
+  - testSuiteId: Filter by test suite ID
+  - testCaseStatus: Filter by status (Success, Failed, Aborted, Queued)
+  - testCaseType: Filter by type (column, table, all - default: all)
+  - createdBy: Filter by creator username
+  - includeAllTests: Include all tests at entity level (default: false)
+  - limit: Number of results (1-1000000, default 10)
+  - before: Cursor for previous page
+  - after: Cursor for next page
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: TestCaseList
+```
+
+**Example Request**:
+
+```http
+GET /v1/dataQuality/testCases?entityFQN=postgres_prod.ecommerce.public.customers&testCaseStatus=Failed&fields=testCaseResult,testSuite,owner&limit=50
+```
+
+---
+
 ### Create Test Case
 
 ```http
-POST /api/v1/testCases
+POST /v1/dataQuality/testCases
 Content-Type: application/json
 
 {
   "name": "customers_row_count_check",
+  "displayName": "Customer Table Row Count Check",
+  "description": "Validates that customer table row count is within expected range",
   "testDefinition": "tableRowCountToBeBetween",
-  "entityLink": "table://postgres_prod.ecommerce.public.customers",
+  "entityLink": "<#E::table::postgres_prod.ecommerce.public.customers>",
   "testSuite": "postgres_prod.ecommerce.public.customers.testSuite",
   "parameterValues": [
-    {"name": "minValue", "value": "10000"},
-    {"name": "maxValue", "value": "50000"}
+    {
+      "name": "minValue",
+      "value": "10000"
+    },
+    {
+      "name": "maxValue",
+      "value": "50000"
+    }
+  ],
+  "computePassedFailedRowCount": true,
+  "owner": {
+    "id": "user-uuid",
+    "type": "user"
+  },
+  "tags": [
+    {"tagFQN": "DataQuality.Critical"}
   ]
 }
+
+Response: TestCase
 ```
 
-### Get Test Case
+---
+
+### Create Multiple Test Cases
 
 ```http
-GET /api/v1/testCases/name/postgres_prod.ecommerce.public.customers.testSuite.customers_row_count_check?fields=testCaseResult,testSuite,owner
+POST /v1/dataQuality/testCases/createMany
+Content-Type: application/json
+
+[
+  {
+    "name": "email_unique_check",
+    "testDefinition": "columnValuesToBeUnique",
+    "entityLink": "<#E::table::postgres_prod.ecommerce.public.customers::columns::email>",
+    "testSuite": "postgres_prod.ecommerce.public.customers.testSuite"
+  },
+  {
+    "name": "created_at_not_null",
+    "testDefinition": "columnValuesToBeNotNull",
+    "entityLink": "<#E::table::postgres_prod.ecommerce.public.customers::columns::created_at>",
+    "testSuite": "postgres_prod.ecommerce.public.customers.testSuite"
+  }
+]
+
+Response: List of created TestCases
 ```
 
-### Update Test Case
+---
+
+### Get Test Case by Name
 
 ```http
-PATCH /api/v1/testCases/{id}
+GET /v1/dataQuality/testCases/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (testCaseResult, testSuite, testDefinition, owner, tags)
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: TestCase
+```
+
+**Example Request**:
+
+```http
+GET /v1/dataQuality/testCases/name/postgres_prod.ecommerce.public.customers.testSuite.customers_row_count_check?fields=testCaseResult,testSuite,owner
+```
+
+---
+
+### Get Test Case by ID
+
+```http
+GET /v1/dataQuality/testCases/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: TestCase
+```
+
+---
+
+### Update Test Case (Partial)
+
+```http
+PATCH /v1/dataQuality/testCases/{id}
 Content-Type: application/json-patch+json
 
 [
@@ -1012,39 +1113,246 @@ Content-Type: application/json-patch+json
     "op": "replace",
     "path": "/parameterValues/0/value",
     "value": "15000"
+  },
+  {
+    "op": "replace",
+    "path": "/description",
+    "value": "Updated description for row count validation"
+  },
+  {
+    "op": "add",
+    "path": "/tags/-",
+    "value": {"tagFQN": "BusinessCritical"}
   }
 ]
+
+Response: TestCase
 ```
 
-### Execute Test Case
+---
+
+### Create or Update Test Case
 
 ```http
-POST /api/v1/testCases/{id}/execute
-```
-
-### Add Test Result
-
-```http
-PUT /api/v1/testCases/{id}/testCaseResult
+PUT /v1/dataQuality/testCases
 Content-Type: application/json
 
 {
-  "timestamp": 1704240000000,
-  "testCaseStatus": "Success",
-  "result": "Row count: 32450",
-  "testResultValue": [
-    {
-      "name": "actualRowCount",
-      "value": "32450"
-    }
+  "name": "customers_row_count_check",
+  "testDefinition": "tableRowCountToBeBetween",
+  "entityLink": "<#E::table::postgres_prod.ecommerce.public.customers>",
+  "testSuite": "postgres_prod.ecommerce.public.customers.testSuite",
+  "parameterValues": [
+    {"name": "minValue", "value": "10000"},
+    {"name": "maxValue", "value": "50000"}
   ]
 }
+
+Response: TestCase
 ```
 
-### Get Test Results History
+---
+
+### Delete Test Case
 
 ```http
-GET /api/v1/testCases/{id}/testCaseResults?startTs=1704067200000&endTs=1704240000000
+DELETE /v1/dataQuality/testCases/{id}
+Query Parameters:
+  - hardDelete: true | false (default: false - soft delete)
+  - recursive: true | false (default: false)
+
+Response: TestCase
+```
+
+---
+
+### Delete Test Case (Async)
+
+```http
+DELETE /v1/dataQuality/testCases/async/{id}
+Query Parameters:
+  - hardDelete: true | false (default: false)
+  - recursive: true | false (default: false)
+
+Response: Async deletion job details
+```
+
+---
+
+### Get Failed Rows Sample
+
+```http
+GET /v1/dataQuality/testCases/{id}/failedRowsSample
+Query Parameters:
+  - limit: Number of failed rows to return (default: 25)
+
+Response: Sample of failed rows with column values
+```
+
+---
+
+### Get Inspection Query
+
+```http
+GET /v1/dataQuality/testCases/{id}/inspectionQuery
+
+Response: SQL query to inspect failed test case data
+```
+
+---
+
+### Get Dimension Results
+
+```http
+GET /v1/dataQuality/testCases/dimensionResults/{fqn}
+Query Parameters:
+  - startTs: Start timestamp (milliseconds)
+  - endTs: End timestamp (milliseconds)
+
+Response: Test case results grouped by data quality dimension
+```
+
+---
+
+### Get Dimension Summary
+
+```http
+GET /v1/dataQuality/testCases/dimensionResults/{fqn}/dimensions
+Query Parameters:
+  - startTs: Start timestamp
+  - endTs: End timestamp
+
+Response: Summary of test results by dimension (Completeness, Accuracy, etc.)
+```
+
+---
+
+### Create Test Case Incident
+
+```http
+POST /v1/dataQuality/testCases/testCaseIncidentStatus
+Content-Type: application/json
+
+{
+  "testCaseReference": {
+    "id": "test-case-uuid",
+    "type": "testCase"
+  },
+  "stateId": 1234567890123,
+  "incidentState": "New",
+  "severity": "Severity1",
+  "assignee": {
+    "id": "user-uuid",
+    "type": "user"
+  },
+  "reason": "Data quality anomaly detected in customer table"
+}
+
+Response: TestCaseIncidentStatus
+```
+
+---
+
+### Update Test Case Incident
+
+```http
+PATCH /v1/dataQuality/testCases/testCaseIncidentStatus/{id}
+Content-Type: application/json-patch+json
+
+[
+  {
+    "op": "replace",
+    "path": "/incidentState",
+    "value": "Resolved"
+  },
+  {
+    "op": "replace",
+    "path": "/resolution",
+    "value": "Data pipeline fixed and re-executed successfully"
+  }
+]
+
+Response: TestCaseIncidentStatus
+```
+
+---
+
+### Get Logical Test Cases
+
+```http
+GET /v1/dataQuality/testCases/logicalTestCases
+Query Parameters:
+  - testSuiteId: Logical test suite ID
+
+Response: List of test cases in logical test suite
+```
+
+---
+
+### Export Test Case
+
+```http
+GET /v1/dataQuality/testCases/name/{name}/export
+
+Response: CSV file with test case details
+```
+
+---
+
+### Export Test Case (Async)
+
+```http
+GET /v1/dataQuality/testCases/name/{name}/exportAsync
+
+Response: Async export job details
+```
+
+---
+
+### Import Test Case
+
+```http
+PUT /v1/dataQuality/testCases/name/{name}/import
+Content-Type: multipart/form-data
+
+file: [CSV file with test case data]
+dryRun: false
+
+Response: Import result
+```
+
+---
+
+### Import Test Case (Async)
+
+```http
+PUT /v1/dataQuality/testCases/name/{name}/importAsync
+Content-Type: multipart/form-data
+
+file: [CSV file]
+dryRun: false
+
+Response: Async import job details
+```
+
+---
+
+### Get Test Case Version
+
+```http
+GET /v1/dataQuality/testCases/{id}/versions/{version}
+
+Response: TestCase (specific version)
+```
+
+---
+
+### Get Test Case Versions
+
+```http
+GET /v1/dataQuality/testCases/{id}/versions
+
+Response: EntityHistory (all versions)
 ```
 
 ---

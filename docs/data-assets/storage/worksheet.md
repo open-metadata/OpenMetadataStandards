@@ -467,22 +467,207 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Get Worksheet Schema
+All Worksheet operations are available under the `/v1/drives/worksheets` endpoint.
+
+### List Worksheets
+
+Get a list of worksheets, optionally filtered by spreadsheet.
 
 ```http
-GET /api/v1/worksheets/{id}?fields=columns,owner,tags
+GET /v1/drives/worksheets
+Query Parameters:
+  - fields: Fields to include (columns, spreadsheet, owners, tags, etc.)
+  - spreadsheet: Filter by parent spreadsheet FQN
+  - limit: Number of results (1-1000000, default 10)
+  - before/after: Cursor-based pagination
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: WorksheetList
 ```
 
-### Get Worksheet Data Sample
+### Create Worksheet
+
+Create a new worksheet in a spreadsheet.
 
 ```http
-GET /api/v1/worksheets/{id}/sample?rows=10
+POST /v1/drives/worksheets
+Content-Type: application/json
+
+{
+  "name": "Daily Sales",
+  "spreadsheet": "googleDrive.Reports.Sales_Report_2024",
+  "sheetIndex": 0,
+  "columns": [
+    {
+      "name": "Date",
+      "dataType": "date",
+      "columnIndex": 0,
+      "columnLetter": "A"
+    },
+    {
+      "name": "Amount",
+      "dataType": "number",
+      "columnIndex": 1,
+      "columnLetter": "B"
+    }
+  ],
+  "hasHeader": true,
+  "headerRow": 0,
+  "dataStartRow": 1
+}
+
+Response: Worksheet
 ```
 
-### Get Column-Level Lineage
+### Get Worksheet by Name
+
+Get a worksheet by its fully qualified name.
 
 ```http
-GET /api/v1/worksheets/{id}/lineage?level=column
+GET /v1/drives/worksheets/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (columns, owner, tags, spreadsheet, etc.)
+  - include: all | deleted | non-deleted
+
+Example:
+GET /v1/drives/worksheets/name/googleDrive.Sales_Report.Daily_Sales?fields=columns,owner,tags
+
+Response: Worksheet
+```
+
+### Get Worksheet by ID
+
+Get a worksheet by its unique identifier.
+
+```http
+GET /v1/drives/worksheets/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Response: Worksheet
+```
+
+### Update Worksheet
+
+Update a worksheet using JSON Patch.
+
+```http
+PATCH /v1/drives/worksheets/name/{fqn}
+Content-Type: application/json-patch+json
+
+[
+  {"op": "add", "path": "/tags", "value": [{"tagFQN": "PII.Sensitive"}]},
+  {"op": "replace", "path": "/description", "value": "Updated worksheet description"},
+  {"op": "add", "path": "/columns/-", "value": {
+    "name": "Region",
+    "dataType": "string",
+    "columnIndex": 2,
+    "columnLetter": "C"
+  }}
+]
+
+Response: Worksheet
+```
+
+### Create or Update Worksheet
+
+Create a new worksheet or update if it exists.
+
+```http
+PUT /v1/drives/worksheets
+Content-Type: application/json
+
+{
+  "name": "Monthly Summary",
+  "spreadsheet": "googleDrive.Reports.Sales_2024",
+  "sheetIndex": 1,
+  "columns": [...]
+}
+
+Response: Worksheet
+```
+
+### Delete Worksheet
+
+Delete a worksheet by fully qualified name.
+
+```http
+DELETE /v1/drives/worksheets/name/{fqn}
+Query Parameters:
+  - hardDelete: Permanently delete (default: false)
+
+Response: 200 OK
+```
+
+### Get Worksheet Versions
+
+Get all versions of a worksheet.
+
+```http
+GET /v1/drives/worksheets/{id}/versions
+
+Response: EntityHistory
+```
+
+### Get Specific Version
+
+Get a specific version of a worksheet.
+
+```http
+GET /v1/drives/worksheets/{id}/versions/{version}
+
+Response: Worksheet
+```
+
+### Follow Worksheet
+
+Add a follower to a worksheet.
+
+```http
+PUT /v1/drives/worksheets/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+### Get Followers
+
+Get all followers of a worksheet.
+
+```http
+GET /v1/drives/worksheets/{id}/followers
+
+Response: EntityReference[]
+```
+
+### Vote on Worksheet
+
+Upvote or downvote a worksheet.
+
+```http
+PUT /v1/drives/worksheets/{id}/vote
+Content-Type: application/json
+
+{
+  "vote": "upvote"
+}
+
+Response: ChangeEvent
+```
+
+### Bulk Operations
+
+Create or update multiple worksheets.
+
+```http
+PUT /v1/drives/worksheets/bulk
+Content-Type: application/json
+
+{
+  "entities": [...]
+}
+
+Response: BulkOperationResult
 ```
 
 ---

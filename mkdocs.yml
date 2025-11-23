@@ -59,7 +59,8 @@ extra_javascript:
 
 extra:
   version:
-    provider: mike
+    provider: openmetadata
+    default: 1.11.0
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/open-metadata/OpenMetadata

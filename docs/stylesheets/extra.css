@@ -497,3 +497,19 @@ img:hover {
 .glightbox-container .goverlay {
   background: rgba(0, 0, 0, 0.95) !important;
 }
+
+/* Logo size customization */
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 3.5rem !important;  /* Increase from default ~2rem */
+  width: auto !important;
+  max-width: none !important;
+  display: block !important;
+}
+
+/* Ensure logo link container accommodates larger logo */
+.md-header__button.md-logo {
+  padding: 0.2rem 0.4rem !important;
+  margin: 0.2rem 0 !important;
+}
+

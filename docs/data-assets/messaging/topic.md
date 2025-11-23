@@ -1235,56 +1235,214 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Create Topic
+All Topic operations are available under the `/v1/topics` endpoint.
+
+### List Topics
+
+Get a list of topics, optionally filtered by service.
 
 ```http
-POST /api/v1/topics
+GET /v1/topics
+Query Parameters:
+  - fields: Fields to include (messageSchema, tags, owner, sampleData, etc.)
+  - service: Filter by messaging service name
+  - limit: Number of results (1-1000000, default 10)
+  - before/after: Cursor-based pagination
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: TopicList
+```
+
+### Create Topic
+
+Create a new topic under a messaging service.
+
+```http
+POST /v1/topics
 Content-Type: application/json
 
 {
   "name": "user_events",
   "service": "kafka_prod",
+  "description": "User activity event stream",
+  "partitions": 12,
+  "replicationFactor": 3,
+  "retentionTime": 604800000,
   "schemaType": "Avro",
-  "messageSchema": [
-    {
-      "name": "user_id",
-      "dataType": "string"
-    }
-  ]
+  "messageSchema": {
+    "schemaText": "{\"type\":\"record\",\"name\":\"UserEvent\",\"fields\":[{\"name\":\"user_id\",\"type\":\"string\"},{\"name\":\"event_type\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"long\"}]}",
+    "schemaFields": [
+      {
+        "name": "user_id",
+        "dataType": "STRING",
+        "description": "User identifier",
+        "tags": [{"tagFQN": "PII.UserId"}]
+      },
+      {
+        "name": "event_type",
+        "dataType": "STRING"
+      },
+      {
+        "name": "timestamp",
+        "dataType": "LONG"
+      }
+    ]
+  },
+  "topicConfig": {
+    "cleanupPolicy": "delete",
+    "compressionType": "snappy"
+  }
 }
+
+Response: Topic
 ```
 
-### Get Topic
+### Get Topic by Name
+
+Get a topic by its fully qualified name.
 
 ```http
-GET /api/v1/topics/name/kafka_prod.user_events?fields=messageSchema,tags,owner,service
+GET /v1/topics/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (messageSchema, tags, owner, sampleData, etc.)
+  - include: all | deleted | non-deleted
+
+Example:
+GET /v1/topics/name/kafka_prod.user_events?fields=messageSchema,tags,owner,topicConfig
+
+Response: Topic
+```
+
+### Get Topic by ID
+
+Get a topic by its unique identifier.
+
+```http
+GET /v1/topics/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Response: Topic
 ```
 
 ### Update Topic
 
+Update a topic using JSON Patch.
+
 ```http
-PATCH /api/v1/topics/{id}
+PATCH /v1/topics/name/{fqn}
 Content-Type: application/json-patch+json
 
 [
-  {
-    "op": "add",
-    "path": "/tags/-",
-    "value": {"tagFQN": "Tier.Gold"}
-  }
+  {"op": "add", "path": "/tags/-", "value": {"tagFQN": "Tier.Gold"}},
+  {"op": "replace", "path": "/partitions", "value": 24},
+  {"op": "replace", "path": "/description", "value": "Updated event stream"}
 ]
+
+Response: Topic
 ```
 
-### Update Schema
+### Create or Update Topic
+
+Create a new topic or update if it exists.
 
 ```http
-PUT /api/v1/topics/{id}/messageSchema
+PUT /v1/topics
+Content-Type: application/json
+
+{
+  "name": "order_events",
+  "service": "kafka_prod",
+  "partitions": 6,
+  "messageSchema": {...}
+}
+
+Response: Topic
+```
+
+### Delete Topic
+
+Delete a topic by fully qualified name.
+
+```http
+DELETE /v1/topics/name/{fqn}
+Query Parameters:
+  - hardDelete: Permanently delete (default: false)
+
+Response: 200 OK
+```
+
+### Update Message Schema
+
+Update the schema for messages in the topic.
+
+```http
+PUT /v1/topics/{id}/messageSchema
 Content-Type: application/json
 
 {
   "schemaType": "Avro",
-  "schemaText": "{\"type\":\"record\",\"name\":\"UserEvent\",\"fields\":[...]}"
+  "schemaText": "{\"type\":\"record\",\"name\":\"OrderEvent\",\"fields\":[...]}",
+  "schemaFields": [...]
 }
+
+Response: Topic
+```
+
+### Get Topic Sample Data
+
+Get sample messages from the topic.
+
+```http
+GET /v1/topics/{id}/sampleData
+
+Response: TopicSampleData (sample messages)
+```
+
+### Get Topic Versions
+
+Get all versions of a topic.
+
+```http
+GET /v1/topics/{id}/versions
+
+Response: EntityHistory
+```
+
+### Follow Topic
+
+Add a follower to a topic.
+
+```http
+PUT /v1/topics/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+### Get Followers
+
+Get all followers of a topic.
+
+```http
+GET /v1/topics/{id}/followers
+
+Response: EntityReference[]
+```
+
+### Bulk Operations
+
+Create or update multiple topics.
+
+```http
+PUT /v1/topics/bulk
+Content-Type: application/json
+
+{
+  "entities": [...]
+}
+
+Response: BulkOperationResult
 ```
 
 ---

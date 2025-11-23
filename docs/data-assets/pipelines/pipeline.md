@@ -1209,62 +1209,229 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Create Pipeline
+All Pipeline operations are available under the `/v1/pipelines` endpoint.
+
+### List Pipelines
+
+Get a list of pipelines, optionally filtered by service.
 
 ```http
-POST /api/v1/pipelines
+GET /v1/pipelines
+Query Parameters:
+  - fields: Fields to include (tasks, tags, owner, lineage, pipelineStatus, etc.)
+  - service: Filter by pipeline service name
+  - limit: Number of results (1-1000000, default 10)
+  - before/after: Cursor-based pagination
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: PipelineList
+```
+
+### Create Pipeline
+
+Create a new pipeline under a pipeline service.
+
+```http
+POST /v1/pipelines
 Content-Type: application/json
 
 {
   "name": "customer_etl",
   "service": "airflow_prod",
+  "description": "Customer data ETL pipeline",
   "scheduleInterval": {
-    "scheduleExpression": "0 2 * * *"
-  }
+    "scheduleExpression": "0 2 * * *",
+    "scheduleType": "CRON"
+  },
+  "tasks": [
+    {
+      "name": "extract_customers",
+      "taskType": "PythonOperator",
+      "description": "Extract customer data from source"
+    },
+    {
+      "name": "transform_data",
+      "taskType": "SparkSubmitOperator",
+      "downstreamTasks": ["extract_customers"]
+    },
+    {
+      "name": "load_to_warehouse",
+      "taskType": "PostgresOperator",
+      "downstreamTasks": ["transform_data"]
+    }
+  ]
 }
+
+Response: Pipeline
 ```
 
-### Get Pipeline
+### Get Pipeline by Name
+
+Get a pipeline by its fully qualified name.
 
 ```http
-GET /api/v1/pipelines/name/airflow_prod.customer_etl?fields=tasks,tags,owner,lineage
+GET /v1/pipelines/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (tasks, tags, owner, lineage, etc.)
+  - include: all | deleted | non-deleted
+
+Example:
+GET /v1/pipelines/name/airflow_prod.customer_etl?fields=tasks,tags,owner,lineage,pipelineStatus
+
+Response: Pipeline
+```
+
+### Get Pipeline by ID
+
+Get a pipeline by its unique identifier.
+
+```http
+GET /v1/pipelines/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted
+
+Response: Pipeline
 ```
 
 ### Update Pipeline
 
+Update a pipeline using JSON Patch.
+
 ```http
-PATCH /api/v1/pipelines/{id}
+PATCH /v1/pipelines/name/{fqn}
 Content-Type: application/json-patch+json
 
 [
-  {
-    "op": "replace",
-    "path": "/scheduleInterval/scheduleExpression",
-    "value": "0 3 * * *"
-  }
+  {"op": "replace", "path": "/scheduleInterval/scheduleExpression", "value": "0 3 * * *"},
+  {"op": "add", "path": "/tags/-", "value": {"tagFQN": "Critical"}},
+  {"op": "replace", "path": "/description", "value": "Updated ETL pipeline"}
 ]
+
+Response: Pipeline
 ```
 
-### Add Task
+### Create or Update Pipeline
+
+Create a new pipeline or update if it exists.
 
 ```http
-PUT /api/v1/pipelines/{id}/tasks
+PUT /v1/pipelines
+Content-Type: application/json
+
+{
+  "name": "orders_pipeline",
+  "service": "airflow_prod",
+  "scheduleInterval": {...},
+  "tasks": [...]
+}
+
+Response: Pipeline
+```
+
+### Delete Pipeline
+
+Delete a pipeline by fully qualified name.
+
+```http
+DELETE /v1/pipelines/name/{fqn}
+Query Parameters:
+  - hardDelete: Permanently delete (default: false)
+
+Response: 200 OK
+```
+
+### Update Pipeline Tasks
+
+Update tasks in a pipeline.
+
+```http
+PUT /v1/pipelines/{id}/tasks
 Content-Type: application/json
 
 {
   "tasks": [
     {
       "name": "data_quality_check",
-      "taskType": "PythonOperator"
+      "taskType": "PythonOperator",
+      "description": "Run data quality tests"
     }
   ]
 }
+
+Response: Pipeline
 ```
 
 ### Get Pipeline Status
 
+Get the execution status of a pipeline.
+
 ```http
-GET /api/v1/pipelines/name/airflow_prod.customer_etl/status
+GET /v1/pipelines/{id}/pipelineStatus
+
+Response: PipelineStatus (latest runs, success/failure, execution time)
+```
+
+### Update Pipeline Status
+
+Update the status of a pipeline execution.
+
+```http
+PUT /v1/pipelines/{id}/pipelineStatus
+Content-Type: application/json
+
+{
+  "executionStatus": "Successful",
+  "timestamp": 1700000000,
+  "executionDate": "2024-01-15"
+}
+
+Response: PipelineStatus
+```
+
+### Get Pipeline Versions
+
+Get all versions of a pipeline.
+
+```http
+GET /v1/pipelines/{id}/versions
+
+Response: EntityHistory
+```
+
+### Follow Pipeline
+
+Add a follower to a pipeline.
+
+```http
+PUT /v1/pipelines/{id}/followers/{userId}
+
+Response: ChangeEvent
+```
+
+### Get Followers
+
+Get all followers of a pipeline.
+
+```http
+GET /v1/pipelines/{id}/followers
+
+Response: EntityReference[]
+```
+
+### Bulk Operations
+
+Create or update multiple pipelines.
+
+```http
+PUT /v1/pipelines/bulk
+Content-Type: application/json
+
+{
+  "entities": [...]
+}
+
+Response: BulkOperationResult
 ```
 
 ---

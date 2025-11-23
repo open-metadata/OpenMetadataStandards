@@ -1113,36 +1113,164 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Create GlossaryTerm
+### List Glossary Terms
 
 ```http
-POST /api/v1/glossaryTerms
+GET /v1/glossaryTerms
+Query Parameters:
+  - glossary: Filter by glossary ID or name
+  - parent: Filter by parent term ID
+  - directChildrenOf: List immediate children of specified term
+  - fields: Fields to include (children, relatedTerms, reviewers, owners, tags, usageCount, domains, extension, childrenCount)
+  - limit: Number of results (1-1000000, default 10)
+  - before: Cursor for previous page
+  - after: Cursor for next page
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: GlossaryTermList
+```
+
+**Example Request**:
+
+```http
+GET /v1/glossaryTerms?glossary=BusinessGlossary&fields=children,relatedTerms,owners,status&limit=50
+```
+
+---
+
+### Create Glossary Term
+
+```http
+POST /v1/glossaryTerms
 Content-Type: application/json
 
 {
   "name": "Customer",
   "displayName": "Customer",
-  "description": "An individual or organization that purchases goods or services",
+  "description": "# Customer\n\nAn individual or organization that purchases goods or services from a business.\n\n## Key Attributes\n- Unique customer identifier\n- Contact information\n- Purchase history\n- Account status",
   "glossary": "BusinessGlossary",
-  "synonyms": ["Client", "Account"],
+  "parent": {
+    "id": "parent-term-uuid",
+    "type": "glossaryTerm"
+  },
+  "synonyms": [
+    {
+      "name": "Client",
+      "source": "Business"
+    },
+    {
+      "name": "Account",
+      "source": "CRM"
+    },
+    {
+      "name": "Buyer",
+      "source": "Sales"
+    }
+  ],
+  "relatedTerms": [
+    {
+      "id": "order-term-uuid",
+      "type": "glossaryTerm"
+    },
+    {
+      "id": "revenue-term-uuid",
+      "type": "glossaryTerm"
+    }
+  ],
+  "references": [
+    {
+      "name": "CRM Documentation",
+      "endpoint": "https://docs.example.com/crm/customer"
+    }
+  ],
   "status": "Draft",
   "owner": {
-    "type": "user",
-    "id": "user-uuid"
+    "id": "user-uuid",
+    "type": "user"
+  },
+  "reviewers": [
+    {
+      "id": "reviewer-uuid",
+      "type": "user"
+    }
+  ],
+  "tags": [
+    {"tagFQN": "Governance.Approved"},
+    {"tagFQN": "PII.NonSensitive"}
+  ],
+  "domain": {
+    "id": "domain-uuid",
+    "type": "domain"
   }
 }
+
+Response: GlossaryTerm
 ```
 
-### Get GlossaryTerm
+---
+
+### Create Multiple Glossary Terms
 
 ```http
-GET /api/v1/glossaryTerms/name/BusinessGlossary.Customer?fields=parent,children,relatedTerms,usageCount
+POST /v1/glossaryTerms/createMany
+Content-Type: application/json
+
+[
+  {
+    "name": "Order",
+    "displayName": "Order",
+    "description": "A customer's request to purchase products or services",
+    "glossary": "BusinessGlossary"
+  },
+  {
+    "name": "Invoice",
+    "displayName": "Invoice",
+    "description": "A document requesting payment for goods or services",
+    "glossary": "BusinessGlossary"
+  }
+]
+
+Response: List of created GlossaryTerms
 ```
 
-### Update GlossaryTerm
+---
+
+### Get Glossary Term by Name
 
 ```http
-PATCH /api/v1/glossaryTerms/{id}
+GET /v1/glossaryTerms/name/{fqn}
+Query Parameters:
+  - fields: Fields to include (parent, children, relatedTerms, reviewers, owners, tags, usageCount, domains, childrenCount)
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: GlossaryTerm
+```
+
+**Example Request**:
+
+```http
+GET /v1/glossaryTerms/name/BusinessGlossary.Customer?fields=parent,children,relatedTerms,usageCount
+```
+
+---
+
+### Get Glossary Term by ID
+
+```http
+GET /v1/glossaryTerms/{id}
+Query Parameters:
+  - fields: Fields to include
+  - include: all | deleted | non-deleted (default: non-deleted)
+
+Response: GlossaryTerm
+```
+
+---
+
+### Update Glossary Term (Partial)
+
+```http
+PATCH /v1/glossaryTerms/{id}
 Content-Type: application/json-patch+json
 
 [
@@ -1154,31 +1282,249 @@ Content-Type: application/json-patch+json
   {
     "op": "add",
     "path": "/synonyms/-",
-    "value": "Buyer"
+    "value": {
+      "name": "Purchaser",
+      "source": "eCommerce"
+    }
+  },
+  {
+    "op": "replace",
+    "path": "/description",
+    "value": "Updated term description with additional details"
+  },
+  {
+    "op": "add",
+    "path": "/tags/-",
+    "value": {"tagFQN": "BusinessCritical"}
   }
 ]
+
+Response: GlossaryTerm
 ```
 
-### Link Term to Asset
+---
+
+### Create or Update Glossary Term
 
 ```http
-PUT /api/v1/tables/{tableId}/glossaryTerms
+PUT /v1/glossaryTerms
 Content-Type: application/json
 
 {
-  "glossaryTerms": [
+  "name": "Revenue",
+  "displayName": "Revenue",
+  "description": "Income generated from normal business operations",
+  "glossary": "BusinessGlossary",
+  "synonyms": [{"name": "Income"}, {"name": "Sales"}],
+  "status": "Approved"
+}
+
+Response: GlossaryTerm
+```
+
+---
+
+### Delete Glossary Term
+
+```http
+DELETE /v1/glossaryTerms/{id}
+Query Parameters:
+  - hardDelete: true | false (default: false - soft delete)
+  - recursive: true | false (default: false)
+
+Response: GlossaryTerm
+```
+
+---
+
+### Delete Glossary Term (Async)
+
+```http
+DELETE /v1/glossaryTerms/async/{id}
+Query Parameters:
+  - hardDelete: true | false (default: false)
+  - recursive: true | false (default: false)
+
+Response: Async deletion job details
+```
+
+---
+
+### Get Assets for Term
+
+```http
+GET /v1/glossaryTerms/{id}/assets
+Query Parameters:
+  - limit: Number of results (1-1000000, default 10)
+  - before: Cursor for previous page
+  - after: Cursor for next page
+
+Response: List of data assets tagged with this term
+```
+
+---
+
+### Get Assets for Term by Name
+
+```http
+GET /v1/glossaryTerms/name/{fqn}/assets
+Query Parameters:
+  - limit: Number of results (1-1000000, default 10)
+  - before: Cursor for previous page
+  - after: Cursor for next page
+
+Response: List of data assets tagged with this term
+```
+
+---
+
+### Add Assets to Term
+
+```http
+PUT /v1/glossaryTerms/{id}/assets/add
+Content-Type: application/json
+
+{
+  "assets": [
     {
-      "id": "term-uuid",
-      "type": "glossaryTerm"
+      "id": "table-uuid-1",
+      "type": "table"
+    },
+    {
+      "id": "dashboard-uuid-1",
+      "type": "dashboard"
+    },
+    {
+      "id": "column-uuid-1",
+      "type": "column"
     }
   ]
 }
+
+Response: ChangeEvent
 ```
 
-### List Terms in Glossary
+---
+
+### Remove Assets from Term
 
 ```http
-GET /api/v1/glossaryTerms?glossary=BusinessGlossary&fields=owner,status&limit=25
+PUT /v1/glossaryTerms/{id}/assets/remove
+Content-Type: application/json
+
+{
+  "assets": [
+    {
+      "id": "table-uuid-1",
+      "type": "table"
+    }
+  ]
+}
+
+Response: ChangeEvent
+```
+
+---
+
+### Move Glossary Term (Async)
+
+```http
+PUT /v1/glossaryTerms/{id}/moveAsync
+Content-Type: application/json
+
+{
+  "newParent": {
+    "id": "new-parent-uuid",
+    "type": "glossaryTerm"
+  }
+}
+
+Response: Async move operation details
+```
+
+---
+
+### Get Glossary Term Version
+
+```http
+GET /v1/glossaryTerms/{id}/versions/{version}
+
+Response: GlossaryTerm (specific version)
+```
+
+---
+
+### Get Glossary Term Versions
+
+```http
+GET /v1/glossaryTerms/{id}/versions
+
+Response: EntityHistory (all versions)
+```
+
+---
+
+### Search Glossary Terms
+
+```http
+GET /v1/glossaryTerms/search
+Query Parameters:
+  - q: Search query
+  - glossary: Filter by glossary
+  - status: Filter by status (Draft, Approved, Deprecated)
+  - fields: Fields to include
+  - limit: Number of results
+  - from: Offset for pagination
+
+Response: SearchResults with GlossaryTerms
+```
+
+**Example Request**:
+
+```http
+GET /v1/glossaryTerms/search?q=customer&glossary=BusinessGlossary&status=Approved&limit=20
+```
+
+---
+
+### Restore Glossary Term
+
+```http
+PUT /v1/glossaryTerms/restore
+Content-Type: application/json
+
+{
+  "id": "term-uuid"
+}
+
+Response: GlossaryTerm (restored)
+```
+
+---
+
+### Vote on Glossary Term
+
+```http
+PUT /v1/glossaryTerms/{id}/vote
+Content-Type: application/json
+
+{
+  "vote": "upvote"
+}
+
+Response: ChangeEvent
+```
+
+---
+
+### Validate Tags on Term
+
+```http
+GET /v1/glossaryTerms/{id}/tags/validate
+Query Parameters:
+  - includeChildren: true | false (default: false)
+
+Response: Validation results for tags applied to the term
 ```
 
 ---
