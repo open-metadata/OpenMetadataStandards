@@ -1,0 +1,499 @@
+/* OpenMetadata Brand Colors */
+:root {
+  /* Primary Brand Colors */
+  --om-primary: #0061f2;
+  --om-secondary: #6900c7;
+  --om-success: #00ac69;
+  --om-info: #00cfd5;
+  --om-warning: #f4a100;
+  --om-danger: #e81500;
+
+  /* Additional Brand Palette */
+  --om-indigo: #5800e8;
+  --om-pink: #e30059;
+  --om-orange: #f76400;
+  --om-teal: #00ba94;
+
+  /* Soft/Muted Variants */
+  --om-primary-soft: #dae7fb;
+  --om-secondary-soft: #e4ddf7;
+
+  /* Text & Neutral Colors */
+  --om-text-default: #69707a;
+  --om-text-dark: #363d47;
+  --om-bg-light: #f2f6fc;
+  --om-bg-dark: #212832;
+
+  /* Additional Light Purple Accent */
+  --om-accent-light: #F1EDFD;
+}
+
+/* Override Material theme with OpenMetadata colors - Using !important to ensure precedence */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: var(--om-primary) !important;
+  --md-primary-fg-color--light: var(--om-primary-soft) !important;
+  --md-primary-fg-color--dark: #0052d4 !important;
+  --md-primary-bg-color: #ffffff !important;
+  --md-primary-bg-color--light: #fcfcfc !important;
+
+  --md-accent-fg-color: var(--om-secondary) !important;
+  --md-accent-fg-color--transparent: rgba(105, 0, 199, 0.1) !important;
+  --md-accent-bg-color: #ffffff !important;
+  --md-accent-bg-color--light: #fcfcfc !important;
+
+  /* Text colors */
+  --md-default-fg-color: var(--om-text-dark);
+  --md-default-fg-color--light: var(--om-text-default);
+  --md-default-fg-color--lighter: #8b9097;
+  --md-default-fg-color--lightest: #b3b6ba;
+
+  /* Background colors */
+  --md-default-bg-color: #ffffff;
+  --md-default-bg-color--light: var(--om-bg-light);
+  --md-default-bg-color--lighter: var(--om-accent-light);
+  --md-default-bg-color--lightest: #fafbfd;
+
+  /* Code colors */
+  --md-code-bg-color: var(--om-bg-light);
+  --md-code-fg-color: var(--om-text-dark);
+  --md-code-hl-color: rgba(105, 0, 199, 0.1);
+
+  /* Links */
+  --md-typeset-a-color: var(--om-primary);
+
+  /* Footer */
+  --md-footer-bg-color: var(--om-bg-dark);
+  --md-footer-bg-color--dark: #1a1f27;
+  --md-footer-fg-color: #ffffff;
+  --md-footer-fg-color--light: #b3b6ba;
+  --md-footer-fg-color--lighter: #8b9097;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: var(--om-primary);
+  --md-primary-fg-color--light: var(--om-primary-soft);
+  --md-primary-fg-color--dark: #0052d4;
+  --md-accent-fg-color: var(--om-secondary);
+  --md-accent-fg-color--transparent: rgba(105, 0, 199, 0.1);
+
+  /* Dark mode backgrounds */
+  --md-default-bg-color: var(--om-bg-dark);
+  --md-default-bg-color--light: #2a3340;
+  --md-default-bg-color--lighter: #343d4c;
+  --md-default-bg-color--lightest: #3e4858;
+
+  /* Dark mode text */
+  --md-default-fg-color: #e8eaed;
+  --md-default-fg-color--light: #b3b6ba;
+  --md-default-fg-color--lighter: #8b9097;
+  --md-default-fg-color--lightest: #5f6368;
+
+  /* Links in dark mode */
+  --md-typeset-a-color: #5c9eff;
+}
+
+/* Custom button styling - Solid colors, no gradients */
+.md-typeset .md-button {
+  background: var(--om-primary) !important;
+  background-color: var(--om-primary) !important;
+  background-image: none !important;
+  border-color: var(--om-primary) !important;
+  color: white !important;
+}
+
+.md-typeset .md-button:hover,
+.md-typeset .md-button:focus {
+  background: #0052d4 !important;
+  background-color: #0052d4 !important;
+  background-image: none !important;
+  border-color: #0052d4 !important;
+  color: white !important;
+}
+
+.md-typeset .md-button--primary {
+  background: var(--om-primary) !important;
+  background-color: var(--om-primary) !important;
+  background-image: none !important;
+  border-color: var(--om-primary) !important;
+  color: white !important;
+}
+
+.md-typeset .md-button--primary:hover,
+.md-typeset .md-button--primary:focus {
+  background: #0052d4 !important;
+  background-color: #0052d4 !important;
+  background-image: none !important;
+  border-color: #0052d4 !important;
+  color: white !important;
+}
+
+/* Custom admonition colors using OpenMetadata palette */
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border-color: var(--om-info);
+}
+
+.md-typeset .note > .admonition-title,
+.md-typeset .note > summary {
+  background-color: rgba(0, 207, 213, 0.1);
+  border-color: var(--om-info);
+}
+
+.md-typeset .admonition.tip,
+.md-typeset details.tip {
+  border-color: var(--om-success);
+}
+
+.md-typeset .tip > .admonition-title,
+.md-typeset .tip > summary {
+  background-color: rgba(0, 172, 105, 0.1);
+  border-color: var(--om-success);
+}
+
+.md-typeset .admonition.warning,
+.md-typeset details.warning {
+  border-color: var(--om-warning);
+}
+
+.md-typeset .warning > .admonition-title,
+.md-typeset .warning > summary {
+  background-color: rgba(244, 161, 0, 0.1);
+  border-color: var(--om-warning);
+}
+
+.md-typeset .admonition.danger,
+.md-typeset details.danger {
+  border-color: var(--om-danger);
+}
+
+.md-typeset .danger > .admonition-title,
+.md-typeset .danger > summary {
+  background-color: rgba(232, 21, 0, 0.1);
+  border-color: var(--om-danger);
+}
+
+/* Header customization - Direct styling with !important */
+.md-header {
+  background-color: #0061f2 !important;
+}
+
+.md-header[data-md-state="shadow"] {
+  box-shadow: 0 0 0.2rem rgba(0, 97, 242, 0.1), 0 0.2rem 0.4rem rgba(0, 97, 242, 0.2) !important;
+}
+
+/* Navigation tabs - Direct styling */
+.md-tabs {
+  background-color: #0061f2 !important;
+}
+
+.md-tabs__link {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.md-tabs__link:hover,
+.md-tabs__link--active {
+  color: #ffffff !important;
+}
+
+/* Search */
+.md-search__input {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.md-search__input::placeholder {
+  color: rgba(255, 255, 255, 0.54);
+}
+
+/* Table of contents */
+.md-nav__link--active {
+  color: #6900c7 !important;
+  font-weight: 500;
+}
+
+/* Links in content */
+.md-typeset a {
+  color: #0061f2 !important;
+}
+
+.md-typeset a:hover {
+  color: #6900c7 !important;
+}
+
+/* Cards styling (for grid cards in docs) */
+.md-typeset .grid {
+  grid-gap: 1rem;
+}
+
+.md-typeset .grid.cards > :hover {
+  border-color: var(--om-secondary);
+  box-shadow: 0 0.2rem 0.5rem rgba(105, 0, 199, 0.15);
+}
+
+/* Code block enhancements */
+.md-typeset pre > code {
+  border-left: 3px solid var(--om-secondary);
+}
+
+/* Highlight inline code */
+.md-typeset code {
+  background-color: var(--om-bg-light);
+  color: var(--om-secondary);
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #a78bfa;
+}
+
+/* Footer */
+.md-footer {
+  background-color: var(--om-bg-dark);
+}
+
+/* Custom hero section on homepage */
+.hero-section {
+  background: linear-gradient(135deg, var(--om-primary) 0%, var(--om-secondary) 100%);
+  color: white;
+  padding: 3rem 1rem;
+  border-radius: 0.5rem;
+  margin: 2rem 0;
+}
+
+/* Stats/badges */
+.stat-badge {
+  background-color: var(--om-accent-light);
+  color: var(--om-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+}
+
+/* Final OpenMetadata header styling */
+.md-header {
+  background: linear-gradient(90deg, #0061f2 0%, #0061f2 85%, #6900c7 100%) !important;
+  border-bottom: 2px solid rgba(105, 0, 199, 0.2) !important;
+}
+
+/* Mermaid diagram enhancements */
+.mermaid {
+  text-align: center;
+  margin: 2rem 0;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover effect to indicate diagrams are clickable */
+.mermaid:hover {
+  box-shadow: 0 4px 16px rgba(0, 97, 242, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Add zoom icon hint */
+.mermaid::after {
+  content: "🔍 Click to zoom";
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0, 97, 242, 0.9);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.mermaid:hover::after {
+  opacity: 1;
+}
+
+/* Dark mode support for base Mermaid diagrams */
+[data-md-color-scheme="slate"] .mermaid {
+  background-color: #2a3340;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-md-color-scheme="slate"] .mermaid:hover {
+  box-shadow: 0 4px 16px rgba(0, 97, 242, 0.4);
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+  min-height: 400px;
+  cursor: zoom-in;
+}
+
+/* Better text readability in base diagrams */
+.mermaid svg text {
+  font-weight: 500;
+}
+
+.mermaid svg .node text {
+  font-weight: 600;
+}
+
+/* Mermaid zoom on click */
+.mermaid.zoomed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  padding: 2rem;
+  overflow: auto;
+}
+
+.mermaid.zoomed svg {
+  max-width: 90%;
+  max-height: 90%;
+  min-height: auto;
+  cursor: zoom-out;
+  background-color: white !important;
+  padding: 2rem !important;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Increase text size in custom zoomed Mermaid diagrams */
+.mermaid.zoomed svg text,
+.mermaid.zoomed svg .nodeLabel,
+.mermaid.zoomed svg .edgeLabel {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  fill: #000000 !important;
+}
+
+/* Ensure node text is readable in custom zoom */
+.mermaid.zoomed svg .node text {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+/* Edge labels (relationship text) larger and bold in custom zoom */
+.mermaid.zoomed svg .edgeLabel text {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  fill: #333333 !important;
+}
+
+/* Edge label backgrounds for better contrast in custom zoom */
+.mermaid.zoomed svg .edgeLabel rect {
+  fill: white !important;
+  stroke: #cccccc !important;
+  stroke-width: 1px !important;
+  opacity: 0.95 !important;
+}
+
+/* Better contrast for node borders in custom zoom */
+.mermaid.zoomed svg .node rect,
+.mermaid.zoomed svg .node circle,
+.mermaid.zoomed svg .node polygon {
+  stroke-width: 3px !important;
+}
+
+/* Make diagrams more prominent */
+.mermaid-container {
+  background: var(--md-default-bg-color--lighter);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 2rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Image zoom cursor indication */
+img {
+  cursor: zoom-in;
+  transition: transform 0.2s ease;
+}
+
+img:hover {
+  opacity: 0.9;
+}
+
+/* GLightbox customization */
+.glightbox-clean .gslide-description {
+  background: var(--om-bg-dark);
+  color: white;
+}
+
+.glightbox-clean .gslide-title {
+  color: var(--om-primary);
+  font-weight: 600;
+}
+
+/* Mermaid diagrams in GLightbox - Better readability when zoomed */
+.glightbox-container .mermaid,
+.glightbox-container .mermaid svg {
+  background-color: white !important;
+  padding: 2rem !important;
+  border-radius: 8px;
+}
+
+/* Dark mode support for zoomed Mermaid diagrams */
+[data-md-color-scheme="slate"] .glightbox-container .mermaid,
+[data-md-color-scheme="slate"] .glightbox-container .mermaid svg {
+  background-color: #ffffff !important;
+}
+
+/* Increase text size in zoomed Mermaid diagrams for better readability */
+.glightbox-container .mermaid svg text,
+.glightbox-container .mermaid svg .nodeLabel,
+.glightbox-container .mermaid svg .edgeLabel {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  fill: #000000 !important;
+}
+
+/* Ensure node text is readable */
+.glightbox-container .mermaid svg .node text {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+/* Edge labels (relationship text) larger and bold */
+.glightbox-container .mermaid svg .edgeLabel text {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  fill: #333333 !important;
+}
+
+/* Edge label backgrounds for better contrast */
+.glightbox-container .mermaid svg .edgeLabel rect {
+  fill: white !important;
+  stroke: #cccccc !important;
+  stroke-width: 1px !important;
+  opacity: 0.95 !important;
+}
+
+/* Better contrast for node borders in zoomed view */
+.glightbox-container .mermaid svg .node rect,
+.glightbox-container .mermaid svg .node circle,
+.glightbox-container .mermaid svg .node polygon {
+  stroke-width: 3px !important;
+}
+
+/* Ensure proper spacing in glightbox */
+.glightbox-container .gslide-media {
+  max-width: 95vw !important;
+  max-height: 95vh !important;
+}
+
+/* GLightbox background - darker for better contrast */
+.glightbox-container .goverlay {
+  background: rgba(0, 0, 0, 0.95) !important;
+}

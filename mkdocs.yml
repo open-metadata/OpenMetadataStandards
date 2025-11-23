@@ -1,0 +1,259 @@
+site_name: OpenMetadata Standards
+site_url: https://openmetadatastandards.org
+site_description: Comprehensive documentation for OpenMetadata Schemas, Ontologies, and Standards
+site_author: OpenMetadata Community
+
+repo_url: https://github.com/open-metadata/OpenMetadataStandards
+repo_name: open-metadata/OpenMetadataStandards
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Light mode - OpenMetadata branding (colors overridden in extra.css)
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: white
+      accent: white
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode - OpenMetadata branding (colors overridden in extra.css)
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: black
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - search.share
+    - toc.follow
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+  logo: assets/logo.png
+  favicon: assets/favicon.png
+  font:
+    text: Inter
+    code: Roboto Mono
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/mermaid-zoom.js
+
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/open-metadata/OpenMetadata
+    - icon: fontawesome/brands/slack
+      link: https://slack.open-metadata.org
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/open_metadata
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/open-metadata
+  analytics:
+    provider: google
+    property: !ENV GOOGLE_ANALYTICS_KEY
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.arithmatex:
+      generic: true
+
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - glightbox:
+      touchNavigation: true
+      loop: false
+      effect: zoom
+      slide_effect: slide
+      width: 100%
+      height: auto
+      zoomable: true
+      draggable: true
+      auto_caption: false
+      caption_position: bottom
+  - minify:
+      minify_html: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+      enable_git_follow: false
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Introduction: getting-started/introduction.md
+      - Quick Start: getting-started/quick-start.md
+      - Core Concepts: getting-started/core-concepts.md
+      - Use Cases: getting-started/use-cases.md
+  - Metadata Specifications:
+      - Overview: metadata-specifications/overview.md
+      - Custom Properties: metadata-specifications/custom-properties.md
+      - Data Assets:
+          - Overview: data-assets/overview.md
+          - Databases:
+              - Overview: data-assets/databases/overview.md
+              - Database Service: data-assets/databases/database-service.md
+              - Database: data-assets/databases/database.md
+              - Database Schema: data-assets/databases/database-schema.md
+              - Table: data-assets/databases/table.md
+              - Column: data-assets/databases/column.md
+              - Stored Procedure: data-assets/databases/stored-procedure.md
+              - Query: data-assets/databases/query.md
+          - Pipelines:
+              - Overview: data-assets/pipelines/overview.md
+              - Pipeline Service: data-assets/pipelines/pipeline-service.md
+              - Pipeline: data-assets/pipelines/pipeline.md
+              - Task: data-assets/pipelines/task.md
+          - Messaging:
+              - Overview: data-assets/messaging/overview.md
+              - Messaging Service: data-assets/messaging/messaging-service.md
+              - Topic: data-assets/messaging/topic.md
+          - Dashboards:
+              - Overview: data-assets/dashboards/overview.md
+              - Dashboard Service: data-assets/dashboards/dashboard-service.md
+              - Dashboard: data-assets/dashboards/dashboard.md
+              - Chart: data-assets/dashboards/chart.md
+              - Data Model: data-assets/dashboards/data-model.md
+              - Report: data-assets/dashboards/report.md
+          - ML Models:
+              - Overview: data-assets/ml/overview.md
+              - ML Model Service: data-assets/ml/mlmodel-service.md
+              - ML Model: data-assets/ml/mlmodel.md
+          - Storage:
+              - Overview: data-assets/storage/overview.md
+              - Storage Service: data-assets/storage/storage-service.md
+              - Drive Service: data-assets/storage/drive-service.md
+              - Directory: data-assets/storage/directory.md
+              - Spreadsheet: data-assets/storage/spreadsheet.md
+              - Worksheet: data-assets/storage/worksheet.md
+              - Container: data-assets/storage/container.md
+              - File: data-assets/storage/file.md
+          - APIs:
+              - Overview: data-assets/apis/overview.md
+              - API Service: data-assets/apis/api-service.md
+              - API Collection: data-assets/apis/api-collection.md
+              - API Endpoint: data-assets/apis/api-endpoint.md
+          - Search:
+              - Overview: data-assets/search/overview.md
+              - Search Service: data-assets/search/search-service.md
+              - Search Index: data-assets/search/search-index.md
+          - Notebooks:
+              - Overview: data-assets/notebooks/overview.md
+              - Notebook: data-assets/notebooks/notebook.md
+      - Governance:
+          - Overview: governance/overview.md
+          - Glossary: governance/glossary.md
+          - Glossary Term: governance/glossary-term.md
+          - Classification: governance/classification.md
+          - Tag: governance/tag.md
+          - Metric: governance/metric.md
+          - Policy: governance/policy.md
+      - Data Quality:
+          - Overview: data-quality/overview.md
+          - Test Definition: data-quality/test-definition.md
+          - Test Case: data-quality/test-case.md
+          - Test Suite: data-quality/test-suite.md
+          - Alert: data-quality/alert.md
+          - Data Profile: data-quality/data-profile.md
+      - Lineage:
+          - Overview: lineage/overview.md
+          - Lineage: lineage/lineage.md
+      - Data Contracts:
+          - Overview: data-contracts/overview.md
+          - Data Contract: data-contracts/data-contract.md
+      - Teams & Users:
+          - Overview: teams-users/overview.md
+          - User: teams-users/user.md
+          - Team: teams-users/team.md
+          - Role: teams-users/role.md
+          - Persona: teams-users/persona.md
+      - Domains:
+          - Overview: domains/overview.md
+          - Domain: domains/domain.md
+      - Data Products:
+          - Overview: data-products/overview.md
+          - Data Product: data-products/data-product.md
+      - Operations:
+          - Overview: operations/overview.md
+          - Ingestion Pipeline: operations/ingestion-pipeline.md
+          - Webhook: operations/webhook.md
+          - Applications:
+              - Overview: operations/applications/overview.md
+              - Application: operations/applications/application.md
+      - Events:
+          - Overview: events/overview.md
+          - Change Event: events/change-event.md
+  - Metadata Standards:
+      - Overview: metadata-standards/overview.md
+      - JSON Schema: metadata-standards/json-schemas.md
+      - RDF & OWL: metadata-standards/rdf-ontology.md
+      - JSON-LD: metadata-standards/jsonld-contexts.md
+      - SHACL: metadata-standards/shacl-validation.md
+  - Standards & Specifications:
+      - Overview: standards/overview.md
+      - Metadata Standards: standards/metadata-standards.md
+      - Schema Evolution: standards/schema-evolution.md
+      - Versioning: standards/versioning.md
+      - Compliance: standards/compliance.md
+      - Interoperability: standards/interoperability.md
+  - Examples:
+      - Overview: examples/index.md
+      - Basic Examples: examples/basic.md
+      - Advanced Examples: examples/advanced.md
+      - Integration Examples: examples/integration.md
+  - Developer Guide:
+      - Contributing: developer/contributing.md
+      - Schema Development: developer/schema-development.md
+      - Testing: developer/testing.md
+      - Validation: developer/validation.md
+  - Reference:
+      - Glossary: reference/glossary.md
+      - FAQ: reference/faq.md
+      - Change Log: reference/changelog.md
+      - License: reference/license.md

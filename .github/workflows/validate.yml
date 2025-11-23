@@ -1,0 +1,83 @@
+name: Validate Schemas
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-schemas:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: |
+          pip install jsonschema rdflib pyshacl
+
+      - name: Validate JSON Schemas
+        run: |
+          python -c "
+          import json
+          import os
+          from pathlib import Path
+
+          errors = []
+          for schema_file in Path('schemas').rglob('*.json'):
+              try:
+                  with open(schema_file) as f:
+                      json.load(f)
+                  print(f'✓ {schema_file}')
+              except Exception as e:
+                  errors.append(f'{schema_file}: {e}')
+                  print(f'✗ {schema_file}: {e}')
+
+          if errors:
+              print(f'\n{len(errors)} validation errors found')
+              exit(1)
+          else:
+              print(f'\nAll schemas are valid JSON!')
+          "
+
+      - name: Validate RDF Syntax
+        run: |
+          python -c "
+          from rdflib import Graph
+          from pathlib import Path
+
+          errors = []
+          for rdf_file in Path('rdf').rglob('*.ttl'):
+              try:
+                  g = Graph()
+                  g.parse(rdf_file, format='turtle')
+                  print(f'✓ {rdf_file} ({len(g)} triples)')
+              except Exception as e:
+                  errors.append(f'{rdf_file}: {e}')
+                  print(f'✗ {rdf_file}: {e}')
+
+          for jsonld_file in Path('rdf').rglob('*.jsonld'):
+              try:
+                  g = Graph()
+                  g.parse(jsonld_file, format='json-ld')
+                  print(f'✓ {jsonld_file} ({len(g)} triples)')
+              except Exception as e:
+                  errors.append(f'{jsonld_file}: {e}')
+                  print(f'✗ {jsonld_file}: {e}')
+
+          if errors:
+              print(f'\n{len(errors)} validation errors found')
+              exit(1)
+          else:
+              print(f'\nAll RDF files are valid!')
+          "

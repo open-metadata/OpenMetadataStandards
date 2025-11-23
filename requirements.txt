@@ -1,0 +1,19 @@
+# MkDocs and theme
+mkdocs>=1.5.0
+mkdocs-material>=9.5.0
+
+# Plugins
+mkdocs-minify-plugin>=0.7.0
+mkdocs-git-revision-date-localized-plugin>=1.2.0
+mkdocs-glightbox>=0.3.0
+
+# For working with schemas and RDF
+jsonschema>=4.0.0
+rdflib>=7.0.0
+pyshacl>=0.25.0
+
+# Optional: For JSON-LD processing
+PyLD>=2.0.0
+
+# Optional: For code generation
+datamodel-code-generator>=0.25.0
