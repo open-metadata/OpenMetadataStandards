@@ -12,6 +12,7 @@ use_directory_urls: true
 
 theme:
   name: material
+  custom_dir: docs/overrides
   palette:
     # Light mode - OpenMetadata branding (colors overridden in extra.css)
     - media: "(prefers-color-scheme: light)"
@@ -67,15 +68,30 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/open-metadata/OpenMetadata
+      name: OpenMetadata on GitHub
     - icon: fontawesome/brands/slack
       link: https://slack.open-metadata.org
+      name: Join OpenMetadata Slack
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/open_metadata
+      name: Follow OpenMetadata on Twitter
     - icon: fontawesome/brands/linkedin
       link: https://www.linkedin.com/company/open-metadata
+      name: OpenMetadata on LinkedIn
   analytics:
     provider: google
     property: !ENV GOOGLE_ANALYTICS_KEY
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: Thanks for your feedback! Help us improve by providing more details.
 
 markdown_extensions:
   - admonition
@@ -111,6 +127,7 @@ markdown_extensions:
 plugins:
   - search:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - meta
   - glightbox:
       touchNavigation: true
       loop: false
@@ -137,7 +154,6 @@ nav:
       - Use Cases: getting-started/use-cases.md
   - Metadata Specifications:
       - Overview: metadata-specifications/overview.md
-      - Custom Properties: metadata-specifications/custom-properties.md
       - Data Assets:
           - Overview: data-assets/overview.md
           - Databases:
@@ -233,6 +249,7 @@ nav:
       - Events:
           - Overview: events/overview.md
           - Change Event: events/change-event.md
+      - Custom Properties: metadata-specifications/custom-properties.md
   - Metadata Standards:
       - Overview: metadata-standards/overview.md
       - JSON Schema: metadata-standards/json-schemas.md
@@ -256,6 +273,7 @@ nav:
       - Schema Development: developer/schema-development.md
       - Testing: developer/testing.md
       - Validation: developer/validation.md
+      - SEO Guide: developer/seo-guide.md
   - Reference:
       - Glossary: reference/glossary.md
       - FAQ: reference/faq.md

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  <!-- Enhanced SEO Meta Tags -->
+  <meta name="keywords" content="OpenMetadata, metadata standards, data catalog, data governance, AI governance, JSON Schema, RDF, OWL, ontology, data lineage, data quality, data observability, data contract, data product, domains, metadata management, open source metadata">
+  <meta name="language" content="English">
+  <meta name="revisit-after" content="7 days">
+  <meta name="rating" content="General">
+  <meta name="distribution" content="Global">
+
+  <!-- Open Graph Meta Tags for Social Media -->
+  <meta property="og:site_name" content="OpenMetadata Standards">
+  <meta property="og:title" content="{% if page and page.meta and page.meta.title %}{{ page.meta.title }}{% elif page and page.title %}{{ page.title }}{% else %}{{ config.site_name }}{% endif %}">
+  <meta property="og:description" content="{% if page and page.meta and page.meta.description %}{{ page.meta.description }}{% else %}{{ config.site_description }}{% endif %}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ page.canonical_url }}">
+  <meta property="og:image" content="{{ config.site_url }}assets/logo.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@open_metadata">
+  <meta name="twitter:creator" content="@open_metadata">
+  <meta name="twitter:title" content="{% if page and page.meta and page.meta.title %}{{ page.meta.title }}{% elif page and page.title %}{{ page.title }}{% else %}{{ config.site_name }}{% endif %}">
+  <meta name="twitter:description" content="{% if page and page.meta and page.meta.description %}{{ page.meta.description }}{% else %}{{ config.site_description }}{% endif %}">
+  <meta name="twitter:image" content="{{ config.site_url }}assets/logo.png">
+
+  <!-- Structured Data (JSON-LD) for Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "{{ config.site_name }}",
+    "description": "{{ config.site_description }}",
+    "url": "{{ config.site_url }}",
+    "publisher": {
+      "@type": "Organization",
+      "name": "OpenMetadata Community",
+      "url": "https://github.com/open-metadata/OpenMetadata",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ config.site_url }}assets/logo.png"
+      },
+      "sameAs": [
+        "https://github.com/open-metadata/OpenMetadata",
+        "https://twitter.com/open_metadata",
+        "https://www.linkedin.com/company/open-metadata"
+      ]
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "{{ config.site_url }}search/?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  {% if page and page.title %}
+  <!-- Page-specific structured data for documentation -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "{{ page.title }}",
+    "description": "{% if page.meta and page.meta.description %}{{ page.meta.description }}{% else %}{{ config.site_description }}{% endif %}",
+    "url": "{{ page.canonical_url }}",
+    "author": {
+      "@type": "Organization",
+      "name": "{{ config.site_author }}"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "OpenMetadata Community",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ config.site_url }}assets/logo.png"
+      }
+    },
+    "dateModified": "{% if page.meta and page.meta.git_revision_date_localized %}{{ page.meta.git_revision_date_localized }}{% endif %}",
+    "inLanguage": "en-US"
+  }
+  </script>
+  {% endif %}
+
+  <!-- Additional SEO -->
+  <link rel="alternate" type="application/rss+xml" title="{{ config.site_name }}" href="{{ config.site_url }}sitemap.xml">
+
+  {{ super() }}
+{% endblock %}

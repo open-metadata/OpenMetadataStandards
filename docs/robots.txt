@@ -1,0 +1,32 @@
+# Robots.txt for OpenMetadata Standards Documentation
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://openmetadatastandards.org/sitemap.xml
+
+# Crawl rate - be nice to our servers
+Crawl-delay: 1
+
+# Disallow search results and version-specific pages if needed
+# Disallow: /search/
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /

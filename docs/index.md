@@ -1,3 +1,8 @@
+---
+title: OpenMetadata Standards - Open Standard for Unified Metadata Management
+description: Comprehensive collection of JSON Schemas, RDF Ontologies, and metadata specifications for data catalog, governance, lineage, and quality across the entire data ecosystem.
+keywords: OpenMetadata, metadata standards, JSON Schema, RDF, OWL ontology, data catalog, data governance, AI governance, data lineage, data quality, data observability, data contract, data product, domains, metadata management, open source
+---
 
 # OpenMetadata Standards
 
