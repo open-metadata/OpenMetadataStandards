@@ -181,18 +181,46 @@
   box-shadow: 0 0 0.2rem rgba(0, 97, 242, 0.1), 0 0.2rem 0.4rem rgba(0, 97, 242, 0.2) !important;
 }
 
-/* Navigation tabs - Direct styling */
+/* Header navigation buttons and icons - improved visibility */
+.md-header__button {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.md-header__button:hover {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Site title text color */
+.md-header__title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* Navigation tabs - Direct styling with improved readability */
 .md-tabs {
   background-color: #0061f2 !important;
 }
 
 .md-tabs__link {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  opacity: 1 !important;
+  text-decoration: none !important;
 }
 
-.md-tabs__link:hover,
-.md-tabs__link--active {
+.md-tabs__link:hover {
   color: #ffffff !important;
+}
+
+/* Active tab styling - simple and clean */
+.md-tabs__item--active .md-tabs__link {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 0.3rem !important;
+  text-decoration-thickness: 2px !important;
 }
 
 /* Search */
@@ -204,10 +232,88 @@
   color: rgba(255, 255, 255, 0.54);
 }
 
-/* Table of contents */
+/* Left sidebar navigation - active item styling */
 .md-nav__link--active {
-  color: #6900c7 !important;
-  font-weight: 500;
+  color: #0061f2 !important;
+  font-weight: 600 !important;
+  background: linear-gradient(90deg, rgba(0, 97, 242, 0.12) 0%, rgba(0, 97, 242, 0.05) 100%) !important;
+  border-left: 3px solid #0061f2 !important;
+  border-radius: 0 4px 4px 0;
+  padding: 0.6rem 0.8rem 0.6rem 0.8rem !important;
+  box-shadow: 0 1px 3px rgba(0, 97, 242, 0.1);
+  margin: 0.2rem 0 !important;
+}
+
+/* Dark mode sidebar navigation */
+[data-md-color-scheme="slate"] .md-nav__link--active {
+  color: #a78bfa !important;
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.18) 0%, rgba(167, 139, 250, 0.08) 100%) !important;
+  border-left: 3px solid #a78bfa !important;
+  border-radius: 0 4px 4px 0;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(167, 139, 250, 0.15);
+  padding: 0.6rem 0.8rem 0.6rem 0.8rem !important;
+  margin: 0.2rem 0 !important;
+}
+
+/* Sidebar hover effect */
+.md-nav__link:hover {
+  background: linear-gradient(90deg, rgba(0, 97, 242, 0.08) 0%, rgba(0, 97, 242, 0.03) 100%);
+  border-radius: 0 4px 4px 0;
+  border-left: 3px solid transparent;
+  padding-left: 0.8rem !important;
+}
+
+[data-md-color-scheme="slate"] .md-nav__link:hover {
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.12) 0%, rgba(167, 139, 250, 0.05) 100%);
+  border-left: 3px solid rgba(167, 139, 250, 0.3);
+}
+
+/* Improve sidebar section titles */
+.md-nav__title {
+  font-weight: 600 !important;
+  color: var(--md-default-fg-color) !important;
+}
+
+/* Sidebar links default state */
+.md-nav__link {
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem !important;
+  margin: 0.1rem 0;
+}
+
+[data-md-color-scheme="slate"] .md-nav__link {
+  color: rgba(255, 255, 255, 0.87) !important;
+}
+
+/* Right-side table of contents (TOC) styling */
+.md-nav--secondary .md-nav__link--active {
+  color: var(--om-primary) !important;
+  font-weight: 600 !important;
+  border-left: 2px solid var(--om-primary) !important;
+  padding-left: 0.8rem !important;
+}
+
+[data-md-color-scheme="slate"] .md-nav--secondary .md-nav__link--active {
+  color: #5c9eff !important;
+  border-left: 2px solid #5c9eff !important;
+}
+
+/* TOC links */
+.md-nav--secondary .md-nav__link {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+}
+
+.md-nav--secondary .md-nav__link:hover {
+  color: var(--om-secondary);
+  background-color: rgba(0, 97, 242, 0.05);
+}
+
+[data-md-color-scheme="slate"] .md-nav--secondary .md-nav__link:hover {
+  color: #a78bfa;
+  background-color: rgba(167, 139, 250, 0.08);
 }
 
 /* Links in content */
