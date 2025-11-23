@@ -1419,6 +1419,34 @@ for details on defining and using custom properties.
 
 ---
 
+## Followers
+
+**Stay informed about ML model changes**
+
+Followers allow users to "follow" an ML model and receive notifications when it changes. This is valuable for:
+
+- **Data Scientists**: Monitor models they've developed or deployed
+- **ML Engineers**: Track model version changes and deployments
+- **Stakeholders**: Stay informed about production model updates
+- **Compliance**: Monitor models for governance and regulatory requirements
+
+**Key Benefits**:
+- Receive notifications about model version updates
+- Track feature or algorithm changes
+- Monitor performance metrics and drift
+- Get alerts for ownership, deprecation, or governance updates
+
+**Common Use Cases**:
+- Data scientists follow models in production
+- ML engineers follow models they deploy and maintain
+- Product managers follow models powering product features
+- Compliance teams follow models with regulatory implications
+
+!!! tip "Learn More"
+    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about configuring notifications, best practices, and integration with webhooks.
+
+---
+
 ## API Operations
 
 All ML Model operations are available under the `/v1/mlmodels` endpoint.

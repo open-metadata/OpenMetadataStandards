@@ -1363,6 +1363,34 @@ for details on defining and using custom properties.
 
 ---
 
+## Followers
+
+**Stay informed about API endpoint changes**
+
+Followers allow users to "follow" API endpoints and receive notifications when they change. This is critical for:
+
+- **API Consumers**: Monitor endpoints your applications depend on
+- **Backend Engineers**: Track endpoints you own or maintain
+- **Integration Teams**: Stay informed about contract changes
+- **API Product Managers**: Monitor endpoint usage and evolution
+
+**Key Benefits**:
+- Receive notifications about breaking changes to request/response schemas
+- Track deprecation notices and versioning changes
+- Monitor authentication or rate limiting updates
+- Get alerts for SLA or performance threshold changes
+
+**Common Use Cases**:
+- Frontend developers follow endpoints their apps consume
+- Backend engineers follow production endpoints they maintain
+- DevOps teams follow critical API endpoints for monitoring
+- Product teams follow public API endpoints for customer impact
+
+!!! tip "Learn More"
+    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about configuring notifications, best practices, and integration with webhooks.
+
+---
+
 ## API Operations
 
 ### List API Endpoints

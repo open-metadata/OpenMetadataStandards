@@ -1207,6 +1207,34 @@ for details on defining and using custom properties.
 
 ---
 
+## Followers
+
+**Stay informed about pipeline changes**
+
+Followers allow users to "follow" a pipeline and receive notifications when it changes. This is essential for:
+
+- **Data Engineers**: Monitor pipelines they own or maintain
+- **Pipeline Dependencies**: Track upstream/downstream pipeline changes
+- **Operations**: Get notified of pipeline failures or configuration changes
+- **Stakeholders**: Stay informed about ETL processes affecting their data
+
+**Key Benefits**:
+- Receive notifications about pipeline configuration changes
+- Track task additions, removals, or modifications
+- Monitor pipeline schedule or trigger changes
+- Get alerts for ownership, deprecation, or governance updates
+
+**Common Use Cases**:
+- Data engineers follow production pipelines they maintain
+- Analysts follow pipelines that refresh their reports
+- Data scientists follow pipelines feeding their ML models
+- Operations teams follow critical data pipelines
+
+!!! tip "Learn More"
+    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about configuring notifications, best practices, and integration with webhooks.
+
+---
+
 ## API Operations
 
 All Pipeline operations are available under the `/v1/pipelines` endpoint.

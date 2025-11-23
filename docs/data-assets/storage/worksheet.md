@@ -465,6 +465,34 @@ for details on defining and using custom properties.
 
 ---
 
+## Followers
+
+**Stay informed about worksheet changes**
+
+Followers allow users to "follow" individual worksheets and receive notifications when they change. This is valuable for:
+
+- **Business Users**: Monitor worksheets with key business data
+- **Analysts**: Track worksheets they reference in reports
+- **Data Teams**: Stay informed about collaborative data sources
+- **Stakeholders**: Monitor shared data worksheets
+
+**Key Benefits**:
+- Receive notifications about data updates or refreshes
+- Track column additions, removals, or type changes
+- Monitor formula or calculation updates
+- Get alerts for sharing or permission changes
+
+**Common Use Cases**:
+- Business users follow worksheets with KPIs or metrics
+- Analysts follow worksheets they use as data sources
+- Teams follow collaborative worksheets for planning
+- Finance teams follow budget or forecast worksheets
+
+!!! tip "Learn More"
+    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about configuring notifications, best practices, and integration with webhooks.
+
+---
+
 ## API Operations
 
 All Worksheet operations are available under the `/v1/drives/worksheets` endpoint.
