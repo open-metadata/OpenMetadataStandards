@@ -471,6 +471,7 @@ This documentation is automatically deployed to **GitHub Pages** with every comm
 
 - **Live Documentation**: [openmetadatastandards.org](https://openmetadatastandards.org)
 - **Deployment Workflow**: [`.github/workflows/deploy-docs.yml`](.github/workflows/deploy-docs.yml)
+- **Validation Workflow**: [`.github/workflows/docs-validation.yml`](.github/workflows/docs-validation.yml)
 - **Deployment Guide**: [DEPLOYMENT.md](DEPLOYMENT.md)
 - **Setup Checklist**: [SETUP_CHECKLIST.md](SETUP_CHECKLIST.md)
 
@@ -497,7 +498,14 @@ We love contributions! Whether you're fixing bugs, adding new schemas, improving
    - Documentation: `docs/`
    - Examples: `examples/`
    - RDF/Ontologies: `rdf/`
-4. **Test** your changes locally (`mkdocs serve`)
+4. **Test** your changes locally:
+   ```bash
+   # Serve documentation locally
+   mkdocs serve
+
+   # Validate documentation (checks for broken links, 404s, build warnings)
+   ./scripts/check-docs.sh
+   ```
 5. **Commit** your changes (`git commit -m 'Add amazing feature'`)
 6. **Push** to the branch (`git push origin feature/amazing-feature`)
 7. **Open** a Pull Request

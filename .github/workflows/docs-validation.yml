@@ -1,0 +1,224 @@
+name: Validate Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/docs-validation.yml'
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/docs-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install mkdocs-material
+          pip install mkdocs-glightbox
+          pip install mkdocs-minify-plugin
+          pip install mkdocs-git-revision-date-localized-plugin
+
+      - name: Check for broken links in markdown files
+        run: |
+          python3 << 'PYEOF'
+          import os
+          import re
+          import sys
+          from pathlib import Path
+
+          broken_links = []
+
+          # Parse all markdown files for internal links
+          for md_file in Path('docs').rglob('*.md'):
+              content = md_file.read_text()
+              # Find markdown links [text](path.md)
+              links = re.findall(r'\[([^\]]+)\]\(([^)]+\.md[^)]*)\)', content)
+
+              for link_text, link_path in links:
+                  # Skip external links
+                  if link_path.startswith('http://') or link_path.startswith('https://'):
+                      continue
+
+                  # Remove anchor
+                  link_path_clean = link_path.split('#')[0]
+
+                  # Resolve relative path
+                  link_file = md_file.parent / link_path_clean
+                  if not link_file.exists():
+                      broken_links.append({
+                          'file': str(md_file.relative_to('docs')),
+                          'link': link_path,
+                          'expected': str(link_file)
+                      })
+
+          if broken_links:
+              print(f"❌ Found {len(broken_links)} broken internal links:")
+              for link in broken_links:
+                  print(f"  File: {link['file']}")
+                  print(f"    Link: {link['link']}")
+                  print(f"    Expected: {link['expected']}")
+                  print()
+              sys.exit(1)
+          else:
+              print("✅ No broken internal links found!")
+          PYEOF
+
+      - name: Build documentation
+        id: build
+        run: |
+          echo "Building documentation..."
+          mkdocs build --strict 2>&1 | tee build.log
+
+          # Check for warnings (excluding git-related warnings)
+          WARNING_COUNT=$(grep "WARNING" build.log | grep -v "git_follow\|git logs" | wc -l)
+          echo "warning_count=$WARNING_COUNT" >> $GITHUB_OUTPUT
+
+          if [ $WARNING_COUNT -gt 0 ]; then
+            echo "❌ Found $WARNING_COUNT warnings in documentation build"
+            grep "WARNING" build.log | grep -v "git_follow\|git logs"
+            exit 1
+          fi
+
+          echo "✅ Documentation built successfully with no warnings!"
+
+      - name: Check for missing files referenced in docs
+        run: |
+          python3 << 'PYEOF'
+          import sys
+          from pathlib import Path
+
+          # Check if any markdown files reference non-existent files
+          missing_refs = []
+
+          for md_file in Path('docs').rglob('*.md'):
+              content = md_file.read_text()
+              # Look for common patterns that might indicate missing files
+              if '404' in content.lower() or 'not found' in content.lower():
+                  # Check if it's just documentation text or actual issue
+                  lines = content.split('\n')
+                  for i, line in enumerate(lines):
+                      if '404' in line.lower() or 'not found' in line.lower():
+                          if not any(x in line for x in ['example', 'error', 'status code', 'http']):
+                              missing_refs.append({
+                                  'file': str(md_file.relative_to('docs')),
+                                  'line': i + 1,
+                                  'content': line.strip()
+                              })
+
+          if missing_refs:
+              print(f"⚠️  Found {len(missing_refs)} potential 404 references:")
+              for ref in missing_refs:
+                  print(f"  {ref['file']}:{ref['line']} - {ref['content']}")
+          else:
+              print("✅ No 404 references found in documentation!")
+          PYEOF
+
+      - name: Verify site directory was created
+        run: |
+          if [ ! -d "site" ]; then
+            echo "❌ Site directory was not created!"
+            exit 1
+          fi
+
+          echo "✅ Site directory created successfully"
+          echo "📊 Documentation statistics:"
+          echo "  - Total HTML files: $(find site -name '*.html' | wc -l)"
+          echo "  - Total size: $(du -sh site | cut -f1)"
+
+      - name: Check for empty pages
+        run: |
+          python3 << 'PYEOF'
+          import sys
+          from pathlib import Path
+
+          empty_files = []
+          small_files = []
+
+          for md_file in Path('docs').rglob('*.md'):
+              size = md_file.stat().st_size
+              if size == 0:
+                  empty_files.append(str(md_file.relative_to('docs')))
+              elif size < 50:  # Less than 50 bytes is suspiciously small
+                  small_files.append((str(md_file.relative_to('docs')), size))
+
+          if empty_files:
+              print(f"❌ Found {len(empty_files)} empty markdown files:")
+              for f in empty_files:
+                  print(f"  - {f}")
+              sys.exit(1)
+
+          if small_files:
+              print(f"⚠️  Found {len(small_files)} very small markdown files (< 50 bytes):")
+              for f, size in small_files:
+                  print(f"  - {f} ({size} bytes)")
+
+          print("✅ No empty markdown files found!")
+          PYEOF
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Documentation Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "build.log" ]; then
+            WARNING_COUNT=$(grep "WARNING" build.log | grep -v "git_follow\|git logs" | wc -l || echo "0")
+            ERROR_COUNT=$(grep "ERROR" build.log | wc -l || echo "0")
+
+            echo "### Build Results" >> $GITHUB_STEP_SUMMARY
+            echo "- Warnings: $WARNING_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "- Errors: $ERROR_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -d "site" ]; then
+            HTML_COUNT=$(find site -name '*.html' | wc -l)
+            SITE_SIZE=$(du -sh site | cut -f1)
+            echo "### Generated Site" >> $GITHUB_STEP_SUMMARY
+            echo "- HTML pages: $HTML_COUNT" >> $GITHUB_STEP_SUMMARY
+            echo "- Total size: $SITE_SIZE" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          MD_COUNT=$(find docs -name '*.md' | wc -l)
+          echo "### Documentation Files" >> $GITHUB_STEP_SUMMARY
+          echo "- Markdown files: $MD_COUNT" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$WARNING_COUNT" = "0" ] && [ "$ERROR_COUNT" = "0" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **All validation checks passed!**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload build artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            build.log
+            site/
+          retention-days: 7
