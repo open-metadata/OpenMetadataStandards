@@ -181,18 +181,44 @@
   box-shadow: 0 0 0.2rem rgba(0, 97, 242, 0.1), 0 0.2rem 0.4rem rgba(0, 97, 242, 0.2) !important;
 }
 
-/* Navigation tabs - Direct styling */
+/* Header navigation buttons and icons - improved visibility */
+.md-header__button {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.md-header__button:hover {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Site title text color */
+.md-header__title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* Navigation tabs - Direct styling with improved readability */
 .md-tabs {
   background-color: #0061f2 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .md-tabs__link {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  opacity: 1 !important;
 }
 
-.md-tabs__link:hover,
+.md-tabs__link:hover {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
 .md-tabs__link--active {
   color: #ffffff !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid #ffffff !important;
 }
 
 /* Search */
@@ -204,10 +230,76 @@
   color: rgba(255, 255, 255, 0.54);
 }
 
-/* Table of contents */
+/* Left sidebar navigation - active item styling */
 .md-nav__link--active {
   color: #6900c7 !important;
-  font-weight: 500;
+  font-weight: 600 !important;
+  background-color: rgba(105, 0, 199, 0.08) !important;
+  border-radius: 4px;
+  padding-left: 0.8rem !important;
+}
+
+/* Dark mode sidebar navigation */
+[data-md-color-scheme="slate"] .md-nav__link--active {
+  color: #a78bfa !important;
+  background-color: rgba(167, 139, 250, 0.15) !important;
+  font-weight: 600 !important;
+}
+
+/* Sidebar hover effect */
+.md-nav__link:hover {
+  background-color: rgba(0, 97, 242, 0.05);
+  border-radius: 4px;
+}
+
+[data-md-color-scheme="slate"] .md-nav__link:hover {
+  background-color: rgba(167, 139, 250, 0.08);
+}
+
+/* Improve sidebar section titles */
+.md-nav__title {
+  font-weight: 600 !important;
+  color: var(--md-default-fg-color) !important;
+}
+
+/* Sidebar links default state */
+.md-nav__link {
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding-left: 0.6rem !important;
+}
+
+[data-md-color-scheme="slate"] .md-nav__link {
+  color: rgba(255, 255, 255, 0.87) !important;
+}
+
+/* Right-side table of contents (TOC) styling */
+.md-nav--secondary .md-nav__link--active {
+  color: var(--om-primary) !important;
+  font-weight: 600 !important;
+  border-left: 2px solid var(--om-primary) !important;
+  padding-left: 0.8rem !important;
+}
+
+[data-md-color-scheme="slate"] .md-nav--secondary .md-nav__link--active {
+  color: #5c9eff !important;
+  border-left: 2px solid #5c9eff !important;
+}
+
+/* TOC links */
+.md-nav--secondary .md-nav__link {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+}
+
+.md-nav--secondary .md-nav__link:hover {
+  color: var(--om-secondary);
+  background-color: rgba(0, 97, 242, 0.05);
+}
+
+[data-md-color-scheme="slate"] .md-nav--secondary .md-nav__link:hover {
+  color: #a78bfa;
+  background-color: rgba(167, 139, 250, 0.08);
 }
 
 /* Links in content */

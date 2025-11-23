@@ -137,7 +137,6 @@ nav:
       - Use Cases: getting-started/use-cases.md
   - Metadata Specifications:
       - Overview: metadata-specifications/overview.md
-      - Custom Properties: metadata-specifications/custom-properties.md
       - Data Assets:
           - Overview: data-assets/overview.md
           - Databases:
@@ -233,6 +232,7 @@ nav:
       - Events:
           - Overview: events/overview.md
           - Change Event: events/change-event.md
+      - Custom Properties: metadata-specifications/custom-properties.md
   - Metadata Standards:
       - Overview: metadata-standards/overview.md
       - JSON Schema: metadata-standards/json-schemas.md
