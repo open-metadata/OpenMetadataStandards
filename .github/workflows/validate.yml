@@ -1,4 +1,6 @@
 name: Validate Schemas
+permissions:
+  contents: read
 
 on:
   push:
