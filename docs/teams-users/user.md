@@ -1269,6 +1269,6 @@ Content-Type: application/json
 - **[Team](team.md)** - Team entity
 - **[Role](role.md)** - Role entity
 - **[Persona](persona.md)** - Persona entity
-- **[Authentication](../../security/authentication.md)** - Authentication mechanisms
-- **[Authorization](../../security/authorization.md)** - Access control
-- **[Policies](../../security/policies.md)** - Permission policies
+- **[Authentication](../security/authentication.md)** - Authentication mechanisms
+- **[Authorization](../security/authorization.md)** - Access control
+- **[Policies](../security/policies.md)** - Permission policies

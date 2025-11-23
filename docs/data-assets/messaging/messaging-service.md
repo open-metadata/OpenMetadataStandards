@@ -990,6 +990,6 @@ Content-Type: application/json
 
 - **[Topic](topic.md)** - Topic entity specification
 - **[Messaging Overview](overview.md)** - Messaging assets overview
-- **[Schema Registry Integration](../../integration/schema-registry.md)** - Schema management
+- **[Schema Registry Integration](../../integrations/schema-registry.md)** - Schema management
 - **[Event Lineage](../../lineage/event-lineage.md)** - Event-driven lineage
 - **[Data Pipelines](../../orchestration/overview.md)** - Pipeline integration

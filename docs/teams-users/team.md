@@ -1215,7 +1215,7 @@ Content-Type: application/json
 
 - **[User](user.md)** - User entity
 - **[Role](role.md)** - Role entity
-- **[Domain](../../governance/domain.md)** - Data domain
-- **[Policy](../../security/policies.md)** - Access policies
-- **[Organization](../../core-concepts/organization.md)** - Organization structure
-- **[Ownership](../../governance/ownership.md)** - Asset ownership
+- **[Domain](../governance/domain.md)** - Data domain
+- **[Policy](../security/policies.md)** - Access policies
+- **[Organization](../core-concepts/organization.md)** - Organization structure
+- **[Ownership](../governance/ownership.md)** - Asset ownership

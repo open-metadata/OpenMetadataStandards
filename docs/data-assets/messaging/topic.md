@@ -1451,7 +1451,7 @@ Response: BulkOperationResult
 
 - **[MessagingService](messaging-service.md)** - Service configuration
 - **[Messaging Overview](overview.md)** - Messaging assets overview
-- **[Schema Registry](../../integration/schema-registry.md)** - Schema management
+- **[Schema Registry](../../integrations/schema-registry.md)** - Schema management
 - **[Event Lineage](../../lineage/event-lineage.md)** - Event-driven lineage
 - **[Data Quality](../../data-quality/overview.md)** - Event validation
 - **[Data Contracts](../../governance/data-contracts.md)** - Schema contracts

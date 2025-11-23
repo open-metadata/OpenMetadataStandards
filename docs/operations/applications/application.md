@@ -1476,12 +1476,12 @@ for details on defining and using custom properties.
 
 ## Related Documentation
 
-- **[Table](../databases/table.md)** - Database tables accessed
-- **[API Endpoint](../apis/api-endpoint.md)** - APIs called and exposed
-- **[Topic](../messaging/topic.md)** - Message topics
-- **[Dashboard](../dashboards/dashboard.md)** - Embedded dashboards
-- **[ML Model](../ml/mlmodel.md)** - ML models used
-- **[Container](../storage/container.md)** - Storage containers
+- **[Table](../../data-assets/databases/table.md)** - Database tables accessed
+- **[API Endpoint](../../data-assets/apis/api-endpoint.md)** - APIs called and exposed
+- **[Topic](../../data-assets/messaging/topic.md)** - Message topics
+- **[Dashboard](../../data-assets/dashboards/dashboard.md)** - Embedded dashboards
+- **[ML Model](../../data-assets/ml/mlmodel.md)** - ML models used
+- **[Container](../../data-assets/storage/container.md)** - Storage containers
 - **[Domain](../../governance/domain.md)** - Business domains
 - **[Lineage](../../lineage/overview.md)** - Application lineage
 - **[Data Contracts](../../governance/data-contracts.md)** - Data contracts
