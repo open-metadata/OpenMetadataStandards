@@ -2,6 +2,7 @@
 
 > Comprehensive schemas, ontologies, and specifications for metadata management
 
+[![Deploy Docs](https://github.com/open-metadata/OpenMetadataStandards/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/open-metadata/OpenMetadataStandards/actions/workflows/deploy-docs.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://openmetadatastandards.org)
 [![Community](https://img.shields.io/badge/slack-join-orange.svg)](https://slack.open-metadata.org)
@@ -161,6 +162,21 @@ Full documentation available at [openmetadatastandards.org](https://openmetadata
 - [Schema Reference](https://openmetadatastandards.org/schemas/overview/)
 - [RDF & Ontologies](https://openmetadatastandards.org/rdf/overview/)
 - [Examples](https://openmetadatastandards.org/examples/)
+
+## Deployment
+
+This documentation is automatically deployed to GitHub Pages using GitHub Actions:
+
+- **Live Site**: [openmetadatastandards.org](https://openmetadatastandards.org)
+- **Trigger**: Every push to `main` branch
+- **Workflow**: `.github/workflows/deploy-docs.yml`
+- **Deployment Guide**: See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions
+
+### Custom Domains
+
+The documentation is accessible via:
+- **Primary**: openmetadatastandards.org
+- **Redirects**: openmetadatastandards.com, openmetadatastandard.com
 
 ## Contributing
 

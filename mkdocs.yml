@@ -7,6 +7,9 @@ repo_url: https://github.com/open-metadata/OpenMetadataStandards
 repo_name: open-metadata/OpenMetadataStandards
 edit_uri: edit/main/docs/
 
+# Use directory URLs for cleaner URLs
+use_directory_urls: true
+
 theme:
   name: material
   palette:
