@@ -1509,29 +1509,7 @@ for details on defining and using custom properties.
 
 ## Followers
 
-**Stay informed about container changes**
-
-Followers allow users to "follow" storage containers and receive notifications when they change. This is important for:
-
-- **Data Engineers**: Monitor data lake containers with production data
-- **Analytics Teams**: Track containers with analytical datasets
-- **Data Scientists**: Stay informed about ML training data locations
-- **Operations**: Monitor storage usage and data lifecycle
-
-**Key Benefits**:
-- Receive notifications about new files or partitions added
-- Track schema changes in structured files (Parquet, Avro)
-- Monitor retention policy or lifecycle rule changes
-- Get alerts for access control or governance updates
-
-**Common Use Cases**:
-- Data engineers follow production data lake containers
-- Analysts follow containers with datasets they use
-- ML engineers follow containers with training/test data
-- Compliance teams follow containers with sensitive data
-
-!!! tip "Learn More"
-    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about configuring notifications, best practices, and integration with webhooks.
+Users can follow containers to receive notifications about new files, schema changes, and retention policy updates. See **[Followers](../../metadata-specifications/followers.md)** for details.
 
 ---
 

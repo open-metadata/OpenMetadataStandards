@@ -442,29 +442,7 @@ for details on defining and using custom properties.
 
 ## Followers
 
-**Stay informed about spreadsheet changes**
-
-Followers allow users to "follow" spreadsheet files and receive notifications when they change. This is useful for:
-
-- **Business Teams**: Monitor spreadsheets with business-critical data
-- **Collaborators**: Track spreadsheets shared across teams
-- **Analysts**: Stay informed about data source spreadsheets
-- **Managers**: Monitor planning or reporting spreadsheets
-
-**Key Benefits**:
-- Receive notifications about new worksheets added
-- Track structural changes to the spreadsheet
-- Monitor sharing or permission updates
-- Get alerts for version updates or major edits
-
-**Common Use Cases**:
-- Teams follow shared planning spreadsheets
-- Analysts follow spreadsheets they import data from
-- Managers follow budget or forecast spreadsheets
-- Collaborators follow project tracking spreadsheets
-
-!!! tip "Learn More"
-    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about configuring notifications, best practices, and integration with webhooks.
+Users can follow spreadsheets to receive notifications about worksheet additions, structural changes, and sharing updates. See **[Followers](../../metadata-specifications/followers.md)** for details.
 
 ---
 

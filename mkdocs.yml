@@ -151,7 +151,6 @@ nav:
       - Introduction: getting-started/introduction.md
       - Quick Start: getting-started/quick-start.md
       - Core Concepts: getting-started/core-concepts.md
-      - Followers: core-concepts/followers.md
       - Use Cases: getting-started/use-cases.md
   - Metadata Specifications:
       - Overview: metadata-specifications/overview.md
@@ -251,6 +250,7 @@ nav:
           - Overview: events/overview.md
           - Change Event: events/change-event.md
       - Custom Properties: metadata-specifications/custom-properties.md
+      - Followers: metadata-specifications/followers.md
   - Metadata Standards:
       - Overview: metadata-standards/overview.md
       - JSON Schema: metadata-standards/json-schemas.md

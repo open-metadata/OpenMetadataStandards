@@ -977,29 +977,7 @@ for details on defining and using custom properties.
 
 ## Followers
 
-**Stay informed about test case changes**
-
-Followers allow users to "follow" test cases and receive notifications when they change. This is critical for:
-
-- **Data Quality Engineers**: Monitor test cases they've created
-- **Data Owners**: Track quality tests on their data assets
-- **Operations Teams**: Get notified of test failures or changes
-- **Compliance**: Monitor tests for regulatory requirements
-
-**Key Benefits**:
-- Receive notifications about test failures or successes
-- Track changes to test parameters or thresholds
-- Monitor test result trends and anomalies
-- Get alerts for test case deprecation or updates
-
-**Common Use Cases**:
-- Data engineers follow critical data quality tests
-- Data owners follow tests on their tables
-- Operations teams follow tests that trigger alerts
-- Compliance officers follow regulatory compliance tests
-
-!!! tip "Learn More"
-    See the complete **[Followers Guide](../core-concepts/followers.md)** for detailed information about configuring notifications, best practices, and integration with webhooks.
+Users can follow test cases to receive notifications about test failures, parameter changes, and result trends. See **[Followers](../metadata-specifications/followers.md)** for details.
 
 ---
 

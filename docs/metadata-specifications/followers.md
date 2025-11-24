@@ -435,6 +435,7 @@ for change in changes:
 
 ## Related Features
 
+- **[Custom Properties](custom-properties.md)**: Extend entities with custom fields
 - **[Ownership](../teams-users/overview.md#ownership)**: Formal responsibility for data assets
 - **[Webhooks](../operations/webhook.md)**: Real-time event notifications
 - **[Alerts](../data-quality/alert.md)**: Data quality and operational alerts
