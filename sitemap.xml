@@ -2,926 +2,926 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://openmetadatastandards.org/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/analytics/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/analytics/usage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/api-operations/data-contracts/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/api-operations/lineage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/api-operations/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/apis/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/assets/LOGO_README/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/configuration/services/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/connectors/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/connectors/pipeline-services/</loc>
-         <lastmod>2025-11-23</lastmod>
-    </url>
-    <url>
-         <loc>https://openmetadatastandards.org/core-concepts/followers/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/core-concepts/organization/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/core-concepts/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/apis/api-collection/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/apis/api-endpoint/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/apis/api-service/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/apis/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/applications/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/dashboards/chart/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/dashboards/dashboard-data-model/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/dashboards/dashboard-service/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/dashboards/dashboard/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/dashboards/data-model/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/dashboards/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/dashboards/report/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/databases/column/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/databases/database-schema/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/databases/database-service/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/databases/database/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/databases/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/databases/query/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/databases/schema/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/databases/stored-procedure/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/databases/table/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/messaging/messaging-service/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/messaging/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/messaging/topic/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/ml/mlmodel-service/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/ml/mlmodel/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/ml/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/notebooks/notebook-service/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/notebooks/notebook/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/notebooks/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/pipelines/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/pipelines/pipeline-service/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/pipelines/pipeline/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/pipelines/task/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/search/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/search/search-index/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/search/search-service/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/services/database-service/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/storage/container/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/storage/directory/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/storage/drive-service/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/storage/file/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/storage/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/storage/spreadsheet/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/storage/storage-service/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-assets/storage/worksheet/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-contracts/data-contract/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-contracts/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-products/data-product/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-products/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-quality/alert/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-quality/data-profile/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-quality/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-quality/profiling/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-quality/test-case/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-quality/test-definition/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/data-quality/test-suite/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/developer/contract-patterns/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/developer/contributing/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/developer/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/developer/schema-development/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/developer/seo-guide/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/developer/testing/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/developer/validation/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/domains/domain/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/domains/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/events/change-event/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/events/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/advanced/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/basic/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/data-contracts/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/data-quality/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/governance/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/integration/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/lineage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/teams-users/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/data-contracts/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/data-quality/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/governance/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/lineage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/examples/teams-users/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/getting-started/authentication/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/getting-started/core-concepts/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/getting-started/data-contracts/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/getting-started/data-quality/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/getting-started/governance/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/getting-started/introduction/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/getting-started/lineage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/getting-started/quick-start/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/getting-started/teams-users/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/getting-started/use-cases/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/api-versioning/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/audit-log/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/classification/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/data-contracts/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/domain/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/glossary-term/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/glossary/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/metric/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/ownership/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/policy/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/governance/tag/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/guides/data-lake-patterns/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/guides/data-lake/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/guides/file-formats/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/guides/partitioning/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/ingestion/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/integrations/orchestration/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/integrations/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/integrations/schema-registry/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/lineage/event-lineage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/lineage/lineage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/lineage/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/metadata-specifications/custom-properties/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
+    </url>
+    <url>
+         <loc>https://openmetadatastandards.org/metadata-specifications/followers/</loc>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/metadata-specifications/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/metadata-standards/json-schemas/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/metadata-standards/jsonld-contexts/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/metadata-standards/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/metadata-standards/rdf-ontology/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/metadata-standards/shacl-validation/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/operations/ingestion-pipeline/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/operations/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/operations/webhook/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/operations/applications/application/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/operations/applications/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/orchestration/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/best-practices/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/contexts/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/contexts/usage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/ontology/classes/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/ontology/core-concepts/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/ontology/introduction/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/ontology/properties/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/ontology/relationships/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/provenance/introduction/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/provenance/lineage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/provenance/prov-o/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/shapes/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/rdf/shapes/validation/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/reference/changelog/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/reference/contracts/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/reference/faq/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/reference/glossary/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/reference/license/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/reference/lineage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/reference/api/contracts/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/reference/api/lineage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/data-quality/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/governance/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/reference/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/api/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/api/feed-events/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/api/rest-api/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/configuration/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/configuration/authentication/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/configuration/authorization/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/configuration/pipeline-services/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/dataInsight/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/dataInsight/analytics/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/entity/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/entity/data-assets/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/entity/dataContract/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/entity/glossary/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/entity/metrics/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/entity/policies-roles/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/entity/services/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/entity/teams-users/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/events/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/events/event-types/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/events/webhooks/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/governance/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/governance/policies/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/metadataIngestion/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/metadataIngestion/connectors/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/metadataIngestion/workflows/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/security/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/security/jwt/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/security/sso/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/type/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/type/basic-types/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/type/collection-types/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/type/custom-properties/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/schemas/type/entityLineage/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/search/analyzers/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/search/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/security/access-control/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/security/authentication/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/security/authorization/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/security/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/security/permissions/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/security/policies/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/security/rbac/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/services/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/specifications/api-versioning/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/specifications/openapi/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/specifications/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/standards/compliance/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/standards/interoperability/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/standards/metadata-standards/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/standards/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/standards/prov-o/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/standards/schema-evolution/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/standards/versioning/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/teams-users/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/teams-users/persona/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/teams-users/role/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/teams-users/team/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/teams-users/user/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/ui/customization/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/ui/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/ui/user-experience/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
     <url>
          <loc>https://openmetadatastandards.org/workflows/overview/</loc>
-         <lastmod>2025-11-23</lastmod>
+         <lastmod>2025-11-24</lastmod>
     </url>
 </urlset>
