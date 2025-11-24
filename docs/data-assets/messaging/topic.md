@@ -1235,29 +1235,7 @@ for details on defining and using custom properties.
 
 ## Followers
 
-**Stay informed about topic changes**
-
-Followers allow users to "follow" a topic and receive notifications when it changes. This is critical for:
-
-- **Event Producers**: Monitor topics they publish to
-- **Event Consumers**: Track schema changes in topics they consume
-- **Platform Teams**: Get notified of topic configuration changes
-- **Compliance**: Monitor topics with sensitive data
-
-**Key Benefits**:
-- Receive notifications about schema changes (critical for compatibility)
-- Track partition count or replication factor changes
-- Monitor retention policy or configuration updates
-- Get alerts for deprecation, ownership, or governance changes
-
-**Common Use Cases**:
-- Developers follow topics their services consume
-- Platform engineers follow all production topics
-- Data scientists follow topics with ML training events
-- Compliance officers follow topics with PII or sensitive data
-
-!!! tip "Learn More"
-    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about configuring notifications, best practices, and integration with webhooks.
+Users can follow topics to receive notifications about schema changes, partition updates, and configuration modifications. See **[Followers](../../metadata-specifications/followers.md)** for details.
 
 ---
 

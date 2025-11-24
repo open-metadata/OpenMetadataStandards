@@ -751,34 +751,7 @@ for details on defining and using custom properties.
 
 ## Followers
 
-**Stay informed about database changes**
-
-Followers allow users to "follow" a database and receive notifications when it changes. This is useful for:
-
-- **Monitoring Dependencies**: Get notified when databases your applications depend on change
-- **Staying Informed**: Track databases you're interested in without being the owner
-- **Collaboration**: Stay in sync with team members working on the same databases
-- **Governance**: Monitor databases with compliance requirements
-
-**Key Benefits**:
-- Receive notifications about schema changes, new schemas, or deletions
-- Track governance changes (tags, ownership, domain assignments)
-- Monitor data quality issues at the database level
-- Get alerts for deprecation notices
-
-**Following vs Ownership**:
-- **Ownership** = Responsibility and accountability for the database
-- **Following** = Interest and awareness about the database
-
-Any user can follow any database they have access to. A database can have multiple followers.
-
-!!! tip "Learn More"
-    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about:
-
-    - How to follow databases via UI and API
-    - Notification preferences and configuration
-    - Best practices for using followers effectively
-    - Integration with webhooks and activity feeds
+Users can follow databases to receive notifications about changes such as schema updates, governance changes, or deprecation notices. See **[Followers](../../metadata-specifications/followers.md)** for details.
 
 ---
 

@@ -1036,29 +1036,7 @@ for details on defining and using custom properties.
 
 ## Followers
 
-**Stay informed about dashboard changes**
-
-Followers allow users to "follow" a dashboard and receive notifications when it changes. This is particularly valuable for:
-
-- **Business Stakeholders**: Track dashboards with key business metrics and KPIs
-- **Report Consumers**: Get notified when dashboards are updated or metrics change
-- **Collaboration**: Stay in sync with team members working on shared dashboards
-- **Governance**: Monitor dashboards for compliance and data quality
-
-**Key Benefits**:
-- Receive notifications about dashboard updates and refreshes
-- Track changes to underlying data sources or calculations
-- Monitor chart additions, removals, or modifications
-- Get alerts for ownership, tier, or governance changes
-
-**Common Use Cases**:
-- Executives follow executive dashboards for KPI tracking
-- Product managers follow dashboards tracking product metrics
-- Analysts follow dashboards they've created or contributed to
-- Data engineers follow dashboards to monitor data pipeline health
-
-!!! tip "Learn More"
-    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about configuring notifications, best practices, and integration with webhooks.
+Users can follow dashboards to receive notifications about updates, chart changes, and data source modifications. See **[Followers](../../metadata-specifications/followers.md)** for details.
 
 ---
 

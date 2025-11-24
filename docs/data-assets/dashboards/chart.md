@@ -1014,29 +1014,7 @@ for details on defining and using custom properties.
 
 ## Followers
 
-**Stay informed about chart changes**
-
-Followers allow users to "follow" individual charts and receive notifications when they change. This is useful for:
-
-- **Chart Creators**: Monitor charts they've built
-- **Metric Owners**: Track visualizations of key business metrics
-- **Stakeholders**: Stay informed about specific KPI visualizations
-- **Collaboration**: Work with team members on chart refinements
-
-**Key Benefits**:
-- Receive notifications about chart configuration changes
-- Track changes to underlying queries or data sources
-- Monitor visualization type or display property updates
-- Get alerts for ownership or deprecation changes
-
-**Common Use Cases**:
-- Analysts follow charts they created or maintain
-- Business users follow charts showing their KPIs
-- Data teams follow charts using complex calculations
-- Executives follow critical metric visualizations
-
-!!! tip "Learn More"
-    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about configuring notifications, best practices, and integration with webhooks.
+Users can follow charts to receive notifications about visualization changes, query modifications, and data source updates. See **[Followers](../../metadata-specifications/followers.md)** for details.
 
 ---
 

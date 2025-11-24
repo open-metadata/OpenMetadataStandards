@@ -307,29 +307,7 @@ for details on defining and using custom properties.
 
 ## Followers
 
-**Stay informed about directory changes**
-
-Followers allow users to "follow" directories and receive notifications when they change. This is helpful for:
-
-- **Team Collaboration**: Monitor shared team directories
-- **Project Management**: Track project-specific directories
-- **Data Organization**: Stay informed about organizational changes
-- **Access Control**: Monitor permission changes to directories
-
-**Key Benefits**:
-- Receive notifications about new files or subdirectories added
-- Track permission or sharing updates
-- Monitor organizational structure changes
-- Get alerts for moves, renames, or deletions
-
-**Common Use Cases**:
-- Teams follow shared project directories
-- Managers follow departmental directories
-- Collaborators follow document repositories
-- Admins follow critical system directories
-
-!!! tip "Learn More"
-    See the complete **[Followers Guide](../../core-concepts/followers.md)** for detailed information about configuring notifications, best practices, and integration with webhooks.
+Users can follow directories to receive notifications about new files, permission changes, and organizational structure updates. See **[Followers](../../metadata-specifications/followers.md)** for details.
 
 ---
 
