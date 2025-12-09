@@ -152,150 +152,231 @@ View the complete Container schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/data/container.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Container",
-      "description": "A `Container` entity represents a storage bucket or container holding data files.",
+      "$comment": "@om-entity-type",
+      "description": "This schema defines the Container entity. A Container is an abstraction for any path(including the top level eg. bucket in S3) storing data in an Object store such as S3, GCP, Azure. It maps a tree-like structure, where each Container can have a parent and a list of sub-folders, and it can be structured - where it contains structured data, or unstructured where no schema for its data is defined.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.Container",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface"
+      ],
 
       "definitions": {
         "containerDataModel": {
+          "description": "This captures information about how the container's data is modeled, if it has a schema.",
           "type": "object",
+          "javaType": "org.openmetadata.schema.type.ContainerDataModel",
           "properties": {
             "isPartitioned": {
+              "description": "Whether the data under this container is partitioned by some property, eg. eventTime=yyyy-mm-dd",
               "type": "boolean",
-              "description": "Whether data is partitioned"
+              "default": false
             },
             "columns": {
+              "description": "Columns belonging to this container's schema",
               "type": "array",
-              "description": "Schema columns extracted from files",
               "items": {
-                "$ref": "../../type/entityReference.json"
+                "$ref": "../data/table.json#/definitions/column"
               }
             }
-          }
+          },
+          "required": ["columns"],
+          "additionalProperties": false
         },
         "fileFormat": {
-          "description": "File format in container",
+          "javaType": "org.openmetadata.schema.type.ContainerFileFormat",
+          "description": "This schema defines the file formats for the object/files within a container.",
+          "javaInterfaces": [
+            "org.openmetadata.schema.EnumInterface"
+          ],
           "type": "string",
           "enum": [
-            "csv", "tsv", "json", "jsonl", "parquet",
-            "avro", "orc", "xml", "proto", "gzip",
-            "zip", "tar", "text"
+            "zip",
+            "gz",
+            "zstd",
+            "csv",
+            "tsv",
+            "json",
+            "parquet",
+            "avro",
+            "MF4"
+          ],
+          "javaEnums": [
+            {"name": "Zip"},
+            {"name": "Gz"},
+            {"name": "Zstd"},
+            {"name": "Csv"},
+            {"name": "Tsv"},
+            {"name": "Json"},
+            {"name": "Parquet"},
+            {"name": "Avro"},
+            {"name": "MF4"}
           ]
-        },
-        "partitionConfig": {
-          "type": "object",
-          "properties": {
-            "partitionType": {
-              "type": "string",
-              "enum": ["HIVE", "DATE", "CUSTOM"]
-            },
-            "partitionColumns": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {"type": "string"},
-                  "dataType": {"type": "string"},
-                  "partitionFormat": {"type": "string"}
-                }
-              }
-            }
-          }
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies this container instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Container name (bucket/container name)",
+          "description": "Name that identifies the container.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service.container",
+          "description": "Name that uniquely identifies a container in the format 'ServiceName.ContainerName'.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this container.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the container instance.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "dataModel": {
-          "description": "Data model and schema",
-          "$ref": "#/definitions/containerDataModel"
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
         },
-        "prefix": {
-          "description": "Prefix/path within container",
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
           "type": "string"
         },
-        "numberOfObjects": {
-          "description": "Number of objects/files",
-          "type": "integer"
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
         },
-        "size": {
-          "description": "Total size in bytes",
-          "type": "number"
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "fileFormats": {
-          "description": "File formats present in container",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/fileFormat"
-          }
-        },
-        "partitionConfig": {
-          "description": "Partition configuration",
-          "$ref": "#/definitions/partitionConfig"
+        "owners": {
+          "description": "Owners of this container.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "service": {
-          "description": "Storage service",
+          "description": "Link to the storage service where this container is hosted in.",
           "$ref": "../../type/entityReference.json"
         },
         "parent": {
-          "description": "Parent container (for nested containers)",
+          "description": "Link to the parent container under which this entity sits, if not top level.",
           "$ref": "../../type/entityReference.json"
         },
         "children": {
-          "description": "Child containers/folders",
+          "description": "References to child containers residing under this entity.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataModel": {
+          "description": "References to the container's data model, if data is structured, or null otherwise",
+          "$ref": "#/definitions/containerDataModel",
+          "default": null
+        },
+        "prefix": {
+          "description": "Optional prefix path defined for this container",
+          "type": "string",
+          "default": null
+        },
+        "numberOfObjects": {
+          "description": "The number of objects/files this container has.",
+          "type": "number",
+          "default": null
+        },
+        "size": {
+          "description": "The total size in KB this container has.",
+          "type": "number",
+          "default": null
+        },
+        "fileFormats": {
+          "description": "File & data formats identified for the container:  e.g. dataFormats=[csv, json]. These can be present both when the container has a dataModel or not",
           "type": "array",
           "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+            "$ref": "#/definitions/fileFormat"
+          },
+          "default": null
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "serviceType": {
+          "description": "Service type this table is hosted in.",
+          "$ref": "../services/storageService.json#/definitions/storageServiceType"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "followers": {
+          "description": "Followers of this container.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this container.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "retentionPeriod": {
+          "description": "Retention period of the data in the Container. Period is expressed as duration in ISO 8601 format in UTC. Example - `P23DT23H`.",
+          "$ref": "../../type/basic.json#/definitions/duration"
+        },
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "sourceUrl": {
+          "description": "Source URL of container.",
+          "$ref": "../../type/basic.json#/definitions/sourceUrl"
+        },
+        "fullPath": {
+          "description": "Full path of the container/file.",
+          "type": "string"
+        },
+        "domains": {
+          "description": "Domains the Container belongs to. When not set, the Container inherits the domain from the storage service it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle properties of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "entityStatus": {
+          "description": "Status of the Container.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "service"]
+      "required": ["id", "name", "service"],
+      "additionalProperties": false
     }
     ```
 
@@ -376,8 +457,8 @@ View the complete Container schema in your preferred format:
     om:containerOwnedBy a owl:ObjectProperty ;
         rdfs:domain om:Container ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this container" .
+        rdfs:label "owners" ;
+        rdfs:comment "Users or teams that own this container" .
 
     om:containerHasTag a owl:ObjectProperty ;
         rdfs:domain om:Container ;
@@ -385,21 +466,18 @@ View the complete Container schema in your preferred format:
         rdfs:label "hasTag" ;
         rdfs:comment "Classification tags applied to container" .
 
-    om:containerLinkedToGlossaryTerm a owl:ObjectProperty ;
-        rdfs:domain om:Container ;
-        rdfs:range om:GlossaryTerm ;
-        rdfs:label "linkedToGlossaryTerm" ;
-        rdfs:comment "Business glossary terms" .
-
     # File Format Enumeration
     om:FileFormat a owl:Class ;
         owl:oneOf (
+            om:ZipFormat
+            om:GzFormat
+            om:ZstdFormat
+            om:CsvFormat
+            om:TsvFormat
+            om:JsonFormat
             om:ParquetFormat
             om:AvroFormat
-            om:OrcFormat
-            om:CsvFormat
-            om:JsonFormat
-            om:XmlFormat
+            om:MF4Format
         ) .
 
     # Example Instance
@@ -415,7 +493,7 @@ View the complete Container schema in your preferred format:
         om:belongsToStorageService ex:s3ProdService ;
         om:containerOwnedBy ex:dataEngTeam ;
         om:containerHasTag ex:tierGold ;
-        om:containerLinkedToGlossaryTerm ex:rawDataTerm .
+        om:containerHasTag ex:data_layer_raw .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -483,21 +561,18 @@ View the complete Container schema in your preferred format:
           "@type": "@id",
           "@container": "@set"
         },
-        "owner": {
+        "owners": {
           "@id": "om:containerOwnedBy",
-          "@type": "@id"
-        },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
-        },
-        "tags": {
-          "@id": "om:containerHasTag",
           "@type": "@id",
           "@container": "@set"
         },
-        "glossaryTerms": {
-          "@id": "om:containerLinkedToGlossaryTerm",
+        "domains": {
+          "@id": "om:inDomain",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "tags": {
+          "@id": "om:containerHasTag",
           "@type": "@id",
           "@container": "@set"
         }
@@ -538,39 +613,20 @@ View the complete Container schema in your preferred format:
         ]
       },
 
-      "partitionConfig": {
-        "partitionType": "HIVE",
-        "partitionColumns": [
-          {
-            "name": "year",
-            "dataType": "INT",
-            "partitionFormat": "yyyy"
-          },
-          {
-            "name": "month",
-            "dataType": "INT",
-            "partitionFormat": "MM"
-          },
-          {
-            "name": "day",
-            "dataType": "INT",
-            "partitionFormat": "dd"
-          }
-        ]
-      },
-
       "service": {
         "@id": "https://example.com/services/s3_prod",
         "@type": "StorageService",
         "name": "s3_prod"
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/data-engineering",
-        "@type": "Team",
-        "name": "data-engineering",
-        "displayName": "Data Engineering Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-engineering",
+          "@type": "Team",
+          "name": "data-engineering",
+          "displayName": "Data Engineering Team"
+        }
+      ],
 
       "tags": [
         {
@@ -580,14 +636,6 @@ View the complete Container schema in your preferred format:
         {
           "@id": "https://open-metadata.org/tags/DataLayer/Raw",
           "tagFQN": "DataLayer.Raw"
-        }
-      ],
-
-      "glossaryTerms": [
-        {
-          "@id": "https://example.com/glossary/RawData",
-          "@type": "GlossaryTerm",
-          "fullyQualifiedName": "DataGlossary.RawData"
         }
       ]
     }
@@ -715,7 +763,7 @@ View the complete Container schema in your preferred format:
 #### `size`
 **Type**: `number`
 **Required**: No (system-generated)
-**Description**: Total size in bytes
+**Description**: The total size in KB this container has.
 
 ```json
 {
@@ -730,21 +778,17 @@ View the complete Container schema in your preferred format:
 **Required**: No
 **Allowed Values**:
 
-- `parquet` - Apache Parquet columnar format
-- `avro` - Apache Avro binary format
-- `orc` - Optimized Row Columnar format
+- `zip` - ZIP archive
+- `gz` - Gzip compressed
+- `zstd` - Zstandard compressed
 - `csv` - Comma-Separated Values
 - `tsv` - Tab-Separated Values
 - `json` - JSON format
-- `jsonl` - JSON Lines (newline-delimited)
-- `xml` - XML format
-- `proto` - Protocol Buffers
-- `gzip` - Gzip compressed
-- `zip` - ZIP archive
-- `tar` - TAR archive
-- `text` - Plain text
+- `parquet` - Apache Parquet columnar format
+- `avro` - Apache Avro binary format
+- `MF4` - MF4 file format
 
-**Description**: File formats present in the container
+**Description**: File & data formats identified for the container (e.g. dataFormats=[csv, json]). These can be present both when the container has a dataModel or not
 
 ```json
 {
@@ -795,70 +839,6 @@ View the complete Container schema in your preferred format:
         "name": "properties",
         "dataType": "STRUCT",
         "description": "Event properties as JSON"
-      }
-    ]
-  }
-}
-```
-
----
-
-#### `partitionConfig` (PartitionConfig)
-**Type**: `object`
-**Required**: No
-**Description**: Partition configuration for the container
-
-**Properties**:
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `partitionType` | enum | HIVE, DATE, or CUSTOM |
-| `partitionColumns` | PartitionColumn[] | Partition column definitions |
-
-**Partition Types**:
-
-- `HIVE` - Hive-style partitioning (e.g., `year=2024/month=01/day=15`)
-- `DATE` - Date-based partitioning (e.g., `2024/01/15`)
-- `CUSTOM` - Custom partition scheme
-
-**Example - Hive Partitioning**:
-
-```json
-{
-  "partitionConfig": {
-    "partitionType": "HIVE",
-    "partitionColumns": [
-      {
-        "name": "year",
-        "dataType": "INT",
-        "partitionFormat": "yyyy"
-      },
-      {
-        "name": "month",
-        "dataType": "INT",
-        "partitionFormat": "MM"
-      },
-      {
-        "name": "day",
-        "dataType": "INT",
-        "partitionFormat": "dd"
-      }
-    ]
-  }
-}
-```
-
-**Example - Date Partitioning**:
-
-```json
-{
-  "partitionConfig": {
-    "partitionType": "DATE",
-    "partitionColumns": [
-      {
-        "name": "date",
-        "dataType": "DATE",
-        "partitionFormat": "yyyy/MM/dd"
       }
     ]
   }
@@ -933,37 +913,41 @@ View the complete Container schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: User or team that owns this container
+**Description**: Owners of this container.
 
 ```json
 {
-  "owner": {
-    "id": "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
-    "type": "team",
-    "name": "data-engineering",
-    "displayName": "Data Engineering Team"
-  }
+  "owners": [
+    {
+      "id": "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
+      "type": "team",
+      "name": "data-engineering",
+      "displayName": "Data Engineering Team"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: Data domain this container belongs to
+**Description**: Domains the Container belongs to. When not set, the Container inherits the domain from the storage service it belongs to.
 
 ```json
 {
-  "domain": {
-    "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
-    "type": "domain",
-    "name": "Analytics",
-    "fullyQualifiedName": "Analytics"
-  }
+  "domains": [
+    {
+      "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+      "type": "domain",
+      "name": "Analytics",
+      "fullyQualifiedName": "Analytics"
+    }
+  ]
 }
 ```
 
@@ -1002,21 +986,278 @@ View the complete Container schema in your preferred format:
 
 ---
 
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
+### Additional Properties
+
+#### `followers` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: Business glossary terms linked to this container
+**Description**: Followers of this container.
 
 ```json
 {
-  "glossaryTerms": [
+  "followers": [
     {
-      "fullyQualifiedName": "DataGlossary.RawData"
-    },
-    {
-      "fullyQualifiedName": "DataGlossary.EventStream"
+      "id": "8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
     }
   ]
+}
+```
+
+---
+
+#### `votes` (Votes)
+**Type**: `object`
+**Required**: No
+**Description**: Votes on the entity.
+
+```json
+{
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2
+  }
+}
+```
+
+---
+
+#### `lifeCycle` (LifeCycle)
+**Type**: `object`
+**Required**: No
+**Description**: Life Cycle properties of the entity
+
+```json
+{
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704240000000,
+      "user": "data.engineer"
+    },
+    "updated": {
+      "timestamp": 1704326400000,
+      "user": "data.engineer"
+    }
+  }
+}
+```
+
+---
+
+#### `certification` (AssetCertification)
+**Type**: `object`
+**Required**: No
+**Description**: Asset certification information
+
+```json
+{
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certification.Gold"
+    }
+  }
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: List of data products this entity is part of.
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f",
+      "type": "dataProduct",
+      "name": "customer-360",
+      "fullyQualifiedName": "customer-360"
+    }
+  ]
+}
+```
+
+---
+
+#### `serviceType` (StorageServiceType)
+**Type**: `string` (enum)
+**Required**: No
+**Description**: Service type this table is hosted in.
+
+```json
+{
+  "serviceType": "S3"
+}
+```
+
+---
+
+#### `retentionPeriod` (Duration)
+**Type**: `string` (ISO 8601 duration)
+**Required**: No
+**Description**: Retention period of the data in the Container. Period is expressed as duration in ISO 8601 format in UTC. Example - `P23DT23H`.
+
+```json
+{
+  "retentionPeriod": "P90D"
+}
+```
+
+---
+
+#### `fullPath`
+**Type**: `string`
+**Required**: No
+**Description**: Full path of the container/file.
+
+```json
+{
+  "fullPath": "s3://my-bucket/data/raw/events/"
+}
+```
+
+---
+
+#### `sourceUrl` (SourceUrl)
+**Type**: `string` (URL format)
+**Required**: No
+**Description**: Source URL of container.
+
+```json
+{
+  "sourceUrl": "https://console.aws.amazon.com/s3/buckets/my-bucket"
+}
+```
+
+---
+
+#### `extension` (EntityExtension)
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity.
+
+```json
+{
+  "extension": {
+    "customProperty1": "value1",
+    "customProperty2": "value2"
+  }
+}
+```
+
+---
+
+#### `deleted`
+**Type**: `boolean`
+**Required**: No (system-managed)
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted.
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `href` (Href)
+**Type**: `string` (URL format)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this entity.
+
+```json
+{
+  "href": "http://localhost:8585/api/v1/containers/2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e"
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity.
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "description",
+        "oldValue": "Old description",
+        "newValue": "New description"
+      }
+    ],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity.
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `impersonatedBy` (ImpersonatedBy)
+**Type**: `object`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user.
+
+```json
+{
+  "impersonatedBy": {
+    "id": "0d1e2f3a-4b5c-6d7e-8f9a-0b1c2d3e4f5a",
+    "type": "bot",
+    "name": "ingestion-bot"
+  }
+}
+```
+
+---
+
+#### `sourceHash`
+**Type**: `string`
+**Required**: No
+**Min Length**: 1
+**Max Length**: 32
+**Description**: Source hash of the entity
+
+```json
+{
+  "sourceHash": "abc123def456"
+}
+```
+
+---
+
+#### `entityStatus` (Status)
+**Type**: `string` (enum)
+**Required**: No
+**Description**: Status of the Container.
+
+```json
+{
+  "entityStatus": "Active"
 }
 ```
 
@@ -1098,47 +1339,28 @@ View the complete Container schema in your preferred format:
       }
     ]
   },
-  "partitionConfig": {
-    "partitionType": "HIVE",
-    "partitionColumns": [
-      {
-        "name": "year",
-        "dataType": "INT",
-        "partitionFormat": "yyyy"
-      },
-      {
-        "name": "month",
-        "dataType": "INT",
-        "partitionFormat": "MM"
-      },
-      {
-        "name": "day",
-        "dataType": "INT",
-        "partitionFormat": "dd"
-      }
-    ]
-  },
   "service": {
     "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
     "type": "storageService",
     "name": "s3_prod"
   },
-  "owner": {
-    "id": "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
-    "type": "team",
-    "name": "data-engineering"
-  },
-  "domain": {
-    "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
-    "type": "domain",
-    "name": "Analytics"
-  },
+  "owners": [
+    {
+      "id": "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
+      "type": "team",
+      "name": "data-engineering"
+    }
+  ],
+  "domains": [
+    {
+      "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+      "type": "domain",
+      "name": "Analytics"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Gold"},
     {"tagFQN": "DataLayer.Raw"}
-  ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "DataGlossary.RawData"}
   ],
   "version": 2.1,
   "updatedAt": 1704240000000,
@@ -1158,7 +1380,7 @@ View the complete Container schema in your preferred format:
   "prefix": "archives/transactions/",
   "numberOfObjects": 52000,
   "size": 15728640000,
-  "fileFormats": ["csv", "gzip"],
+  "fileFormats": ["csv", "gz"],
   "dataModel": {
     "isPartitioned": true,
     "columns": [
@@ -1184,24 +1406,16 @@ View the complete Container schema in your preferred format:
       }
     ]
   },
-  "partitionConfig": {
-    "partitionType": "DATE",
-    "partitionColumns": [
-      {
-        "name": "year",
-        "dataType": "INT",
-        "partitionFormat": "yyyy"
-      }
-    ]
-  },
   "service": {
     "type": "storageService",
     "name": "s3_prod"
   },
-  "owner": {
-    "type": "team",
-    "name": "finance-analytics"
-  },
+  "owners": [
+    {
+      "type": "team",
+      "name": "finance-analytics"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Silver"},
     {"tagFQN": "DataLayer.Archive"},
@@ -1244,37 +1458,20 @@ View the complete Container schema in your preferred format:
       }
     ]
   },
-  "partitionConfig": {
-    "partitionType": "HIVE",
-    "partitionColumns": [
-      {
-        "name": "date",
-        "dataType": "DATE",
-        "partitionFormat": "yyyy-MM-dd"
-      },
-      {
-        "name": "hour",
-        "dataType": "INT",
-        "partitionFormat": "HH"
-      }
-    ]
-  },
   "service": {
     "type": "storageService",
     "name": "gcs_datalake"
   },
-  "owner": {
-    "type": "team",
-    "name": "streaming-platform"
-  },
+  "owners": [
+    {
+      "type": "team",
+      "name": "streaming-platform"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Gold"},
     {"tagFQN": "DataLayer.Streaming"},
     {"tagFQN": "RealTime"}
-  ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "DataGlossary.EventStream"},
-    {"fullyQualifiedName": "DataGlossary.RealTimeData"}
   ],
   "version": 3.2,
   "updatedAt": 1704240000000,
@@ -1294,7 +1491,7 @@ View the complete Container schema in your preferred format:
   "prefix": "logs/applications/",
   "numberOfObjects": 892000,
   "size": 125829120000,
-  "fileFormats": ["jsonl", "gzip"],
+  "fileFormats": ["json", "gz"],
   "dataModel": {
     "isPartitioned": true,
     "columns": [
@@ -1317,29 +1514,16 @@ View the complete Container schema in your preferred format:
       }
     ]
   },
-  "partitionConfig": {
-    "partitionType": "HIVE",
-    "partitionColumns": [
-      {
-        "name": "application",
-        "dataType": "VARCHAR",
-        "partitionFormat": "string"
-      },
-      {
-        "name": "date",
-        "dataType": "DATE",
-        "partitionFormat": "yyyy/MM/dd"
-      }
-    ]
-  },
   "service": {
     "type": "storageService",
     "name": "s3_prod"
   },
-  "owner": {
-    "type": "team",
-    "name": "platform-ops"
-  },
+  "owners": [
+    {
+      "type": "team",
+      "name": "platform-ops"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Bronze"},
     {"tagFQN": "DataType.Logs"}
@@ -1372,10 +1556,15 @@ om:Container a owl:Class ;
         om:size "decimal" ;
         om:fileFormats "FileFormat[]" ;
         om:dataModel "ContainerDataModel" ;
-        om:partitionConfig "PartitionConfig" ;
         om:service "StorageService" ;
-        om:owner "Owner" ;
+        om:owners "Owner[]" ;
+        om:domains "Domain[]" ;
         om:tags "Tag[]" ;
+        om:followers "User[]" ;
+        om:votes "Votes" ;
+        om:lifeCycle "LifeCycle" ;
+        om:certification "AssetCertification" ;
+        om:dataProducts "DataProduct[]" ;
     ] .
 ```
 
@@ -1396,8 +1585,7 @@ ex:rawDataBucket a om:Container ;
     om:belongsToStorageService ex:s3ProdService ;
     om:containerOwnedBy ex:dataEngTeam ;
     om:containerHasTag ex:tier_gold ;
-    om:containerHasTag ex:data_layer_raw ;
-    om:containerLinkedToGlossaryTerm ex:rawDataTerm .
+    om:containerHasTag ex:data_layer_raw .
 ```
 
 ---
@@ -1435,11 +1623,6 @@ ex:rawDataBucket a om:Container ;
       "@id": "om:containerHasTag",
       "@type": "@id",
       "@container": "@set"
-    },
-    "glossaryTerms": {
-      "@id": "om:containerLinkedToGlossaryTerm",
-      "@type": "@id",
-      "@container": "@set"
     }
   }
 }
@@ -1460,10 +1643,12 @@ ex:rawDataBucket a om:Container ;
     "@id": "https://example.com/services/s3_prod",
     "@type": "StorageService"
   },
-  "owner": {
-    "@id": "https://example.com/teams/data-engineering",
-    "@type": "Team"
-  },
+  "owners": [
+    {
+      "@id": "https://example.com/teams/data-engineering",
+      "@type": "Team"
+    }
+  ],
   "tags": [
     {"@id": "https://open-metadata.org/tags/Tier/Gold"},
     {"@id": "https://open-metadata.org/tags/DataLayer/Raw"}
@@ -1486,9 +1671,9 @@ ex:rawDataBucket a om:Container ;
 - **Owner**: User or team owning this container
 - **Domain**: Business domain assignment
 - **Tag**: Classification tags
-- **GlossaryTerm**: Business terminology
 - **Table**: External tables reading from this container
 - **Pipeline**: Pipelines reading/writing to this container
+- **DataProduct**: Data products this container is part of
 
 ---
 

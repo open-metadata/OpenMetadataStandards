@@ -142,15 +142,13 @@ graph TD
 - **Chart**: Charts using this data model
 
 ### Associated Entities
-- **Owner**: User or team owning this data model
-- **Domain**: Business domain assignment
+- **Owners**: Users or teams owning this data model (plural)
+- **Domains**: Business domain assignments (plural)
+- **DataProducts**: Data products this model is part of
 - **Tag**: Classification tags
-- **GlossaryTerm**: Business terminology
-- **Table**: Source tables used by the model
-- **Column**: Specific columns used in model fields
-- **Pipeline**: ETL pipelines feeding source data
-- **User**: Users who access dashboards using this model
-- **TestCase**: Data quality tests validating the model
+- **Column**: Columns defined in the model
+- **Followers**: Users following this data model
+- **User**: Users who access the data model
 
 ---
 
@@ -164,160 +162,184 @@ View the complete DataModel schema in your preferred format:
 
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/data/dataModel.json",
+      "$id": "https://open-metadata.org/schema/entity/data/dashboardDataModel.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "DataModel",
-      "description": "A `DataModel` represents a semantic layer or business logic layer used by BI tools.",
+      "title": "DashboardDataModel",
+      "description": "Dashboard Data Model entity definition. Data models are the schemas used to build dashboards, charts, or other data assets.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.data.DataModel",
+      "javaType": "org.openmetadata.schema.entity.data.DashboardDataModel",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface",
+        "org.openmetadata.schema.ColumnsEntityInterface"
+      ],
 
       "definitions": {
         "dataModelType": {
-          "description": "Type of data model",
+          "javaType": "org.openmetadata.schema.type.DataModelType",
+          "description": "This schema defines the type used for describing different types of data models.",
           "type": "string",
           "enum": [
-            "LookML", "PowerBIDataset", "TableauDataSource",
-            "dbtModel", "SemanticModel", "Cube", "Other"
+            "TableauDataModel",
+            "TableauPublishedDatasource",
+            "TableauEmbeddedDatasource",
+            "SupersetDataModel",
+            "MetabaseDataModel",
+            "LookMlView",
+            "LookMlExplore",
+            "PowerBIDataModel",
+            "QlikDataModel",
+            "QuickSightDataModel",
+            "SigmaDataModel",
+            "PowerBIDataFlow",
+            "MicroStrategyDataset",
+            "ThoughtSpotDataModel"
           ]
-        },
-        "modelColumn": {
-          "description": "A column or field in the data model",
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "displayName": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "dataType": {
-              "type": "string"
-            },
-            "dataTypeDisplay": {
-              "type": "string"
-            },
-            "fullyQualifiedName": {
-              "type": "string"
-            },
-            "tags": {
-              "type": "array",
-              "items": {
-                "$ref": "../../type/tagLabel.json"
-              }
-            },
-            "sourceColumns": {
-              "description": "Source columns from tables",
-              "type": "array",
-              "items": {
-                "$ref": "../../type/entityReference.json"
-              }
-            }
-          },
-          "required": ["name", "dataType"]
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this data model instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Data model name",
+          "description": "Name of a data model. Expected to be unique within a Dashboard.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name: service.dataModel",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
-        },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this data model. It could be title or label from the source.",
           "type": "string"
         },
+        "fullyQualifiedName": {
+          "description": "Fully qualified name of a data model in the form `serviceName.dashboardName.datamodel.datamodelName`.",
+          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+        },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of a data model.",
           "$ref": "../../type/basic.json#/definitions/markdown"
+        },
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to this data model entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "owners": {
+          "description": "Owners of this data model.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "tags": {
+          "description": "Tags for this data model.",
+          "type": "array",
+          "items": {
+            "$ref": "../../type/tagLabel.json"
+          },
+          "default": []
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "followers": {
+          "description": "Followers of this dashboard.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "service": {
+          "description": "Link to service where this data model is hosted in.",
+          "$ref": "../../type/entityReference.json"
+        },
+        "serviceType": {
+          "description": "Service type where this data model is hosted in.",
+          "$ref": "../services/dashboardService.json#/definitions/dashboardServiceType"
         },
         "dataModelType": {
           "$ref": "#/definitions/dataModelType"
         },
-        "service": {
-          "description": "Dashboard service",
-          "$ref": "../../type/entityReference.json"
+        "sql": {
+          "description": "In case the Data Model is based on a SQL query.",
+          "$ref": "../../type/basic.json#/definitions/sqlQuery",
+          "default": null
         },
         "columns": {
-          "description": "Fields or columns in the model",
+          "description": "Columns from the data model.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/modelColumn"
-          }
-        },
-        "sql": {
-          "description": "SQL definition or derived table logic",
-          "type": "string"
-        },
-        "code": {
-          "description": "Model definition code (LookML, etc.)",
-          "type": "string"
-        },
-        "path": {
-          "description": "File path in source control",
-          "type": "string"
+            "$ref": "table.json#/definitions/column"
+          },
+          "default": null
         },
         "project": {
-          "description": "Project or workspace name",
+          "description": "Name of the project / workspace / collection in which the dataModel is contained",
           "type": "string"
         },
-        "tables": {
-          "description": "Source tables used by model",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "sourceUrl": {
+          "description": "Dashboard Data Model URL suffix from its service.",
+          "$ref": "../../type/basic.json#/definitions/sourceUrl"
         },
-        "dashboards": {
-          "description": "Dashboards using this model",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "domains": {
+          "description": "Domains the Dashboard Data Model belongs to. When not set, the Dashboard model inherits the domain from the dashboard service it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "lifeCycle": {
+          "description": "Life Cycle properties of the entity",
+          "$ref": "../../type/lifeCycle.json"
         },
-        "tags": {
-          "description": "Classification tags",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/tagLabel.json"
-          }
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "entityStatus": {
+          "description": "Status of the DashboardDataModel.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "service"]
+      "required": ["id", "name", "dataModelType", "columns"]
     }
     ```
 
-    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/schemas/entity/data/dataModel.json)**
+    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/schemas/entity/data/dashboardDataModel.json)**
 
 === "RDF"
 
@@ -326,97 +348,113 @@ View the complete DataModel schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-    # DataModel Class Definition
-    om:DataModel a owl:Class ;
+    # DashboardDataModel Class Definition
+    om:DashboardDataModel a owl:Class ;
         rdfs:subClassOf om:DataAsset ;
-        rdfs:label "DataModel" ;
-        rdfs:comment "A semantic layer or business logic layer for BI tools" ;
+        rdfs:label "DashboardDataModel" ;
+        rdfs:comment "Dashboard Data Model entity definition. Data models are the schemas used to build dashboards, charts, or other data assets." ;
         om:hierarchyLevel 2 .
 
     # Properties
     om:dataModelName a owl:DatatypeProperty ;
-        rdfs:domain om:DataModel ;
+        rdfs:domain om:DashboardDataModel ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the data model" .
+        rdfs:comment "Name of a data model. Expected to be unique within a Dashboard." .
 
     om:fullyQualifiedName a owl:DatatypeProperty ;
-        rdfs:domain om:DataModel ;
+        rdfs:domain om:DashboardDataModel ;
         rdfs:range xsd:string ;
         rdfs:label "fullyQualifiedName" ;
-        rdfs:comment "Complete hierarchical name: service.dataModel" .
+        rdfs:comment "Fully qualified name of a data model in the form serviceName.dashboardName.datamodel.datamodelName" .
 
     om:dataModelType a owl:DatatypeProperty ;
-        rdfs:domain om:DataModel ;
+        rdfs:domain om:DashboardDataModel ;
         rdfs:range om:DataModelType ;
         rdfs:label "dataModelType" ;
-        rdfs:comment "Type: LookML, PowerBIDataset, TableauDataSource, etc." .
+        rdfs:comment "Type: TableauDataModel, LookMlView, PowerBIDataModel, etc." .
 
     om:modelSQL a owl:DatatypeProperty ;
-        rdfs:domain om:DataModel ;
+        rdfs:domain om:DashboardDataModel ;
         rdfs:range xsd:string ;
         rdfs:label "sql" ;
-        rdfs:comment "SQL definition for derived tables" .
+        rdfs:comment "In case the Data Model is based on a SQL query." .
 
-    om:modelCode a owl:DatatypeProperty ;
-        rdfs:domain om:DataModel ;
-        rdfs:range xsd:string ;
-        rdfs:label "code" ;
-        rdfs:comment "Model definition code (LookML, YAML, etc.)" .
+    om:sourceUrl a owl:DatatypeProperty ;
+        rdfs:domain om:DashboardDataModel ;
+        rdfs:range xsd:anyURI ;
+        rdfs:label "sourceUrl" ;
+        rdfs:comment "Dashboard Data Model URL suffix from its service." .
 
-    om:hasModelColumn a owl:ObjectProperty ;
-        rdfs:domain om:DataModel ;
-        rdfs:range om:ModelColumn ;
-        rdfs:label "hasModelColumn" ;
-        rdfs:comment "Fields or columns defined in the model" .
-
-    om:usesSourceTable a owl:ObjectProperty ;
-        rdfs:domain om:DataModel ;
-        rdfs:range om:Table ;
-        rdfs:label "usesSourceTable" ;
-        rdfs:comment "Source tables used by the model" .
-
-    om:powersDashboard a owl:ObjectProperty ;
-        rdfs:domain om:DataModel ;
-        rdfs:range om:Dashboard ;
-        rdfs:label "powersDashboard" ;
-        rdfs:comment "Dashboards using this data model" .
+    om:hasColumn a owl:ObjectProperty ;
+        rdfs:domain om:DashboardDataModel ;
+        rdfs:range om:Column ;
+        rdfs:label "hasColumn" ;
+        rdfs:comment "Columns from the data model" .
 
     om:belongsToService a owl:ObjectProperty ;
-        rdfs:domain om:DataModel ;
+        rdfs:domain om:DashboardDataModel ;
         rdfs:range om:DashboardService ;
         rdfs:label "belongsToService" ;
-        rdfs:comment "Dashboard service hosting this model" .
+        rdfs:comment "Link to service where this data model is hosted in." .
 
-    om:ownedBy a owl:ObjectProperty ;
-        rdfs:domain om:DataModel ;
+    om:hasOwner a owl:ObjectProperty ;
+        rdfs:domain om:DashboardDataModel ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this model" .
+        rdfs:label "hasOwner" ;
+        rdfs:comment "Owners of this data model" .
+
+    om:inDomain a owl:ObjectProperty ;
+        rdfs:domain om:DashboardDataModel ;
+        rdfs:range om:Domain ;
+        rdfs:label "inDomain" ;
+        rdfs:comment "Domains the Dashboard Data Model belongs to" .
+
+    om:hasFollower a owl:ObjectProperty ;
+        rdfs:domain om:DashboardDataModel ;
+        rdfs:range om:User ;
+        rdfs:label "hasFollower" ;
+        rdfs:comment "Followers of this data model" .
+
+    om:partOfDataProduct a owl:ObjectProperty ;
+        rdfs:domain om:DashboardDataModel ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "partOfDataProduct" ;
+        rdfs:comment "List of data products this entity is part of" .
 
     # DataModel Type Enumeration
     om:DataModelType a owl:Class ;
         owl:oneOf (
-            om:DataModelType_LookML
-            om:DataModelType_PowerBIDataset
-            om:DataModelType_TableauDataSource
-            om:DataModelType_dbtModel
+            om:DataModelType_TableauDataModel
+            om:DataModelType_TableauPublishedDatasource
+            om:DataModelType_TableauEmbeddedDatasource
+            om:DataModelType_SupersetDataModel
+            om:DataModelType_MetabaseDataModel
+            om:DataModelType_LookMlView
+            om:DataModelType_LookMlExplore
+            om:DataModelType_PowerBIDataModel
+            om:DataModelType_QlikDataModel
+            om:DataModelType_QuickSightDataModel
+            om:DataModelType_SigmaDataModel
+            om:DataModelType_PowerBIDataFlow
+            om:DataModelType_MicroStrategyDataset
+            om:DataModelType_ThoughtSpotDataModel
         ) .
 
     # Example Instance
-    ex:salesModel a om:DataModel ;
+    ex:salesModel a om:DashboardDataModel ;
         om:dataModelName "sales_model" ;
-        om:fullyQualifiedName "looker_prod.sales_model" ;
+        om:fullyQualifiedName "looker_prod.sales_dashboard.datamodel.sales_model" ;
         om:displayName "Sales LookML Model" ;
-        om:dataModelType om:DataModelType_LookML ;
+        om:dataModelType om:DataModelType_LookMlView ;
         om:belongsToService ex:lookerProdService ;
-        om:usesSourceTable ex:salesFactTable ;
-        om:usesSourceTable ex:customerDimTable ;
-        om:powersDashboard ex:salesDashboard ;
-        om:ownedBy ex:analyticsTeam ;
+        om:hasColumn ex:totalRevenueColumn ;
+        om:hasColumn ex:customerCountColumn ;
+        om:hasOwner ex:analyticsTeam ;
+        om:inDomain ex:salesDomain ;
         om:hasTag ex:tierGold .
     ```
 
@@ -434,7 +472,7 @@ View the complete DataModel schema in your preferred format:
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
 
-        "DataModel": "om:DataModel",
+        "DashboardDataModel": "om:DashboardDataModel",
         "name": {
           "@id": "om:dataModelName",
           "@type": "xsd:string"
@@ -459,36 +497,42 @@ View the complete DataModel schema in your preferred format:
           "@id": "om:modelSQL",
           "@type": "xsd:string"
         },
-        "code": {
-          "@id": "om:modelCode",
-          "@type": "xsd:string"
+        "sourceUrl": {
+          "@id": "om:sourceUrl",
+          "@type": "xsd:anyURI"
         },
         "columns": {
-          "@id": "om:hasModelColumn",
+          "@id": "om:hasColumn",
           "@type": "@id",
           "@container": "@list"
-        },
-        "tables": {
-          "@id": "om:usesSourceTable",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "dashboards": {
-          "@id": "om:powersDashboard",
-          "@type": "@id",
-          "@container": "@set"
         },
         "service": {
           "@id": "om:belongsToService",
           "@type": "@id"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
+        "serviceType": {
+          "@id": "om:serviceType",
+          "@type": "@vocab"
         },
-        "domain": {
+        "owners": {
+          "@id": "om:hasOwner",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
           "@id": "om:inDomain",
-          "@type": "@id"
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:partOfDataProduct",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:hasFollower",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
@@ -503,17 +547,17 @@ View the complete DataModel schema in your preferred format:
 
     ```json
     {
-      "@context": "https://open-metadata.org/context/dataModel.jsonld",
-      "@type": "DataModel",
+      "@context": "https://open-metadata.org/context/dashboardDataModel.jsonld",
+      "@type": "DashboardDataModel",
       "@id": "https://example.com/dataModels/sales_model",
 
       "name": "sales_model",
-      "fullyQualifiedName": "looker_prod.sales_model",
+      "fullyQualifiedName": "looker_prod.sales_dashboard.datamodel.sales_model",
       "displayName": "Sales LookML Model",
       "description": "# Sales Data Model\n\nLookML model defining sales metrics and dimensions.",
-      "dataModelType": "LookML",
+      "dataModelType": "LookMlView",
       "project": "sales_analytics",
-      "path": "models/sales_model.lkml",
+      "sourceUrl": "/models/sales_model",
 
       "service": {
         "@id": "https://example.com/services/looker_prod",
@@ -521,32 +565,36 @@ View the complete DataModel schema in your preferred format:
         "name": "looker_prod"
       },
 
-      "tables": [
+      "columns": [
         {
-          "@id": "https://example.com/tables/sales_fact",
-          "@type": "Table",
-          "fullyQualifiedName": "postgres_prod.sales.fact_orders"
+          "@id": "https://example.com/columns/total_revenue",
+          "@type": "Column",
+          "name": "total_revenue",
+          "dataType": "NUMBER"
         },
         {
-          "@id": "https://example.com/tables/customer_dim",
-          "@type": "Table",
-          "fullyQualifiedName": "postgres_prod.sales.dim_customers"
+          "@id": "https://example.com/columns/customer_count",
+          "@type": "Column",
+          "name": "customer_count",
+          "dataType": "NUMBER"
         }
       ],
 
-      "dashboards": [
+      "owners": [
         {
-          "@id": "https://example.com/dashboards/sales_overview",
-          "@type": "Dashboard",
-          "name": "sales_overview"
+          "@id": "https://example.com/teams/analytics",
+          "@type": "Team",
+          "name": "analytics"
         }
       ],
 
-      "owner": {
-        "@id": "https://example.com/teams/analytics",
-        "@type": "Team",
-        "name": "analytics"
-      },
+      "domains": [
+        {
+          "@id": "https://example.com/domains/sales",
+          "@type": "Domain",
+          "name": "Sales"
+        }
+      ],
 
       "tags": [
         {
@@ -557,7 +605,7 @@ View the complete DataModel schema in your preferred format:
     }
     ```
 
-    **[View Full JSON-LD Context →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/contexts/dataModel.jsonld)**
+    **[View Full JSON-LD Context →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/contexts/dashboardDataModel.jsonld)**
 
 ---
 
@@ -612,11 +660,11 @@ View the complete DataModel schema in your preferred format:
 **Type**: `string`
 **Required**: Yes (system-generated)
 **Pattern**: `^((?!::).)*$`
-**Description**: Fully qualified name in the format `service.dataModel`
+**Description**: Fully qualified name in the format `serviceName.dashboardName.datamodel.datamodelName`
 
 ```json
 {
-  "fullyQualifiedName": "looker_prod.sales_model"
+  "fullyQualifiedName": "looker_prod.sales_dashboard.datamodel.sales_model"
 }
 ```
 
@@ -652,20 +700,27 @@ View the complete DataModel schema in your preferred format:
 
 #### `dataModelType` (DataModelType enum)
 **Type**: `string` enum
-**Required**: No
+**Required**: Yes
 **Allowed Values**:
 
-- `LookML` - Looker LookML model
-- `PowerBIDataset` - Power BI dataset
-- `TableauDataSource` - Tableau data source
-- `dbtModel` - dbt model
-- `SemanticModel` - Generic semantic model
-- `Cube` - OLAP cube
-- `Other` - Other model type
+- `TableauDataModel` - Tableau data model
+- `TableauPublishedDatasource` - Tableau published datasource
+- `TableauEmbeddedDatasource` - Tableau embedded datasource
+- `SupersetDataModel` - Superset data model
+- `MetabaseDataModel` - Metabase data model
+- `LookMlView` - Looker LookML view
+- `LookMlExplore` - Looker LookML explore
+- `PowerBIDataModel` - Power BI data model
+- `QlikDataModel` - Qlik data model
+- `QuickSightDataModel` - QuickSight data model
+- `SigmaDataModel` - Sigma data model
+- `PowerBIDataFlow` - Power BI dataflow
+- `MicroStrategyDataset` - MicroStrategy dataset
+- `ThoughtSpotDataModel` - ThoughtSpot data model
 
 ```json
 {
-  "dataModelType": "LookML"
+  "dataModelType": "LookMlView"
 }
 ```
 
@@ -674,7 +729,7 @@ View the complete DataModel schema in your preferred format:
 #### `project` (string)
 **Type**: `string`
 **Required**: No
-**Description**: Project or workspace containing this model
+**Description**: Name of the project / workspace / collection in which the dataModel is contained
 
 ```json
 {
@@ -684,25 +739,12 @@ View the complete DataModel schema in your preferred format:
 
 ---
 
-#### `path` (string)
-**Type**: `string`
-**Required**: No
-**Description**: File path in source control
-
-```json
-{
-  "path": "models/sales_model.lkml"
-}
-```
-
----
-
 ### Model Definition
 
-#### `sql` (string)
+#### `sql` (sqlQuery)
 **Type**: `string`
 **Required**: No
-**Description**: SQL definition for derived tables or data source
+**Description**: In case the Data Model is based on a SQL query
 
 ```json
 {
@@ -712,36 +754,10 @@ View the complete DataModel schema in your preferred format:
 
 ---
 
-#### `code` (string)
-**Type**: `string`
-**Required**: No
-**Description**: Model definition code (LookML, YAML, etc.)
-
-```json
-{
-  "code": "view: orders {\n  sql_table_name: public.fact_orders ;;\n\n  dimension: order_id {\n    type: number\n    primary_key: yes\n    sql: ${TABLE}.order_id ;;\n  }\n\n  measure: total_revenue {\n    type: sum\n    sql: ${TABLE}.order_amount ;;\n  }\n}"
-}
-```
-
----
-
-#### `columns[]` (ModelColumn[])
-**Type**: `array` of ModelColumn objects
-**Required**: No
-**Description**: Fields, dimensions, or measures defined in the model
-
-**ModelColumn Object**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | Yes | Column/field name |
-| `displayName` | string | No | Display name |
-| `description` | string | No | Field description |
-| `dataType` | string | Yes | Data type |
-| `dataTypeDisplay` | string | No | Display data type |
-| `fullyQualifiedName` | string | No | FQN |
-| `tags` | TagLabel[] | No | Tags |
-| `sourceColumns` | EntityReference[] | No | Source columns from tables |
+#### `columns[]` (Column[])
+**Type**: `array` of Column objects
+**Required**: Yes
+**Description**: Columns from the data model. Uses the same Column definition as Table entities.
 
 ```json
 {
@@ -752,15 +768,7 @@ View the complete DataModel schema in your preferred format:
       "description": "Sum of all order amounts",
       "dataType": "NUMBER",
       "dataTypeDisplay": "decimal(18,2)",
-      "fullyQualifiedName": "looker_prod.sales_model.total_revenue",
-      "sourceColumns": [
-        {
-          "id": "column-uuid",
-          "type": "column",
-          "name": "order_amount",
-          "fullyQualifiedName": "postgres_prod.sales.fact_orders.order_amount"
-        }
-      ],
+      "fullyQualifiedName": "looker_prod.sales_dashboard.datamodel.sales_model.total_revenue",
       "tags": [
         {"tagFQN": "Metric.Revenue"}
       ]
@@ -770,14 +778,7 @@ View the complete DataModel schema in your preferred format:
       "displayName": "Customer Count",
       "description": "Distinct count of customers",
       "dataType": "NUMBER",
-      "sourceColumns": [
-        {
-          "id": "column-uuid-2",
-          "type": "column",
-          "name": "customer_id",
-          "fullyQualifiedName": "postgres_prod.sales.fact_orders.customer_id"
-        }
-      ]
+      "fullyQualifiedName": "looker_prod.sales_dashboard.datamodel.sales_model.customer_count"
     }
   ]
 }
@@ -785,49 +786,14 @@ View the complete DataModel schema in your preferred format:
 
 ---
 
-### Data Source Properties
-
-#### `tables[]` (Table[])
-**Type**: `array` of Table entity references
+#### `sourceUrl` (sourceUrl)
+**Type**: `string`
 **Required**: No
-**Description**: Source tables used by this data model
+**Description**: Dashboard Data Model URL suffix from its service
 
 ```json
 {
-  "tables": [
-    {
-      "id": "table-1-uuid",
-      "type": "table",
-      "name": "fact_orders",
-      "fullyQualifiedName": "postgres_prod.sales.public.fact_orders"
-    },
-    {
-      "id": "table-2-uuid",
-      "type": "table",
-      "name": "dim_customers",
-      "fullyQualifiedName": "postgres_prod.sales.public.dim_customers"
-    }
-  ]
-}
-```
-
----
-
-#### `dashboards[]` (Dashboard[])
-**Type**: `array` of Dashboard entity references
-**Required**: No
-**Description**: Dashboards using this data model
-
-```json
-{
-  "dashboards": [
-    {
-      "id": "dashboard-uuid",
-      "type": "dashboard",
-      "name": "sales_overview",
-      "fullyQualifiedName": "looker_prod.sales_overview"
-    }
-  ]
+  "sourceUrl": "/models/sales_model"
 }
 ```
 
@@ -837,8 +803,8 @@ View the complete DataModel schema in your preferred format:
 
 #### `service` (EntityReference)
 **Type**: `object`
-**Required**: Yes
-**Description**: Reference to parent dashboard service
+**Required**: No
+**Description**: Link to service where this data model is hosted in
 
 ```json
 {
@@ -853,39 +819,77 @@ View the complete DataModel schema in your preferred format:
 
 ---
 
-### Governance Properties
-
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `serviceType` (dashboardServiceType)
+**Type**: `string` enum
 **Required**: No
-**Description**: User or team that owns this data model
+**Description**: Service type where this data model is hosted in
 
 ```json
 {
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "analytics-team",
-    "displayName": "Analytics Team"
-  }
+  "serviceType": "Looker"
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+### Governance Properties
+
+#### `owners` (EntityReferenceList)
+**Type**: `array` of entity references
 **Required**: No
-**Description**: Data domain this model belongs to
+**Default**: `null`
+**Description**: Owners of this data model
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Sales",
-    "fullyQualifiedName": "Sales"
-  }
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "analytics-team",
+      "displayName": "Analytics Team"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of entity references
+**Required**: No
+**Description**: Domains the Dashboard Data Model belongs to. When not set, the Dashboard model inherits the domain from the dashboard service it belongs to
+
+```json
+{
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of entity references
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "sales_analytics",
+      "fullyQualifiedName": "sales_analytics"
+    }
+  ]
 }
 ```
 
@@ -894,7 +898,8 @@ View the complete DataModel schema in your preferred format:
 #### `tags[]` (TagLabel[])
 **Type**: `array`
 **Required**: No
-**Description**: Classification tags applied to the data model
+**Default**: `[]`
+**Description**: Tags for this data model
 
 ```json
 {
@@ -918,21 +923,80 @@ View the complete DataModel schema in your preferred format:
 
 ---
 
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
+#### `followers` (EntityReferenceList)
+**Type**: `array` of entity references
 **Required**: No
-**Description**: Business glossary terms linked to this model
+**Description**: Followers of this dashboard
 
 ```json
 {
-  "glossaryTerms": [
+  "followers": [
     {
-      "fullyQualifiedName": "BusinessGlossary.Revenue"
-    },
-    {
-      "fullyQualifiedName": "BusinessGlossary.Customer"
+      "id": "user-uuid",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
     }
   ]
+}
+```
+
+---
+
+#### `certification` (assetCertification)
+**Type**: `object`
+**Required**: No
+**Description**: Certification information for the data model
+
+```json
+{
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certified"
+    },
+    "certifiedBy": "data-governance-team",
+    "certifiedAt": 1704240000000
+  }
+}
+```
+
+---
+
+#### `votes` (votes)
+**Type**: `object`
+**Required**: No
+**Description**: Votes on the entity
+
+```json
+{
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2,
+    "upVoters": ["user1", "user2"],
+    "downVoters": ["user3"]
+  }
+}
+```
+
+---
+
+#### `lifeCycle` (lifeCycle)
+**Type**: `object`
+**Required**: No
+**Description**: Life Cycle properties of the entity
+
+```json
+{
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "data.engineer"
+    },
+    "updated": {
+      "timestamp": 1704240000000,
+      "user": "data.engineer"
+    }
+  }
 }
 ```
 
@@ -943,11 +1007,127 @@ View the complete DataModel schema in your preferred format:
 #### `version` (entityVersion)
 **Type**: `number`
 **Required**: Yes (system-managed)
-**Description**: Metadata version number, incremented on changes
+**Description**: Metadata version of the entity
 
 ```json
 {
   "version": 2.3
+}
+```
+
+---
+
+#### `updatedAt` (timestamp)
+**Type**: `number`
+**Required**: No
+**Description**: Last update time corresponding to the new version of the entity in Unix epoch time milliseconds
+
+```json
+{
+  "updatedAt": 1704240000000
+}
+```
+
+---
+
+#### `updatedBy` (string)
+**Type**: `string`
+**Required**: No
+**Description**: User who made the update
+
+```json
+{
+  "updatedBy": "data.engineer"
+}
+```
+
+---
+
+#### `changeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [{"name": "columns[1]", "newValue": "..."}],
+    "fieldsUpdated": [{"name": "description", "oldValue": "...", "newValue": "..."}],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+### System Properties
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string`
+**Required**: No
+**Description**: Link to this data model entity
+
+```json
+{
+  "href": "http://localhost:8585/api/v1/dashboardDataModels/4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a"
+}
+```
+
+---
+
+#### `entityStatus` (status)
+**Type**: `string` enum
+**Required**: No
+**Description**: Status of the DashboardDataModel
+
+```json
+{
+  "entityStatus": "Active"
+}
+```
+
+---
+
+#### `sourceHash` (string)
+**Type**: `string`
+**Required**: No
+**Min Length**: 1
+**Max Length**: 32
+**Description**: Source hash of the entity
+
+```json
+{
+  "sourceHash": "a1b2c3d4e5f6"
+}
+```
+
+---
+
+#### `extension` (entityExtension)
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity
+
+```json
+{
+  "extension": {
+    "customProperty1": "value1",
+    "customProperty2": 123
+  }
 }
 ```
 
@@ -959,43 +1139,31 @@ View the complete DataModel schema in your preferred format:
 {
   "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
   "name": "sales_model",
-  "fullyQualifiedName": "looker_prod.sales_model",
+  "fullyQualifiedName": "looker_prod.sales_dashboard.datamodel.sales_model",
   "displayName": "Sales LookML Model",
   "description": "# Sales Data Model\n\nLookML model defining sales metrics and dimensions.",
-  "dataModelType": "LookML",
+  "dataModelType": "LookMlView",
   "project": "sales_analytics",
-  "path": "models/sales_model.lkml",
-  "code": "view: orders {\n  sql_table_name: public.fact_orders ;;\n\n  measure: total_revenue {\n    type: sum\n    sql: ${TABLE}.order_amount ;;\n  }\n}",
+  "sourceUrl": "/models/sales_model",
+  "sql": "SELECT\n  order_id,\n  customer_id,\n  SUM(order_amount) as total_revenue,\n  COUNT(DISTINCT customer_id) as customer_count\nFROM fact_orders\nGROUP BY 1, 2",
   "columns": [
     {
       "name": "total_revenue",
       "displayName": "Total Revenue",
       "description": "Sum of all order amounts",
       "dataType": "NUMBER",
-      "sourceColumns": [
-        {
-          "id": "column-uuid",
-          "type": "column",
-          "name": "order_amount",
-          "fullyQualifiedName": "postgres_prod.sales.fact_orders.order_amount"
-        }
+      "dataTypeDisplay": "decimal(18,2)",
+      "fullyQualifiedName": "looker_prod.sales_dashboard.datamodel.sales_model.total_revenue",
+      "tags": [
+        {"tagFQN": "Metric.Revenue"}
       ]
-    }
-  ],
-  "tables": [
+    },
     {
-      "id": "table-uuid",
-      "type": "table",
-      "name": "fact_orders",
-      "fullyQualifiedName": "postgres_prod.sales.public.fact_orders"
-    }
-  ],
-  "dashboards": [
-    {
-      "id": "dashboard-uuid",
-      "type": "dashboard",
-      "name": "sales_overview",
-      "fullyQualifiedName": "looker_prod.sales_overview"
+      "name": "customer_count",
+      "displayName": "Customer Count",
+      "description": "Distinct count of customers",
+      "dataType": "NUMBER",
+      "fullyQualifiedName": "looker_prod.sales_dashboard.datamodel.sales_model.customer_count"
     }
   ],
   "service": {
@@ -1003,27 +1171,58 @@ View the complete DataModel schema in your preferred format:
     "type": "dashboardService",
     "name": "looker_prod"
   },
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "analytics-team",
-    "displayName": "Analytics Team"
-  },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Sales"
-  },
+  "serviceType": "Looker",
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "analytics-team",
+      "displayName": "Analytics Team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "sales_analytics",
+      "fullyQualifiedName": "sales_analytics"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Gold"},
     {"tagFQN": "Certified"}
   ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.Revenue"}
+  "followers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "john.doe"
+    }
   ],
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certified"
+    },
+    "certifiedBy": "data-governance-team",
+    "certifiedAt": 1704240000000
+  },
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2
+  },
   "version": 2.3,
   "updatedAt": 1704240000000,
-  "updatedBy": "data.engineer"
+  "updatedBy": "data.engineer",
+  "href": "http://localhost:8585/api/v1/dashboardDataModels/4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+  "deleted": false
 }
 ```
 
@@ -1031,40 +1230,47 @@ View the complete DataModel schema in your preferred format:
 
 ## Examples by Platform
 
-### Looker LookML Model
+### Looker LookML View
 
 ```json
 {
-  "name": "ecommerce_model",
-  "fullyQualifiedName": "looker_prod.ecommerce_model",
-  "displayName": "E-commerce Model",
-  "dataModelType": "LookML",
+  "name": "ecommerce_view",
+  "fullyQualifiedName": "looker_prod.ecommerce_dashboard.datamodel.ecommerce_view",
+  "displayName": "E-commerce View",
+  "dataModelType": "LookMlView",
   "project": "ecommerce",
-  "path": "models/ecommerce.model.lkml",
-  "code": "connection: \"production\"\n\ninclude: \"/views/*.view.lkml\"\n\nexplore: orders {\n  join: customers {\n    sql_on: ${orders.customer_id} = ${customers.id} ;;\n  }\n}",
+  "sourceUrl": "/views/ecommerce_view",
+  "columns": [
+    {
+      "name": "order_id",
+      "displayName": "Order ID",
+      "dataType": "NUMBER"
+    },
+    {
+      "name": "total_sales",
+      "displayName": "Total Sales",
+      "dataType": "NUMBER",
+      "description": "Measure: SUM of order amounts"
+    }
+  ],
   "service": {
     "type": "dashboardService",
     "name": "looker_prod"
   },
-  "tables": [
-    {
-      "type": "table",
-      "fullyQualifiedName": "postgres_prod.ecommerce.orders"
-    }
-  ]
+  "serviceType": "Looker"
 }
 ```
 
 ---
 
-### Power BI Dataset
+### Power BI Data Model
 
 ```json
 {
-  "name": "sales_dataset",
-  "fullyQualifiedName": "powerbi_prod.sales_dataset",
-  "displayName": "Sales Dataset",
-  "dataModelType": "PowerBIDataset",
+  "name": "sales_datamodel",
+  "fullyQualifiedName": "powerbi_prod.sales_report.datamodel.sales_datamodel",
+  "displayName": "Sales Data Model",
+  "dataModelType": "PowerBIDataModel",
   "project": "Sales Workspace",
   "columns": [
     {
@@ -1084,44 +1290,40 @@ View the complete DataModel schema in your preferred format:
     "type": "dashboardService",
     "name": "powerbi_prod"
   },
-  "tables": [
-    {
-      "type": "table",
-      "fullyQualifiedName": "sqlserver_prod.sales.FactSales"
-    }
-  ]
+  "serviceType": "PowerBI"
 }
 ```
 
 ---
 
-### Tableau Data Source
+### Tableau Published Datasource
 
 ```json
 {
   "name": "sales_datasource",
-  "fullyQualifiedName": "tableau_prod.sales_datasource",
+  "fullyQualifiedName": "tableau_prod.sales_dashboard.datamodel.sales_datasource",
   "displayName": "Sales Data Source",
-  "dataModelType": "TableauDataSource",
+  "dataModelType": "TableauPublishedDatasource",
   "project": "Sales Analytics",
+  "sourceUrl": "/datasources/sales_datasource",
   "columns": [
     {
       "name": "Revenue",
       "displayName": "Revenue",
       "dataType": "NUMBER",
       "description": "Calculated Field: [Order Amount] * [Quantity]"
+    },
+    {
+      "name": "OrderDate",
+      "displayName": "Order Date",
+      "dataType": "DATE"
     }
   ],
   "service": {
     "type": "dashboardService",
     "name": "tableau_prod"
   },
-  "tables": [
-    {
-      "type": "table",
-      "fullyQualifiedName": "postgres_prod.sales.orders"
-    }
-  ]
+  "serviceType": "Tableau"
 }
 ```
 
@@ -1144,31 +1346,37 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Create DataModel
+### Create Dashboard Data Model
 
 ```http
-POST /api/v1/dataModels
+POST /api/v1/dashboardDataModels
 Content-Type: application/json
 
 {
   "name": "sales_model",
   "service": "looker_prod",
-  "dataModelType": "LookML",
+  "dataModelType": "LookMlView",
   "description": "Sales data model",
-  "project": "sales_analytics"
+  "project": "sales_analytics",
+  "columns": [
+    {
+      "name": "total_revenue",
+      "dataType": "NUMBER"
+    }
+  ]
 }
 ```
 
-### Get DataModel
+### Get Dashboard Data Model
 
 ```http
-GET /api/v1/dataModels/name/looker_prod.sales_model?fields=columns,tables,dashboards,owner
+GET /api/v1/dashboardDataModels/name/looker_prod.sales_dashboard.datamodel.sales_model?fields=columns,owners,domains,service
 ```
 
-### Update DataModel
+### Update Dashboard Data Model
 
 ```http
-PATCH /api/v1/dataModels/{id}
+PATCH /api/v1/dashboardDataModels/{id}
 Content-Type: application/json-patch+json
 
 [
@@ -1180,26 +1388,26 @@ Content-Type: application/json-patch+json
 ]
 ```
 
-### Add Source Tables
+### Add Owners
 
 ```http
-PUT /api/v1/dataModels/{id}/tables
+PUT /api/v1/dashboardDataModels/{id}/owners
 Content-Type: application/json
 
 {
-  "tables": [
+  "owners": [
     {
-      "id": "table-uuid",
-      "type": "table"
+      "id": "team-uuid",
+      "type": "team"
     }
   ]
 }
 ```
 
-### Get DataModel Lineage
+### Get Dashboard Data Model Lineage
 
 ```http
-GET /api/v1/dataModels/{id}/lineage?upstreamDepth=3&downstreamDepth=2
+GET /api/v1/dashboardDataModels/{id}/lineage?upstreamDepth=3&downstreamDepth=2
 ```
 
 ---

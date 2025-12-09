@@ -62,6 +62,51 @@
       "connection": {
         "@id": "om:hasConnection",
         "@type": "@json"
+      },
+      "pipelines": {
+        "@id": "om:hasPipelines",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "testConnectionResult": {
+        "@id": "om:hasTestConnectionResult",
+        "@type": "@id"
+      },
+      "ingestionRunner": {
+        "@id": "om:hasIngestionRunner",
+        "@type": "@id"
+      },
+      "databaseConnection": {
+        "@id": "om:hasDatabaseConnection",
+        "@type": "@json"
+      },
+      "dashboardConnection": {
+        "@id": "om:hasDashboardConnection",
+        "@type": "@json"
+      },
+      "messagingConnection": {
+        "@id": "om:hasMessagingConnection",
+        "@type": "@json"
+      },
+      "pipelineConnection": {
+        "@id": "om:hasPipelineConnection",
+        "@type": "@json"
+      },
+      "mlModelConnection": {
+        "@id": "om:hasMLModelConnection",
+        "@type": "@json"
+      },
+      "storageConnection": {
+        "@id": "om:hasStorageConnection",
+        "@type": "@json"
+      },
+      "searchConnection": {
+        "@id": "om:hasSearchConnection",
+        "@type": "@json"
+      },
+      "apiConnection": {
+        "@id": "om:hasAPIConnection",
+        "@type": "@json"
       }
     }
   ]

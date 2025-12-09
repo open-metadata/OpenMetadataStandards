@@ -147,15 +147,18 @@ graph TD
 ---
 
 ### Child Entities
-- **Container**: Storage buckets/containers within this service
+- **Container**: Storage buckets/containers within this service (separate entity type, not a direct property)
 
 ### Associated Entities
-- **Owner**: User or team owning this service
-- **Domain**: Business domain assignment
-- **Tag**: Classification tags
-- **Pipeline**: Pipelines reading/writing to this storage
-- **Table**: External tables pointing to storage
-- **TestSuite**: Data quality tests for stored files
+- **Owners**: Users or teams owning this service
+- **Domains**: Business domains this service belongs to
+- **Tags**: Classification tags
+- **Pipelines**: Ingestion pipelines deployed for this storage service
+- **Followers**: Users following this service
+- **Data Products**: Data products this service is part of
+- **Ingestion Runner**: Agent responsible for executing ingestion pipelines
+- **Table**: External tables pointing to storage (indirect relationship)
+- **TestSuite**: Data quality tests for stored files (indirect relationship)
 
 ---
 
@@ -171,138 +174,158 @@ View the complete StorageService schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/services/storageService.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "StorageService",
-      "description": "A `StorageService` entity represents an object storage or file system service.",
+      "title": "Storage Service",
+      "description": "This schema defines the Storage Service entity, such as S3, GCS or AZURE.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.services.StorageService",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface",
+        "org.openmetadata.schema.ServiceEntityInterface"
+      ],
 
       "definitions": {
         "storageServiceType": {
-          "description": "Type of storage service",
+          "description": "Type of storage service such as S3, GFS, AZURE...",
+          "javaInterfaces": [
+            "org.openmetadata.schema.EnumInterface"
+          ],
           "type": "string",
           "enum": [
-            "S3", "ABFS", "GCS", "HDFS", "MinIO",
-            "ADLS", "OracleObjectStorage", "IBMCloudObjectStorage"
+            "S3",
+            "ADLS",
+            "GCS",
+            "CustomStorage"
+          ],
+          "javaEnums": [
+            { "name": "S3" },
+            { "name": "ADLS" },
+            { "name": "GCS" },
+            { "name": "CustomStorage" }
           ]
         },
-        "s3Connection": {
+        "storageConnection": {
           "type": "object",
+          "javaType": "org.openmetadata.schema.type.StorageConnection",
+          "description": "Storage Connection.",
+          "javaInterfaces": [
+            "org.openmetadata.schema.ServiceConnectionEntityInterface"
+          ],
           "properties": {
-            "awsAccessKeyId": {
-              "type": "string",
-              "description": "AWS Access Key ID"
-            },
-            "awsSecretAccessKey": {
-              "type": "string",
-              "description": "AWS Secret Access Key (encrypted)"
-            },
-            "awsRegion": {
-              "type": "string",
-              "description": "AWS Region"
-            },
-            "awsSessionToken": {
-              "type": "string",
-              "description": "AWS Session Token for temporary credentials"
-            },
-            "endpointURL": {
-              "type": "string",
-              "description": "Custom endpoint URL (for S3-compatible services)"
+            "config": {
+              "mask": true,
+              "oneOf": [
+                { "$ref": "connections/storage/s3Connection.json" },
+                { "$ref": "connections/storage/adlsConnection.json" },
+                { "$ref": "connections/storage/gcsConnection.json" },
+                { "$ref": "connections/storage/customStorageConnection.json" }
+              ]
             }
-          }
-        },
-        "gcsConnection": {
-          "type": "object",
-          "properties": {
-            "credentials": {
-              "type": "string",
-              "description": "GCS service account JSON credentials"
-            },
-            "projectId": {
-              "type": "string",
-              "description": "GCP Project ID"
-            }
-          }
-        },
-        "azureConnection": {
-          "type": "object",
-          "properties": {
-            "accountName": {
-              "type": "string",
-              "description": "Azure Storage Account Name"
-            },
-            "accountKey": {
-              "type": "string",
-              "description": "Azure Storage Account Key (encrypted)"
-            },
-            "connectionString": {
-              "type": "string",
-              "description": "Azure connection string"
-            }
-          }
+          },
+          "additionalProperties": false
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this storage service instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Service name",
+          "description": "Name that identifies this storage service.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this storage service.",
           "type": "string"
         },
-        "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
-        },
         "serviceType": {
+          "description": "Type of storage service such as S3, GCS, AZURE...",
           "$ref": "#/definitions/storageServiceType"
         },
+        "description": {
+          "description": "Description of a storage service instance.",
+          "$ref": "../../type/basic.json#/definitions/markdown"
+        },
         "connection": {
-          "description": "Service connection configuration",
-          "oneOf": [
-            {"$ref": "#/definitions/s3Connection"},
-            {"$ref": "#/definitions/gcsConnection"},
-            {"$ref": "#/definitions/azureConnection"}
-          ]
+          "$ref": "#/definitions/storageConnection"
         },
-        "containers": {
-          "description": "Storage containers/buckets in this service",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "pipelines": {
+          "description": "References to pipelines deployed for this storage service to extract metadata, usage, lineage etc..",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "testConnectionResult": {
+          "description": "Last test connection results for this service",
+          "$ref": "connections/testConnectionResult.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this storage Service.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
         "version": {
-          "description": "Metadata version",
+          "description": "Metadata version of the entity.",
           "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this storage service.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "owners": {
+          "description": "Owners of this storage service.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "domains": {
+          "description": "Domains the Storage service belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "ingestionRunner": {
+          "description": "The ingestion agent responsible for executing the ingestion pipeline.",
+          "$ref": "../../type/entityReference.json"
         }
       },
 
-      "required": ["id", "name", "serviceType"]
+      "required": ["id", "name", "serviceType"],
+      "additionalProperties": false
     }
     ```
 
@@ -315,67 +338,128 @@ View the complete StorageService schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # StorageService Class Definition
     om:StorageService a owl:Class ;
         rdfs:subClassOf om:Service ;
-        rdfs:label "StorageService" ;
-        rdfs:comment "Object storage or file system service for unstructured data" ;
+        rdfs:label "Storage Service" ;
+        rdfs:comment "This schema defines the Storage Service entity, such as S3, GCS or AZURE." ;
         om:hierarchyLevel 1 .
 
-    # Properties
+    # Datatype Properties
     om:serviceName a owl:DatatypeProperty ;
         rdfs:domain om:StorageService ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the storage service" .
+        rdfs:comment "Name that identifies this storage service" .
+
+    om:fullyQualifiedName a owl:DatatypeProperty ;
+        rdfs:domain om:StorageService ;
+        rdfs:range xsd:string ;
+        rdfs:label "fullyQualifiedName" ;
+        rdfs:comment "FullyQualifiedName same as name" .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:StorageService ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this storage service" .
+
+    om:description a owl:DatatypeProperty ;
+        rdfs:domain om:StorageService ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of a storage service instance" .
 
     om:serviceType a owl:DatatypeProperty ;
         rdfs:domain om:StorageService ;
         rdfs:range om:StorageServiceType ;
         rdfs:label "serviceType" ;
-        rdfs:comment "Type of storage service (S3, GCS, Azure, HDFS, etc.)" .
+        rdfs:comment "Type of storage service such as S3, GCS, AZURE..." .
 
-    om:hasContainer a owl:ObjectProperty ;
+    om:deleted a owl:DatatypeProperty ;
         rdfs:domain om:StorageService ;
-        rdfs:range om:Container ;
-        rdfs:label "hasContainer" ;
-        rdfs:comment "Storage containers/buckets in this service" .
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When true indicates the entity has been soft deleted" .
 
-    om:serviceOwnedBy a owl:ObjectProperty ;
+    # Object Properties
+    om:connection a owl:ObjectProperty ;
+        rdfs:domain om:StorageService ;
+        rdfs:range om:StorageConnection ;
+        rdfs:label "connection" ;
+        rdfs:comment "Storage connection configuration" .
+
+    om:hasPipeline a owl:ObjectProperty ;
+        rdfs:domain om:StorageService ;
+        rdfs:range om:Pipeline ;
+        rdfs:label "pipelines" ;
+        rdfs:comment "References to pipelines deployed for this storage service to extract metadata, usage, lineage etc." .
+
+    om:hasTestConnectionResult a owl:ObjectProperty ;
+        rdfs:domain om:StorageService ;
+        rdfs:range om:TestConnectionResult ;
+        rdfs:label "testConnectionResult" ;
+        rdfs:comment "Last test connection results for this service" .
+
+    om:hasOwner a owl:ObjectProperty ;
         rdfs:domain om:StorageService ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this service" .
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this storage service" .
 
     om:serviceHasTag a owl:ObjectProperty ;
         rdfs:domain om:StorageService ;
         rdfs:range om:Tag ;
-        rdfs:label "hasTag" ;
-        rdfs:comment "Classification tags applied to service" .
+        rdfs:label "tags" ;
+        rdfs:comment "Tags for this storage Service" .
+
+    om:inDomain a owl:ObjectProperty ;
+        rdfs:domain om:StorageService ;
+        rdfs:range om:Domain ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the Storage service belongs to" .
+
+    om:hasFollower a owl:ObjectProperty ;
+        rdfs:domain om:StorageService ;
+        rdfs:range om:User ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this entity" .
+
+    om:partOfDataProduct a owl:ObjectProperty ;
+        rdfs:domain om:StorageService ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "dataProducts" ;
+        rdfs:comment "List of data products this entity is part of" .
+
+    om:hasIngestionRunner a owl:ObjectProperty ;
+        rdfs:domain om:StorageService ;
+        rdfs:range om:IngestionRunner ;
+        rdfs:label "ingestionRunner" ;
+        rdfs:comment "The ingestion agent responsible for executing the ingestion pipeline" .
 
     # Storage Service Type Enumeration
     om:StorageServiceType a owl:Class ;
         owl:oneOf (
             om:S3StorageService
-            om:GCSStorageService
-            om:AzureBlobStorageService
-            om:HDFSStorageService
-            om:MinIOStorageService
             om:ADLSStorageService
+            om:GCSStorageService
+            om:CustomStorageService
         ) .
 
     # Example Instance
     ex:s3ProductionService a om:StorageService ;
         om:serviceName "s3_prod" ;
         om:fullyQualifiedName "s3_prod" ;
+        om:displayName "Production S3 Storage" ;
+        om:description "Primary S3 storage for production data lake" ;
         om:serviceType om:S3StorageService ;
-        om:serviceOwnedBy ex:dataEngTeam ;
+        om:hasOwner ex:dataEngTeam ;
         om:serviceHasTag ex:tierGold ;
-        om:hasContainer ex:rawDataBucket ;
-        om:hasContainer ex:processedDataBucket .
+        om:inDomain ex:dataPlatformDomain ;
+        om:deleted false .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -417,23 +501,47 @@ View the complete StorageService schema in your preferred format:
           "@id": "om:connection",
           "@type": "@id"
         },
-        "containers": {
-          "@id": "om:hasContainer",
+        "pipelines": {
+          "@id": "om:hasPipeline",
           "@type": "@id",
           "@container": "@set"
         },
-        "owner": {
-          "@id": "om:serviceOwnedBy",
+        "testConnectionResult": {
+          "@id": "om:hasTestConnectionResult",
           "@type": "@id"
         },
-        "domain": {
+        "owners": {
+          "@id": "om:hasOwner",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
           "@id": "om:inDomain",
-          "@type": "@id"
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:serviceHasTag",
           "@type": "@id",
           "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:hasFollower",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:partOfDataProduct",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "ingestionRunner": {
+          "@id": "om:hasIngestionRunner",
+          "@type": "@id"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
         }
       }
     }
@@ -454,22 +562,29 @@ View the complete StorageService schema in your preferred format:
       "serviceType": "S3",
 
       "connection": {
-        "awsRegion": "us-east-1",
-        "endpointURL": "https://s3.amazonaws.com"
+        "@type": "StorageConnection",
+        "config": {
+          "@type": "S3Connection",
+          "awsRegion": "us-east-1"
+        }
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/data-engineering",
-        "@type": "Team",
-        "name": "data-engineering",
-        "displayName": "Data Engineering Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-engineering",
+          "@type": "Team",
+          "name": "data-engineering",
+          "displayName": "Data Engineering Team"
+        }
+      ],
 
-      "domain": {
-        "@id": "https://example.com/domains/DataPlatform",
-        "@type": "Domain",
-        "name": "DataPlatform"
-      },
+      "domains": [
+        {
+          "@id": "https://example.com/domains/DataPlatform",
+          "@type": "Domain",
+          "name": "DataPlatform"
+        }
+      ],
 
       "tags": [
         {
@@ -482,18 +597,23 @@ View the complete StorageService schema in your preferred format:
         }
       ],
 
-      "containers": [
+      "pipelines": [
         {
-          "@id": "https://example.com/storage/s3_prod/raw-data",
-          "@type": "Container",
-          "name": "raw-data"
-        },
-        {
-          "@id": "https://example.com/storage/s3_prod/processed-data",
-          "@type": "Container",
-          "name": "processed-data"
+          "@id": "https://example.com/pipelines/storage-metadata-ingestion",
+          "@type": "Pipeline",
+          "name": "storage-metadata-ingestion"
         }
-      ]
+      ],
+
+      "followers": [
+        {
+          "@id": "https://example.com/users/john.doe",
+          "@type": "User",
+          "name": "john.doe"
+        }
+      ],
+
+      "deleted": false
     }
     ```
 
@@ -596,13 +716,9 @@ View the complete StorageService schema in your preferred format:
 **Allowed Values**:
 
 - `S3` - Amazon S3
-- `ABFS` - Azure Blob File System
-- `GCS` - Google Cloud Storage
-- `HDFS` - Hadoop Distributed File System
-- `MinIO` - MinIO object storage
 - `ADLS` - Azure Data Lake Storage
-- `OracleObjectStorage` - Oracle Cloud Object Storage
-- `IBMCloudObjectStorage` - IBM Cloud Object Storage
+- `GCS` - Google Cloud Storage
+- `CustomStorage` - Custom storage service
 
 ```json
 {
@@ -612,10 +728,10 @@ View the complete StorageService schema in your preferred format:
 
 ---
 
-#### `connection` (Connection)
+#### `connection` (StorageConnection)
 **Type**: `object`
-**Required**: Yes
-**Description**: Service connection configuration (credentials, endpoints)
+**Required**: No
+**Description**: Storage connection configuration (credentials, endpoints)
 
 **S3 Connection Example**:
 
@@ -647,32 +763,31 @@ View the complete StorageService schema in your preferred format:
 }
 ```
 
-**Azure Blob Connection Example**:
+**ADLS Connection Example**:
 
 ```json
 {
   "connection": {
     "config": {
-      "type": "ABFS",
+      "type": "ADLS",
       "accountName": "mystorageaccount",
-      "accountKey": "***encrypted***",
-      "connectionString": "DefaultEndpointsProtocol=https;AccountName=..."
+      "accountKey": "***encrypted***"
     }
   }
 }
 ```
 
-**HDFS Connection Example**:
+**Custom Storage Connection Example**:
 
 ```json
 {
   "connection": {
     "config": {
-      "type": "HDFS",
-      "nameNodeHost": "hdfs-namenode.example.com",
-      "nameNodePort": 9000,
-      "kerberosEnabled": true,
-      "kerberosPrincipal": "hdfs/namenode@EXAMPLE.COM"
+      "type": "CustomStorage",
+      "connectionOptions": {
+        "endpoint": "https://custom-storage.example.com",
+        "apiKey": "***encrypted***"
+      }
     }
   }
 }
@@ -682,25 +797,19 @@ View the complete StorageService schema in your preferred format:
 
 ### Relationship Properties
 
-#### `containers[]` (Container[])
-**Type**: `array` of Container references
+#### `pipelines` (EntityReferenceList)
+**Type**: `array` of Pipeline references
 **Required**: No
-**Description**: Storage containers/buckets in this service
+**Description**: References to pipelines deployed for this storage service to extract metadata, usage, lineage etc.
 
 ```json
 {
-  "containers": [
+  "pipelines": [
     {
       "id": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
-      "type": "container",
-      "name": "raw-data",
-      "fullyQualifiedName": "s3_prod.raw-data"
-    },
-    {
-      "id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
-      "type": "container",
-      "name": "processed-data",
-      "fullyQualifiedName": "s3_prod.processed-data"
+      "type": "pipeline",
+      "name": "storage-metadata-ingestion",
+      "fullyQualifiedName": "airflow.storage-metadata-ingestion"
     }
   ]
 }
@@ -708,39 +817,59 @@ View the complete StorageService schema in your preferred format:
 
 ---
 
-### Governance Properties
-
-#### `owner` (EntityReference)
+#### `testConnectionResult` (TestConnectionResult)
 **Type**: `object`
 **Required**: No
-**Description**: User or team that owns this storage service
+**Description**: Last test connection results for this service
 
 ```json
 {
-  "owner": {
-    "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
-    "type": "team",
-    "name": "data-engineering",
-    "displayName": "Data Engineering Team"
+  "testConnectionResult": {
+    "status": "Successful",
+    "lastUpdatedAt": 1704240000000
   }
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+### Governance Properties
+
+#### `owners` (EntityReferenceList)
+**Type**: `array` of entity references
 **Required**: No
-**Description**: Data domain this service belongs to
+**Description**: Owners of this storage service
 
 ```json
 {
-  "domain": {
-    "id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
-    "type": "domain",
-    "name": "DataPlatform",
-    "fullyQualifiedName": "DataPlatform"
-  }
+  "owners": [
+    {
+      "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+      "type": "team",
+      "name": "data-engineering",
+      "displayName": "Data Engineering Team"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of domain references
+**Required**: No
+**Description**: Domains the Storage service belongs to
+
+```json
+{
+  "domains": [
+    {
+      "id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
+      "type": "domain",
+      "name": "DataPlatform",
+      "fullyQualifiedName": "DataPlatform"
+    }
+  ]
 }
 ```
 
@@ -779,12 +908,69 @@ View the complete StorageService schema in your preferred format:
 
 ---
 
+#### `followers` (EntityReferenceList)
+**Type**: `array` of user references
+**Required**: No
+**Description**: Followers of this entity
+
+```json
+{
+  "followers": [
+    {
+      "id": "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of data product references
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+      "type": "dataProduct",
+      "name": "customer-analytics",
+      "fullyQualifiedName": "customer-analytics"
+    }
+  ]
+}
+```
+
+---
+
+#### `ingestionRunner` (EntityReference)
+**Type**: `object`
+**Required**: No
+**Description**: The ingestion agent responsible for executing the ingestion pipeline
+
+```json
+{
+  "ingestionRunner": {
+    "id": "8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e",
+    "type": "ingestionPipeline",
+    "name": "metadata-ingestion-runner"
+  }
+}
+```
+
+---
+
 ### Versioning Properties
 
 #### `version` (entityVersion)
 **Type**: `number`
 **Required**: Yes (system-managed)
-**Description**: Metadata version number
+**Description**: Metadata version of the entity
 
 ```json
 {
@@ -796,8 +982,8 @@ View the complete StorageService schema in your preferred format:
 
 #### `updatedAt` (timestamp)
 **Type**: `integer` (Unix epoch milliseconds)
-**Required**: Yes (system-managed)
-**Description**: Last update timestamp
+**Required**: No (system-managed)
+**Description**: Last update time corresponding to the new version of the entity in Unix epoch time milliseconds
 
 ```json
 {
@@ -809,12 +995,104 @@ View the complete StorageService schema in your preferred format:
 
 #### `updatedBy` (string)
 **Type**: `string`
-**Required**: Yes (system-managed)
+**Required**: No (system-managed)
 **Description**: User who made the update
 
 ```json
 {
   "updatedBy": "admin"
+}
+```
+
+---
+
+#### `impersonatedBy` (impersonatedBy)
+**Type**: `object`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": {
+    "id": "9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f",
+    "type": "bot",
+    "name": "ingestion-bot"
+  }
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this storage service
+
+```json
+{
+  "href": "https://openmetadata.example.com/api/v1/services/storageServices/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
+}
+```
+
+---
+
+#### `changeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "tags",
+        "oldValue": [],
+        "newValue": [{"tagFQN": "Tier.Gold"}]
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No
+**Description**: Incremental change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "description",
+        "oldValue": "",
+        "newValue": "Updated description"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
 }
 ```
 
@@ -841,37 +1119,36 @@ View the complete StorageService schema in your preferred format:
       "endpointURL": "https://s3.amazonaws.com"
     }
   },
-  "containers": [
+  "pipelines": [
     {
       "id": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
-      "type": "container",
-      "name": "raw-data",
-      "fullyQualifiedName": "s3_prod.raw-data"
-    },
-    {
-      "id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
-      "type": "container",
-      "name": "processed-data",
-      "fullyQualifiedName": "s3_prod.processed-data"
+      "type": "pipeline",
+      "name": "storage-metadata-ingestion",
+      "fullyQualifiedName": "airflow.storage-metadata-ingestion"
     }
   ],
-  "owner": {
-    "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
-    "type": "team",
-    "name": "data-engineering"
-  },
-  "domain": {
-    "id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
-    "type": "domain",
-    "name": "DataPlatform"
-  },
+  "owners": [
+    {
+      "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+      "type": "team",
+      "name": "data-engineering"
+    }
+  ],
+  "domains": [
+    {
+      "id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
+      "type": "domain",
+      "name": "DataPlatform"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Gold"},
     {"tagFQN": "Environment.Production"}
   ],
   "version": 1.2,
   "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "updatedBy": "admin",
+  "deleted": false
 }
 ```
 
@@ -892,48 +1169,53 @@ View the complete StorageService schema in your preferred format:
       "credentials": "***encrypted-service-account-json***"
     }
   },
-  "owner": {
-    "type": "team",
-    "name": "analytics-team"
-  },
+  "owners": [
+    {
+      "type": "team",
+      "name": "analytics-team"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Silver"}
   ],
   "version": 1.0,
   "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "updatedBy": "admin",
+  "deleted": false
 }
 ```
 
-### HDFS Service
+### Azure Data Lake Storage Service
 
 ```json
 {
   "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
-  "name": "hdfs_cluster",
-  "fullyQualifiedName": "hdfs_cluster",
-  "displayName": "Production HDFS Cluster",
-  "description": "On-premise Hadoop HDFS cluster",
-  "serviceType": "HDFS",
+  "name": "adls_analytics",
+  "fullyQualifiedName": "adls_analytics",
+  "displayName": "ADLS Analytics Storage",
+  "description": "Azure Data Lake Storage for analytics workloads",
+  "serviceType": "ADLS",
   "connection": {
     "config": {
-      "type": "HDFS",
-      "nameNodeHost": "hdfs-namenode.example.com",
-      "nameNodePort": 9000,
-      "kerberosEnabled": true
+      "type": "ADLS",
+      "accountName": "myanalyticsaccount",
+      "accountKey": "***encrypted***"
     }
   },
-  "owner": {
-    "type": "team",
-    "name": "hadoop-ops"
-  },
+  "owners": [
+    {
+      "type": "team",
+      "name": "azure-platform"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Gold"},
-    {"tagFQN": "Environment.OnPremise"}
+    {"tagFQN": "Environment.Production"}
   ],
   "version": 2.1,
   "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "updatedBy": "admin",
+  "deleted": false
 }
 ```
 
@@ -946,19 +1228,24 @@ View the complete StorageService schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 om:StorageService a owl:Class ;
     rdfs:subClassOf om:Service ;
-    rdfs:label "StorageService" ;
-    rdfs:comment "Object storage or file system service" ;
+    rdfs:label "Storage Service" ;
+    rdfs:comment "This schema defines the Storage Service entity, such as S3, GCS or AZURE." ;
     om:hasProperties [
         om:name "string" ;
         om:serviceType "StorageServiceType" ;
-        om:connection "Connection" ;
-        om:containers "Container[]" ;
-        om:owner "Owner" ;
+        om:connection "StorageConnection" ;
+        om:pipelines "Pipeline[]" ;
+        om:owners "Owner[]" ;
+        om:domains "Domain[]" ;
         om:tags "Tag[]" ;
+        om:followers "User[]" ;
+        om:dataProducts "DataProduct[]" ;
+        om:deleted "boolean" ;
     ] .
 ```
 
@@ -967,6 +1254,7 @@ om:StorageService a owl:Class ;
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix ex: <https://example.com/services/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:s3_prod a om:StorageService ;
     om:serviceName "s3_prod" ;
@@ -974,11 +1262,12 @@ ex:s3_prod a om:StorageService ;
     om:displayName "Production S3 Storage" ;
     om:description "Primary S3 storage for production data lake" ;
     om:serviceType om:S3StorageService ;
-    om:serviceOwnedBy ex:dataEngTeam ;
+    om:hasOwner ex:dataEngTeam ;
     om:serviceHasTag ex:tier_gold ;
     om:serviceHasTag ex:env_production ;
-    om:hasContainer ex:rawDataBucket ;
-    om:hasContainer ex:processedDataBucket .
+    om:inDomain ex:dataPlatformDomain ;
+    om:hasPipeline ex:storageMetadataIngestion ;
+    om:deleted "false"^^xsd:boolean .
 ```
 
 ---
@@ -991,6 +1280,7 @@ ex:s3_prod a om:StorageService ;
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
     "StorageService": "om:StorageService",
     "name": "om:serviceName",
     "fullyQualifiedName": "om:fullyQualifiedName",
@@ -1004,19 +1294,39 @@ ex:s3_prod a om:StorageService ;
       "@id": "om:connection",
       "@type": "@id"
     },
-    "containers": {
-      "@id": "om:hasContainer",
+    "pipelines": {
+      "@id": "om:hasPipeline",
       "@type": "@id",
       "@container": "@set"
     },
-    "owner": {
-      "@id": "om:serviceOwnedBy",
-      "@type": "@id"
+    "owners": {
+      "@id": "om:hasOwner",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:inDomain",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
       "@id": "om:serviceHasTag",
       "@type": "@id",
       "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:hasFollower",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:partOfDataProduct",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "deleted": {
+      "@id": "om:deleted",
+      "@type": "xsd:boolean"
     }
   }
 }
@@ -1033,21 +1343,29 @@ ex:s3_prod a om:StorageService ;
   "fullyQualifiedName": "s3_prod",
   "displayName": "Production S3 Storage",
   "serviceType": "S3",
-  "owner": {
-    "@id": "https://example.com/teams/data-engineering",
-    "@type": "Team"
-  },
+  "owners": [
+    {
+      "@id": "https://example.com/teams/data-engineering",
+      "@type": "Team"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/DataPlatform",
+      "@type": "Domain"
+    }
+  ],
   "tags": [
     {"@id": "https://open-metadata.org/tags/Tier/Gold"},
     {"@id": "https://open-metadata.org/tags/Environment/Production"}
   ],
-  "containers": [
+  "pipelines": [
     {
-      "@id": "https://example.com/storage/s3_prod/raw-data",
-      "@type": "Container",
-      "name": "raw-data"
+      "@id": "https://example.com/pipelines/storage-metadata-ingestion",
+      "@type": "Pipeline"
     }
-  ]
+  ],
+  "deleted": false
 }
 ```
 

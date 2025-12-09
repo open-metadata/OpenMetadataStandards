@@ -38,104 +38,199 @@ View the complete DatabaseService schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/services/databaseService.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "DatabaseService",
-      "description": "A `DatabaseService` entity represents a connection to a database platform, containing configuration for authentication, connection, and metadata ingestion.",
+      "title": "Database Service",
+      "description": "This schema defines the `Database Service` is a service such as MySQL, BigQuery, Redshift, Postgres, or Snowflake. Alternative terms such as Database Cluster, Database Server instance are also used for database service.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.services.DatabaseService",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface",
+        "org.openmetadata.schema.ServiceEntityInterface"
+      ],
 
       "definitions": {
         "databaseServiceType": {
-          "description": "Type of database service",
+          "description": "Type of database service such as MySQL, BigQuery, Snowflake, Redshift, Postgres...",
+          "javaInterfaces": ["org.openmetadata.schema.EnumInterface"],
           "type": "string",
           "enum": [
-            "MySQL", "PostgreSQL", "Oracle", "SQLServer", "Snowflake",
-            "BigQuery", "Redshift", "Databricks", "Athena", "Presto",
-            "Trino", "Vertica", "Hive", "MariaDB", "DynamoDB",
-            "ClickHouse", "Db2", "Druid", "SingleStore", "MongoDB"
+            "BigQuery", "BigTable", "Mysql", "Redshift", "Snowflake",
+            "Postgres", "Timescale", "Mssql", "Oracle", "Athena",
+            "Hive", "Impala", "Presto", "Trino", "Vertica",
+            "Glue", "MariaDB", "Druid", "Db2", "Clickhouse",
+            "Databricks", "AzureSQL", "DynamoDB", "SingleStore", "SQLite",
+            "DeltaLake", "Salesforce", "PinotDB", "Datalake", "DomoDatabase",
+            "QueryLog", "CustomDatabase", "Dbt", "SapHana", "MongoDB",
+            "Cassandra", "Couchbase", "Greenplum", "Doris", "UnityCatalog",
+            "SAS", "Iceberg", "Teradata", "SapErp", "Synapse",
+            "Exasol", "Cockroach", "SSAS", "Epic", "ServiceNow"
           ]
         },
-        "connectionConfig": {
+        "databaseConnection": {
           "type": "object",
+          "description": "Database Connection.",
+          "javaInterfaces": [
+            "org.openmetadata.schema.ServiceConnectionEntityInterface"
+          ],
           "properties": {
-            "hostPort": {
-              "description": "Host and port of the database service",
-              "type": "string"
-            },
-            "username": {
-              "description": "Username for authentication",
-              "type": "string"
-            },
-            "password": {
-              "description": "Password for authentication",
-              "type": "string",
-              "format": "password"
-            },
-            "database": {
-              "description": "Default database name",
-              "type": "string"
-            },
-            "connectionOptions": {
-              "description": "Additional connection options",
-              "type": "object"
-            },
-            "connectionArguments": {
-              "description": "JDBC/connection string arguments",
-              "type": "object"
+            "config": {
+              "mask": true,
+              "oneOf": [
+                {"$ref": "./connections/database/bigQueryConnection.json"},
+                {"$ref": "./connections/database/bigTableConnection.json"},
+                {"$ref": "./connections/database/athenaConnection.json"},
+                {"$ref": "./connections/database/azureSQLConnection.json"},
+                {"$ref": "./connections/database/clickhouseConnection.json"},
+                {"$ref": "./connections/database/databricksConnection.json"},
+                {"$ref": "./connections/database/db2Connection.json"},
+                {"$ref": "./connections/database/deltaLakeConnection.json"},
+                {"$ref": "./connections/database/druidConnection.json"},
+                {"$ref": "./connections/database/dynamoDBConnection.json"},
+                {"$ref": "./connections/database/glueConnection.json"},
+                {"$ref": "./connections/database/hiveConnection.json"},
+                {"$ref": "./connections/database/impalaConnection.json"},
+                {"$ref": "./connections/database/mariaDBConnection.json"},
+                {"$ref": "./connections/database/mssqlConnection.json"},
+                {"$ref": "./connections/database/mysqlConnection.json"},
+                {"$ref": "./connections/database/sqliteConnection.json"},
+                {"$ref": "./connections/database/oracleConnection.json"},
+                {"$ref": "./connections/database/postgresConnection.json"},
+                {"$ref": "./connections/database/timescaleConnection.json"},
+                {"$ref": "./connections/database/prestoConnection.json"},
+                {"$ref": "./connections/database/redshiftConnection.json"},
+                {"$ref": "./connections/database/salesforceConnection.json"},
+                {"$ref": "./connections/database/singleStoreConnection.json"},
+                {"$ref": "./connections/database/snowflakeConnection.json"},
+                {"$ref": "./connections/database/trinoConnection.json"},
+                {"$ref": "./connections/database/verticaConnection.json"},
+                {"$ref": "./connections/database/pinotDBConnection.json"},
+                {"$ref": "./connections/database/datalakeConnection.json"},
+                {"$ref": "./connections/database/domoDatabaseConnection.json"},
+                {"$ref": "./connections/database/customDatabaseConnection.json"},
+                {"$ref": "./connections/database/sapHanaConnection.json"},
+                {"$ref": "./connections/database/mongoDBConnection.json"},
+                {"$ref": "./connections/database/cassandraConnection.json"},
+                {"$ref": "./connections/database/couchbaseConnection.json"},
+                {"$ref": "./connections/database/greenplumConnection.json"},
+                {"$ref": "./connections/database/dorisConnection.json"},
+                {"$ref": "./connections/database/unityCatalogConnection.json"},
+                {"$ref": "./connections/database/sasConnection.json"},
+                {"$ref": "./connections/database/icebergConnection.json"},
+                {"$ref": "./connections/database/teradataConnection.json"},
+                {"$ref": "./connections/database/sapErpConnection.json"},
+                {"$ref": "./connections/database/synapseConnection.json"},
+                {"$ref": "./connections/database/exasolConnection.json"},
+                {"$ref": "./connections/database/cockroachConnection.json"},
+                {"$ref": "./connections/database/ssasConnection.json"},
+                {"$ref": "./connections/database/epicConnection.json"},
+                {"$ref": "./connections/database/serviceNowConnection.json"}
+              ]
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this database service instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Service name",
+          "description": "Name that identifies this database service.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service name",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this database service.",
           "type": "string"
         },
-        "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
-        },
         "serviceType": {
+          "description": "Type of database service such as MySQL, BigQuery, Snowflake, Redshift, Postgres...",
           "$ref": "#/definitions/databaseServiceType"
         },
+        "description": {
+          "description": "Description of a database service instance.",
+          "$ref": "../../type/basic.json#/definitions/markdown"
+        },
         "connection": {
-          "description": "Connection configuration",
-          "$ref": "#/definitions/connectionConfig"
+          "$ref": "#/definitions/databaseConnection"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "pipelines": {
+          "description": "References to pipelines deployed for this database service to extract metadata, usage, lineage etc..",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "testConnectionResult": {
+          "description": "Last test connection results for this service",
+          "$ref": "connections/testConnectionResult.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this Database Service.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
         "version": {
-          "description": "Metadata version",
+          "description": "Metadata version of the entity.",
           "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "owners": {
+          "description": "Owners of this database service.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this database service.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "domains": {
+          "description": "Domains the Database service belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "ingestionRunner": {
+          "description": "The ingestion agent responsible for executing the ingestion pipeline.",
+          "$ref": "../../type/entityReference.json"
         }
       },
 
-      "required": ["id", "name", "serviceType", "connection"]
+      "required": ["id", "name", "serviceType"],
+      "additionalProperties": false
     }
     ```
 
@@ -183,11 +278,41 @@ View the complete DatabaseService schema in your preferred format:
         rdfs:label "hasDatabase" ;
         rdfs:comment "Databases in this service" .
 
-    om:ownedBy a owl:ObjectProperty ;
+    om:hasOwners a owl:ObjectProperty ;
         rdfs:domain om:DatabaseService ;
-        rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this service" .
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "hasOwners" ;
+        rdfs:comment "Users or teams that own this service" .
+
+    om:hasDomains a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "hasDomains" ;
+        rdfs:comment "Domains this service belongs to" .
+
+    om:hasFollowers a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "hasFollowers" ;
+        rdfs:comment "Followers of this entity" .
+
+    om:hasPipelines a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "hasPipelines" ;
+        rdfs:comment "References to pipelines for metadata extraction" .
+
+    om:hasDataProducts a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "hasDataProducts" ;
+        rdfs:comment "Data products this entity is part of" .
+
+    om:hasIngestionRunner a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseService ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "hasIngestionRunner" ;
+        rdfs:comment "The ingestion agent for executing pipelines" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:DatabaseService ;
@@ -195,27 +320,37 @@ View the complete DatabaseService schema in your preferred format:
         rdfs:label "hasTag" ;
         rdfs:comment "Classification tags applied to service" .
 
-    # DatabaseServiceType Enumeration
+    # DatabaseServiceType Enumeration (partial list)
     om:DatabaseServiceType a owl:Class ;
         owl:oneOf (
-            om:PostgreSQL
-            om:MySQL
-            om:Snowflake
             om:BigQuery
+            om:BigTable
+            om:Mysql
+            om:Postgres
+            om:Snowflake
             om:Redshift
             om:Oracle
+            om:Mssql
+            om:Athena
+            om:Hive
+            om:Databricks
+            om:MongoDB
+            # ... and 55+ more types
         ) .
 
     # Example Instance
     ex:postgresProdService a om:DatabaseService ;
         om:serviceName "postgres_prod" ;
         om:fullyQualifiedName "postgres_prod" ;
-        om:serviceType om:PostgreSQL ;
-        om:hostPort "postgres.example.com:5432" ;
-        om:ownedBy ex:dataEngineeringTeam ;
+        om:serviceType om:Postgres ;
+        om:hasConnection ex:postgresConnection ;
+        om:hasOwners ex:dataEngineeringTeamList ;
+        om:hasDomains ex:engineeringDomainList ;
         om:hasTag ex:tierGold ;
         om:hasDatabase ex:ecommerceDb ;
-        om:hasDatabase ex:analyticsDb .
+        om:hasDatabase ex:analyticsDb ;
+        om:hasPipelines ex:metadataPipelineList ;
+        om:hasFollowers ex:followersList .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -257,12 +392,33 @@ View the complete DatabaseService schema in your preferred format:
           "@id": "om:hasConnection",
           "@type": "@id"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
+        "owners": {
+          "@id": "om:hasOwners",
+          "@type": "@id",
+          "@container": "@set"
         },
-        "domain": {
-          "@id": "om:inDomain",
+        "domains": {
+          "@id": "om:hasDomains",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:hasFollowers",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "pipelines": {
+          "@id": "om:hasPipelines",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:hasDataProducts",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "ingestionRunner": {
+          "@id": "om:hasIngestionRunner",
           "@type": "@id"
         },
         "tags": {
@@ -286,29 +442,61 @@ View the complete DatabaseService schema in your preferred format:
       "fullyQualifiedName": "postgres_prod",
       "displayName": "Production PostgreSQL",
       "description": "Primary PostgreSQL cluster for production workloads",
-      "serviceType": "PostgreSQL",
+      "serviceType": "Postgres",
 
       "connection": {
-        "hostPort": "postgres.example.com:5432",
-        "username": "metadata_user",
-        "database": "postgres",
-        "connectionOptions": {
-          "sslmode": "require"
+        "config": {
+          "type": "Postgres",
+          "hostPort": "postgres.example.com:5432",
+          "username": "metadata_user",
+          "database": "postgres",
+          "sslMode": "require",
+          "connectionOptions": {
+            "sslmode": "require"
+          }
         }
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/data-engineering",
-        "@type": "Team",
-        "name": "DataEngineering",
-        "displayName": "Data Engineering Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-engineering",
+          "@type": "Team",
+          "name": "DataEngineering",
+          "displayName": "Data Engineering Team"
+        }
+      ],
 
-      "domain": {
-        "@id": "https://example.com/domains/engineering",
-        "@type": "Domain",
-        "name": "Engineering"
-      },
+      "domains": [
+        {
+          "@id": "https://example.com/domains/engineering",
+          "@type": "Domain",
+          "name": "Engineering"
+        }
+      ],
+
+      "pipelines": [
+        {
+          "@id": "https://example.com/pipelines/postgres_prod_metadata",
+          "@type": "Pipeline",
+          "name": "postgres_prod_metadata_pipeline"
+        }
+      ],
+
+      "followers": [
+        {
+          "@id": "https://example.com/users/jane.smith",
+          "@type": "User",
+          "name": "jane.smith"
+        }
+      ],
+
+      "dataProducts": [
+        {
+          "@id": "https://example.com/dataProducts/CustomerAnalytics",
+          "@type": "DataProduct",
+          "name": "CustomerAnalytics"
+        }
+      ],
 
       "tags": [
         {
@@ -419,62 +607,169 @@ View the complete DatabaseService schema in your preferred format:
 **Required**: Yes
 **Allowed Values**:
 
-- `PostgreSQL` - PostgreSQL database
-- `MySQL` - MySQL database
-- `Oracle` - Oracle database
-- `SQLServer` - Microsoft SQL Server
-- `Snowflake` - Snowflake data warehouse
 - `BigQuery` - Google BigQuery
+- `BigTable` - Google BigTable
+- `Mysql` - MySQL database
 - `Redshift` - Amazon Redshift
-- `Databricks` - Databricks SQL
+- `Snowflake` - Snowflake data warehouse
+- `Postgres` - PostgreSQL database
+- `Timescale` - Timescale database
+- `Mssql` - Microsoft SQL Server
+- `Oracle` - Oracle database
 - `Athena` - Amazon Athena
-- `Presto` / `Trino` - Presto/Trino query engines
-- `ClickHouse` - ClickHouse OLAP database
+- `Hive` - Apache Hive
+- `Impala` - Apache Impala
+- `Presto` - PrestoDB
+- `Trino` - Trino query engine
+- `Vertica` - Vertica
+- `Glue` - AWS Glue
+- `MariaDB` - MariaDB
+- `Druid` - Apache Druid
+- `Db2` - IBM Db2
+- `Clickhouse` - ClickHouse OLAP database
+- `Databricks` - Databricks SQL
+- `AzureSQL` - Azure SQL Database
+- `DynamoDB` - Amazon DynamoDB
+- `SingleStore` - SingleStore (formerly MemSQL)
+- `SQLite` - SQLite
+- `DeltaLake` - Delta Lake
+- `Salesforce` - Salesforce
+- `PinotDB` - Apache Pinot
+- `Datalake` - Data Lake
+- `DomoDatabase` - Domo Database
+- `QueryLog` - Query Log
+- `CustomDatabase` - Custom Database
+- `Dbt` - dbt (data build tool)
+- `SapHana` - SAP HANA
 - `MongoDB` - MongoDB NoSQL database
+- `Cassandra` - Apache Cassandra
+- `Couchbase` - Couchbase
+- `Greenplum` - Greenplum
+- `Doris` - Apache Doris
+- `UnityCatalog` - Unity Catalog
+- `SAS` - SAS
+- `Iceberg` - Apache Iceberg
+- `Teradata` - Teradata
+- `SapErp` - SAP ERP
+- `Synapse` - Azure Synapse
+- `Exasol` - Exasol
+- `Cockroach` - CockroachDB
+- `SSAS` - SQL Server Analysis Services
+- `Epic` - Epic
+- `ServiceNow` - ServiceNow
 
 ```json
 {
-  "serviceType": "PostgreSQL"
+  "serviceType": "Postgres"
 }
 ```
 
 ---
 
-#### `connection` (ConnectionConfig)
+#### `connection` (databaseConnection)
 **Type**: `object`
-**Required**: Yes
-**Description**: Connection configuration for the database service
+**Required**: No
+**Description**: Database Connection configuration
 
-**Connection Object Properties**:
+**Connection Object Structure**:
+
+The connection object contains a `config` property that uses oneOf to reference specific connection configurations for each database type:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `hostPort` | string | Yes | Host and port (e.g., "localhost:5432") |
-| `username` | string | No | Username for authentication |
-| `password` | string | No | Password (encrypted at rest) |
-| `database` | string | No | Default database name |
-| `sslMode` | string | No | SSL mode (disable, allow, prefer, require, verify-ca, verify-full) |
-| `sslCA` | string | No | SSL CA certificate |
-| `connectionOptions` | object | No | Additional connection parameters |
-| `connectionArguments` | object | No | JDBC/driver-specific arguments |
+| `config` | object | Yes | Database-specific connection configuration (oneOf 47 types) |
 
-**Example**:
+**Supported Connection Types**:
+
+The `config` property can be one of 47 different database connection types:
+- bigQueryConnection.json
+- postgresConnection.json
+- mysqlConnection.json
+- snowflakeConnection.json
+- redshiftConnection.json
+- databricksConnection.json
+- athenaConnection.json
+- and 40+ more...
+
+**Example (PostgreSQL)**:
 
 ```json
 {
   "connection": {
-    "hostPort": "postgres.example.com:5432",
-    "username": "metadata_user",
-    "password": "***ENCRYPTED***",
-    "database": "postgres",
-    "sslMode": "require",
-    "connectionOptions": {
-      "sslmode": "require",
-      "connect_timeout": "10"
-    },
-    "connectionArguments": {
-      "application_name": "OpenMetadata"
+    "config": {
+      "type": "Postgres",
+      "username": "metadata_user",
+      "authType": {
+        "password": "***ENCRYPTED***"
+      },
+      "hostPort": "postgres.example.com:5432",
+      "database": "postgres",
+      "sslMode": "require",
+      "sslConfig": {
+        "caCertificate": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+      },
+      "connectionOptions": {
+        "key1": "value1"
+      },
+      "connectionArguments": {
+        "key1": "value1"
+      },
+      "supportsMetadataExtraction": true,
+      "supportsUsageExtraction": true,
+      "supportsLineageExtraction": true,
+      "supportsDBTExtraction": true,
+      "supportsProfiler": true,
+      "supportsDatabase": true,
+      "supportsQueryComment": true
     }
+  }
+}
+```
+
+---
+
+#### `pipelines` (EntityReferenceList)
+**Type**: `array`
+**Required**: No
+**Description**: References to pipelines deployed for this database service to extract metadata, usage, lineage etc.
+
+```json
+{
+  "pipelines": [
+    {
+      "id": "f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c",
+      "type": "pipeline",
+      "name": "postgres_prod_metadata_pipeline",
+      "fullyQualifiedName": "postgres_prod.postgres_prod_metadata_pipeline"
+    }
+  ]
+}
+```
+
+---
+
+#### `testConnectionResult` (TestConnectionResult)
+**Type**: `object`
+**Required**: No
+**Description**: Last test connection results for this service
+
+```json
+{
+  "testConnectionResult": {
+    "status": "Successful",
+    "lastUpdatedAt": 1704240000000,
+    "steps": [
+      {
+        "name": "CheckAccess",
+        "mandatory": true,
+        "passed": true
+      },
+      {
+        "name": "GetDatabases",
+        "mandatory": true,
+        "passed": true
+      }
+    ]
   }
 }
 ```
@@ -483,36 +778,104 @@ View the complete DatabaseService schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array`
 **Required**: No
-**Description**: User or team that owns this service
+**Description**: Owners of this database service
 
 ```json
 {
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "team",
-    "name": "DataEngineering",
-    "displayName": "Data Engineering Team"
-  }
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "team",
+      "name": "DataEngineering",
+      "displayName": "Data Engineering Team"
+    },
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `domains` (EntityReferenceList)
+**Type**: `array`
 **Required**: No
-**Description**: Data domain this service belongs to
+**Description**: Domains the Database service belongs to
 
 ```json
 {
-  "domain": {
-    "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
-    "type": "domain",
-    "name": "Engineering",
-    "fullyQualifiedName": "Engineering"
+  "domains": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "domain",
+      "name": "Engineering",
+      "fullyQualifiedName": "Engineering"
+    }
+  ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `array`
+**Required**: No
+**Description**: Followers of this entity
+
+```json
+{
+  "followers": [
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "type": "user",
+      "name": "jane.smith",
+      "displayName": "Jane Smith"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array`
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "type": "dataProduct",
+      "name": "CustomerAnalytics",
+      "fullyQualifiedName": "CustomerAnalytics"
+    }
+  ]
+}
+```
+
+---
+
+#### `ingestionRunner` (EntityReference)
+**Type**: `object`
+**Required**: No
+**Description**: The ingestion agent responsible for executing the ingestion pipeline
+
+```json
+{
+  "ingestionRunner": {
+    "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+    "type": "ingestionPipeline",
+    "name": "openmetadata-ingestion-runner",
+    "fullyQualifiedName": "openmetadata-ingestion-runner"
   }
 }
 ```
@@ -596,35 +959,111 @@ View the complete DatabaseService schema in your preferred format:
   "fullyQualifiedName": "postgres_prod",
   "displayName": "Production PostgreSQL",
   "description": "# Production PostgreSQL Cluster\n\nPrimary PostgreSQL cluster for production workloads.",
-  "serviceType": "PostgreSQL",
+  "serviceType": "Postgres",
   "connection": {
-    "hostPort": "postgres.example.com:5432",
-    "username": "metadata_user",
-    "password": "***ENCRYPTED***",
-    "database": "postgres",
-    "sslMode": "require",
-    "connectionOptions": {
-      "sslmode": "require",
-      "connect_timeout": "10"
+    "config": {
+      "type": "Postgres",
+      "username": "metadata_user",
+      "authType": {
+        "password": "***ENCRYPTED***"
+      },
+      "hostPort": "postgres.example.com:5432",
+      "database": "postgres",
+      "sslMode": "require",
+      "connectionOptions": {
+        "sslmode": "require",
+        "connect_timeout": "10"
+      },
+      "supportsMetadataExtraction": true,
+      "supportsUsageExtraction": true,
+      "supportsLineageExtraction": true,
+      "supportsDBTExtraction": true,
+      "supportsProfiler": true,
+      "supportsDatabase": true,
+      "supportsQueryComment": true
     }
   },
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "team",
-    "name": "DataEngineering"
+  "pipelines": [
+    {
+      "id": "f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c",
+      "type": "pipeline",
+      "name": "postgres_prod_metadata_pipeline",
+      "fullyQualifiedName": "postgres_prod.postgres_prod_metadata_pipeline"
+    }
+  ],
+  "testConnectionResult": {
+    "status": "Successful",
+    "lastUpdatedAt": 1704240000000,
+    "steps": [
+      {
+        "name": "CheckAccess",
+        "mandatory": true,
+        "passed": true
+      },
+      {
+        "name": "GetDatabases",
+        "mandatory": true,
+        "passed": true
+      }
+    ]
   },
-  "domain": {
-    "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
-    "type": "domain",
-    "name": "Engineering"
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "team",
+      "name": "DataEngineering",
+      "displayName": "Data Engineering Team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "domain",
+      "name": "Engineering",
+      "fullyQualifiedName": "Engineering"
+    }
+  ],
+  "followers": [
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "type": "user",
+      "name": "jane.smith",
+      "displayName": "Jane Smith"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "type": "dataProduct",
+      "name": "CustomerAnalytics",
+      "fullyQualifiedName": "CustomerAnalytics"
+    }
+  ],
+  "ingestionRunner": {
+    "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+    "type": "ingestionPipeline",
+    "name": "openmetadata-ingestion-runner",
+    "fullyQualifiedName": "openmetadata-ingestion-runner"
   },
   "tags": [
-    {"tagFQN": "Tier.Gold"},
-    {"tagFQN": "Environment.Production"}
+    {
+      "tagFQN": "Tier.Gold",
+      "source": "Classification",
+      "labelType": "Manual",
+      "state": "Confirmed"
+    },
+    {
+      "tagFQN": "Environment.Production",
+      "source": "Classification",
+      "labelType": "Manual",
+      "state": "Confirmed"
+    }
   ],
+  "href": "http://localhost:8585/api/v1/services/databaseServices/a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
   "version": 1.2,
   "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "updatedBy": "admin",
+  "deleted": false
 }
 ```
 

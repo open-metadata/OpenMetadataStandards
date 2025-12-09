@@ -115,45 +115,44 @@ View the complete StoredProcedure schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/data/storedProcedure.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "StoredProcedure",
-      "description": "A `StoredProcedure` entity represents executable database logic including stored procedures, functions, and database routines.",
+      "$comment": "@om-entity-type",
+      "description": "A `StoredProcedure` entity that contains the set of code statements with an assigned name and is defined in a `Database Schema`.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.StoredProcedure",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface"
+      ],
 
       "definitions": {
         "storedProcedureType": {
-          "description": "Type of stored procedure",
+          "javaType": "org.openmetadata.schema.type.StoredProcedureType",
+          "description": "This schema defines the type of the type of Procedures",
           "type": "string",
+          "default": "StoredProcedure",
           "enum": [
-            "StoredProcedure", "Function", "Trigger",
-            "AggregateFunction", "TableFunction", "ScalarFunction"
+            "StoredProcedure",
+            "UDF",
+            "StoredPackage",
+            "Function"
           ]
         },
-        "storedProcedureLanguage": {
-          "description": "Programming language",
-          "type": "string",
-          "enum": [
-            "SQL", "PLSQL", "TSQL", "PL/pgSQL",
-            "JavaScript", "Python", "Java", "Scala"
-          ]
-        },
-        "parameter": {
-          "type": "object",
+        "storedProcedureCode": {
           "properties": {
-            "name": {
-              "description": "Parameter name",
-              "type": "string"
-            },
-            "dataType": {
-              "description": "Data type",
-              "type": "string"
-            },
-            "parameterMode": {
-              "description": "Parameter mode",
+            "language": {
+              "javaType": "org.openmetadata.schema.type.StoredProcedureLanguage",
+              "description": "This schema defines the type of the language used for Stored Procedure's Code.",
               "type": "string",
-              "enum": ["IN", "OUT", "INOUT"]
+              "enum": [
+                "SQL",
+                "Java",
+                "JavaScript",
+                "Python",
+                "External"
+              ]
             },
-            "description": {
-              "description": "Parameter description",
+            "code": {
+              "javaType": "org.openmetadata.schema.type.StoredProcedureCode",
+              "description": "This schema defines the type of the language used for Stored Procedure's Code.",
               "type": "string"
             }
           }
@@ -162,80 +161,149 @@ View the complete StoredProcedure schema in your preferred format:
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of the StoredProcedure.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Stored procedure name",
+          "description": "Name of Stored Procedure.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service.database.schema.storedProcedure",
+          "description": "Fully qualified name of a Stored Procedure.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this Stored Procedure.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of a Stored Procedure.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "storedProcedureType": {
-          "$ref": "#/definitions/storedProcedureType"
-        },
-        "storedProcedureLanguage": {
-          "$ref": "#/definitions/storedProcedureLanguage"
-        },
         "storedProcedureCode": {
-          "description": "Source code of the stored procedure",
-          "$ref": "../../type/basic.json#/definitions/sqlQuery"
+          "description": "Stored Procedure Code.",
+          "$ref": "#/definitions/storedProcedureCode"
         },
-        "parameters": {
-          "description": "Input/output parameters",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/parameter"
-          }
+        "version": {
+          "description": "Metadata version of the Stored Procedure.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
         },
-        "returnType": {
-          "description": "Return data type",
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "storedProcedureType": {
+          "description": "Type of the Stored Procedure.",
+          "$ref": "#/definitions/storedProcedureType",
+          "default": "StoredProcedure"
+        },
+        "updatedBy": {
+          "description": "User who made the query.",
           "type": "string"
         },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to this Query resource.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
         "databaseSchema": {
-          "description": "Parent schema",
+          "description": "Reference to Database Schema that contains this stored procedure.",
           "$ref": "../../type/entityReference.json"
         },
         "database": {
-          "description": "Parent database",
+          "description": "Reference to Database that contains this stored procedure.",
           "$ref": "../../type/entityReference.json"
         },
         "service": {
-          "description": "Database service",
+          "description": "Link to Database service this table is hosted in.",
           "$ref": "../../type/entityReference.json"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "serviceType": {
+          "description": "Service type this table is hosted in.",
+          "$ref": "../services/databaseService.json#/definitions/databaseServiceType"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "owners": {
+          "description": "Owners of this Stored Procedure.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
+        },
+        "followers": {
+          "description": "Followers of this Stored Procedure.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "code": {
+          "description": "SQL Query definition.",
+          "$ref": "../../type/basic.json#/definitions/sqlQuery"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this SQL query.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "sourceUrl": {
+          "description": "Source URL of database schema.",
+          "$ref": "../../type/basic.json#/definitions/sourceUrl"
+        },
+        "domains": {
+          "description": "Domains the Stored Procedure belongs to. When not set, the Stored Procedure inherits the domain from the database schemna it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle properties of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "processedLineage": {
+          "description": "Processed lineage for the stored procedure",
+          "type": "boolean",
+          "default": false
+        },
+        "entityStatus": {
+          "description": "Status of the StoredProcedure.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "databaseSchema"]
+      "required": ["id", "name", "storedProcedureCode"]
     }
     ```
 
@@ -275,31 +343,61 @@ View the complete StoredProcedure schema in your preferred format:
         rdfs:domain om:StoredProcedure ;
         rdfs:range om:StoredProcedureType ;
         rdfs:label "storedProcedureType" ;
-        rdfs:comment "Type: StoredProcedure, Function, Trigger, etc." .
+        rdfs:comment "Type: StoredProcedure, UDF, StoredPackage, Function" .
+
+    om:storedProcedureCode a owl:ObjectProperty ;
+        rdfs:domain om:StoredProcedure ;
+        rdfs:range om:StoredProcedureCodeObject ;
+        rdfs:label "storedProcedureCode" ;
+        rdfs:comment "Stored procedure code with language and code properties" .
 
     om:storedProcedureLanguage a owl:DatatypeProperty ;
-        rdfs:domain om:StoredProcedure ;
-        rdfs:range om:ProgrammingLanguage ;
-        rdfs:label "storedProcedureLanguage" ;
-        rdfs:comment "Programming language: SQL, PL/SQL, T-SQL, etc." .
+        rdfs:domain om:StoredProcedureCodeObject ;
+        rdfs:range om:StoredProcedureLanguage ;
+        rdfs:label "language" ;
+        rdfs:comment "Programming language: SQL, Java, JavaScript, Python, External" .
 
-    om:storedProcedureCode a owl:DatatypeProperty ;
-        rdfs:domain om:StoredProcedure ;
+    om:code a owl:DatatypeProperty ;
+        rdfs:domain om:StoredProcedureCodeObject ;
         rdfs:range xsd:string ;
-        rdfs:label "storedProcedureCode" ;
-        rdfs:comment "Source code of the stored procedure" .
+        rdfs:label "code" ;
+        rdfs:comment "The actual code content" .
 
-    om:returnType a owl:DatatypeProperty ;
+    om:hasFollowers a owl:ObjectProperty ;
         rdfs:domain om:StoredProcedure ;
-        rdfs:range xsd:string ;
-        rdfs:label "returnType" ;
-        rdfs:comment "Return data type" .
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this Stored Procedure" .
 
-    om:hasParameter a owl:ObjectProperty ;
+    om:hasVotes a owl:ObjectProperty ;
         rdfs:domain om:StoredProcedure ;
-        rdfs:range om:Parameter ;
-        rdfs:label "hasParameter" ;
-        rdfs:comment "Input/output parameters" .
+        rdfs:range om:Votes ;
+        rdfs:label "votes" ;
+        rdfs:comment "Votes on the entity" .
+
+    om:hasLifeCycle a owl:ObjectProperty ;
+        rdfs:domain om:StoredProcedure ;
+        rdfs:range om:LifeCycle ;
+        rdfs:label "lifeCycle" ;
+        rdfs:comment "Life Cycle properties of the entity" .
+
+    om:hasCertification a owl:ObjectProperty ;
+        rdfs:domain om:StoredProcedure ;
+        rdfs:range om:AssetCertification ;
+        rdfs:label "certification" ;
+        rdfs:comment "Certification of the entity" .
+
+    om:processedLineage a owl:DatatypeProperty ;
+        rdfs:domain om:StoredProcedure ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "processedLineage" ;
+        rdfs:comment "Processed lineage for the stored procedure" .
+
+    om:entityStatus a owl:ObjectProperty ;
+        rdfs:domain om:StoredProcedure ;
+        rdfs:range om:Status ;
+        rdfs:label "entityStatus" ;
+        rdfs:comment "Status of the StoredProcedure" .
 
     om:belongsToSchema a owl:ObjectProperty ;
         rdfs:domain om:StoredProcedure ;
@@ -309,9 +407,15 @@ View the complete StoredProcedure schema in your preferred format:
 
     om:ownedBy a owl:ObjectProperty ;
         rdfs:domain om:StoredProcedure ;
-        rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this stored procedure" .
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this Stored Procedure" .
+
+    om:inDomains a owl:ObjectProperty ;
+        rdfs:domain om:StoredProcedure ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the Stored Procedure belongs to" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:StoredProcedure ;
@@ -323,9 +427,19 @@ View the complete StoredProcedure schema in your preferred format:
     om:StoredProcedureType a owl:Class ;
         owl:oneOf (
             om:StoredProcedureType_StoredProcedure
+            om:StoredProcedureType_UDF
+            om:StoredProcedureType_StoredPackage
             om:StoredProcedureType_Function
-            om:StoredProcedureType_Trigger
-            om:StoredProcedureType_TableFunction
+        ) .
+
+    # StoredProcedureLanguage Enumeration
+    om:StoredProcedureLanguage a owl:Class ;
+        owl:oneOf (
+            om:StoredProcedureLanguage_SQL
+            om:StoredProcedureLanguage_Java
+            om:StoredProcedureLanguage_JavaScript
+            om:StoredProcedureLanguage_Python
+            om:StoredProcedureLanguage_External
         ) .
 
     # Example Instance
@@ -333,12 +447,16 @@ View the complete StoredProcedure schema in your preferred format:
         om:storedProcedureName "calculate_order_total" ;
         om:fullyQualifiedName "postgres_prod.ecommerce.public.calculate_order_total" ;
         om:storedProcedureType om:StoredProcedureType_Function ;
-        om:storedProcedureLanguage om:PLPGSQL ;
-        om:returnType "NUMERIC" ;
+        om:storedProcedureCode [
+            om:storedProcedureLanguage om:StoredProcedureLanguage_SQL ;
+            om:code "CREATE OR REPLACE FUNCTION..."
+        ] ;
         om:belongsToSchema ex:publicSchema ;
-        om:ownedBy ex:ecommerceTeam ;
+        om:ownedBy ex:ownersReference ;
+        om:inDomains ex:domainsReference ;
         om:hasTag ex:tierGold ;
-        om:hasParameter ex:orderIdParam .
+        om:hasFollowers ex:followersReference ;
+        om:processedLineage false .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -376,22 +494,17 @@ View the complete StoredProcedure schema in your preferred format:
           "@id": "om:storedProcedureType",
           "@type": "@vocab"
         },
-        "storedProcedureLanguage": {
+        "storedProcedureCode": {
+          "@id": "om:storedProcedureCode",
+          "@type": "@id"
+        },
+        "language": {
           "@id": "om:storedProcedureLanguage",
           "@type": "@vocab"
         },
-        "storedProcedureCode": {
-          "@id": "om:storedProcedureCode",
+        "code": {
+          "@id": "om:code",
           "@type": "xsd:string"
-        },
-        "returnType": {
-          "@id": "om:returnType",
-          "@type": "xsd:string"
-        },
-        "parameters": {
-          "@id": "om:hasParameter",
-          "@type": "@id",
-          "@container": "@list"
         },
         "databaseSchema": {
           "@id": "om:belongsToSchema",
@@ -405,12 +518,36 @@ View the complete StoredProcedure schema in your preferred format:
           "@id": "om:belongsToService",
           "@type": "@id"
         },
-        "owner": {
+        "owners": {
           "@id": "om:ownedBy",
           "@type": "@id"
         },
-        "domain": {
-          "@id": "om:inDomain",
+        "domains": {
+          "@id": "om:inDomains",
+          "@type": "@id"
+        },
+        "followers": {
+          "@id": "om:hasFollowers",
+          "@type": "@id"
+        },
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@id"
+        },
+        "lifeCycle": {
+          "@id": "om:hasLifeCycle",
+          "@type": "@id"
+        },
+        "certification": {
+          "@id": "om:hasCertification",
+          "@type": "@id"
+        },
+        "processedLineage": {
+          "@id": "om:processedLineage",
+          "@type": "xsd:boolean"
+        },
+        "entityStatus": {
+          "@id": "om:entityStatus",
           "@type": "@id"
         },
         "tags": {
@@ -435,19 +572,11 @@ View the complete StoredProcedure schema in your preferred format:
       "displayName": "Calculate Order Total",
       "description": "Calculates the total amount for an order including tax and shipping",
       "storedProcedureType": "Function",
-      "storedProcedureLanguage": "PL/pgSQL",
-      "returnType": "NUMERIC",
 
-      "storedProcedureCode": "CREATE OR REPLACE FUNCTION calculate_order_total(p_order_id BIGINT)\nRETURNS NUMERIC AS $$\nDECLARE\n    v_total NUMERIC;\nBEGIN\n    SELECT SUM(quantity * price) + tax + shipping\n    INTO v_total\n    FROM order_items\n    WHERE order_id = p_order_id;\n    \n    RETURN v_total;\nEND;\n$$ LANGUAGE plpgsql;",
-
-      "parameters": [
-        {
-          "name": "p_order_id",
-          "dataType": "BIGINT",
-          "parameterMode": "IN",
-          "description": "Order ID to calculate total for"
-        }
-      ],
+      "storedProcedureCode": {
+        "language": "SQL",
+        "code": "CREATE OR REPLACE FUNCTION calculate_order_total(p_order_id BIGINT)\nRETURNS NUMERIC AS $$\nDECLARE\n    v_total NUMERIC;\nBEGIN\n    SELECT SUM(quantity * price) + tax + shipping\n    INTO v_total\n    FROM order_items\n    WHERE order_id = p_order_id;\n    \n    RETURN v_total;\nEND;\n$$ LANGUAGE plpgsql;"
+      },
 
       "databaseSchema": {
         "@id": "https://example.com/data/schemas/public",
@@ -467,18 +596,25 @@ View the complete StoredProcedure schema in your preferred format:
         "name": "postgres_prod"
       },
 
-      "owner": {
-        "@id": "https://example.com/users/john.smith",
-        "@type": "User",
-        "name": "john.smith",
-        "displayName": "John Smith"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/users/john.smith",
+          "@type": "User",
+          "name": "john.smith",
+          "displayName": "John Smith"
+        }
+      ],
 
-      "domain": {
-        "@id": "https://example.com/domains/sales",
-        "@type": "Domain",
-        "name": "Sales"
-      },
+      "domains": [
+        {
+          "@id": "https://example.com/domains/sales",
+          "@type": "Domain",
+          "name": "Sales"
+        }
+      ],
+
+      "followers": [],
+      "processedLineage": false,
 
       "tags": [
         {
@@ -583,15 +719,14 @@ View the complete StoredProcedure schema in your preferred format:
 
 #### `storedProcedureType` (StoredProcedureType enum)
 **Type**: `string` enum
-**Required**: No (default: `StoredProcedure`)
+**Required**: Yes
+**Default**: `StoredProcedure`
 **Allowed Values**:
 
 - `StoredProcedure` - Standard stored procedure
+- `UDF` - User Defined Function
+- `StoredPackage` - Stored package
 - `Function` - Database function
-- `Trigger` - Database trigger
-- `AggregateFunction` - Aggregate function
-- `TableFunction` - Table-valued function
-- `ScalarFunction` - Scalar function
 
 ```json
 {
@@ -601,92 +736,46 @@ View the complete StoredProcedure schema in your preferred format:
 
 ---
 
-#### `storedProcedureLanguage` (StoredProcedureLanguage enum)
-**Type**: `string` enum
-**Required**: No
-**Allowed Values**:
+#### `storedProcedureCode` (storedProcedureCode object)
+**Type**: `object`
+**Required**: Yes
+**Description**: Stored procedure code with language and code content
 
-- `SQL` - Standard SQL
-- `PLSQL` - Oracle PL/SQL
-- `TSQL` - Microsoft T-SQL
-- `PL/pgSQL` - PostgreSQL procedural language
-- `JavaScript` - JavaScript (MongoDB, Snowflake)
-- `Python` - Python (Snowflake, BigQuery)
-- `Java` - Java (Oracle, Snowflake)
-- `Scala` - Scala (Databricks)
-
-```json
-{
-  "storedProcedureLanguage": "PL/pgSQL"
-}
-```
-
----
-
-#### `storedProcedureCode` (sqlQuery)
-**Type**: `string`
-**Required**: No
-**Description**: Full source code of the stored procedure
-
-```json
-{
-  "storedProcedureCode": "CREATE OR REPLACE FUNCTION calculate_order_total(p_order_id BIGINT)\nRETURNS NUMERIC AS $$\nDECLARE\n    v_total NUMERIC;\nBEGIN\n    SELECT SUM(quantity * price) + tax + shipping\n    INTO v_total\n    FROM order_items\n    WHERE order_id = p_order_id;\n    \n    RETURN v_total;\nEND;\n$$ LANGUAGE plpgsql;"
-}
-```
-
----
-
-#### `parameters[]` (Parameter[])
-**Type**: `array`
-**Required**: No
-**Description**: Input, output, and input/output parameters
-
-**Parameter Object Properties**:
+**storedProcedureCode Object Properties**:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `name` | string | Yes | Parameter name |
-| `dataType` | string | Yes | Data type (e.g., BIGINT, VARCHAR) |
-| `parameterMode` | enum | No | IN, OUT, or INOUT |
-| `description` | string | No | Parameter description |
+| `language` | enum | No | Programming language (SQL, Java, JavaScript, Python, External) |
+| `code` | string | No | The actual code content |
+
+**Language Enum Values**:
+- `SQL` - Standard SQL
+- `Java` - Java
+- `JavaScript` - JavaScript
+- `Python` - Python
+- `External` - External language
 
 **Example**:
 
 ```json
 {
-  "parameters": [
-    {
-      "name": "p_order_id",
-      "dataType": "BIGINT",
-      "parameterMode": "IN",
-      "description": "Order ID to calculate total for"
-    },
-    {
-      "name": "p_include_tax",
-      "dataType": "BOOLEAN",
-      "parameterMode": "IN",
-      "description": "Whether to include tax in calculation"
-    },
-    {
-      "name": "p_result",
-      "dataType": "NUMERIC",
-      "parameterMode": "OUT",
-      "description": "Calculated order total"
-    }
-  ]
+  "storedProcedureCode": {
+    "language": "SQL",
+    "code": "CREATE OR REPLACE FUNCTION calculate_order_total(p_order_id BIGINT)\nRETURNS NUMERIC AS $$\nDECLARE\n    v_total NUMERIC;\nBEGIN\n    SELECT SUM(quantity * price) + tax + shipping\n    INTO v_total\n    FROM order_items\n    WHERE order_id = p_order_id;\n    \n    RETURN v_total;\nEND;\n$$ LANGUAGE plpgsql;"
+  }
 }
 ```
 
 ---
 
-#### `returnType` (string)
+#### `code` (sqlQuery)
 **Type**: `string`
 **Required**: No
-**Description**: Return data type for functions
+**Description**: SQL Query definition
 
 ```json
 {
-  "returnType": "NUMERIC"
+  "code": "SELECT * FROM orders WHERE id = 123"
 }
 ```
 
@@ -696,7 +785,7 @@ View the complete StoredProcedure schema in your preferred format:
 
 #### `databaseSchema` (EntityReference)
 **Type**: `object`
-**Required**: Yes
+**Required**: No
 **Description**: Reference to parent schema
 
 ```json
@@ -714,7 +803,7 @@ View the complete StoredProcedure schema in your preferred format:
 
 #### `database` (EntityReference)
 **Type**: `object`
-**Required**: Yes
+**Required**: No
 **Description**: Reference to parent database
 
 ```json
@@ -732,7 +821,7 @@ View the complete StoredProcedure schema in your preferred format:
 
 #### `service` (EntityReference)
 **Type**: `object`
-**Required**: Yes
+**Required**: No
 **Description**: Reference to database service
 
 ```json
@@ -747,39 +836,111 @@ View the complete StoredProcedure schema in your preferred format:
 
 ---
 
-### Governance Properties
-
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `serviceType` (databaseServiceType)
+**Type**: `string` enum
 **Required**: No
-**Description**: User or team that owns this stored procedure
+**Description**: Service type this stored procedure is hosted in
 
 ```json
 {
-  "owner": {
-    "id": "a7b8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d",
-    "type": "user",
-    "name": "john.smith",
-    "displayName": "John Smith"
+  "serviceType": "Postgres"
+}
+```
+
+---
+
+### Governance Properties
+
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Default**: `null`
+**Description**: Owners of this stored procedure
+
+```json
+{
+  "owners": [
+    {
+      "id": "a7b8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d",
+      "type": "user",
+      "name": "john.smith",
+      "displayName": "John Smith"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Domains the Stored Procedure belongs to. When not set, the Stored Procedure inherits the domain from the database schema it belongs to.
+
+```json
+{
+  "domains": [
+    {
+      "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Followers of this Stored Procedure
+
+```json
+{
+  "followers": [
+    {
+      "id": "user-id-1",
+      "type": "user",
+      "name": "jane.doe"
+    }
+  ]
+}
+```
+
+---
+
+#### `votes` (Votes)
+**Type**: `object`
+**Required**: No
+**Description**: Votes on the entity
+
+```json
+{
+  "votes": {
+    "upVotes": 5,
+    "downVotes": 1
   }
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: Data domain this stored procedure belongs to
+**Description**: List of data products this entity is part of
 
 ```json
 {
-  "domain": {
-    "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
-    "type": "domain",
-    "name": "Sales",
-    "fullyQualifiedName": "Sales"
-  }
+  "dataProducts": [
+    {
+      "id": "product-id",
+      "type": "dataProduct",
+      "name": "CustomerAnalytics"
+    }
+  ]
 }
 ```
 
@@ -807,6 +968,193 @@ View the complete StoredProcedure schema in your preferred format:
       "state": "Confirmed"
     }
   ]
+}
+```
+
+---
+
+#### `lifeCycle` (LifeCycle)
+**Type**: `object`
+**Required**: No
+**Description**: Life Cycle properties of the entity
+
+```json
+{
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "admin"
+    },
+    "updated": {
+      "timestamp": 1704240000000,
+      "user": "john.smith"
+    }
+  }
+}
+```
+
+---
+
+#### `certification` (AssetCertification)
+**Type**: `object`
+**Required**: No
+**Description**: Certification status and details of the stored procedure
+
+```json
+{
+  "certification": {
+    "certifiedBy": "Data Governance Team",
+    "certifiedAt": 1704067200000,
+    "expiresAt": 1735689600000
+  }
+}
+```
+
+---
+
+#### `processedLineage` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: Processed lineage for the stored procedure
+
+```json
+{
+  "processedLineage": true
+}
+```
+
+---
+
+#### `entityStatus` (Status)
+**Type**: `object`
+**Required**: No
+**Description**: Status of the StoredProcedure
+
+```json
+{
+  "entityStatus": {
+    "status": "Active"
+  }
+}
+```
+
+---
+
+#### `sourceUrl` (sourceUrl)
+**Type**: `string` (URL format)
+**Required**: No
+**Description**: Source URL of database schema
+
+```json
+{
+  "sourceUrl": "https://github.com/myorg/db-procedures/blob/main/calculate_order_total.sql"
+}
+```
+
+---
+
+#### `sourceHash` (string)
+**Type**: `string`
+**Required**: No
+**Min Length**: 1
+**Max Length**: 32
+**Description**: Source hash of the entity
+
+```json
+{
+  "sourceHash": "abc123def456"
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `impersonatedBy` (impersonatedBy)
+**Type**: `string`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": "ingestion-bot"
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URL format)
+**Required**: No
+**Description**: Link to this Query resource
+
+```json
+{
+  "href": "https://api.example.com/api/v1/storedProcedures/f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c"
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": ["tags"],
+    "fieldsUpdated": ["description"],
+    "fieldsDeleted": [],
+    "previousVersion": 1.0
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": ["storedProcedureCode"],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `extension` (entityExtension)
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity
+
+```json
+{
+  "extension": {
+    "costCenter": "CC-12345",
+    "businessUnit": "Finance"
+  }
 }
 ```
 
@@ -863,49 +1211,101 @@ View the complete StoredProcedure schema in your preferred format:
   "displayName": "Calculate Order Total",
   "description": "# Calculate Order Total\n\nCalculates the total amount for an order including tax and shipping.",
   "storedProcedureType": "Function",
-  "storedProcedureLanguage": "PL/pgSQL",
-  "returnType": "NUMERIC",
-  "storedProcedureCode": "CREATE OR REPLACE FUNCTION calculate_order_total(p_order_id BIGINT)\nRETURNS NUMERIC AS $$\nDECLARE\n    v_total NUMERIC;\nBEGIN\n    SELECT SUM(quantity * price) + tax + shipping\n    INTO v_total\n    FROM order_items\n    WHERE order_id = p_order_id;\n    \n    RETURN v_total;\nEND;\n$$ LANGUAGE plpgsql;",
-  "parameters": [
-    {
-      "name": "p_order_id",
-      "dataType": "BIGINT",
-      "parameterMode": "IN",
-      "description": "Order ID to calculate total for"
-    }
-  ],
+  "storedProcedureCode": {
+    "language": "SQL",
+    "code": "CREATE OR REPLACE FUNCTION calculate_order_total(p_order_id BIGINT)\nRETURNS NUMERIC AS $$\nDECLARE\n    v_total NUMERIC;\nBEGIN\n    SELECT SUM(quantity * price) + tax + shipping\n    INTO v_total\n    FROM order_items\n    WHERE order_id = p_order_id;\n    \n    RETURN v_total;\nEND;\n$$ LANGUAGE plpgsql;"
+  },
+  "code": "SELECT calculate_order_total(123);",
   "databaseSchema": {
     "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
     "type": "databaseSchema",
-    "name": "public"
+    "name": "public",
+    "fullyQualifiedName": "postgres_prod.ecommerce.public"
   },
   "database": {
     "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
     "type": "database",
-    "name": "ecommerce"
+    "name": "ecommerce",
+    "fullyQualifiedName": "postgres_prod.ecommerce"
   },
   "service": {
     "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
     "type": "databaseService",
     "name": "postgres_prod"
   },
-  "owner": {
-    "id": "a7b8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d",
-    "type": "user",
-    "name": "john.smith"
-  },
-  "domain": {
-    "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
-    "type": "domain",
-    "name": "Sales"
-  },
-  "tags": [
-    {"tagFQN": "BusinessLogic.Critical"},
-    {"tagFQN": "CodeQuality.Reviewed"}
+  "serviceType": "Postgres",
+  "owners": [
+    {
+      "id": "a7b8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d",
+      "type": "user",
+      "name": "john.smith",
+      "displayName": "John Smith"
+    }
   ],
+  "followers": [
+    {
+      "id": "user-id-1",
+      "type": "user",
+      "name": "jane.doe"
+    }
+  ],
+  "votes": {
+    "upVotes": 5,
+    "downVotes": 1
+  },
+  "domains": [
+    {
+      "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "product-id",
+      "type": "dataProduct",
+      "name": "CustomerAnalytics"
+    }
+  ],
+  "tags": [
+    {
+      "tagFQN": "BusinessLogic.Critical",
+      "source": "Classification",
+      "labelType": "Manual",
+      "state": "Confirmed"
+    }
+  ],
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "admin"
+    },
+    "updated": {
+      "timestamp": 1704240000000,
+      "user": "john.smith"
+    }
+  },
+  "certification": {
+    "certifiedBy": "Data Governance Team",
+    "certifiedAt": 1704067200000,
+    "expiresAt": 1735689600000
+  },
+  "processedLineage": false,
+  "entityStatus": {
+    "status": "Active"
+  },
+  "sourceUrl": "https://github.com/myorg/db-procedures/blob/main/calculate_order_total.sql",
+  "sourceHash": "abc123def456",
+  "extension": {
+    "costCenter": "CC-12345",
+    "businessUnit": "Finance"
+  },
+  "deleted": false,
   "version": 2.1,
   "updatedAt": 1704240000000,
-  "updatedBy": "john.smith"
+  "updatedBy": "john.smith",
+  "href": "https://api.example.com/api/v1/storedProcedures/f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c"
 }
 ```
 

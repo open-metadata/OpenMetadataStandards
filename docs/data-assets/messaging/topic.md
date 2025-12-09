@@ -127,10 +127,15 @@ graph TD
 - **Field**: Schema fields defining event structure
 
 ### Associated Entities
-- **Owner**: User or team owning this topic
-- **Domain**: Business domain assignment
-- **Tag**: Classification tags
+- **Owners**: Users or teams owning this topic
+- **Followers**: Users following this topic for notifications
+- **Domains**: Business domains this topic belongs to
+- **DataProducts**: Data products this entity is part of
+- **Tags**: Classification tags
 - **GlossaryTerm**: Business terminology
+- **Votes**: User votes on the entity
+- **LifeCycle**: Life cycle properties of the entity
+- **Certification**: Asset certification information
 - **Table**: Source tables (CDC) and target tables (materialization)
 - **Pipeline**: Stream processing pipelines, CDC pipelines, sink connectors
 - **Service**: Producer and consumer microservices
@@ -151,153 +156,205 @@ View the complete Topic schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/data/topic.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Topic",
-      "description": "A `Topic` entity represents an event stream or message topic with a defined schema.",
+      "$comment": "@om-entity-type",
+      "description": "A `Topic` is a feed or an event stream in a `Messaging Service` into which publishers publish messages and consumed by consumers.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.Topic",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "definitions": {
-        "topicSchemaType": {
-          "description": "Schema format for topic messages",
-          "type": "string",
-          "enum": [
-            "Avro", "Protobuf", "JSON", "None"
-          ]
-        },
         "cleanupPolicy": {
-          "description": "Topic retention policy",
-          "type": "string",
-          "enum": ["delete", "compact", "compact,delete"]
+          "javaType": "org.openmetadata.schema.type.topic.CleanupPolicy",
+          "description": "Topic clean up policy. For Kafka - `cleanup.policy` configuration.",
+          "enum": ["delete", "compact"]
         },
-        "partitionInfo": {
-          "type": "object",
-          "properties": {
-            "partitions": {
-              "type": "integer",
-              "description": "Number of partitions"
-            },
-            "replicationFactor": {
-              "type": "integer",
-              "description": "Replication factor"
-            }
-          }
+        "topicConfig": {
+          "javaType": "org.openmetadata.schema.type.topic.TopicConfig",
+          "description": "Contains key/value pair of topic configuration.",
+          "type": "object"
         },
-        "schemaField": {
+        "topicSampleData": {
           "type": "object",
+          "javaType": "org.openmetadata.schema.type.topic.TopicSampleData",
+          "description": "This schema defines the type to capture sample data for a topic.",
           "properties": {
-            "name": {
-              "type": "string",
-              "description": "Field name"
-            },
-            "dataType": {
-              "type": "string",
-              "description": "Field data type"
-            },
-            "description": {
-              "type": "string",
-              "description": "Field description"
-            },
-            "children": {
+            "messages": {
+              "description": "List of local sample messages for a topic.",
               "type": "array",
-              "items": {"$ref": "#/definitions/schemaField"}
-            },
-            "tags": {
-              "type": "array",
-              "items": {"$ref": "../../type/tagLabel.json"}
+              "items": {
+                "type": "string"
+              }
             }
           },
-          "required": ["name", "dataType"]
+          "additionalProperties": false
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies this topic instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Topic name",
+          "description": "Name that identifies the topic.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service.topic",
+          "description": "Name that uniquely identifies a topic in the format 'messagingServiceName.topicName'.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this topic. It could be title or label from the source services.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the topic instance.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "schemaType": {
-          "$ref": "#/definitions/topicSchemaType"
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
         },
-        "schemaText": {
-          "description": "Schema definition (Avro, Protobuf, JSON Schema)",
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
           "type": "string"
         },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "service": {
+          "description": "Link to the messaging cluster/service where this topic is hosted in.",
+          "$ref": "../../type/entityReference.json"
+        },
+        "serviceType": {
+          "description": "Service type where this topic is hosted in.",
+          "$ref": "../services/messagingService.json#/definitions/messagingServiceType"
+        },
         "messageSchema": {
-          "description": "Parsed schema fields",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/schemaField"
-          }
+          "$ref": "../../type/schema.json"
         },
         "partitions": {
-          "$ref": "#/definitions/partitionInfo"
+          "description": "Number of partitions into which the topic is divided.",
+          "type": "integer",
+          "minimum": 1
         },
         "cleanupPolicies": {
+          "description": "Topic clean up policies. For Kafka - `cleanup.policy` configuration.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/cleanupPolicy"
           }
         },
-        "retentionSize": {
-          "description": "Maximum size in bytes before old data is deleted",
-          "type": "integer"
-        },
         "retentionTime": {
-          "description": "Time in milliseconds to retain data",
+          "description": "Retention time in milliseconds. For Kafka - `retention.ms` configuration.",
+          "type": "number"
+        },
+        "replicationFactor": {
+          "description": "Replication Factor in integer (more than 1).",
           "type": "integer"
         },
         "maximumMessageSize": {
-          "description": "Maximum message size in bytes",
+          "description": "Maximum message size in bytes. For Kafka - `max.message.bytes` configuration.",
           "type": "integer"
         },
-        "service": {
-          "description": "Parent messaging service",
-          "$ref": "../../type/entityReference.json"
+        "minimumInSyncReplicas": {
+          "description": "Minimum number replicas in sync to control durability. For Kafka - `min.insync.replicas` configuration.",
+          "type": "integer"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "retentionSize": {
+          "description": "Maximum size of a partition in bytes before old data is discarded. For Kafka - `retention.bytes` configuration.",
+          "type": "number",
+          "default": "-1"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "topicConfig": {
+          "description": "Contains key/value pair of topic configuration.",
+          "$ref": "#/definitions/topicConfig"
+        },
+        "sampleData": {
+          "description": "Sample data for a topic.",
+          "$ref": "#/definitions/topicSampleData",
+          "default": null
+        },
+        "owners": {
+          "description": "Owners of this topic.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "followers": {
+          "description": "Followers of this table.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this table.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "sourceUrl": {
+          "description": "Source URL of topic.",
+          "$ref": "../../type/basic.json#/definitions/sourceUrl"
+        },
+        "domains": {
+          "description": "Domains the Topic belongs to. When not set, the Topic inherits the domain from the messaging service it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle properties of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "entityStatus": {
+          "description": "Status of the Topic.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "service"]
+      "required": ["id", "name", "partitions", "service"],
+      "additionalProperties": false
     }
     ```
 
@@ -369,11 +426,11 @@ View the complete Topic schema in your preferred format:
         rdfs:label "belongsToService" ;
         rdfs:comment "Parent messaging service" .
 
-    om:ownedBy a owl:ObjectProperty ;
+    om:hasOwners a owl:ObjectProperty ;
         rdfs:domain om:Topic ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this topic" .
+        rdfs:label "hasOwners" ;
+        rdfs:comment "Users or teams that own this topic" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:Topic ;
@@ -396,15 +453,32 @@ View the complete Topic schema in your preferred format:
             om:NoSchema
         ) .
 
+    om:hasDomains a owl:ObjectProperty ;
+        rdfs:domain om:Topic ;
+        rdfs:range om:Domain ;
+        rdfs:label "hasDomains" ;
+        rdfs:comment "Domains the Topic belongs to" .
+
+    om:hasFollowers a owl:ObjectProperty ;
+        rdfs:domain om:Topic ;
+        rdfs:range om:User ;
+        rdfs:label "hasFollowers" ;
+        rdfs:comment "Users following this topic" .
+
+    om:hasDataProducts a owl:ObjectProperty ;
+        rdfs:domain om:Topic ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "hasDataProducts" ;
+        rdfs:comment "Data products this topic is part of" .
+
     # Example Instance
     ex:userEventsTopic a om:Topic ;
         om:topicName "user_events" ;
         om:fullyQualifiedName "kafka_prod.user_events" ;
-        om:schemaType om:AvroSchema ;
         om:partitionCount 12 ;
         om:replicationFactor 3 ;
         om:belongsToService ex:kafkaProduction ;
-        om:ownedBy ex:analyticsTeam ;
+        om:hasOwners ex:analyticsTeam ;
         om:hasTag ex:tierGold ;
         om:hasTag ex:complianceGDPR ;
         om:linkedToGlossaryTerm ex:userEventTerm ;
@@ -461,13 +535,25 @@ View the complete Topic schema in your preferred format:
           "@id": "om:belongsToService",
           "@type": "@id"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
+        "owners": {
+          "@id": "om:hasOwners",
+          "@type": "@id",
+          "@container": "@set"
         },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
+        "followers": {
+          "@id": "om:hasFollowers",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:hasDomains",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:hasDataProducts",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
@@ -478,6 +564,18 @@ View the complete Topic schema in your preferred format:
           "@id": "om:linkedToGlossaryTerm",
           "@type": "@id",
           "@container": "@set"
+        },
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@id"
+        },
+        "lifeCycle": {
+          "@id": "om:hasLifeCycle",
+          "@type": "@id"
+        },
+        "certification": {
+          "@id": "om:hasCertification",
+          "@type": "@id"
         }
       }
     }
@@ -511,11 +609,13 @@ View the complete Topic schema in your preferred format:
         "name": "kafka_prod"
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/analytics",
-        "@type": "Team",
-        "name": "Analytics"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/analytics",
+          "@type": "Team",
+          "name": "Analytics"
+        }
+      ],
 
       "tags": [
         {
@@ -793,24 +893,28 @@ View the complete Topic schema in your preferred format:
 
 ### Configuration Properties
 
-#### `partitions` (partitionInfo)
-**Type**: `object`
-**Required**: No
-**Description**: Partition configuration for the topic
-
-**PartitionInfo Properties**:
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `partitions` | integer | Number of partitions |
-| `replicationFactor` | integer | Replication factor |
+#### `partitions`
+**Type**: `integer`
+**Required**: Yes
+**Minimum**: 1
+**Description**: Number of partitions into which the topic is divided
 
 ```json
 {
-  "partitions": {
-    "partitions": 12,
-    "replicationFactor": 3
-  }
+  "partitions": 12
+}
+```
+
+---
+
+#### `replicationFactor`
+**Type**: `integer`
+**Required**: No
+**Description**: Replication Factor in integer (more than 1)
+
+```json
+{
+  "replicationFactor": 3
 }
 ```
 
@@ -823,7 +927,6 @@ View the complete Topic schema in your preferred format:
 
 - `delete` - Delete old segments based on retention
 - `compact` - Keep only latest value per key
-- `compact,delete` - Compact then delete
 
 ```json
 {
@@ -834,9 +937,10 @@ View the complete Topic schema in your preferred format:
 ---
 
 #### `retentionSize`
-**Type**: `integer` (bytes)
+**Type**: `number` (bytes)
 **Required**: No
-**Description**: Maximum size in bytes before old data is deleted (-1 for unlimited)
+**Default**: -1
+**Description**: Maximum size of a partition in bytes before old data is discarded. For Kafka - `retention.bytes` configuration
 
 ```json
 {
@@ -847,9 +951,9 @@ View the complete Topic schema in your preferred format:
 ---
 
 #### `retentionTime`
-**Type**: `integer` (milliseconds)
+**Type**: `number` (milliseconds)
 **Required**: No
-**Description**: Time in milliseconds to retain data (-1 for unlimited)
+**Description**: Retention time in milliseconds. For Kafka - `retention.ms` configuration
 
 ```json
 {
@@ -862,11 +966,65 @@ View the complete Topic schema in your preferred format:
 #### `maximumMessageSize`
 **Type**: `integer` (bytes)
 **Required**: No
-**Description**: Maximum message size in bytes
+**Description**: Maximum message size in bytes. For Kafka - `max.message.bytes` configuration
 
 ```json
 {
   "maximumMessageSize": 1048576
+}
+```
+
+---
+
+#### `minimumInSyncReplicas`
+**Type**: `integer`
+**Required**: No
+**Description**: Minimum number replicas in sync to control durability. For Kafka - `min.insync.replicas` configuration
+
+```json
+{
+  "minimumInSyncReplicas": 2
+}
+```
+
+---
+
+#### `topicConfig`
+**Type**: `object`
+**Required**: No
+**Description**: Contains key/value pair of topic configuration
+
+```json
+{
+  "topicConfig": {
+    "compression.type": "snappy",
+    "segment.bytes": "1073741824"
+  }
+}
+```
+
+---
+
+#### `sampleData`
+**Type**: `object` (topicSampleData)
+**Required**: No
+**Default**: null
+**Description**: Sample data for a topic
+
+**topicSampleData Properties**:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `messages` | string[] | List of local sample messages for a topic |
+
+```json
+{
+  "sampleData": {
+    "messages": [
+      "{\"user_id\":\"123\",\"event_type\":\"page_view\",\"timestamp\":1704240000000}",
+      "{\"user_id\":\"456\",\"event_type\":\"button_click\",\"timestamp\":1704240001000}"
+    ]
+  }
 }
 ```
 
@@ -894,37 +1052,82 @@ View the complete Topic schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: User or team that owns this topic
+**Description**: Owners of this topic
 
 ```json
 {
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "Analytics",
-    "displayName": "Analytics Team"
-  }
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team",
+      "name": "Analytics",
+      "displayName": "Analytics Team"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `followers` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: Data domain this topic belongs to
+**Default**: null
+**Description**: Followers of this table
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "UserEngagement",
-    "fullyQualifiedName": "UserEngagement"
-  }
+  "followers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Domains the Topic belongs to. When not set, the Topic inherits the domain from the messaging service it belongs to
+
+```json
+{
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "UserEngagement",
+      "fullyQualifiedName": "UserEngagement"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "CustomerAnalytics",
+      "fullyQualifiedName": "CustomerAnalytics"
+    }
+  ]
 }
 ```
 
@@ -977,6 +1180,64 @@ View the complete Topic schema in your preferred format:
 
 ---
 
+#### `votes`
+**Type**: `object` (Votes)
+**Required**: No
+**Description**: Votes on the entity
+
+```json
+{
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2,
+    "upVoters": ["user1-uuid", "user2-uuid"],
+    "downVoters": ["user3-uuid"]
+  }
+}
+```
+
+---
+
+#### `lifeCycle`
+**Type**: `object` (LifeCycle)
+**Required**: No
+**Description**: Life Cycle properties of the entity
+
+```json
+{
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "admin"
+    },
+    "updated": {
+      "timestamp": 1704240000000,
+      "user": "data.engineer"
+    }
+  }
+}
+```
+
+---
+
+#### `certification`
+**Type**: `object` (AssetCertification)
+**Required**: No
+**Description**: Asset certification information
+
+```json
+{
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certification.Gold",
+      "source": "Classification"
+    }
+  }
+}
+```
+
+---
+
 ### Versioning Properties
 
 #### `version` (entityVersion)
@@ -1018,6 +1279,163 @@ View the complete Topic schema in your preferred format:
 
 ---
 
+#### `impersonatedBy`
+**Type**: `object` (ImpersonatedBy)
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": {
+    "id": "bot-uuid",
+    "type": "bot",
+    "name": "ingestion-bot"
+  }
+}
+```
+
+---
+
+#### `serviceType`
+**Type**: `string` enum
+**Required**: No
+**Description**: Service type where this topic is hosted in
+
+```json
+{
+  "serviceType": "Kafka"
+}
+```
+
+---
+
+#### `href`
+**Type**: `string` (URI)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "https://example.com/api/v1/topics/t1o2p3i4-c5u6-7u8i-9d0a-b1c2d3e4f5g6"
+}
+```
+
+---
+
+#### `changeDescription`
+**Type**: `object` (ChangeDescription)
+**Required**: No
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "partitions",
+        "oldValue": 6,
+        "newValue": 12
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 2.0
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription`
+**Type**: `object` (ChangeDescription)
+**Required**: No
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `deleted`
+**Type**: `boolean`
+**Required**: No
+**Default**: false
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `extension`
+**Type**: `object` (EntityExtension)
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity
+
+```json
+{
+  "extension": {
+    "customField1": "value1",
+    "customField2": "value2"
+  }
+}
+```
+
+---
+
+#### `sourceUrl`
+**Type**: `string` (URI)
+**Required**: No
+**Description**: Source URL of topic
+
+```json
+{
+  "sourceUrl": "https://kafka-ui.example.com/topics/user_events"
+}
+```
+
+---
+
+#### `sourceHash`
+**Type**: `string`
+**Required**: No
+**Min Length**: 1
+**Max Length**: 32
+**Description**: Source hash of the entity
+
+```json
+{
+  "sourceHash": "a1b2c3d4e5f6g7h8"
+}
+```
+
+---
+
+#### `entityStatus`
+**Type**: `object` (Status)
+**Required**: No
+**Description**: Status of the Topic
+
+```json
+{
+  "entityStatus": {
+    "status": "Active"
+  }
+}
+```
+
+---
+
 ## Complete Example
 
 ```json
@@ -1027,60 +1445,112 @@ View the complete Topic schema in your preferred format:
   "fullyQualifiedName": "kafka_prod.user_events",
   "displayName": "User Activity Events",
   "description": "# User Activity Events\n\nReal-time stream of user activity events.",
-  "schemaType": "Avro",
-  "schemaText": "{\"type\":\"record\",\"name\":\"UserEvent\",\"fields\":[{\"name\":\"user_id\",\"type\":\"string\"},{\"name\":\"event_type\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"long\"}]}",
-  "messageSchema": [
-    {
-      "name": "user_id",
-      "dataType": "string",
-      "description": "Unique user identifier",
-      "tags": [
-        {"tagFQN": "PII.Sensitive.UserID"}
-      ]
-    },
-    {
-      "name": "event_type",
-      "dataType": "string",
-      "description": "Type of user event"
-    },
-    {
-      "name": "timestamp",
-      "dataType": "long",
-      "description": "Event timestamp in milliseconds"
-    }
-  ],
-  "partitions": {
-    "partitions": 12,
-    "replicationFactor": 3
-  },
-  "cleanupPolicies": ["delete"],
-  "retentionTime": 604800000,
-  "maximumMessageSize": 1048576,
+  "version": 3.1,
+  "updatedAt": 1704240000000,
+  "updatedBy": "data.engineer",
   "service": {
     "id": "service-uuid",
     "type": "messagingService",
-    "name": "kafka_prod"
+    "name": "kafka_prod",
+    "fullyQualifiedName": "kafka_prod"
   },
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "Analytics"
+  "serviceType": "Kafka",
+  "messageSchema": {
+    "schemaType": "Avro",
+    "schemaText": "{\"type\":\"record\",\"name\":\"UserEvent\",\"fields\":[{\"name\":\"user_id\",\"type\":\"string\"},{\"name\":\"event_type\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"long\"}]}",
+    "schemaFields": [
+      {
+        "name": "user_id",
+        "dataType": "STRING",
+        "description": "Unique user identifier",
+        "tags": [
+          {"tagFQN": "PII.Sensitive.UserID"}
+        ]
+      },
+      {
+        "name": "event_type",
+        "dataType": "STRING",
+        "description": "Type of user event"
+      },
+      {
+        "name": "timestamp",
+        "dataType": "LONG",
+        "description": "Event timestamp in milliseconds"
+      }
+    ]
   },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "UserEngagement"
+  "partitions": 12,
+  "replicationFactor": 3,
+  "cleanupPolicies": ["delete"],
+  "retentionTime": 604800000,
+  "retentionSize": -1,
+  "maximumMessageSize": 1048576,
+  "minimumInSyncReplicas": 2,
+  "topicConfig": {
+    "compression.type": "snappy"
   },
+  "sampleData": {
+    "messages": [
+      "{\"user_id\":\"123\",\"event_type\":\"page_view\",\"timestamp\":1704240000000}"
+    ]
+  },
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team",
+      "name": "Analytics",
+      "displayName": "Analytics Team"
+    }
+  ],
+  "followers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "john.doe"
+    }
+  ],
   "tags": [
-    {"tagFQN": "Tier.Gold"},
-    {"tagFQN": "Compliance.GDPR"}
+    {
+      "tagFQN": "Tier.Gold",
+      "source": "Classification"
+    },
+    {
+      "tagFQN": "Compliance.GDPR",
+      "source": "Classification"
+    }
   ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.UserEvent"}
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "UserEngagement",
+      "fullyQualifiedName": "UserEngagement"
+    }
   ],
-  "version": 3.1,
-  "updatedAt": 1704240000000,
-  "updatedBy": "data.engineer"
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "CustomerAnalytics"
+    }
+  ],
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2
+  },
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "admin"
+    }
+  },
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certification.Gold"
+    }
+  },
+  "href": "https://example.com/api/v1/topics/t1o2p3i4-c5u6-7u8i-9d0a-b1c2d3e4f5g6",
+  "deleted": false
 }
 ```
 
@@ -1098,15 +1568,21 @@ View the complete Topic schema in your preferred format:
 om:Topic a owl:Class ;
     rdfs:subClassOf om:DataAsset ;
     rdfs:label "Topic" ;
-    rdfs:comment "An event stream or message topic with a defined schema" ;
+    rdfs:comment "A Topic is a feed or an event stream in a Messaging Service into which publishers publish messages and consumed by consumers" ;
     om:hasProperties [
         om:name "string" ;
-        om:schemaType "SchemaType" ;
-        om:messageSchema "SchemaField[]" ;
+        om:messageSchema "Schema" ;
         om:partitions "integer" ;
+        om:replicationFactor "integer" ;
         om:service "MessagingService" ;
-        om:owner "Owner" ;
+        om:owners "Owner[]" ;
+        om:followers "User[]" ;
+        om:domains "Domain[]" ;
+        om:dataProducts "DataProduct[]" ;
         om:tags "Tag[]" ;
+        om:votes "Votes" ;
+        om:lifeCycle "LifeCycle" ;
+        om:certification "AssetCertification" ;
     ] .
 ```
 
@@ -1121,13 +1597,17 @@ ex:user_events a om:Topic ;
     om:fullyQualifiedName "kafka_prod.user_events" ;
     om:displayName "User Activity Events" ;
     om:description "Real-time user activity event stream" ;
-    om:schemaType "Avro" ;
     om:partitionCount 12 ;
     om:replicationFactor 3 ;
+    om:retentionTime 604800000 ;
+    om:maximumMessageSize 1048576 ;
     om:belongsToService ex:kafka_prod ;
-    om:ownedBy ex:analyticsTeam ;
+    om:hasOwners ex:analyticsTeam ;
+    om:hasFollowers ex:johnDoe ;
     om:hasTag ex:tierGold ;
     om:hasTag ex:complianceGDPR ;
+    om:hasDomains ex:userEngagement ;
+    om:hasDataProducts ex:customerAnalytics ;
     om:linkedToGlossaryTerm ex:userEventTerm ;
     om:hasSchemaField ex:userIdField ;
     om:hasSchemaField ex:eventTypeField .
@@ -1146,24 +1626,52 @@ ex:user_events a om:Topic ;
     "name": "om:name",
     "fullyQualifiedName": "om:fullyQualifiedName",
     "displayName": "om:displayName",
-    "schemaType": "om:schemaType",
+    "partitions": "om:partitionCount",
+    "replicationFactor": "om:replicationFactor",
     "messageSchema": {
-      "@id": "om:hasSchemaField",
-      "@type": "@id",
-      "@container": "@list"
+      "@id": "om:messageSchema",
+      "@type": "@id"
     },
     "service": {
       "@id": "om:belongsToService",
       "@type": "@id"
     },
-    "owner": {
-      "@id": "om:ownedBy",
-      "@type": "@id"
+    "owners": {
+      "@id": "om:hasOwners",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:hasFollowers",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:hasDomains",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:hasDataProducts",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
       "@id": "om:hasTag",
       "@type": "@id",
       "@container": "@set"
+    },
+    "votes": {
+      "@id": "om:hasVotes",
+      "@type": "@id"
+    },
+    "lifeCycle": {
+      "@id": "om:hasLifeCycle",
+      "@type": "@id"
+    },
+    "certification": {
+      "@id": "om:hasCertification",
+      "@type": "@id"
     }
   }
 }
@@ -1177,24 +1685,30 @@ ex:user_events a om:Topic ;
   "@type": "Topic",
   "@id": "https://example.com/topics/user_events",
   "name": "user_events",
-  "schemaType": "Avro",
-  "partitions": {
-    "partitions": 12,
-    "replicationFactor": 3
-  },
+  "fullyQualifiedName": "kafka_prod.user_events",
+  "partitions": 12,
+  "replicationFactor": 3,
+  "cleanupPolicies": ["delete"],
+  "retentionTime": 604800000,
   "service": {
     "@id": "https://example.com/services/kafka_prod",
     "@type": "MessagingService"
   },
-  "owner": {
-    "@id": "https://example.com/teams/analytics",
-    "@type": "Team"
-  },
-  "messageSchema": [
+  "owners": [
     {
-      "@type": "SchemaField",
-      "name": "user_id",
-      "dataType": "string"
+      "@id": "https://example.com/teams/analytics",
+      "@type": "Team"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/userEngagement",
+      "@type": "Domain"
+    }
+  ],
+  "tags": [
+    {
+      "@id": "https://open-metadata.org/tags/Tier/Gold"
     }
   ]
 }

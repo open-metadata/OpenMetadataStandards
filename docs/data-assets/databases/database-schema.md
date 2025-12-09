@@ -112,94 +112,184 @@ View the complete DatabaseSchema schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/data/databaseSchema.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "DatabaseSchema",
-      "description": "A `DatabaseSchema` entity is a logical namespace within a database that groups tables, views, and stored procedures.",
+      "title": "Database Schema",
+      "$comment": "@om-entity-type",
+      "description": "This schema defines the Database Schema entity. A `Database Schema` is collection of tables, views, stored procedures, and other database objects.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.DatabaseSchema",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
-      "definitions": {
-        "schemaType": {
-          "description": "Type or purpose of schema",
-          "type": "string",
-          "enum": [
-            "Application", "Analytics", "Reporting",
-            "Staging", "Audit", "Archive", "Public"
-          ]
-        }
-      },
+      "definitions": {},
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies this schema instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Schema name",
+          "description": "Name that identifies the schema.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service.database.schema",
+          "description": "Name that uniquely identifies a schema in the format 'ServiceName.DatabaseName.SchemaName'.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this schema.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the schema instance.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "schemaType": {
-          "$ref": "#/definitions/schemaType"
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "database": {
-          "description": "Parent database",
-          "$ref": "../../type/entityReference.json"
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "owners": {
+          "description": "Owner of this schema.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "service": {
-          "description": "Database service",
+          "description": "Link to the database cluster/service where this schema is hosted in.",
+          "$ref": "../../type/entityReference.json"
+        },
+        "serviceType": {
+          "description": "Service type where this schema is hosted in.",
+          "$ref": "../services/databaseService.json#/definitions/databaseServiceType"
+        },
+        "database": {
+          "description": "Reference to Database that contains this table.",
           "$ref": "../../type/entityReference.json"
         },
         "tables": {
-          "description": "Tables in this schema",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "References to tables in the schema.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "storedProcedures": {
-          "description": "Stored procedures in this schema",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "usageSummary": {
+          "description": "Latest usage information for this database.",
+          "$ref": "../../type/usageDetails.json",
+          "default": null
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this Database Schema Service.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
         },
         "retentionPeriod": {
-          "description": "Data retention period in days",
-          "type": "number"
+          "description": "Retention period of the data in the database schema. Period is expressed as duration in ISO 8601 format in UTC. Example - `P23DT23H`. When not set, the retention period is inherited from the parent database, if it exists.",
+          "$ref": "../../type/basic.json#/definitions/duration"
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "sourceUrl": {
+          "description": "Source URL of database schema.",
+          "$ref": "../../type/basic.json#/definitions/sourceUrl"
+        },
+        "domains": {
+          "description": "Domains the Database Schema belongs to. When not set, the Schema inherits the domain from the database it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle properties of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "databaseSchemaProfilerConfig": {
+          "type": "object",
+          "javaType": "org.openmetadata.schema.type.DatabaseSchemaProfilerConfig",
+          "description": "This schema defines the type for Schema profile config.",
+          "properties": {
+            "profileSample": {
+              "description": "Percentage of data or no. of rows we want to execute the profiler and tests on",
+              "type": "number",
+              "default": null
+            },
+            "profileSampleType": {
+              "$ref": "./table.json#/definitions/profileSampleType"
+            },
+            "sampleDataCount": {
+              "description": "Number of row of sample data to be generated",
+              "type": "integer",
+              "default": 50,
+              "title": "Sample Data Rows Count"
+            },
+            "samplingMethodType": {
+              "$ref": "./table.json#/definitions/samplingMethodType"
+            },
+            "sampleDataStorageConfig": {
+              "title": "Storage Config for Sample Data",
+              "$ref": "../services/connections/connectionBasicType.json#/definitions/sampleDataStorageConfig"
+            },
+            "randomizedSample": {
+              "description": "Whether to randomize the sample data or not.",
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "entityStatus": {
+          "description": "Status of the DatabaseSchema.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "database"]
+      "required": ["id", "name", "database", "service"],
+      "additionalProperties": false
     }
     ```
 
@@ -212,92 +302,172 @@ View the complete DatabaseSchema schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix dcat: <http://www.w3.org/ns/dcat#> .
 
     # DatabaseSchema Class Definition
     om:DatabaseSchema a owl:Class ;
-        rdfs:subClassOf om:DataAsset ;
-        rdfs:label "DatabaseSchema" ;
-        rdfs:comment "A logical namespace within a database that groups related tables and objects" ;
-        om:hierarchyLevel 3 .
+        rdfs:subClassOf om:DataAsset, dcat:Catalog ;
+        rdfs:label "Database Schema" ;
+        rdfs:comment "This schema defines the Database Schema entity. A Database Schema is collection of tables, views, stored procedures, and other database objects." .
 
-    # Properties
-    om:schemaName a owl:DatatypeProperty ;
+    # Core Identity Properties
+    om:id a owl:DatatypeProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range xsd:string ;
+        rdfs:label "id" ;
+        rdfs:comment "Unique identifier that identifies this schema instance." .
+
+    om:name a owl:DatatypeProperty ;
         rdfs:domain om:DatabaseSchema ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the database schema" .
+        rdfs:comment "Name that identifies the schema." .
 
     om:fullyQualifiedName a owl:DatatypeProperty ;
         rdfs:domain om:DatabaseSchema ;
         rdfs:range xsd:string ;
         rdfs:label "fullyQualifiedName" ;
-        rdfs:comment "Complete hierarchical name: service.database.schema" .
+        rdfs:comment "Name that uniquely identifies a schema in the format 'ServiceName.DatabaseName.SchemaName'." .
 
-    om:schemaType a owl:DatatypeProperty ;
+    # Relationship Properties
+    om:belongsToDatabase a owl:ObjectProperty ;
         rdfs:domain om:DatabaseSchema ;
-        rdfs:range om:SchemaType ;
-        rdfs:label "schemaType" ;
-        rdfs:comment "Type of schema: Application, Analytics, Reporting, etc." .
+        rdfs:range om:Database ;
+        rdfs:label "database" ;
+        rdfs:comment "Reference to Database that contains this table." .
 
-    om:retentionPeriod a owl:DatatypeProperty ;
+    om:belongsToService a owl:ObjectProperty ;
         rdfs:domain om:DatabaseSchema ;
-        rdfs:range xsd:integer ;
-        rdfs:label "retentionPeriod" ;
-        rdfs:comment "Data retention period in days" .
+        rdfs:range om:DatabaseService ;
+        rdfs:label "service" ;
+        rdfs:comment "Link to the database cluster/service where this schema is hosted in." .
+
+    om:hasServiceType a owl:DatatypeProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range xsd:string ;
+        rdfs:label "serviceType" ;
+        rdfs:comment "Service type where this schema is hosted in." .
 
     om:hasTable a owl:ObjectProperty ;
         rdfs:domain om:DatabaseSchema ;
         rdfs:range om:Table ;
-        rdfs:label "hasTable" ;
-        rdfs:comment "Tables in this schema" .
+        rdfs:label "tables" ;
+        rdfs:comment "References to tables in the schema." .
 
-    om:hasStoredProcedure a owl:ObjectProperty ;
+    # Governance Properties
+    om:hasOwners a owl:ObjectProperty ;
         rdfs:domain om:DatabaseSchema ;
-        rdfs:range om:StoredProcedure ;
-        rdfs:label "hasStoredProcedure" ;
-        rdfs:comment "Stored procedures in this schema" .
+        rdfs:range om:EntityReference ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owner of this schema." .
 
-    om:belongsToDatabase a owl:ObjectProperty ;
+    om:hasDomains a owl:ObjectProperty ;
         rdfs:domain om:DatabaseSchema ;
-        rdfs:range om:Database ;
-        rdfs:label "belongsToDatabase" ;
-        rdfs:comment "Parent database" .
-
-    om:ownedBy a owl:ObjectProperty ;
-        rdfs:domain om:DatabaseSchema ;
-        rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this schema" .
+        rdfs:range om:Domain ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the Database Schema belongs to." .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:DatabaseSchema ;
-        rdfs:range om:Tag ;
-        rdfs:label "hasTag" ;
-        rdfs:comment "Classification tags applied to schema" .
+        rdfs:range om:TagLabel ;
+        rdfs:label "tags" ;
+        rdfs:comment "Tags for this Database Schema Service." .
 
-    # SchemaType Enumeration
-    om:SchemaType a owl:Class ;
-        owl:oneOf (
-            om:Application
-            om:Analytics
-            om:Reporting
-            om:Staging
-            om:Public
-        ) .
+    om:hasFollowers a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this entity." .
+
+    om:hasDataProducts a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "dataProducts" ;
+        rdfs:comment "List of data products this entity is part of." .
+
+    # Operational Properties
+    om:isDeleted a owl:DatatypeProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When true indicates the entity has been soft deleted." .
+
+    om:retentionPeriod a owl:DatatypeProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range xsd:duration ;
+        rdfs:label "retentionPeriod" ;
+        rdfs:comment "Retention period of the data in the database schema. Period is expressed as duration in ISO 8601 format." .
+
+    om:hasUsageSummary a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range om:UsageDetails ;
+        rdfs:label "usageSummary" ;
+        rdfs:comment "Latest usage information for this database." .
+
+    om:hasProfilerConfig a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range om:DatabaseSchemaProfilerConfig ;
+        rdfs:label "databaseSchemaProfilerConfig" ;
+        rdfs:comment "Schema profiler configuration." .
+
+    # Versioning Properties
+    om:version a owl:DatatypeProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range xsd:decimal ;
+        rdfs:label "version" ;
+        rdfs:comment "Metadata version of the entity." .
+
+    om:updatedAt a owl:DatatypeProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range xsd:long ;
+        rdfs:label "updatedAt" ;
+        rdfs:comment "Last update time in Unix epoch time milliseconds." .
+
+    om:updatedBy a owl:DatatypeProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range xsd:string ;
+        rdfs:label "updatedBy" ;
+        rdfs:comment "User who made the update." .
+
+    # Additional Properties
+    om:hasVotes a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range om:Votes ;
+        rdfs:label "votes" ;
+        rdfs:comment "Votes on the entity." .
+
+    om:hasLifeCycle a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range om:LifeCycle ;
+        rdfs:label "lifeCycle" ;
+        rdfs:comment "Life Cycle properties of the entity." .
+
+    om:hasCertification a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range om:AssetCertification ;
+        rdfs:label "certification" ;
+        rdfs:comment "Certification status of the entity." .
+
+    om:hasEntityStatus a owl:ObjectProperty ;
+        rdfs:domain om:DatabaseSchema ;
+        rdfs:range om:Status ;
+        rdfs:label "entityStatus" ;
+        rdfs:comment "Status of the DatabaseSchema." .
 
     # Example Instance
     ex:publicSchema a om:DatabaseSchema ;
-        om:schemaName "public" ;
+        om:id "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f" ;
+        om:name "public" ;
         om:fullyQualifiedName "postgres_prod.ecommerce.public" ;
-        om:schemaType om:Application ;
         om:belongsToDatabase ex:ecommerceDb ;
-        om:ownedBy ex:ecommerceTeam ;
+        om:belongsToService ex:postgresProd ;
+        om:hasOwners ex:ecommerceTeam ;
         om:hasTag ex:tierGold ;
-        om:hasTable ex:customersTable ;
-        om:hasTable ex:ordersTable ;
-        om:retentionPeriod 2555 .
+        om:hasTable ex:customersTable, ex:ordersTable ;
+        om:isDeleted false ;
+        om:version 1.3 .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -313,10 +483,18 @@ View the complete DatabaseSchema schema in your preferred format:
         "om": "https://open-metadata.org/schema/",
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "dcat": "http://www.w3.org/ns/dcat#",
 
-        "DatabaseSchema": "om:DatabaseSchema",
+        "DatabaseSchema": {
+          "@id": "om:DatabaseSchema",
+          "@type": ["om:DataAsset", "dcat:Catalog"]
+        },
+        "id": {
+          "@id": "om:id",
+          "@type": "xsd:string"
+        },
         "name": {
-          "@id": "om:schemaName",
+          "@id": "om:name",
           "@type": "xsd:string"
         },
         "fullyQualifiedName": {
@@ -331,14 +509,6 @@ View the complete DatabaseSchema schema in your preferred format:
           "@id": "om:description",
           "@type": "xsd:string"
         },
-        "schemaType": {
-          "@id": "om:schemaType",
-          "@type": "@vocab"
-        },
-        "retentionPeriod": {
-          "@id": "om:retentionPeriod",
-          "@type": "xsd:integer"
-        },
         "database": {
           "@id": "om:belongsToDatabase",
           "@type": "@id"
@@ -347,28 +517,83 @@ View the complete DatabaseSchema schema in your preferred format:
           "@id": "om:belongsToService",
           "@type": "@id"
         },
+        "serviceType": {
+          "@id": "om:hasServiceType",
+          "@type": "xsd:string"
+        },
         "tables": {
           "@id": "om:hasTable",
           "@type": "@id",
           "@container": "@set"
         },
-        "storedProcedures": {
-          "@id": "om:hasStoredProcedure",
+        "owners": {
+          "@id": "om:hasOwners",
           "@type": "@id",
           "@container": "@set"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
-        },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
+        "domains": {
+          "@id": "om:hasDomains",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:hasDataProducts",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:hasFollowers",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "deleted": {
+          "@id": "om:isDeleted",
+          "@type": "xsd:boolean"
+        },
+        "retentionPeriod": {
+          "@id": "om:retentionPeriod",
+          "@type": "xsd:duration"
+        },
+        "usageSummary": {
+          "@id": "om:hasUsageSummary",
+          "@type": "@json"
+        },
+        "databaseSchemaProfilerConfig": {
+          "@id": "om:hasProfilerConfig",
+          "@type": "@json"
+        },
+        "version": {
+          "@id": "om:version",
+          "@type": "xsd:decimal"
+        },
+        "updatedAt": {
+          "@id": "om:updatedAt",
+          "@type": "xsd:long"
+        },
+        "updatedBy": {
+          "@id": "om:updatedBy",
+          "@type": "xsd:string"
+        },
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@json"
+        },
+        "lifeCycle": {
+          "@id": "om:hasLifeCycle",
+          "@type": "@json"
+        },
+        "certification": {
+          "@id": "om:hasCertification",
+          "@type": "@json"
+        },
+        "entityStatus": {
+          "@id": "om:hasEntityStatus",
+          "@type": "@json"
         }
       }
     }
@@ -378,65 +603,122 @@ View the complete DatabaseSchema schema in your preferred format:
 
     ```json
     {
-      "@context": "https://open-metadata.org/context/databaseSchema.jsonld",
+      "@context": "https://open-metadata.org/context/dataAsset.jsonld",
       "@type": "DatabaseSchema",
       "@id": "https://example.com/data/schemas/public",
 
+      "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
       "name": "public",
       "fullyQualifiedName": "postgres_prod.ecommerce.public",
       "displayName": "Public Schema",
       "description": "Main application schema containing customer, order, and product tables",
-      "schemaType": "Application",
-      "retentionPeriod": 2555,
+      "deleted": false,
+      "retentionPeriod": "P2555D",
 
       "database": {
         "@id": "https://example.com/data/databases/ecommerce",
         "@type": "Database",
-        "name": "ecommerce"
+        "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+        "name": "ecommerce",
+        "type": "database"
       },
 
       "service": {
         "@id": "https://example.com/services/postgres_prod",
         "@type": "DatabaseService",
-        "name": "postgres_prod"
+        "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+        "name": "postgres_prod",
+        "type": "databaseService"
       },
+      "serviceType": "Postgres",
 
       "tables": [
         {
           "@id": "https://example.com/data/tables/customers",
           "@type": "Table",
-          "name": "customers"
+          "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+          "name": "customers",
+          "type": "table"
         },
         {
           "@id": "https://example.com/data/tables/orders",
           "@type": "Table",
-          "name": "orders"
+          "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+          "name": "orders",
+          "type": "table"
         }
       ],
 
-      "owner": {
-        "@id": "https://example.com/teams/ecommerce",
-        "@type": "Team",
-        "name": "ecommerce",
-        "displayName": "E-commerce Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/ecommerce",
+          "@type": "Team",
+          "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+          "name": "ecommerce",
+          "displayName": "E-commerce Team",
+          "type": "team"
+        }
+      ],
 
-      "domain": {
-        "@id": "https://example.com/domains/sales",
-        "@type": "Domain",
-        "name": "Sales"
-      },
+      "domains": [
+        {
+          "@id": "https://example.com/domains/sales",
+          "@type": "Domain",
+          "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+          "name": "Sales",
+          "type": "domain"
+        }
+      ],
 
       "tags": [
         {
-          "@id": "https://open-metadata.org/tags/Tier/Gold",
-          "tagFQN": "Tier.Gold"
+          "tagFQN": "Tier.Gold",
+          "source": "Classification",
+          "labelType": "Manual",
+          "state": "Confirmed"
         }
-      ]
+      ],
+
+      "followers": [],
+      "dataProducts": [],
+
+      "usageSummary": {
+        "dailyStats": {
+          "count": 250,
+          "percentileRank": 90.0
+        },
+        "weeklyStats": {
+          "count": 1750,
+          "percentileRank": 88.0
+        },
+        "monthlyStats": {
+          "count": 7500,
+          "percentileRank": 85.0
+        },
+        "date": "2024-01-03"
+      },
+
+      "databaseSchemaProfilerConfig": {
+        "profileSample": 50,
+        "profileSampleType": "PERCENTAGE",
+        "sampleDataCount": 50,
+        "randomizedSample": true
+      },
+
+      "votes": {
+        "upVotes": 8,
+        "downVotes": 0,
+        "upVoters": [],
+        "downVoters": []
+      },
+
+      "version": 1.3,
+      "updatedAt": 1704240000000,
+      "updatedBy": "jane.doe"
     }
     ```
 
-    **[View Full JSON-LD Context →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/contexts/databaseSchema.jsonld)**
+    **[View Full JSON-LD Context →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/contexts/dataAsset.jsonld)**
 
 ---
 

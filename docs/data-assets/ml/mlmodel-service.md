@@ -149,134 +149,153 @@ View the complete ML Model Service schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/services/mlmodelService.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "MLModelService",
-      "description": "An `MLModelService` represents an MLOps platform or model registry that manages machine learning models.",
+      "title": "MlModelService",
+      "description": "MlModel Service Entity, such as MlFlow.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.services.MlModelService",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface",
+        "org.openmetadata.schema.ServiceEntityInterface"
+      ],
 
       "definitions": {
         "mlModelServiceType": {
-          "description": "Type of ML Model service",
+          "description": "Type of MlModel service",
           "type": "string",
-          "enum": [
-            "MLflow", "SageMaker", "VertexAI", "AzureML",
-            "Databricks", "Kubeflow", "CustomML", "WandB",
-            "Neptune", "H2O", "HuggingFace"
+          "javaInterfaces": ["org.openmetadata.schema.EnumInterface"],
+          "enum": ["Mlflow", "Sklearn", "CustomMlModel", "SageMaker", "VertexAI"],
+          "javaEnums": [
+            {"name": "Mlflow"},
+            {"name": "Sklearn"},
+            {"name": "CustomMlModel"},
+            {"name": "SageMaker"},
+            {"name": "VertexAI"}
           ]
         },
         "mlModelConnection": {
           "type": "object",
+          "javaType": "org.openmetadata.schema.type.MlModelConnection",
+          "description": "MlModel Connection.",
+          "javaInterfaces": [
+            "org.openmetadata.schema.ServiceConnectionEntityInterface"
+          ],
           "properties": {
             "config": {
+              "mask": true,
               "oneOf": [
-                {"$ref": "#/definitions/mlflowConnection"},
-                {"$ref": "#/definitions/sagemakerConnection"},
-                {"$ref": "#/definitions/vertexAIConnection"}
+                {"$ref": "./connections/mlmodel/mlflowConnection.json"},
+                {"$ref": "./connections/mlmodel/sklearnConnection.json"},
+                {"$ref": "./connections/mlmodel/customMlModelConnection.json"},
+                {"$ref": "./connections/mlmodel/sageMakerConnection.json"},
+                {"$ref": "./connections/mlmodel/vertexaiConnection.json"}
               ]
             }
-          }
-        },
-        "mlflowConnection": {
-          "type": "object",
-          "properties": {
-            "type": {"const": "MLflow"},
-            "trackingUri": {
-              "type": "string",
-              "description": "MLflow tracking server URI"
-            },
-            "registryUri": {
-              "type": "string",
-              "description": "MLflow model registry URI"
-            }
           },
-          "required": ["type", "trackingUri"]
-        },
-        "sagemakerConnection": {
-          "type": "object",
-          "properties": {
-            "type": {"const": "SageMaker"},
-            "awsRegion": {
-              "type": "string",
-              "description": "AWS region"
-            },
-            "awsAccessKeyId": {
-              "type": "string",
-              "description": "AWS access key"
-            },
-            "awsSecretAccessKey": {
-              "type": "string",
-              "description": "AWS secret key"
-            }
-          },
-          "required": ["type", "awsRegion"]
-        },
-        "vertexAIConnection": {
-          "type": "object",
-          "properties": {
-            "type": {"const": "VertexAI"},
-            "gcpProjectId": {
-              "type": "string",
-              "description": "GCP project ID"
-            },
-            "gcpRegion": {
-              "type": "string",
-              "description": "GCP region"
-            }
-          },
-          "required": ["type", "gcpProjectId"]
+          "additionalProperties": false
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this pipeline service instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Service name",
+          "description": "Name that identifies this pipeline service.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name (same as name for services)",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
-        "displayName": {
-          "description": "Display name",
-          "type": "string"
-        },
-        "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
-        },
         "serviceType": {
+          "description": "Type of pipeline service such as Airflow or Prefect...",
           "$ref": "#/definitions/mlModelServiceType"
         },
+        "description": {
+          "description": "Description of a pipeline service instance.",
+          "type": "string"
+        },
+        "displayName": {
+          "description": "Display Name that identifies this pipeline service. It could be title or label from the source services.",
+          "type": "string"
+        },
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "pipelines": {
+          "description": "References to pipelines deployed for this pipeline service to extract metadata",
+          "$ref": "../../type/entityReferenceList.json"
+        },
         "connection": {
-          "description": "Connection configuration",
           "$ref": "#/definitions/mlModelConnection"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "testConnectionResult": {
+          "description": "Last test connection results for this service",
+          "$ref": "connections/testConnectionResult.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this MlModel Service.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "owners": {
+          "description": "Owners of this pipeline service.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this pipeline service.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "domains": {
+          "description": "Domains the MLModel service belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "ingestionRunner": {
+          "description": "The ingestion agent responsible for executing the ingestion pipeline.",
+          "$ref": "../../type/entityReference.json"
         }
       },
 
-      "required": ["id", "name", "serviceType", "connection"]
+      "required": ["id", "name", "serviceType"],
+      "additionalProperties": false
     }
     ```
 
@@ -289,71 +308,114 @@ View the complete ML Model Service schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # MLModelService Class Definition
-    om:MLModelService a owl:Class ;
+    om:MlModelService a owl:Class ;
         rdfs:subClassOf om:Service ;
         rdfs:label "ML Model Service" ;
-        rdfs:comment "An MLOps platform or model registry managing machine learning models" ;
+        rdfs:comment "MlModel Service Entity, such as MlFlow." ;
         om:hierarchyLevel 1 .
 
     # Properties
     om:serviceName a owl:DatatypeProperty ;
-        rdfs:domain om:MLModelService ;
+        rdfs:domain om:MlModelService ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the ML model service" .
+        rdfs:comment "Name that identifies this pipeline service." .
 
     om:serviceType a owl:DatatypeProperty ;
-        rdfs:domain om:MLModelService ;
-        rdfs:range om:MLModelServiceType ;
+        rdfs:domain om:MlModelService ;
+        rdfs:range om:MlModelServiceType ;
         rdfs:label "serviceType" ;
-        rdfs:comment "Type of ML model service (MLflow, SageMaker, etc.)" .
+        rdfs:comment "Type of MlModel service" .
 
-    om:trackingUri a owl:DatatypeProperty ;
-        rdfs:domain om:MLModelService ;
-        rdfs:range xsd:anyURI ;
-        rdfs:label "trackingUri" ;
-        rdfs:comment "URI for the ML tracking server" .
+    om:description a owl:DatatypeProperty ;
+        rdfs:domain om:MlModelService ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of a pipeline service instance." .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:MlModelService ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this pipeline service." .
 
     om:hasMlModel a owl:ObjectProperty ;
-        rdfs:domain om:MLModelService ;
+        rdfs:domain om:MlModelService ;
         rdfs:range om:MlModel ;
         rdfs:label "hasMlModel" ;
         rdfs:comment "Models managed by this service" .
 
-    om:ownedBy a owl:ObjectProperty ;
-        rdfs:domain om:MLModelService ;
-        rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this service" .
+    om:owners a owl:ObjectProperty ;
+        rdfs:domain om:MlModelService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this pipeline service." .
 
-    om:hasTag a owl:ObjectProperty ;
-        rdfs:domain om:MLModelService ;
-        rdfs:range om:Tag ;
-        rdfs:label "hasTag" ;
-        rdfs:comment "Classification tags applied to service" .
+    om:domains a owl:ObjectProperty ;
+        rdfs:domain om:MlModelService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the MLModel service belongs to." .
+
+    om:tags a owl:ObjectProperty ;
+        rdfs:domain om:MlModelService ;
+        rdfs:range om:TagLabel ;
+        rdfs:label "tags" ;
+        rdfs:comment "Tags for this MlModel Service." .
+
+    om:followers a owl:ObjectProperty ;
+        rdfs:domain om:MlModelService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this entity." .
+
+    om:dataProducts a owl:ObjectProperty ;
+        rdfs:domain om:MlModelService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "dataProducts" ;
+        rdfs:comment "List of data products this entity is part of." .
+
+    om:connection a owl:ObjectProperty ;
+        rdfs:domain om:MlModelService ;
+        rdfs:range om:MlModelConnection ;
+        rdfs:label "connection" ;
+        rdfs:comment "MlModel Connection." .
+
+    om:pipelines a owl:ObjectProperty ;
+        rdfs:domain om:MlModelService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "pipelines" ;
+        rdfs:comment "References to pipelines deployed for this pipeline service to extract metadata" .
+
+    om:ingestionRunner a owl:ObjectProperty ;
+        rdfs:domain om:MlModelService ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "ingestionRunner" ;
+        rdfs:comment "The ingestion agent responsible for executing the ingestion pipeline." .
 
     # Service Type Enumeration
-    om:MLModelServiceType a owl:Class ;
+    om:MlModelServiceType a owl:Class ;
         owl:oneOf (
-            om:MLflowService
-            om:SageMakerService
-            om:VertexAIService
-            om:AzureMLService
-            om:DatabricksMLService
+            om:Mlflow
+            om:Sklearn
+            om:CustomMlModel
+            om:SageMaker
+            om:VertexAI
         ) .
 
     # Example Instance
-    ex:mlflowProduction a om:MLModelService ;
+    ex:mlflowProduction a om:MlModelService ;
         om:serviceName "mlflow_prod" ;
         om:fullyQualifiedName "mlflow_prod" ;
-        om:serviceType om:MLflowService ;
-        om:trackingUri "https://mlflow.company.com" ;
-        om:ownedBy ex:dataScience ;
-        om:hasTag ex:tierProduction ;
+        om:displayName "MLflow Production" ;
+        om:serviceType om:Mlflow ;
+        om:owners ex:dataScienceTeam ;
+        om:tags ex:tierProduction ;
+        om:domains ex:mlPlatformDomain ;
         om:hasMlModel ex:churnPredictor ;
         om:hasMlModel ex:fraudDetection .
     ```
@@ -372,7 +434,7 @@ View the complete ML Model Service schema in your preferred format:
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
 
-        "MLModelService": "om:MLModelService",
+        "MlModelService": "om:MlModelService",
         "name": {
           "@id": "om:serviceName",
           "@type": "xsd:string"
@@ -394,21 +456,42 @@ View the complete ML Model Service schema in your preferred format:
           "@type": "@vocab"
         },
         "connection": {
-          "@id": "om:hasConnection",
+          "@id": "om:connection",
           "@type": "@id"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
-        },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
-        },
-        "tags": {
-          "@id": "om:hasTag",
+        "owners": {
+          "@id": "om:owners",
           "@type": "@id",
           "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:domains",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "tags": {
+          "@id": "om:tags",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:followers",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:dataProducts",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "pipelines": {
+          "@id": "om:pipelines",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "ingestionRunner": {
+          "@id": "om:ingestionRunner",
+          "@type": "@id"
         }
       }
     }
@@ -419,35 +502,39 @@ View the complete ML Model Service schema in your preferred format:
     ```json
     {
       "@context": "https://open-metadata.org/context/mlmodelService.jsonld",
-      "@type": "MLModelService",
+      "@type": "MlModelService",
       "@id": "https://example.com/services/mlflow_prod",
 
       "name": "mlflow_prod",
       "fullyQualifiedName": "mlflow_prod",
       "displayName": "MLflow Production",
       "description": "Production MLflow instance for model tracking and registry",
-      "serviceType": "MLflow",
+      "serviceType": "Mlflow",
 
       "connection": {
         "config": {
-          "type": "MLflow",
+          "type": "Mlflow",
           "trackingUri": "https://mlflow.company.com",
           "registryUri": "https://mlflow.company.com"
         }
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/data-science",
-        "@type": "Team",
-        "name": "data-science",
-        "displayName": "Data Science Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-science",
+          "@type": "Team",
+          "name": "data-science",
+          "displayName": "Data Science Team"
+        }
+      ],
 
-      "domain": {
-        "@id": "https://example.com/domains/AI-ML",
-        "@type": "Domain",
-        "name": "AI-ML"
-      },
+      "domains": [
+        {
+          "@id": "https://example.com/domains/AI-ML",
+          "@type": "Domain",
+          "name": "AI-ML"
+        }
+      ],
 
       "tags": [
         {
@@ -458,7 +545,10 @@ View the complete ML Model Service schema in your preferred format:
           "@id": "https://open-metadata.org/tags/Environment/Prod",
           "tagFQN": "Environment.Prod"
         }
-      ]
+      ],
+
+      "followers": [],
+      "dataProducts": []
     }
     ```
 
@@ -553,26 +643,20 @@ View the complete ML Model Service schema in your preferred format:
 
 ### Service Configuration
 
-#### `serviceType` (MLModelServiceType enum)
+#### `serviceType` (mlModelServiceType enum)
 **Type**: `string` enum
 **Required**: Yes
 **Allowed Values**:
 
-- `MLflow` - Open-source ML lifecycle management
+- `Mlflow` - Open-source ML lifecycle management
+- `Sklearn` - Scikit-learn models
+- `CustomMlModel` - Custom ML platform
 - `SageMaker` - AWS SageMaker model registry
 - `VertexAI` - Google Cloud Vertex AI
-- `AzureML` - Azure Machine Learning
-- `Databricks` - Databricks ML
-- `Kubeflow` - Kubeflow on Kubernetes
-- `CustomML` - Custom ML platform
-- `WandB` - Weights & Biases
-- `Neptune` - Neptune.ai experiment tracking
-- `H2O` - H2O.ai AutoML
-- `HuggingFace` - Hugging Face model hub
 
 ```json
 {
-  "serviceType": "MLflow"
+  "serviceType": "Mlflow"
 }
 ```
 
@@ -660,37 +744,41 @@ View the complete ML Model Service schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array` (EntityReferenceList)
 **Required**: No
-**Description**: User or team that owns this service
+**Description**: Owners of this pipeline service
 
 ```json
 {
-  "owner": {
-    "id": "9d8e7f6a-5b4c-3d2e-1f0a-9b8c7d6e5f4a",
-    "type": "team",
-    "name": "data-science",
-    "displayName": "Data Science Team"
-  }
+  "owners": [
+    {
+      "id": "9d8e7f6a-5b4c-3d2e-1f0a-9b8c7d6e5f4a",
+      "type": "team",
+      "name": "data-science",
+      "displayName": "Data Science Team"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `domains` (EntityReferenceList)
+**Type**: `array` (EntityReferenceList)
 **Required**: No
-**Description**: Data domain this service belongs to
+**Description**: Domains the MLModel service belongs to
 
 ```json
 {
-  "domain": {
-    "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
-    "type": "domain",
-    "name": "AI-ML",
-    "fullyQualifiedName": "AI-ML"
-  }
+  "domains": [
+    {
+      "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      "type": "domain",
+      "name": "AI-ML",
+      "fullyQualifiedName": "AI-ML"
+    }
+  ]
 }
 ```
 
@@ -699,7 +787,8 @@ View the complete ML Model Service schema in your preferred format:
 #### `tags[]` (TagLabel[])
 **Type**: `array`
 **Required**: No
-**Description**: Classification tags applied to the service
+**Default**: `[]`
+**Description**: Tags for this MlModel Service
 
 ```json
 {
@@ -718,6 +807,181 @@ View the complete ML Model Service schema in your preferred format:
       "state": "Confirmed"
     }
   ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `array` (EntityReferenceList)
+**Required**: No
+**Description**: Followers of this entity
+
+```json
+{
+  "followers": [
+    {
+      "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` (EntityReferenceList)
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+      "type": "dataProduct",
+      "name": "ml-insights",
+      "fullyQualifiedName": "ml-insights"
+    }
+  ]
+}
+```
+
+---
+
+#### `pipelines` (EntityReferenceList)
+**Type**: `array` (EntityReferenceList)
+**Required**: No
+**Description**: References to pipelines deployed for this pipeline service to extract metadata
+
+```json
+{
+  "pipelines": [
+    {
+      "id": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+      "type": "pipeline",
+      "name": "mlflow_ingestion",
+      "fullyQualifiedName": "mlflow_prod.mlflow_ingestion"
+    }
+  ]
+}
+```
+
+---
+
+#### `ingestionRunner` (EntityReference)
+**Type**: `object` (EntityReference)
+**Required**: No
+**Description**: The ingestion agent responsible for executing the ingestion pipeline
+
+```json
+{
+  "ingestionRunner": {
+    "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+    "type": "ingestionPipeline",
+    "name": "openmetadata-agent"
+  }
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI)
+**Required**: No
+**Description**: Link to the resource corresponding to this pipeline service
+
+```json
+{
+  "href": "http://localhost:8585/api/v1/services/mlmodelServices/7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d"
+}
+```
+
+---
+
+#### `testConnectionResult` (TestConnectionResult)
+**Type**: `object`
+**Required**: No
+**Description**: Last test connection results for this service
+
+```json
+{
+  "testConnectionResult": {
+    "status": "Successful",
+    "lastUpdatedAt": 1704240000000
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "tags",
+        "oldValue": [],
+        "newValue": [{"tagFQN": "Tier.Production"}]
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.0
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
+}
+```
+
+---
+
+#### `impersonatedBy` (impersonatedBy)
+**Type**: `string`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": "ingestion-bot"
 }
 ```
 
@@ -774,31 +1038,37 @@ View the complete ML Model Service schema in your preferred format:
   "name": "mlflow_prod",
   "fullyQualifiedName": "mlflow_prod",
   "displayName": "MLflow Production",
-  "description": "# MLflow Production\n\nProduction MLflow tracking server and model registry.\n\n## Purpose\n- Track experiments for all production models\n- Register validated models\n- Serve model versions via API",
-  "serviceType": "MLflow",
+  "description": "Production MLflow tracking server and model registry for tracking experiments, registering models, and serving predictions.",
+  "serviceType": "Mlflow",
   "connection": {
     "config": {
-      "type": "MLflow",
+      "type": "Mlflow",
       "trackingUri": "https://mlflow.company.com",
-      "registryUri": "https://mlflow.company.com",
-      "supportsMetadataExtraction": true
+      "registryUri": "https://mlflow.company.com"
     }
   },
-  "owner": {
-    "id": "9d8e7f6a-5b4c-3d2e-1f0a-9b8c7d6e5f4a",
-    "type": "team",
-    "name": "data-science",
-    "displayName": "Data Science Team"
-  },
-  "domain": {
-    "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
-    "type": "domain",
-    "name": "AI-ML"
-  },
+  "owners": [
+    {
+      "id": "9d8e7f6a-5b4c-3d2e-1f0a-9b8c7d6e5f4a",
+      "type": "team",
+      "name": "data-science",
+      "displayName": "Data Science Team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      "type": "domain",
+      "name": "AI-ML"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Production"},
     {"tagFQN": "Environment.Prod"}
   ],
+  "followers": [],
+  "dataProducts": [],
+  "deleted": false,
   "version": 1.0,
   "updatedAt": 1704240000000,
   "updatedBy": "admin"
@@ -823,15 +1093,19 @@ View the complete ML Model Service schema in your preferred format:
       "awsSecretAccessKey": "${AWS_SECRET_ACCESS_KEY}"
     }
   },
-  "owner": {
-    "id": "9d8e7f6a-5b4c-3d2e-1f0a-9b8c7d6e5f4a",
-    "type": "team",
-    "name": "ml-ops"
-  },
+  "owners": [
+    {
+      "id": "9d8e7f6a-5b4c-3d2e-1f0a-9b8c7d6e5f4a",
+      "type": "team",
+      "name": "ml-ops",
+      "displayName": "ML Operations Team"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Production"},
     {"tagFQN": "Cloud.AWS"}
   ],
+  "deleted": false,
   "version": 1.0,
   "updatedAt": 1704240000000,
   "updatedBy": "admin"
@@ -847,18 +1121,20 @@ View the complete ML Model Service schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-om:MLModelService a owl:Class ;
+om:MlModelService a owl:Class ;
     rdfs:subClassOf om:Service ;
     rdfs:label "ML Model Service" ;
-    rdfs:comment "An MLOps platform or model registry" ;
+    rdfs:comment "MlModel Service Entity, such as MlFlow." ;
     om:hasProperties [
         om:name "string" ;
-        om:serviceType "MLModelServiceType" ;
-        om:connection "MLModelConnection" ;
-        om:owner "Owner" ;
-        om:tags "Tag[]" ;
+        om:serviceType "MlModelServiceType" ;
+        om:connection "MlModelConnection" ;
+        om:owners "EntityReferenceList" ;
+        om:domains "EntityReferenceList" ;
+        om:tags "TagLabel[]" ;
     ] .
 ```
 
@@ -867,18 +1143,20 @@ om:MLModelService a owl:Class ;
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix ex: <https://example.com/services/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-ex:mlflow_prod a om:MLModelService ;
+ex:mlflow_prod a om:MlModelService ;
     om:serviceName "mlflow_prod" ;
     om:fullyQualifiedName "mlflow_prod" ;
     om:displayName "MLflow Production" ;
-    om:serviceType "MLflow" ;
-    om:trackingUri "https://mlflow.company.com"^^xsd:anyURI ;
-    om:ownedBy ex:data_science_team ;
-    om:hasTag ex:tier_production ;
-    om:hasTag ex:environment_prod ;
+    om:serviceType om:Mlflow ;
+    om:owners ex:data_science_team ;
+    om:domains ex:ai_ml_domain ;
+    om:tags ex:tier_production ;
+    om:tags ex:environment_prod ;
     om:hasMlModel ex:churn_predictor ;
-    om:hasMlModel ex:fraud_detection .
+    om:hasMlModel ex:fraud_detection ;
+    om:deleted "false"^^xsd:boolean .
 ```
 
 ---
@@ -890,26 +1168,42 @@ ex:mlflow_prod a om:MLModelService ;
   "@context": {
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
-    "MLModelService": "om:MLModelService",
+    "MlModelService": "om:MlModelService",
     "name": "om:serviceName",
     "fullyQualifiedName": "om:fullyQualifiedName",
     "displayName": "om:displayName",
+    "description": "om:description",
     "serviceType": {
       "@id": "om:serviceType",
       "@type": "@vocab"
     },
     "connection": {
-      "@id": "om:hasConnection",
+      "@id": "om:connection",
       "@type": "@id"
     },
-    "owner": {
-      "@id": "om:ownedBy",
-      "@type": "@id"
-    },
-    "tags": {
-      "@id": "om:hasTag",
+    "owners": {
+      "@id": "om:owners",
       "@type": "@id",
       "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:domains",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "tags": {
+      "@id": "om:tags",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:followers",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "deleted": {
+      "@id": "om:deleted",
+      "@type": "xsd:boolean"
     }
   }
 }
@@ -920,18 +1214,30 @@ ex:mlflow_prod a om:MLModelService ;
 ```json
 {
   "@context": "https://open-metadata.org/context/mlmodelService.jsonld",
-  "@type": "MLModelService",
+  "@type": "MlModelService",
   "@id": "https://example.com/services/mlflow_prod",
   "name": "mlflow_prod",
   "displayName": "MLflow Production",
-  "serviceType": "MLflow",
-  "owner": {
-    "@id": "https://example.com/teams/data-science",
-    "@type": "Team"
-  },
+  "description": "Production MLflow tracking server and model registry",
+  "serviceType": "Mlflow",
+  "owners": [
+    {
+      "@id": "https://example.com/teams/data-science",
+      "@type": "Team",
+      "name": "data-science"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/AI-ML",
+      "@type": "Domain",
+      "name": "AI-ML"
+    }
+  ],
   "tags": [
     {"@id": "https://open-metadata.org/tags/Tier/Production"}
-  ]
+  ],
+  "deleted": false
 }
 ```
 

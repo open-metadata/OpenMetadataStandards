@@ -32,11 +32,13 @@ graph LR
 - **Pipeline**: Data pipelines managed by this service
 
 ### Associated Entities
-- **Owner**: User or team owning this service
-- **Domain**: Business domain assignment
-- **Tag**: Classification tags
+- **Owners**: Users or teams owning this service
+- **Domains**: Business domain assignments
+- **Tags**: Classification tags
 - **Table**: Tables read/written by pipelines
 - **Dashboard**: Dashboards monitoring pipelines
+- **DataProducts**: Data products this service is part of
+- **Followers**: Users following this service
 
 ### Relationship Diagram
 
@@ -105,95 +107,173 @@ View the complete PipelineService schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/services/pipelineService.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "PipelineService",
-      "description": "A `PipelineService` entity represents an orchestration platform that executes data pipelines and workflows.",
+      "title": "Pipeline Service",
+      "description": "This schema defines the Pipeline Service entity, such as Airflow and Prefect.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.services.PipelineService",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface",
+        "org.openmetadata.schema.ServiceEntityInterface"
+      ],
 
       "definitions": {
         "pipelineServiceType": {
-          "description": "Type of pipeline service",
+          "description": "Type of pipeline service - Airflow or Prefect.",
           "type": "string",
+          "javaInterfaces": [
+            "org.openmetadata.schema.EnumInterface"
+          ],
           "enum": [
-            "Airflow", "Dagster", "Prefect", "Glue",
-            "AzureDataFactory", "Fivetran", "DBTCloud",
-            "Airbyte", "Nifi", "DatabricksPipeline",
-            "Flink", "Spark", "KafkaConnect", "CustomPipeline"
+            "Airflow", "GluePipeline", "KinesisFirehose",
+            "Airbyte", "Fivetran", "Flink", "Dagster",
+            "Nifi", "DomoPipeline", "CustomPipeline",
+            "DatabricksPipeline", "Spline", "Spark",
+            "OpenLineage", "KafkaConnect", "DBTCloud",
+            "Matillion", "Stitch", "DataFactory",
+            "Wherescape", "SSIS", "Snowplow"
           ]
         },
         "pipelineConnection": {
           "type": "object",
+          "javaType": "org.openmetadata.schema.type.PipelineConnection",
+          "description": "Pipeline Connection.",
+          "javaInterfaces": [
+            "org.openmetadata.schema.ServiceConnectionEntityInterface"
+          ],
           "properties": {
             "config": {
-              "description": "Service-specific connection configuration",
-              "type": "object"
-            },
-            "hostPort": {
-              "description": "Service host and port",
-              "type": "string",
-              "format": "uri"
+              "mask": true,
+              "oneOf": [
+                {"$ref": "./connections/pipeline/airflowConnection.json"},
+                {"$ref": "./connections/pipeline/wherescapeConnection.json"},
+                {"$ref": "./connections/pipeline/ssisConnection.json"},
+                {"$ref": "./connections/pipeline/gluePipelineConnection.json"},
+                {"$ref": "./connections/pipeline/kinesisFirehoseConnection.json"},
+                {"$ref": "./connections/pipeline/airbyteConnection.json"},
+                {"$ref": "./connections/pipeline/fivetranConnection.json"},
+                {"$ref": "./connections/pipeline/flinkConnection.json"},
+                {"$ref": "./connections/pipeline/dagsterConnection.json"},
+                {"$ref": "./connections/pipeline/nifiConnection.json"},
+                {"$ref": "./connections/pipeline/domoPipelineConnection.json"},
+                {"$ref": "./connections/pipeline/customPipelineConnection.json"},
+                {"$ref": "./connections/pipeline/databricksPipelineConnection.json"},
+                {"$ref": "./connections/pipeline/splineConnection.json"},
+                {"$ref": "./connections/pipeline/sparkConnection.json"},
+                {"$ref": "./connections/pipeline/openLineageConnection.json"},
+                {"$ref": "./connections/pipeline/kafkaConnectConnection.json"},
+                {"$ref": "./connections/pipeline/dbtCloudConnection.json"},
+                {"$ref": "./connections/pipeline/matillionConnection.json"},
+                {"$ref": "./connections/pipeline/datafactoryConnection.json"},
+                {"$ref": "./connections/pipeline/stitchConnection.json"},
+                {"$ref": "./connections/pipeline/snowplowConnection.json"}
+              ]
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this pipeline service instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Service name",
+          "description": "Name that identifies this pipeline service.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service_name",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
-        "displayName": {
-          "description": "Display name",
-          "type": "string"
-        },
-        "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
-        },
         "serviceType": {
+          "description": "Type of pipeline service such as Airflow or Prefect...",
           "$ref": "#/definitions/pipelineServiceType"
         },
-        "connection": {
-          "description": "Connection configuration",
-          "$ref": "#/definitions/pipelineConnection"
+        "description": {
+          "description": "Description of a pipeline service instance.",
+          "type": "string"
         },
-        "pipelines": {
-          "description": "Pipelines in this service",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "displayName": {
+          "description": "Display Name that identifies this pipeline service.",
+          "type": "string"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "testConnectionResult": {
+          "description": "Last test connection results for this service",
+          "$ref": "connections/testConnectionResult.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this Pipeline Service.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "pipelines": {
+          "description": "References to pipelines deployed for this pipeline service to extract metadata",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "connection": {
+          "$ref": "#/definitions/pipelineConnection"
+        },
+        "owners": {
+          "description": "Owners of this pipeline service.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this pipeline service.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "domains": {
+          "description": "Domains the Pipeline service belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "ingestionRunner": {
+          "description": "The ingestion agent responsible for executing the ingestion pipeline.",
+          "$ref": "../../type/entityReference.json"
         }
       },
 
-      "required": ["id", "name", "serviceType"]
+      "required": ["id", "name", "serviceType"],
+      "additionalProperties": false
     }
     ```
 
@@ -206,74 +286,150 @@ View the complete PipelineService schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # PipelineService Class Definition
     om:PipelineService a owl:Class ;
         rdfs:subClassOf om:Service ;
         rdfs:label "PipelineService" ;
-        rdfs:comment "An orchestration platform that executes data pipelines and workflows" ;
+        rdfs:comment "This schema defines the Pipeline Service entity, such as Airflow and Prefect." ;
         om:hierarchyLevel 1 .
 
-    # Properties
+    # Datatype Properties
     om:pipelineServiceName a owl:DatatypeProperty ;
         rdfs:domain om:PipelineService ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the pipeline service" .
+        rdfs:comment "Name that identifies this pipeline service" .
+
+    om:fullyQualifiedName a owl:DatatypeProperty ;
+        rdfs:domain om:PipelineService ;
+        rdfs:range xsd:string ;
+        rdfs:label "fullyQualifiedName" ;
+        rdfs:comment "FullyQualifiedName same as name" .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:PipelineService ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this pipeline service" .
+
+    om:description a owl:DatatypeProperty ;
+        rdfs:domain om:PipelineService ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of a pipeline service instance" .
 
     om:serviceType a owl:DatatypeProperty ;
         rdfs:domain om:PipelineService ;
         rdfs:range om:PipelineServiceType ;
         rdfs:label "serviceType" ;
-        rdfs:comment "Type of pipeline service: Airflow, Dagster, Prefect, etc." .
+        rdfs:comment "Type of pipeline service such as Airflow or Prefect" .
 
-    om:hostPort a owl:DatatypeProperty ;
+    om:deleted a owl:DatatypeProperty ;
+        rdfs:domain om:PipelineService ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When true indicates the entity has been soft deleted" .
+
+    om:href a owl:DatatypeProperty ;
         rdfs:domain om:PipelineService ;
         rdfs:range xsd:anyURI ;
-        rdfs:label "hostPort" ;
-        rdfs:comment "Service endpoint URL" .
+        rdfs:label "href" ;
+        rdfs:comment "Link to the resource corresponding to this pipeline service" .
 
+    # Object Properties
     om:hasPipeline a owl:ObjectProperty ;
         rdfs:domain om:PipelineService ;
         rdfs:range om:Pipeline ;
         rdfs:label "hasPipeline" ;
-        rdfs:comment "Pipelines managed by this service" .
+        rdfs:comment "References to pipelines deployed for this pipeline service" .
 
-    om:serviceOwnedBy a owl:ObjectProperty ;
+    om:hasOwner a owl:ObjectProperty ;
         rdfs:domain om:PipelineService ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this service" .
+        rdfs:label "hasOwner" ;
+        rdfs:comment "Owners of this pipeline service" .
 
-    om:serviceHasTag a owl:ObjectProperty ;
+    om:belongsToDomain a owl:ObjectProperty ;
+        rdfs:domain om:PipelineService ;
+        rdfs:range om:Domain ;
+        rdfs:label "belongsToDomain" ;
+        rdfs:comment "Domains the Pipeline service belongs to" .
+
+    om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:PipelineService ;
         rdfs:range om:Tag ;
         rdfs:label "hasTag" ;
-        rdfs:comment "Classification tags applied to service" .
+        rdfs:comment "Tags for this Pipeline Service" .
+
+    om:partOfDataProduct a owl:ObjectProperty ;
+        rdfs:domain om:PipelineService ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "partOfDataProduct" ;
+        rdfs:comment "List of data products this entity is part of" .
+
+    om:hasFollower a owl:ObjectProperty ;
+        rdfs:domain om:PipelineService ;
+        rdfs:range om:User ;
+        rdfs:label "hasFollower" ;
+        rdfs:comment "Followers of this entity" .
+
+    om:hasConnection a owl:ObjectProperty ;
+        rdfs:domain om:PipelineService ;
+        rdfs:range om:PipelineConnection ;
+        rdfs:label "hasConnection" ;
+        rdfs:comment "Connection configuration for the pipeline service" .
+
+    om:hasIngestionRunner a owl:ObjectProperty ;
+        rdfs:domain om:PipelineService ;
+        rdfs:range om:IngestionRunner ;
+        rdfs:label "hasIngestionRunner" ;
+        rdfs:comment "The ingestion agent responsible for executing the ingestion pipeline" .
 
     # PipelineService Type Enumeration
     om:PipelineServiceType a owl:Class ;
         owl:oneOf (
             om:Airflow
-            om:Dagster
-            om:Prefect
-            om:Glue
-            om:AzureDataFactory
+            om:GluePipeline
+            om:KinesisFirehose
+            om:Airbyte
             om:Fivetran
+            om:Flink
+            om:Dagster
+            om:Nifi
+            om:DomoPipeline
+            om:CustomPipeline
+            om:DatabricksPipeline
+            om:Spline
+            om:Spark
+            om:OpenLineage
+            om:KafkaConnect
             om:DBTCloud
+            om:Matillion
+            om:Stitch
+            om:DataFactory
+            om:Wherescape
+            om:SSIS
+            om:Snowplow
         ) .
 
     # Example Instance
     ex:airflowProdService a om:PipelineService ;
         om:pipelineServiceName "airflow_prod" ;
+        om:fullyQualifiedName "airflow_prod" ;
+        om:displayName "Production Airflow" ;
+        om:description "Production Airflow instance for ETL workflows" ;
         om:serviceType om:Airflow ;
-        om:hostPort "https://airflow.company.com"^^xsd:anyURI ;
-        om:serviceOwnedBy ex:dataEngTeam ;
-        om:serviceHasTag ex:tierGold ;
+        om:hasOwner ex:dataEngTeam ;
+        om:belongsToDomain ex:engineeringDomain ;
+        om:hasTag ex:tierGold ;
+        om:hasTag ex:envProduction ;
         om:hasPipeline ex:customerEtlPipeline ;
-        om:hasPipeline ex:salesReportingPipeline .
+        om:hasPipeline ex:salesReportingPipeline ;
+        om:hasFollower ex:johnDoe ;
+        om:deleted "false"^^xsd:boolean .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -312,7 +468,7 @@ View the complete PipelineService schema in your preferred format:
           "@type": "@vocab"
         },
         "connection": {
-          "@id": "om:connectionConfig",
+          "@id": "om:hasConnection",
           "@type": "@id"
         },
         "pipelines": {
@@ -320,18 +476,42 @@ View the complete PipelineService schema in your preferred format:
           "@type": "@id",
           "@container": "@set"
         },
-        "owner": {
-          "@id": "om:serviceOwnedBy",
-          "@type": "@id"
-        },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
-        },
-        "tags": {
-          "@id": "om:serviceHasTag",
+        "owners": {
+          "@id": "om:hasOwner",
           "@type": "@id",
           "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:belongsToDomain",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "tags": {
+          "@id": "om:hasTag",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:partOfDataProduct",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:hasFollower",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
+        },
+        "href": {
+          "@id": "om:href",
+          "@type": "xsd:anyURI"
+        },
+        "ingestionRunner": {
+          "@id": "om:hasIngestionRunner",
+          "@type": "@id"
         }
       }
     }
@@ -353,6 +533,7 @@ View the complete PipelineService schema in your preferred format:
 
       "connection": {
         "config": {
+          "type": "Airflow",
           "hostPort": "https://airflow.company.com",
           "numberOfStatus": 10,
           "connection": {
@@ -361,12 +542,22 @@ View the complete PipelineService schema in your preferred format:
         }
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/data-engineering",
-        "@type": "Team",
-        "name": "data-engineering",
-        "displayName": "Data Engineering"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-engineering",
+          "@type": "Team",
+          "name": "data-engineering",
+          "displayName": "Data Engineering"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/engineering",
+          "@type": "Domain",
+          "name": "Engineering"
+        }
+      ],
 
       "tags": [
         {
@@ -390,7 +581,17 @@ View the complete PipelineService schema in your preferred format:
           "@type": "Pipeline",
           "name": "sales_reporting"
         }
-      ]
+      ],
+
+      "followers": [
+        {
+          "@id": "https://example.com/users/john.doe",
+          "@type": "User",
+          "name": "john.doe"
+        }
+      ],
+
+      "deleted": false
     }
     ```
 
@@ -471,14 +672,14 @@ View the complete PipelineService schema in your preferred format:
 
 ---
 
-#### `description` (markdown)
-**Type**: `string` (Markdown format)
+#### `description`
+**Type**: `string`
 **Required**: No
-**Description**: Rich text description of the service
+**Description**: Description of a pipeline service instance
 
 ```json
 {
-  "description": "# Production Airflow Instance\n\nMain orchestration platform for all ETL workflows.\n\n## Configuration\n- Executor: CeleryExecutor\n- Workers: 10\n- Scheduler: HA mode\n\n## Access\n- URL: https://airflow.company.com\n- Auth: SSO via Okta"
+  "description": "Production Airflow instance for ETL workflows"
 }
 ```
 
@@ -492,19 +693,27 @@ View the complete PipelineService schema in your preferred format:
 **Allowed Values**:
 
 - `Airflow` - Apache Airflow
-- `Dagster` - Dagster orchestration
-- `Prefect` - Prefect workflow engine
-- `Glue` - AWS Glue
-- `AzureDataFactory` - Azure Data Factory
-- `Fivetran` - Fivetran ELT platform
-- `DBTCloud` - dbt Cloud
+- `GluePipeline` - AWS Glue Pipeline
+- `KinesisFirehose` - AWS Kinesis Firehose
 - `Airbyte` - Airbyte data integration
-- `Nifi` - Apache NiFi
-- `DatabricksPipeline` - Databricks workflows
+- `Fivetran` - Fivetran ELT platform
 - `Flink` - Apache Flink
-- `Spark` - Apache Spark
-- `KafkaConnect` - Kafka Connect
+- `Dagster` - Dagster orchestration
+- `Nifi` - Apache NiFi
+- `DomoPipeline` - Domo Pipeline
 - `CustomPipeline` - Custom pipeline platform
+- `DatabricksPipeline` - Databricks workflows
+- `Spline` - Spline lineage
+- `Spark` - Apache Spark
+- `OpenLineage` - OpenLineage
+- `KafkaConnect` - Kafka Connect
+- `DBTCloud` - dbt Cloud
+- `Matillion` - Matillion ETL
+- `Stitch` - Stitch data pipeline
+- `DataFactory` - Azure Data Factory
+- `Wherescape` - WhereScape
+- `SSIS` - SQL Server Integration Services
+- `Snowplow` - Snowplow Analytics
 
 ```json
 {
@@ -581,10 +790,10 @@ View the complete PipelineService schema in your preferred format:
 
 ### Related Entity Properties
 
-#### `pipelines[]` (Pipeline[])
-**Type**: `array` of EntityReference
+#### `pipelines` (EntityReferenceList)
+**Type**: `EntityReferenceList`
 **Required**: No (system-populated)
-**Description**: List of pipelines in this service
+**Description**: References to pipelines deployed for this pipeline service to extract metadata
 
 ```json
 {
@@ -609,46 +818,50 @@ View the complete PipelineService schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `EntityReferenceList`
 **Required**: No
-**Description**: User or team that owns this service
+**Description**: Owners of this pipeline service
 
 ```json
 {
-  "owner": {
-    "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
-    "type": "team",
-    "name": "data-engineering",
-    "displayName": "Data Engineering Team"
-  }
+  "owners": [
+    {
+      "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+      "type": "team",
+      "name": "data-engineering",
+      "displayName": "Data Engineering Team"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `domains` (EntityReferenceList)
+**Type**: `EntityReferenceList`
 **Required**: No
-**Description**: Data domain this service belongs to
+**Description**: Domains the Pipeline service belongs to
 
 ```json
 {
-  "domain": {
-    "id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
-    "type": "domain",
-    "name": "Engineering",
-    "fullyQualifiedName": "Engineering"
-  }
+  "domains": [
+    {
+      "id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
+      "type": "domain",
+      "name": "Engineering",
+      "fullyQualifiedName": "Engineering"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `tags[]` (TagLabel[])
+#### `tags` (TagLabel[])
 **Type**: `array`
 **Required**: No
-**Description**: Classification tags applied to the service
+**Description**: Tags for this Pipeline Service
 
 ```json
 {
@@ -667,6 +880,124 @@ View the complete PipelineService schema in your preferred format:
       "state": "Confirmed"
     }
   ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `EntityReferenceList`
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
+      "type": "dataProduct",
+      "name": "customer_analytics",
+      "fullyQualifiedName": "customer_analytics"
+    }
+  ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `EntityReferenceList`
+**Required**: No
+**Description**: Followers of this entity
+
+```json
+{
+  "followers": [
+    {
+      "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
+}
+```
+
+---
+
+### System Properties
+
+#### `href`
+**Type**: `string` (URI format)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this pipeline service
+
+```json
+{
+  "href": "https://example.com/api/v1/services/pipelineServices/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
+}
+```
+
+---
+
+#### `deleted`
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `testConnectionResult`
+**Type**: `object`
+**Required**: No
+**Description**: Last test connection results for this service
+
+```json
+{
+  "testConnectionResult": {
+    "status": "successful",
+    "lastUpdatedAt": 1704240000000
+  }
+}
+```
+
+---
+
+#### `impersonatedBy`
+**Type**: `object`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": {
+    "id": "8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e",
+    "type": "bot",
+    "name": "ingestion-bot"
+  }
+}
+```
+
+---
+
+#### `ingestionRunner` (EntityReference)
+**Type**: `EntityReference`
+**Required**: No
+**Description**: The ingestion agent responsible for executing the ingestion pipeline
+
+```json
+{
+  "ingestionRunner": {
+    "id": "9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f",
+    "type": "ingestionPipeline",
+    "name": "metadata_ingestion"
+  }
 }
 ```
 
@@ -716,7 +1047,7 @@ View the complete PipelineService schema in your preferred format:
 #### `changeDescription` (ChangeDescription)
 **Type**: `object`
 **Required**: No
-**Description**: Details of what changed in this version
+**Description**: Change that lead to this version of the entity
 
 ```json
 {
@@ -737,6 +1068,28 @@ View the complete PipelineService schema in your preferred format:
 
 ---
 
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [
+      {
+        "name": "tags",
+        "newValue": "[{\"tagFQN\": \"Tier.Gold\"}]"
+      }
+    ],
+    "fieldsUpdated": [],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
 ## Complete Example
 
 ```json
@@ -745,7 +1098,7 @@ View the complete PipelineService schema in your preferred format:
   "name": "airflow_prod",
   "fullyQualifiedName": "airflow_prod",
   "displayName": "Production Airflow",
-  "description": "# Production Airflow Instance\n\nMain orchestration platform for all ETL workflows.",
+  "description": "Production Airflow instance for ETL workflows",
   "serviceType": "Airflow",
   "connection": {
     "config": {
@@ -765,21 +1118,35 @@ View the complete PipelineService schema in your preferred format:
       "fullyQualifiedName": "airflow_prod.customer_etl"
     }
   ],
-  "owner": {
-    "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
-    "type": "team",
-    "name": "data-engineering",
-    "displayName": "Data Engineering Team"
-  },
-  "domain": {
-    "id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
-    "type": "domain",
-    "name": "Engineering"
-  },
+  "owners": [
+    {
+      "id": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+      "type": "team",
+      "name": "data-engineering",
+      "displayName": "Data Engineering Team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
+      "type": "domain",
+      "name": "Engineering"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Gold"},
     {"tagFQN": "Environment.Production"}
   ],
+  "followers": [
+    {
+      "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+      "type": "user",
+      "name": "john.doe"
+    }
+  ],
+  "dataProducts": [],
+  "href": "https://example.com/api/v1/services/pipelineServices/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+  "deleted": false,
   "version": 1.2,
   "updatedAt": 1704240000000,
   "updatedBy": "admin"
@@ -795,18 +1162,22 @@ View the complete PipelineService schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 om:PipelineService a owl:Class ;
     rdfs:subClassOf om:Service ;
     rdfs:label "PipelineService" ;
-    rdfs:comment "An orchestration platform that executes data pipelines" ;
+    rdfs:comment "This schema defines the Pipeline Service entity, such as Airflow and Prefect." ;
     om:hasProperties [
         om:name "string" ;
         om:serviceType "PipelineServiceType" ;
-        om:pipelines "Pipeline[]" ;
-        om:owner "Owner" ;
-        om:tags "Tag[]" ;
+        om:pipelines "EntityReferenceList" ;
+        om:owners "EntityReferenceList" ;
+        om:domains "EntityReferenceList" ;
+        om:tags "TagLabel[]" ;
+        om:dataProducts "EntityReferenceList" ;
+        om:followers "EntityReferenceList" ;
+        om:deleted "boolean" ;
     ] .
 ```
 
@@ -815,19 +1186,23 @@ om:PipelineService a owl:Class ;
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix ex: <https://example.com/services/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:airflow_prod a om:PipelineService ;
     om:pipelineServiceName "airflow_prod" ;
     om:fullyQualifiedName "airflow_prod" ;
     om:displayName "Production Airflow" ;
-    om:description "Main orchestration platform for ETL workflows" ;
-    om:serviceType "Airflow" ;
-    om:hostPort "https://airflow.company.com"^^xsd:anyURI ;
-    om:serviceOwnedBy ex:data_engineering_team ;
-    om:serviceHasTag ex:tier_gold ;
-    om:serviceHasTag ex:env_production ;
+    om:description "Production Airflow instance for ETL workflows" ;
+    om:serviceType om:Airflow ;
+    om:hasOwner ex:data_engineering_team ;
+    om:belongsToDomain ex:engineering_domain ;
+    om:hasTag ex:tier_gold ;
+    om:hasTag ex:env_production ;
     om:hasPipeline ex:customer_etl ;
-    om:hasPipeline ex:sales_reporting .
+    om:hasPipeline ex:sales_reporting ;
+    om:hasFollower ex:john_doe ;
+    om:deleted "false"^^xsd:boolean ;
+    om:href "https://example.com/api/v1/services/pipelineServices/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"^^xsd:anyURI .
 ```
 
 ---
@@ -840,11 +1215,24 @@ ex:airflow_prod a om:PipelineService ;
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
     "PipelineService": "om:PipelineService",
-    "name": "om:pipelineServiceName",
-    "fullyQualifiedName": "om:fullyQualifiedName",
-    "displayName": "om:displayName",
-    "description": "om:description",
+    "name": {
+      "@id": "om:pipelineServiceName",
+      "@type": "xsd:string"
+    },
+    "fullyQualifiedName": {
+      "@id": "om:fullyQualifiedName",
+      "@type": "xsd:string"
+    },
+    "displayName": {
+      "@id": "om:displayName",
+      "@type": "xsd:string"
+    },
+    "description": {
+      "@id": "om:description",
+      "@type": "xsd:string"
+    },
     "serviceType": {
       "@id": "om:serviceType",
       "@type": "@vocab"
@@ -854,14 +1242,38 @@ ex:airflow_prod a om:PipelineService ;
       "@type": "@id",
       "@container": "@set"
     },
-    "owner": {
-      "@id": "om:serviceOwnedBy",
-      "@type": "@id"
-    },
-    "tags": {
-      "@id": "om:serviceHasTag",
+    "owners": {
+      "@id": "om:hasOwner",
       "@type": "@id",
       "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:belongsToDomain",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "tags": {
+      "@id": "om:hasTag",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:partOfDataProduct",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:hasFollower",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "deleted": {
+      "@id": "om:deleted",
+      "@type": "xsd:boolean"
+    },
+    "href": {
+      "@id": "om:href",
+      "@type": "xsd:anyURI"
     }
   }
 }
@@ -877,11 +1289,22 @@ ex:airflow_prod a om:PipelineService ;
   "name": "airflow_prod",
   "fullyQualifiedName": "airflow_prod",
   "displayName": "Production Airflow",
+  "description": "Production Airflow instance for ETL workflows",
   "serviceType": "Airflow",
-  "owner": {
-    "@id": "https://example.com/teams/data-engineering",
-    "@type": "Team"
-  },
+  "owners": [
+    {
+      "@id": "https://example.com/teams/data-engineering",
+      "@type": "Team",
+      "name": "data-engineering"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/engineering",
+      "@type": "Domain",
+      "name": "Engineering"
+    }
+  ],
   "tags": [
     {"@id": "https://open-metadata.org/tags/Tier/Gold"},
     {"@id": "https://open-metadata.org/tags/Environment/Production"}
@@ -892,7 +1315,16 @@ ex:airflow_prod a om:PipelineService ;
       "@type": "Pipeline",
       "name": "customer_etl"
     }
-  ]
+  ],
+  "followers": [
+    {
+      "@id": "https://example.com/users/john.doe",
+      "@type": "User",
+      "name": "john.doe"
+    }
+  ],
+  "deleted": false,
+  "href": "https://example.com/api/v1/services/pipelineServices/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
 }
 ```
 

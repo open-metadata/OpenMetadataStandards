@@ -1,13 +1,13 @@
 
 # Report
 
-**Scheduled reports and report templates**
+**Static information computed from data periodically**
 
 ---
 
 ## Overview
 
-The **Report** entity represents scheduled reports, automated report deliveries, and report templates in BI and analytics platforms. It captures report metadata, scheduling configuration, delivery settings, data sources, and relationships to dashboards and recipients. Reports enable automated distribution of business insights through PDF exports, Excel files, email subscriptions, and other delivery mechanisms.
+The **Report** entity represents reports that are static information computed from data periodically that includes data in text, table, and visual form. Reports capture metadata about data analysis outputs, dashboards exports, and analytical reports generated from business intelligence platforms.
 
 **Hierarchy**:
 ```mermaid
@@ -34,143 +34,57 @@ graph TD
     end
 
     subgraph Report Definition
-        SVC --> R[Report:<br/>Weekly Sales Report]
-    end
-
-    subgraph Source Content
-        R -.->|based on| D1[Dashboard:<br/>Sales Dashboard]
-        R -.->|includes| CH1[Chart:<br/>Revenue Trend]
-        R -.->|includes| CH2[Chart:<br/>Regional Sales]
-
-        R -.->|queries| DM[DataModel:<br/>Sales Model]
-    end
-
-    subgraph Data Sources
-        R -.->|reads from| T1[Table:<br/>sales.orders]
-        R -.->|reads from| T2[Table:<br/>sales.customers]
-        R -.->|reads from| T3[Table:<br/>sales.products]
-
-        R -.->|uses column| C1[Column:<br/>order_date]
-        R -.->|uses column| C2[Column:<br/>revenue]
-    end
-
-    subgraph Schedule & Delivery
-        R -.->|has schedule| SCH[Schedule:<br/>Weekly Mon 8AM]
-        R -.->|delivered to| U1[User:<br/>exec.team]
-        R -.->|delivered to| U2[User:<br/>sales.director]
-        R -.->|delivered to| U3[Team:<br/>Sales Team]
-
-        R -.->|delivery method| DEL1[Email]
-        R -.->|delivery method| DEL2[Slack]
-        R -.->|format| FMT1[PDF]
-        R -.->|format| FMT2[Excel]
+        SVC --> R[Report:<br/>Sales Report]
     end
 
     subgraph Ownership & Governance
         R -.->|owned by| O1[Team:<br/>Analytics]
-        R -.->|created by| O2[User:<br/>analyst.lead]
+        R -.->|owned by| O2[User:<br/>analyst.lead]
 
-        R -.->|in domain| DOM[Domain:<br/>Sales]
+        R -.->|in domains| DOM[Domain:<br/>Sales]
         R -.->|has tags| TAG1[Tag:<br/>Tier.Gold]
-        R -.->|has tags| TAG2[Tag:<br/>Executive]
-        R -.->|has tags| TAG3[Tag:<br/>Weekly]
+        R -.->|has tags| TAG2[Tag:<br/>Important]
 
         R -.->|described by| GT1[GlossaryTerm:<br/>Sales]
-        R -.->|described by| GT2[GlossaryTerm:<br/>Revenue]
     end
 
-    subgraph Parameters & Filters
-        R -.->|has parameter| P1[Parameter:<br/>date_range]
-        R -.->|has parameter| P2[Parameter:<br/>region]
-        R -.->|has filter| F1[Filter:<br/>status=active]
-    end
-
-    subgraph Execution History
-        R -.->|execution history| EX1[Execution:<br/>2024-01-15]
-        R -.->|execution history| EX2[Execution:<br/>2024-01-22]
-        R -.->|execution history| EX3[Execution:<br/>2024-01-29]
-
-        EX1 -.->|generated file| FILE1[File:<br/>sales_2024_w03.pdf]
-    end
-
-    subgraph Quality & Monitoring
-        R -.->|validated by| TC[TestCase:<br/>report_data_quality]
-        R -.->|monitored by| AL[Alert:<br/>delivery_failure]
-    end
-
-    subgraph Upstream Lineage
-        PIP1[Pipeline:<br/>sales_etl] -.->|feeds| T1
-        PIP2[Pipeline:<br/>revenue_agg] -.->|feeds| T2
+    subgraph Usage & Metadata
+        R -.->|usage stats| USAGE[UsageSummary]
+        R -.->|status| STATUS[EntityStatus]
+        R -.->|votes| VOTES[Votes]
     end
 
     style R fill:#ff6b6b,color:#fff,stroke:#ef4444,stroke-width:3px
     style SVC fill:#667eea,color:#fff
-    style D1 fill:#4facfe,color:#fff
-    style CH1 fill:#00f2fe,color:#333
-    style CH2 fill:#00f2fe,color:#333
-    style DM fill:#00ac69,color:#fff
-    style T1 fill:#764ba2,color:#fff
-    style T2 fill:#764ba2,color:#fff
-    style T3 fill:#764ba2,color:#fff
-    style C1 fill:#9b59b6,color:#fff
-    style C2 fill:#9b59b6,color:#fff
-    style SCH fill:#22c55e,color:#fff
-    style U1 fill:#43e97b,color:#fff
-    style U2 fill:#43e97b,color:#fff
-    style U3 fill:#43e97b,color:#fff
-    style DEL1 fill:#3b82f6,color:#fff
-    style DEL2 fill:#3b82f6,color:#fff
-    style FMT1 fill:#6366f1,color:#fff
-    style FMT2 fill:#6366f1,color:#fff
     style O1 fill:#43e97b,color:#fff
     style O2 fill:#43e97b,color:#fff
     style DOM fill:#fa709a,color:#fff
     style TAG1 fill:#f093fb,color:#fff
     style TAG2 fill:#f093fb,color:#fff
-    style TAG3 fill:#f093fb,color:#fff
     style GT1 fill:#ffd700,color:#333
-    style GT2 fill:#ffd700,color:#333
-    style P1 fill:#8b5cf6,color:#fff
-    style P2 fill:#8b5cf6,color:#fff
-    style F1 fill:#8b5cf6,color:#fff
-    style EX1 fill:#10b981,color:#fff
-    style EX2 fill:#10b981,color:#fff
-    style EX3 fill:#10b981,color:#fff
-    style FILE1 fill:#64748b,color:#fff
-    style TC fill:#9b59b6,color:#fff
-    style AL fill:#f59e0b,color:#fff
-    style PIP1 fill:#f5576c,color:#fff
-    style PIP2 fill:#f5576c,color:#fff
+    style USAGE fill:#3b82f6,color:#fff
+    style STATUS fill:#10b981,color:#fff
+    style VOTES fill:#8b5cf6,color:#fff
 ```
 
 **Relationship Types**:
 
-- **Solid lines (→)**: Hierarchical containment (Service hosts Report, Report based on Dashboard)
-- **Dashed lines (-.->)**: References and associations (ownership, governance, data sources, delivery, scheduling, lineage)
+- **Solid lines (→)**: Hierarchical containment (Service hosts Report)
+- **Dashed lines (-.->)**: References and associations (ownership, governance, usage)
 
 ---
 
 ### Parent Entities
 - **DashboardService**: The BI platform hosting this report
-- **Dashboard**: The dashboard this report is based on (optional)
-
-### Child Entities
-- **Execution**: Execution history records
 
 ### Associated Entities
-- **Owner**: User or team owning this report
-- **Domain**: Business domain assignment
+- **Owners**: Users or teams owning this report
+- **Domains**: Business domains this report belongs to
 - **Tag**: Classification tags
 - **GlossaryTerm**: Business terminology
-- **Dashboard**: Source dashboard
-- **Chart**: Charts included in the report
-- **DataModel**: Data models used
-- **Table**: Source tables
-- **Column**: Specific columns
-- **User/Team**: Report recipients
-- **Pipeline**: ETL pipelines feeding source data
-- **TestCase**: Data quality tests
-- **Schedule**: Delivery schedule configuration
+- **UsageSummary**: Usage statistics
+- **EntityStatus**: Current status of the report
+- **Votes**: User votes on the report
 
 ---
 
@@ -187,180 +101,98 @@ View the complete Report schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/data/report.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Report",
-      "description": "A `Report` represents a scheduled report or automated report delivery.",
+      "description": "This schema defines the Report entity. `Reports` are static information computed from data periodically that includes data in text, table, and visual form.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.Report",
-
-      "definitions": {
-        "reportType": {
-          "description": "Type of report",
-          "type": "string",
-          "enum": [
-            "DASHBOARD_EXPORT", "SCHEDULED_REPORT",
-            "SUBSCRIPTION", "ALERT", "SNAPSHOT", "OTHER"
-          ]
-        },
-        "deliveryFormat": {
-          "description": "Report delivery format",
-          "type": "string",
-          "enum": [
-            "PDF", "EXCEL", "CSV", "PNG", "IMAGE",
-            "HTML", "JSON", "POWERPOINT"
-          ]
-        },
-        "deliveryChannel": {
-          "description": "Delivery channel",
-          "type": "string",
-          "enum": [
-            "EMAIL", "SLACK", "TEAMS", "WEBHOOK",
-            "S3", "SFTP", "OTHER"
-          ]
-        },
-        "scheduleConfig": {
-          "description": "Schedule configuration",
-          "type": "object",
-          "properties": {
-            "cronExpression": {
-              "description": "Cron expression for schedule",
-              "type": "string"
-            },
-            "timezone": {
-              "description": "Timezone for schedule",
-              "type": "string"
-            },
-            "frequency": {
-              "description": "Human-readable frequency",
-              "type": "string"
-            },
-            "enabled": {
-              "description": "Is schedule enabled",
-              "type": "boolean"
-            }
-          },
-          "required": ["cronExpression"]
-        },
-        "deliveryConfig": {
-          "description": "Delivery configuration",
-          "type": "object",
-          "properties": {
-            "channel": {
-              "$ref": "#/definitions/deliveryChannel"
-            },
-            "format": {
-              "$ref": "#/definitions/deliveryFormat"
-            },
-            "recipients": {
-              "description": "Report recipients",
-              "type": "array",
-              "items": {
-                "$ref": "../../type/entityReference.json"
-              }
-            },
-            "subject": {
-              "description": "Email subject or message title",
-              "type": "string"
-            },
-            "message": {
-              "description": "Email body or message content",
-              "type": "string"
-            }
-          },
-          "required": ["channel", "format", "recipients"]
-        }
-      },
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies this report.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Report name",
+          "description": "Name that identifies this report instance uniquely.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service.report",
+          "description": "A unique name that identifies a report in the format 'ServiceName.ReportName'.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this report. It could be title or label from the source services.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of this report instance.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "reportType": {
-          "$ref": "#/definitions/reportType"
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this report.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "owners": {
+          "description": "Owners of this Report.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "service": {
-          "description": "Dashboard service",
+          "description": "Link to service where this report is hosted in.",
           "$ref": "../../type/entityReference.json"
         },
-        "dashboard": {
-          "description": "Source dashboard",
-          "$ref": "../../type/entityReference.json"
+        "usageSummary": {
+          "description": "Latest usage information for this database.",
+          "$ref": "../../type/usageDetails.json",
+          "default": null
         },
-        "charts": {
-          "description": "Charts included in report",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
         },
-        "dataModels": {
-          "description": "Data models used",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
         },
-        "tables": {
-          "description": "Source tables",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
         },
-        "schedule": {
-          "$ref": "#/definitions/scheduleConfig"
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
         },
-        "delivery": {
-          "$ref": "#/definitions/deliveryConfig"
+        "domains": {
+          "description": "Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
-        },
-        "tags": {
-          "description": "Classification tags",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/tagLabel.json"
-          }
-        },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "entityStatus": {
+          "description": "Status of the Report.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "service", "reportType"]
+      "required": ["id", "name", "service"],
+      "additionalProperties": false
     }
     ```
 
-    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/schemas/entity/data/report.json)**
+    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadata/blob/main/openmetadata-spec/src/main/resources/json/schema/entity/data/report.json)**
 
 === "RDF"
 
@@ -369,99 +201,113 @@ View the complete Report schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # Report Class Definition
     om:Report a owl:Class ;
         rdfs:subClassOf om:DataAsset ;
         rdfs:label "Report" ;
-        rdfs:comment "A scheduled report or automated report delivery" ;
+        rdfs:comment "Static information computed from data periodically that includes data in text, table, and visual form" ;
         om:hierarchyLevel 2 .
 
-    # Properties
+    # Data Properties
+    om:reportId a owl:DatatypeProperty ;
+        rdfs:domain om:Report ;
+        rdfs:range om:Uuid ;
+        rdfs:label "id" ;
+        rdfs:comment "Unique identifier that identifies this report" .
+
     om:reportName a owl:DatatypeProperty ;
         rdfs:domain om:Report ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the report" .
+        rdfs:comment "Name that identifies this report instance uniquely" .
 
-    om:reportType a owl:DatatypeProperty ;
-        rdfs:domain om:Report ;
-        rdfs:range om:ReportType ;
-        rdfs:label "reportType" ;
-        rdfs:comment "Type: DASHBOARD_EXPORT, SCHEDULED_REPORT, etc." .
-
-    om:deliveryFormat a owl:DatatypeProperty ;
-        rdfs:domain om:Report ;
-        rdfs:range om:DeliveryFormat ;
-        rdfs:label "deliveryFormat" ;
-        rdfs:comment "Format: PDF, EXCEL, CSV, etc." .
-
-    om:deliveryChannel a owl:DatatypeProperty ;
-        rdfs:domain om:Report ;
-        rdfs:range om:DeliveryChannel ;
-        rdfs:label "deliveryChannel" ;
-        rdfs:comment "Channel: EMAIL, SLACK, etc." .
-
-    om:scheduleExpression a owl:DatatypeProperty ;
+    om:fullyQualifiedName a owl:DatatypeProperty ;
         rdfs:domain om:Report ;
         rdfs:range xsd:string ;
-        rdfs:label "cronExpression" ;
-        rdfs:comment "Cron expression for scheduling" .
+        rdfs:label "fullyQualifiedName" ;
+        rdfs:comment "A unique name in the format 'ServiceName.ReportName'" .
 
-    om:basedOnDashboard a owl:ObjectProperty ;
+    om:displayName a owl:DatatypeProperty ;
         rdfs:domain om:Report ;
-        rdfs:range om:Dashboard ;
-        rdfs:label "basedOnDashboard" ;
-        rdfs:comment "Source dashboard for this report" .
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display name from the source services" .
 
-    om:includesChart a owl:ObjectProperty ;
+    om:description a owl:DatatypeProperty ;
         rdfs:domain om:Report ;
-        rdfs:range om:Chart ;
-        rdfs:label "includesChart" ;
-        rdfs:comment "Charts included in the report" .
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of this report instance" .
 
-    om:usesDataSource a owl:ObjectProperty ;
+    om:updatedAt a owl:DatatypeProperty ;
         rdfs:domain om:Report ;
-        rdfs:range om:Table ;
-        rdfs:label "usesDataSource" ;
-        rdfs:comment "Source tables used by the report" .
+        rdfs:range xsd:long ;
+        rdfs:label "updatedAt" ;
+        rdfs:comment "Last update time in Unix epoch milliseconds" .
 
-    om:deliveredTo a owl:ObjectProperty ;
+    om:updatedBy a owl:DatatypeProperty ;
         rdfs:domain om:Report ;
-        rdfs:range om:User ;
-        rdfs:label "deliveredTo" ;
-        rdfs:comment "Recipients of the report" .
+        rdfs:range xsd:string ;
+        rdfs:label "updatedBy" ;
+        rdfs:comment "User who made the update" .
 
+    om:deleted a owl:DatatypeProperty ;
+        rdfs:domain om:Report ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When true indicates the entity has been soft deleted" .
+
+    # Object Properties
     om:belongsToService a owl:ObjectProperty ;
         rdfs:domain om:Report ;
         rdfs:range om:DashboardService ;
-        rdfs:label "belongsToService" ;
-        rdfs:comment "Dashboard service hosting this report" .
+        rdfs:label "service" ;
+        rdfs:comment "Link to service where this report is hosted in" .
 
-    # Report Type Enumeration
-    om:ReportType a owl:Class ;
-        owl:oneOf (
-            om:ReportType_DashboardExport
-            om:ReportType_ScheduledReport
-            om:ReportType_Subscription
-            om:ReportType_Alert
-        ) .
+    om:hasOwners a owl:ObjectProperty ;
+        rdfs:domain om:Report ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this Report" .
+
+    om:belongsToDomains a owl:ObjectProperty ;
+        rdfs:domain om:Report ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the asset belongs to" .
+
+    om:hasUsageSummary a owl:ObjectProperty ;
+        rdfs:domain om:Report ;
+        rdfs:range om:UsageDetails ;
+        rdfs:label "usageSummary" ;
+        rdfs:comment "Latest usage information for this report" .
+
+    om:hasVotes a owl:ObjectProperty ;
+        rdfs:domain om:Report ;
+        rdfs:range om:Votes ;
+        rdfs:label "votes" ;
+        rdfs:comment "Votes on the entity" .
+
+    om:hasEntityStatus a owl:ObjectProperty ;
+        rdfs:domain om:Report ;
+        rdfs:range om:Status ;
+        rdfs:label "entityStatus" ;
+        rdfs:comment "Status of the Report" .
 
     # Example Instance
-    ex:weeklySalesReport a om:Report ;
-        om:reportName "weekly_sales_report" ;
-        om:fullyQualifiedName "tableau_prod.weekly_sales_report" ;
-        om:displayName "Weekly Sales Report" ;
-        om:reportType om:ReportType_ScheduledReport ;
-        om:deliveryFormat om:DeliveryFormat_PDF ;
-        om:deliveryChannel om:DeliveryChannel_EMAIL ;
-        om:scheduleExpression "0 8 * * MON" ;
-        om:basedOnDashboard ex:salesDashboard ;
+    ex:salesReport a om:Report ;
+        om:reportId "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d"^^om:Uuid ;
+        om:reportName "sales_report" ;
+        om:fullyQualifiedName "tableau_prod.sales_report" ;
+        om:displayName "Sales Report" ;
+        om:description "Quarterly sales performance report" ;
         om:belongsToService ex:tableauProdService ;
-        om:deliveredTo ex:execTeam ;
-        om:ownedBy ex:analyticsTeam .
+        om:hasOwners ex:analyticsTeam ;
+        om:belongsToDomains ex:salesDomain ;
+        om:deleted false .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -479,6 +325,10 @@ View the complete Report schema in your preferred format:
         "xsd": "http://www.w3.org/2001/XMLSchema#",
 
         "Report": "om:Report",
+        "id": {
+          "@id": "om:reportId",
+          "@type": "om:Uuid"
+        },
         "name": {
           "@id": "om:reportName",
           "@type": "xsd:string"
@@ -495,30 +345,40 @@ View the complete Report schema in your preferred format:
           "@id": "om:description",
           "@type": "xsd:string"
         },
-        "reportType": {
-          "@id": "om:reportType",
-          "@type": "@vocab"
+        "updatedAt": {
+          "@id": "om:updatedAt",
+          "@type": "xsd:long"
         },
-        "dashboard": {
-          "@id": "om:basedOnDashboard",
-          "@type": "@id"
+        "updatedBy": {
+          "@id": "om:updatedBy",
+          "@type": "xsd:string"
         },
-        "charts": {
-          "@id": "om:includesChart",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "tables": {
-          "@id": "om:usesDataSource",
-          "@type": "@id",
-          "@container": "@set"
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
         },
         "service": {
           "@id": "om:belongsToService",
           "@type": "@id"
         },
-        "owner": {
-          "@id": "om:ownedBy",
+        "owners": {
+          "@id": "om:hasOwners",
+          "@type": "@id"
+        },
+        "domains": {
+          "@id": "om:belongsToDomains",
+          "@type": "@id"
+        },
+        "usageSummary": {
+          "@id": "om:hasUsageSummary",
+          "@type": "@id"
+        },
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@id"
+        },
+        "entityStatus": {
+          "@id": "om:hasEntityStatus",
           "@type": "@id"
         }
       }
@@ -531,13 +391,16 @@ View the complete Report schema in your preferred format:
     {
       "@context": "https://open-metadata.org/context/report.jsonld",
       "@type": "Report",
-      "@id": "https://example.com/reports/weekly_sales_report",
+      "@id": "https://example.com/reports/sales_report",
 
-      "name": "weekly_sales_report",
-      "fullyQualifiedName": "tableau_prod.weekly_sales_report",
-      "displayName": "Weekly Sales Report",
-      "description": "# Weekly Sales Report\n\nAutomated weekly sales performance report delivered every Monday morning.",
-      "reportType": "SCHEDULED_REPORT",
+      "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+      "name": "sales_report",
+      "fullyQualifiedName": "tableau_prod.sales_report",
+      "displayName": "Sales Report",
+      "description": "Quarterly sales performance report with revenue metrics and trends",
+      "updatedAt": 1704240000000,
+      "updatedBy": "analyst.lead",
+      "deleted": false,
 
       "service": {
         "@id": "https://example.com/services/tableau_prod",
@@ -545,37 +408,25 @@ View the complete Report schema in your preferred format:
         "name": "tableau_prod"
       },
 
-      "dashboard": {
-        "@id": "https://example.com/dashboards/sales_dashboard",
-        "@type": "Dashboard",
-        "name": "sales_dashboard"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/analytics",
+          "@type": "Team",
+          "name": "analytics"
+        }
+      ],
 
-      "schedule": {
-        "cronExpression": "0 8 * * MON",
-        "timezone": "America/New_York",
-        "frequency": "Weekly on Monday at 8:00 AM EST",
-        "enabled": true
-      },
+      "domains": [
+        {
+          "@id": "https://example.com/domains/sales",
+          "@type": "Domain",
+          "name": "Sales"
+        }
+      ],
 
-      "delivery": {
-        "channel": "EMAIL",
-        "format": "PDF",
-        "recipients": [
-          {
-            "@id": "https://example.com/teams/exec-team",
-            "@type": "Team",
-            "name": "exec-team"
-          }
-        ],
-        "subject": "Weekly Sales Report - {date}",
-        "message": "Please find attached the weekly sales performance report."
-      },
-
-      "owner": {
-        "@id": "https://example.com/teams/analytics",
-        "@type": "Team",
-        "name": "analytics"
+      "entityStatus": {
+        "@type": "Status",
+        "status": "Active"
       }
     }
     ```
@@ -586,16 +437,14 @@ View the complete Report schema in your preferred format:
 
 ## Use Cases
 
-- Catalog all scheduled reports across BI platforms
-- Document report purpose, content, and delivery settings
-- Track report ownership and stakeholders
+- Catalog reports from BI and analytics platforms
+- Document report purpose, content, and metadata
+- Track report ownership and governance
 - Discover reports by business domain or topic
-- Capture lineage from source tables to reports
-- Monitor report delivery success and failures
-- Apply governance tags to sensitive reports
-- Track report recipients and access patterns
-- Document report scheduling and frequency
+- Apply classification tags to reports
+- Track report usage and engagement
 - Enable discovery of existing reports to reduce duplication
+- Manage report lifecycle and status
 
 ---
 
@@ -606,7 +455,7 @@ View the complete Report schema in your preferred format:
 #### `id` (uuid)
 **Type**: `string` (UUID format)
 **Required**: Yes (system-generated)
-**Description**: Unique identifier for this report instance
+**Description**: Unique identifier that identifies this report
 
 ```json
 {
@@ -622,11 +471,11 @@ View the complete Report schema in your preferred format:
 **Pattern**: `^[^.]*$` (no dots allowed)
 **Min Length**: 1
 **Max Length**: 256
-**Description**: Name of the report (unqualified)
+**Description**: Name that identifies this report instance uniquely
 
 ```json
 {
-  "name": "weekly_sales_report"
+  "name": "sales_report"
 }
 ```
 
@@ -634,13 +483,13 @@ View the complete Report schema in your preferred format:
 
 #### `fullyQualifiedName` (fullyQualifiedEntityName)
 **Type**: `string`
-**Required**: Yes (system-generated)
+**Required**: No (system-generated)
 **Pattern**: `^((?!::).)*$`
-**Description**: Fully qualified name in the format `service.report`
+**Description**: A unique name that identifies a report in the format 'ServiceName.ReportName'
 
 ```json
 {
-  "fullyQualifiedName": "tableau_prod.weekly_sales_report"
+  "fullyQualifiedName": "tableau_prod.sales_report"
 }
 ```
 
@@ -649,11 +498,11 @@ View the complete Report schema in your preferred format:
 #### `displayName`
 **Type**: `string`
 **Required**: No
-**Description**: Human-readable display name
+**Description**: Display Name that identifies this report. It could be title or label from the source services
 
 ```json
 {
-  "displayName": "Weekly Sales Report"
+  "displayName": "Sales Report"
 }
 ```
 
@@ -662,44 +511,88 @@ View the complete Report schema in your preferred format:
 #### `description` (markdown)
 **Type**: `string` (Markdown format)
 **Required**: No
-**Description**: Rich text description of the report's purpose and content
+**Description**: Description of this report instance
 
 ```json
 {
-  "description": "# Weekly Sales Report\n\nAutomated weekly sales performance report delivered every Monday morning.\n\n## Contents\n- Revenue by region\n- Top performing products\n- Sales trends\n- YoY comparison\n\n## Recipients\n- Executive team\n- Sales directors\n\n## Delivery\n- Format: PDF\n- Schedule: Weekly (Monday 8 AM EST)\n- Channel: Email"
+  "description": "Quarterly sales performance report with revenue metrics and trends"
 }
 ```
 
 ---
 
-### Report Configuration
-
-#### `reportType` (ReportType enum)
-**Type**: `string` enum
-**Required**: Yes
-**Allowed Values**:
-
-- `DASHBOARD_EXPORT` - Dashboard snapshot export
-- `SCHEDULED_REPORT` - Regularly scheduled report
-- `SUBSCRIPTION` - User-subscribed report
-- `ALERT` - Alert-based report
-- `SNAPSHOT` - Point-in-time snapshot
-- `OTHER` - Other report type
+#### `version` (entityVersion)
+**Type**: `number`
+**Required**: No (system-managed)
+**Description**: Metadata version of the entity
 
 ```json
 {
-  "reportType": "SCHEDULED_REPORT"
+  "version": 1.4
 }
 ```
 
 ---
 
-### Source Content
+#### `updatedAt` (timestamp)
+**Type**: `number` (Unix epoch milliseconds)
+**Required**: No (system-managed)
+**Description**: Last update time corresponding to the new version of the entity in Unix epoch time milliseconds
+
+```json
+{
+  "updatedAt": 1704240000000
+}
+```
+
+---
+
+#### `updatedBy`
+**Type**: `string`
+**Required**: No (system-managed)
+**Description**: User who made the update
+
+```json
+{
+  "updatedBy": "analyst.lead"
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI format)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this report
+
+```json
+{
+  "href": "http://localhost:8585/api/v1/reports/7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d"
+}
+```
+
+---
+
+#### `deleted`
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+### Service Reference
 
 #### `service` (EntityReference)
 **Type**: `object`
 **Required**: Yes
-**Description**: Reference to parent dashboard service
+**Description**: Link to service where this report is hosted in
 
 ```json
 {
@@ -714,255 +607,21 @@ View the complete Report schema in your preferred format:
 
 ---
 
-#### `dashboard` (EntityReference)
-**Type**: `object`
-**Required**: No
-**Description**: Source dashboard this report is based on
-
-```json
-{
-  "dashboard": {
-    "id": "dashboard-uuid",
-    "type": "dashboard",
-    "name": "sales_dashboard",
-    "fullyQualifiedName": "tableau_prod.sales_dashboard"
-  }
-}
-```
-
----
-
-#### `charts[]` (Chart[])
-**Type**: `array` of Chart entity references
-**Required**: No
-**Description**: Charts included in the report
-
-```json
-{
-  "charts": [
-    {
-      "id": "chart-uuid-1",
-      "type": "chart",
-      "name": "revenue_trend",
-      "fullyQualifiedName": "tableau_prod.sales_dashboard.revenue_trend"
-    },
-    {
-      "id": "chart-uuid-2",
-      "type": "chart",
-      "name": "regional_sales",
-      "fullyQualifiedName": "tableau_prod.sales_dashboard.regional_sales"
-    }
-  ]
-}
-```
-
----
-
-#### `dataModels[]` (DataModel[])
-**Type**: `array` of DataModel entity references
-**Required**: No
-**Description**: Data models used by the report
-
-```json
-{
-  "dataModels": [
-    {
-      "id": "model-uuid",
-      "type": "dataModel",
-      "name": "sales_model",
-      "fullyQualifiedName": "looker_prod.sales_model"
-    }
-  ]
-}
-```
-
----
-
-#### `tables[]` (Table[])
-**Type**: `array` of Table entity references
-**Required**: No
-**Description**: Source tables used by the report
-
-```json
-{
-  "tables": [
-    {
-      "id": "table-uuid",
-      "type": "table",
-      "name": "orders",
-      "fullyQualifiedName": "postgres_prod.sales.public.orders"
-    }
-  ]
-}
-```
-
----
-
-### Schedule Configuration
-
-#### `schedule` (ScheduleConfig)
-**Type**: `object`
-**Required**: No
-**Description**: Report scheduling configuration
-
-**ScheduleConfig Object**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `cronExpression` | string | Yes | Cron expression for schedule |
-| `timezone` | string | No | Timezone (e.g., "America/New_York") |
-| `frequency` | string | No | Human-readable frequency description |
-| `enabled` | boolean | No | Is schedule enabled (default: true) |
-
-```json
-{
-  "schedule": {
-    "cronExpression": "0 8 * * MON",
-    "timezone": "America/New_York",
-    "frequency": "Weekly on Monday at 8:00 AM EST",
-    "enabled": true
-  }
-}
-```
-
-**Common Cron Expressions**:
-
-- Daily at 9 AM: `0 9 * * *`
-- Weekly on Monday at 8 AM: `0 8 * * MON`
-- First day of month at 6 AM: `0 6 1 * *`
-- Every hour: `0 * * * *`
-
----
-
-### Delivery Configuration
-
-#### `delivery` (DeliveryConfig)
-**Type**: `object`
-**Required**: No
-**Description**: Report delivery configuration
-
-**DeliveryConfig Object**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `channel` | DeliveryChannel enum | Yes | Delivery channel |
-| `format` | DeliveryFormat enum | Yes | Report format |
-| `recipients` | EntityReference[] | Yes | Report recipients (Users/Teams) |
-| `subject` | string | No | Email subject or message title |
-| `message` | string | No | Email body or message content |
-
-**DeliveryChannel enum**:
-
-- `EMAIL` - Email delivery
-- `SLACK` - Slack channel
-- `TEAMS` - Microsoft Teams
-- `WEBHOOK` - Custom webhook
-- `S3` - S3 bucket upload
-- `SFTP` - SFTP server
-- `OTHER` - Other delivery method
-
-**DeliveryFormat enum**:
-
-- `PDF` - PDF document
-- `EXCEL` - Excel spreadsheet
-- `CSV` - CSV file
-- `PNG` - PNG image
-- `IMAGE` - Image format
-- `HTML` - HTML format
-- `JSON` - JSON data
-- `POWERPOINT` - PowerPoint presentation
-
-```json
-{
-  "delivery": {
-    "channel": "EMAIL",
-    "format": "PDF",
-    "recipients": [
-      {
-        "id": "team-uuid",
-        "type": "team",
-        "name": "exec-team",
-        "displayName": "Executive Team"
-      },
-      {
-        "id": "user-uuid",
-        "type": "user",
-        "name": "sales.director",
-        "displayName": "Sales Director"
-      }
-    ],
-    "subject": "Weekly Sales Report - {date}",
-    "message": "Hi team,\n\nPlease find attached the weekly sales performance report for the week ending {date}.\n\nKey highlights:\n- Total revenue: {revenue}\n- Top region: {top_region}\n- YoY growth: {yoy_growth}%\n\nBest regards,\nAnalytics Team"
-  }
-}
-```
-
----
-
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array` of entity references
 **Required**: No
-**Description**: User or team that owns this report
+**Description**: Owners of this Report (can be users or teams)
 
 ```json
 {
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "analytics-team",
-    "displayName": "Analytics Team"
-  }
-}
-```
-
----
-
-#### `domain` (EntityReference)
-**Type**: `object`
-**Required**: No
-**Description**: Data domain this report belongs to
-
-```json
-{
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Sales",
-    "fullyQualifiedName": "Sales"
-  }
-}
-```
-
----
-
-#### `tags[]` (TagLabel[])
-**Type**: `array`
-**Required**: No
-**Description**: Classification tags applied to the report
-
-```json
-{
-  "tags": [
+  "owners": [
     {
-      "tagFQN": "Tier.Gold",
-      "description": "Critical executive report",
-      "source": "Classification",
-      "labelType": "Manual",
-      "state": "Confirmed"
-    },
-    {
-      "tagFQN": "Executive",
-      "source": "Classification",
-      "labelType": "Manual",
-      "state": "Confirmed"
-    },
-    {
-      "tagFQN": "Weekly",
-      "source": "Classification",
-      "labelType": "Automated",
-      "state": "Confirmed"
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "analytics-team",
+      "displayName": "Analytics Team"
     }
   ]
 }
@@ -970,21 +629,85 @@ View the complete Report schema in your preferred format:
 
 ---
 
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
+#### `domains` (EntityReferenceList)
+**Type**: `array` of entity references
 **Required**: No
-**Description**: Business glossary terms linked to this report
+**Description**: Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to
 
 ```json
 {
-  "glossaryTerms": [
+  "domains": [
     {
-      "fullyQualifiedName": "BusinessGlossary.Sales"
-    },
-    {
-      "fullyQualifiedName": "BusinessGlossary.Revenue"
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
     }
   ]
+}
+```
+
+---
+
+### Usage and Status
+
+#### `usageSummary` (UsageDetails)
+**Type**: `object`
+**Required**: No
+**Default**: `null`
+**Description**: Latest usage information for this database
+
+```json
+{
+  "usageSummary": {
+    "dailyStats": {
+      "count": 15,
+      "percentileRank": 85.0
+    },
+    "weeklyStats": {
+      "count": 102,
+      "percentileRank": 88.0
+    },
+    "date": "2024-01-15"
+  }
+}
+```
+
+---
+
+#### `votes` (Votes)
+**Type**: `object`
+**Required**: No
+**Description**: Votes on the entity
+
+```json
+{
+  "votes": {
+    "upVotes": 12,
+    "downVotes": 1,
+    "upVoters": [
+      {
+        "id": "user-uuid-1",
+        "type": "user",
+        "name": "john.doe"
+      }
+    ]
+  }
+}
+```
+
+---
+
+#### `entityStatus` (Status)
+**Type**: `object`
+**Required**: No
+**Description**: Status of the Report
+
+```json
+{
+  "entityStatus": {
+    "status": "Active"
+  }
 }
 ```
 
@@ -995,83 +718,55 @@ View the complete Report schema in your preferred format:
 ```json
 {
   "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
-  "name": "weekly_sales_report",
-  "fullyQualifiedName": "tableau_prod.weekly_sales_report",
-  "displayName": "Weekly Sales Report",
-  "description": "# Weekly Sales Report\n\nAutomated weekly sales performance report delivered every Monday morning.",
-  "reportType": "SCHEDULED_REPORT",
+  "name": "sales_report",
+  "fullyQualifiedName": "tableau_prod.sales_report",
+  "displayName": "Sales Report",
+  "description": "Quarterly sales performance report with revenue metrics and trends",
+  "version": 1.4,
+  "updatedAt": 1704240000000,
+  "updatedBy": "analyst.lead",
+  "href": "http://localhost:8585/api/v1/reports/7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+  "deleted": false,
   "service": {
     "id": "service-uuid",
     "type": "dashboardService",
-    "name": "tableau_prod"
+    "name": "tableau_prod",
+    "fullyQualifiedName": "tableau_prod"
   },
-  "dashboard": {
-    "id": "dashboard-uuid",
-    "type": "dashboard",
-    "name": "sales_dashboard",
-    "fullyQualifiedName": "tableau_prod.sales_dashboard"
-  },
-  "charts": [
+  "owners": [
     {
-      "id": "chart-uuid-1",
-      "type": "chart",
-      "name": "revenue_trend"
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "analytics-team",
+      "displayName": "Analytics Team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ],
+  "usageSummary": {
+    "dailyStats": {
+      "count": 15,
+      "percentileRank": 85.0
     },
-    {
-      "id": "chart-uuid-2",
-      "type": "chart",
-      "name": "regional_sales"
-    }
-  ],
-  "tables": [
-    {
-      "id": "table-uuid",
-      "type": "table",
-      "name": "orders",
-      "fullyQualifiedName": "postgres_prod.sales.public.orders"
-    }
-  ],
-  "schedule": {
-    "cronExpression": "0 8 * * MON",
-    "timezone": "America/New_York",
-    "frequency": "Weekly on Monday at 8:00 AM EST",
-    "enabled": true
+    "weeklyStats": {
+      "count": 102,
+      "percentileRank": 88.0
+    },
+    "date": "2024-01-15"
   },
-  "delivery": {
-    "channel": "EMAIL",
-    "format": "PDF",
-    "recipients": [
-      {
-        "id": "team-uuid",
-        "type": "team",
-        "name": "exec-team",
-        "displayName": "Executive Team"
-      }
-    ],
-    "subject": "Weekly Sales Report - {date}",
-    "message": "Please find attached the weekly sales performance report."
+  "votes": {
+    "upVotes": 12,
+    "downVotes": 1
   },
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "analytics-team"
-  },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Sales"
-  },
-  "tags": [
-    {"tagFQN": "Tier.Gold"},
-    {"tagFQN": "Executive"},
-    {"tagFQN": "Weekly"}
-  ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.Sales"}
-  ],
-  "version": 1.4,
-  "updatedAt": 1704240000000,
-  "updatedBy": "analyst.lead"
+  "entityStatus": {
+    "status": "Active"
+  }
 }
 ```
 
@@ -1079,124 +774,101 @@ View the complete Report schema in your preferred format:
 
 ## Examples by Type
 
-### Monthly Executive Summary
+### Executive Report
 
 ```json
 {
-  "name": "monthly_executive_summary",
-  "fullyQualifiedName": "tableau_prod.monthly_executive_summary",
-  "displayName": "Monthly Executive Summary",
-  "description": "Comprehensive monthly business performance report for executives",
-  "reportType": "SCHEDULED_REPORT",
+  "name": "executive_summary",
+  "fullyQualifiedName": "tableau_prod.executive_summary",
+  "displayName": "Executive Summary Report",
+  "description": "Comprehensive business performance report for executives",
   "service": {
     "type": "dashboardService",
     "name": "tableau_prod"
   },
-  "dashboard": {
-    "type": "dashboard",
-    "name": "executive_dashboard"
-  },
-  "schedule": {
-    "cronExpression": "0 6 1 * *",
-    "timezone": "America/New_York",
-    "frequency": "Monthly on the 1st at 6:00 AM EST",
-    "enabled": true
-  },
-  "delivery": {
-    "channel": "EMAIL",
-    "format": "POWERPOINT",
-    "recipients": [
-      {
-        "type": "team",
-        "name": "c-suite"
-      }
-    ],
-    "subject": "Monthly Executive Summary - {month} {year}"
-  },
-  "tags": [
-    {"tagFQN": "Tier.Gold"},
-    {"tagFQN": "Executive"},
-    {"tagFQN": "Confidential"}
-  ]
-}
-```
-
----
-
-### Daily Operational Alert
-
-```json
-{
-  "name": "daily_sales_alert",
-  "fullyQualifiedName": "looker_prod.daily_sales_alert",
-  "displayName": "Daily Sales Alert",
-  "description": "Alert when daily sales fall below target",
-  "reportType": "ALERT",
-  "service": {
-    "type": "dashboardService",
-    "name": "looker_prod"
-  },
-  "schedule": {
-    "cronExpression": "0 9 * * *",
-    "timezone": "America/Los_Angeles",
-    "frequency": "Daily at 9:00 AM PST",
-    "enabled": true
-  },
-  "delivery": {
-    "channel": "SLACK",
-    "format": "HTML",
-    "recipients": [
-      {
-        "type": "team",
-        "name": "sales-ops"
-      }
-    ],
-    "message": "Alert: Daily sales are {percentage}% below target"
+  "owners": [
+    {
+      "type": "team",
+      "name": "c-suite"
+    }
+  ],
+  "domains": [
+    {
+      "type": "domain",
+      "name": "Executive"
+    }
+  ],
+  "entityStatus": {
+    "status": "Active"
   }
 }
 ```
 
 ---
 
-### Weekly CSV Data Export
+### Regional Sales Report
 
 ```json
 {
-  "name": "weekly_customer_export",
-  "fullyQualifiedName": "tableau_prod.weekly_customer_export",
-  "displayName": "Weekly Customer Data Export",
-  "description": "Weekly customer data export for CRM sync",
-  "reportType": "SCHEDULED_REPORT",
+  "name": "regional_sales_report",
+  "fullyQualifiedName": "looker_prod.regional_sales_report",
+  "displayName": "Regional Sales Report",
+  "description": "Detailed sales performance by region and product category",
   "service": {
     "type": "dashboardService",
-    "name": "tableau_prod"
+    "name": "looker_prod"
   },
-  "tables": [
+  "owners": [
     {
-      "type": "table",
-      "fullyQualifiedName": "postgres_prod.crm.customers"
+      "type": "team",
+      "name": "sales-ops"
     }
   ],
-  "schedule": {
-    "cronExpression": "0 2 * * SUN",
-    "timezone": "UTC",
-    "frequency": "Weekly on Sunday at 2:00 AM UTC",
-    "enabled": true
+  "domains": [
+    {
+      "type": "domain",
+      "name": "Sales"
+    }
+  ],
+  "usageSummary": {
+    "dailyStats": {
+      "count": 25,
+      "percentileRank": 90.0
+    }
+  }
+}
+```
+
+---
+
+### Customer Analytics Report
+
+```json
+{
+  "name": "customer_analytics",
+  "fullyQualifiedName": "powerbi_prod.customer_analytics",
+  "displayName": "Customer Analytics Report",
+  "description": "Customer behavior and segmentation analysis",
+  "service": {
+    "type": "dashboardService",
+    "name": "powerbi_prod"
   },
-  "delivery": {
-    "channel": "SFTP",
-    "format": "CSV",
-    "recipients": [
-      {
-        "type": "team",
-        "name": "crm-team"
-      }
-    ]
-  },
-  "tags": [
-    {"tagFQN": "PII.Sensitive"},
-    {"tagFQN": "ETL"}
-  ]
+  "owners": [
+    {
+      "type": "team",
+      "name": "analytics-team"
+    }
+  ],
+  "domains": [
+    {
+      "type": "domain",
+      "name": "Marketing"
+    }
+  ],
+  "votes": {
+    "upVotes": 18,
+    "downVotes": 2
+  }
 }
 ```
 
@@ -1226,32 +898,29 @@ POST /api/v1/reports
 Content-Type: application/json
 
 {
-  "name": "weekly_sales_report",
+  "name": "sales_report",
+  "displayName": "Sales Report",
+  "description": "Quarterly sales performance report",
   "service": "tableau_prod",
-  "reportType": "SCHEDULED_REPORT",
-  "dashboard": "tableau_prod.sales_dashboard",
-  "schedule": {
-    "cronExpression": "0 8 * * MON",
-    "timezone": "America/New_York",
-    "enabled": true
-  },
-  "delivery": {
-    "channel": "EMAIL",
-    "format": "PDF",
-    "recipients": [
-      {
-        "id": "team-uuid",
-        "type": "team"
-      }
-    ]
-  }
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain"
+    }
+  ]
 }
 ```
 
 ### Get Report
 
 ```http
-GET /api/v1/reports/name/tableau_prod.weekly_sales_report?fields=dashboard,charts,schedule,delivery,owner
+GET /api/v1/reports/name/tableau_prod.sales_report?fields=owners,domains,usageSummary,votes
 ```
 
 ### Update Report
@@ -1263,32 +932,30 @@ Content-Type: application/json-patch+json
 [
   {
     "op": "replace",
-    "path": "/schedule/enabled",
-    "value": false
+    "path": "/description",
+    "value": "Updated quarterly sales performance report with new metrics"
   },
   {
     "op": "add",
-    "path": "/tags/-",
-    "value": {"tagFQN": "Paused"}
+    "path": "/owners/-",
+    "value": {
+      "id": "user-uuid",
+      "type": "user"
+    }
   }
 ]
 ```
 
-### Trigger Report Execution
+### Delete Report
 
 ```http
-POST /api/v1/reports/{id}/execute
-Content-Type: application/json
-
-{
-  "executeImmediately": true
-}
+DELETE /api/v1/reports/{id}
 ```
 
-### Get Report Execution History
+### List Reports
 
 ```http
-GET /api/v1/reports/{id}/executions?limit=10
+GET /api/v1/reports?service=tableau_prod&limit=10
 ```
 
 ---
@@ -1298,7 +965,7 @@ GET /api/v1/reports/{id}/executions?limit=10
 - **[Dashboard Service](dashboard-service.md)** - Service configuration
 - **[Dashboard](dashboard.md)** - Dashboard entity specification
 - **[Chart](chart.md)** - Chart entity specification
-- **[Data Model](data-model.md)** - Data model specification
-- **[Table](../databases/table.md)** - Source table specification
-- **[Lineage](../../lineage/overview.md)** - Data lineage tracking
+- **[Owners](../../governance/ownership.md)** - Ownership management
+- **[Domains](../../governance/domains.md)** - Domain management
+- **[Entity References](../../types/entity-reference.md)** - Entity reference specification
 - **[Governance](../../governance/overview.md)** - Governance policies

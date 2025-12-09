@@ -156,73 +156,128 @@ View the complete ML Model schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/data/mlmodel.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "MlModel",
-      "description": "An `MlModel` represents a trained machine learning model with features, training data, metrics, and versions.",
+      "description": "This schema defines the Model entity. `Machine Learning Models` are algorithms trained on data to find patterns or make predictions.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.MlModel",
 
       "definitions": {
-        "mlFeature": {
+        "featureType": {
+          "description": "This enum defines the type of data stored in a ML Feature.",
+          "type": "string",
+          "enum": ["numerical", "categorical"]
+        },
+        "featureSourceDataType": {
+          "description": "This enum defines the type of data of a ML Feature source.",
+          "type": "string",
+          "enum": [
+            "integer",
+            "number",
+            "string",
+            "array",
+            "date",
+            "timestamp",
+            "object",
+            "boolean"
+          ]
+        },
+        "featureSource": {
           "type": "object",
+          "description": "This schema defines the sources of a ML Feature.",
           "properties": {
             "name": {
-              "type": "string",
-              "description": "Feature name"
+              "$ref": "../../type/basic.json#/definitions/entityName"
             },
             "dataType": {
-              "type": "string",
-              "enum": ["integer", "float", "string", "boolean", "array", "object"],
-              "description": "Feature data type"
+              "description": "Data type of the source (int, date etc.).",
+              "$ref": "#/definitions/featureSourceDataType"
             },
             "description": {
-              "type": "string",
-              "description": "Feature description"
+              "description": "Description of the feature source.",
+              "$ref": "../../type/basic.json#/definitions/markdown"
+            },
+            "fullyQualifiedName": {
+              "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+            },
+            "dataSource": {
+              "description": "Description of the Data Source (e.g., a Table).",
+              "$ref": "../../type/entityReference.json"
+            },
+            "tags": {
+              "description": "Tags associated with the feature source.",
+              "type": "array",
+              "items": {
+                "$ref": "../../type/tagLabel.json"
+              }
+            }
+          }
+        },
+        "mlFeature": {
+          "type": "object",
+          "description": "This schema defines the type for an ML Feature used in an ML Model.",
+          "properties": {
+            "name": {
+              "$ref": "../../type/basic.json#/definitions/entityName"
+            },
+            "dataType": {
+              "description": "Data type of the column (numerical vs. categorical).",
+              "$ref": "#/definitions/featureType"
+            },
+            "description": {
+              "description": "Description of the ML Feature.",
+              "$ref": "../../type/basic.json#/definitions/markdown"
+            },
+            "fullyQualifiedName": {
+              "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
             },
             "featureSources": {
+              "description": "Columns used to create the ML Feature.",
               "type": "array",
-              "description": "Source columns/tables for this feature",
               "items": {
-                "$ref": "../../type/entityReference.json"
+                "$ref": "#/definitions/featureSource"
               }
             },
             "featureAlgorithm": {
-              "type": "string",
-              "description": "Algorithm used to create this feature"
+              "description": "Description of the algorithm used to compute the feature, e.g., PCA, bucketing...",
+              "type": "string"
             },
             "tags": {
+              "description": "Tags associated with the feature.",
               "type": "array",
-              "items": {"$ref": "../../type/tagLabel.json"}
+              "items": {
+                "$ref": "../../type/tagLabel.json"
+              }
             }
-          },
-          "required": ["name", "dataType"]
+          }
         },
         "mlHyperParameter": {
           "type": "object",
+          "description": "This schema defines the type for an ML HyperParameter used in an ML Model.",
           "properties": {
             "name": {
-              "type": "string",
-              "description": "Hyperparameter name"
+              "description": "Hyper parameter name.",
+              "type": "string"
             },
             "value": {
-              "type": "string",
-              "description": "Hyperparameter value"
+              "description": "Hyper parameter value.",
+              "type": "string"
             },
             "description": {
-              "type": "string",
-              "description": "Parameter description"
+              "description": "Description of the Hyper Parameter.",
+              "$ref": "../../type/basic.json#/definitions/markdown"
             }
-          },
-          "required": ["name", "value"]
+          }
         },
         "mlStore": {
           "type": "object",
+          "description": "Location containing the ML Model. It can be a storage layer and/or a container repository.",
           "properties": {
             "storage": {
-              "type": "string",
-              "description": "Storage location (S3, GCS, HDFS, etc.)"
+              "description": "Storage Layer containing the ML Model data.",
+              "type": "string"
             },
             "imageRepository": {
-              "type": "string",
-              "description": "Container image repository"
+              "description": "Container Repository with the ML Model image.",
+              "type": "string"
             }
           }
         }
@@ -230,89 +285,155 @@ View the complete ML Model schema in your preferred format:
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of an ML Model instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Model name",
+          "description": "Name that identifies this ML Model.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service.model",
+          "description": "A unique name that identifies an ML Model.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this ML Model.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the ML Model, what it is, and how to use it.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
         "algorithm": {
-          "description": "ML algorithm used",
+          "description": "Algorithm used to train the ML Model.",
           "type": "string"
         },
         "mlFeatures": {
-          "description": "Features used by the model",
+          "description": "Features used to train the ML Model.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/mlFeature"
           }
         },
         "mlHyperParameters": {
-          "description": "Model hyperparameters",
+          "description": "Hyper Parameters used to train the ML Model.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/mlHyperParameter"
           }
         },
         "target": {
-          "description": "Target variable for supervised learning",
-          "type": "string"
+          "description": "For supervised ML Models, the value to estimate.",
+          "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "dashboard": {
-          "description": "Dashboard for model metrics",
+          "description": "Performance Dashboard URL to track metric evolution.",
           "$ref": "../../type/entityReference.json"
         },
         "mlStore": {
-          "description": "Model storage information",
+          "description": "Location containing the ML Model. It can be a storage layer and/or a container repository.",
           "$ref": "#/definitions/mlStore"
         },
         "server": {
-          "description": "Endpoint URL where model is served",
-          "type": "string",
-          "format": "uri"
+          "description": "Endpoint that makes the ML Model available, e.g,. a REST API serving the data or computing predictions.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "service": {
-          "description": "ML model service",
-          "$ref": "../../type/entityReference.json"
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "owners": {
+          "description": "Owners of this ML Model.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "followers": {
+          "description": "Followers of this ML Model.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this ML Model.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
           }
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "usageSummary": {
+          "description": "Latest usage information for this ML Model.",
+          "$ref": "../../type/usageDetails.json"
         },
         "version": {
-          "description": "Metadata version",
+          "description": "Metadata version of the entity.",
           "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "service": {
+          "description": "Link to service where this pipeline is hosted in.",
+          "$ref": "../../type/entityReference.json"
+        },
+        "serviceType": {
+          "description": "Service type where this pipeline is hosted in.",
+          "$ref": "../services/mlmodelService.json#/definitions/mlModelServiceType"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "sourceUrl": {
+          "description": "Source URL of mlModel.",
+          "$ref": "../../type/basic.json#/definitions/sourceUrl"
+        },
+        "domains": {
+          "description": "Domains the MLModel belongs to. When not set, the MLModel inherits the domain from the ML Model Service it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle properties of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "entityStatus": {
+          "description": "Status of the MlModel.",
+          "$ref": "../../type/status.json"
         }
       },
 
@@ -392,13 +513,49 @@ View the complete ML Model schema in your preferred format:
         rdfs:domain om:MlModel ;
         rdfs:range om:Owner ;
         rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this model" .
+        rdfs:comment "Users or teams that own this model" .
+
+    om:followedBy a owl:ObjectProperty ;
+        rdfs:domain om:MlModel ;
+        rdfs:range om:User ;
+        rdfs:label "followedBy" ;
+        rdfs:comment "Users following this model" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:MlModel ;
         rdfs:range om:Tag ;
         rdfs:label "hasTag" ;
         rdfs:comment "Classification tags applied to model" .
+
+    om:inDomain a owl:ObjectProperty ;
+        rdfs:domain om:MlModel ;
+        rdfs:range om:Domain ;
+        rdfs:label "inDomain" ;
+        rdfs:comment "Domains this model belongs to" .
+
+    om:partOfDataProduct a owl:ObjectProperty ;
+        rdfs:domain om:MlModel ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "partOfDataProduct" ;
+        rdfs:comment "Data products this model is part of" .
+
+    om:hasVotes a owl:ObjectProperty ;
+        rdfs:domain om:MlModel ;
+        rdfs:range om:Votes ;
+        rdfs:label "hasVotes" ;
+        rdfs:comment "Votes on this model" .
+
+    om:hasLifeCycle a owl:ObjectProperty ;
+        rdfs:domain om:MlModel ;
+        rdfs:range om:LifeCycle ;
+        rdfs:label "hasLifeCycle" ;
+        rdfs:comment "Life cycle properties" .
+
+    om:hasCertification a owl:ObjectProperty ;
+        rdfs:domain om:MlModel ;
+        rdfs:range om:AssetCertification ;
+        rdfs:label "hasCertification" ;
+        rdfs:comment "Certification of this model" .
 
     # Feature Class
     om:MlFeature a owl:Class ;
@@ -492,23 +649,42 @@ View the complete ML Model schema in your preferred format:
           "@id": "om:belongsToService",
           "@type": "@id"
         },
-        "owner": {
+        "owners": {
           "@id": "om:ownedBy",
-          "@type": "@id"
+          "@type": "@id",
+          "@container": "@set"
         },
-        "domain": {
+        "followers": {
+          "@id": "om:followedBy",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
           "@id": "om:inDomain",
-          "@type": "@id"
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:partOfDataProduct",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
         },
-        "glossaryTerms": {
-          "@id": "om:linkedToGlossaryTerm",
-          "@type": "@id",
-          "@container": "@set"
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@id"
+        },
+        "lifeCycle": {
+          "@id": "om:hasLifeCycle",
+          "@type": "@id"
+        },
+        "certification": {
+          "@id": "om:hasCertification",
+          "@type": "@id"
         }
       }
     }
@@ -568,11 +744,21 @@ View the complete ML Model schema in your preferred format:
         {"name": "n_estimators", "value": "100"}
       ],
 
-      "owner": {
-        "@id": "https://example.com/teams/data-science",
-        "@type": "Team",
-        "name": "data-science"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-science",
+          "@type": "Team",
+          "name": "data-science"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/customer-analytics",
+          "@type": "Domain",
+          "name": "Customer Analytics"
+        }
+      ],
 
       "tags": [
         {
@@ -727,9 +913,9 @@ View the complete ML Model schema in your preferred format:
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `name` | string | Yes | Feature name |
-| `dataType` | enum | Yes | Data type (integer, float, string, boolean, array, object) |
+| `dataType` | enum | Yes | Data type (numerical, categorical) |
 | `description` | string | No | Feature description |
-| `featureSources` | EntityReference[] | No | Source columns/tables for this feature |
+| `featureSources` | FeatureSource[] | No | Source columns/tables for this feature |
 | `featureAlgorithm` | string | No | Algorithm used to compute feature |
 | `tags` | TagLabel[] | No | Tags applied to feature |
 
@@ -740,14 +926,19 @@ View the complete ML Model schema in your preferred format:
   "mlFeatures": [
     {
       "name": "recency",
-      "dataType": "integer",
+      "dataType": "numerical",
       "description": "Days since last purchase",
       "featureSources": [
         {
-          "id": "col-uuid-1",
-          "type": "column",
           "name": "last_purchase_date",
-          "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.last_purchase_date"
+          "dataType": "date",
+          "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.last_purchase_date",
+          "dataSource": {
+            "id": "col-uuid-1",
+            "type": "column",
+            "name": "last_purchase_date",
+            "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.last_purchase_date"
+          }
         }
       ],
       "featureAlgorithm": "DATEDIFF(CURRENT_DATE, last_purchase_date)",
@@ -757,14 +948,19 @@ View the complete ML Model schema in your preferred format:
     },
     {
       "name": "frequency",
-      "dataType": "integer",
+      "dataType": "numerical",
       "description": "Number of orders in last 90 days",
       "featureSources": [
         {
-          "id": "table-uuid-1",
-          "type": "table",
-          "name": "orders",
-          "fullyQualifiedName": "postgres_prod.ecommerce.public.orders"
+          "name": "order_count",
+          "dataType": "integer",
+          "fullyQualifiedName": "postgres_prod.ecommerce.public.orders",
+          "dataSource": {
+            "id": "table-uuid-1",
+            "type": "table",
+            "name": "orders",
+            "fullyQualifiedName": "postgres_prod.ecommerce.public.orders"
+          }
         }
       ],
       "featureAlgorithm": "COUNT(*) WHERE order_date >= CURRENT_DATE - 90",
@@ -774,14 +970,19 @@ View the complete ML Model schema in your preferred format:
     },
     {
       "name": "monetary",
-      "dataType": "float",
+      "dataType": "numerical",
       "description": "Total spend in last 90 days",
       "featureSources": [
         {
-          "id": "col-uuid-2",
-          "type": "column",
           "name": "total_amount",
-          "fullyQualifiedName": "postgres_prod.ecommerce.public.orders.total_amount"
+          "dataType": "number",
+          "fullyQualifiedName": "postgres_prod.ecommerce.public.orders.total_amount",
+          "dataSource": {
+            "id": "col-uuid-2",
+            "type": "column",
+            "name": "total_amount",
+            "fullyQualifiedName": "postgres_prod.ecommerce.public.orders.total_amount"
+          }
         }
       ],
       "featureAlgorithm": "SUM(total_amount) WHERE order_date >= CURRENT_DATE - 90",
@@ -791,20 +992,25 @@ View the complete ML Model schema in your preferred format:
     },
     {
       "name": "customer_segment",
-      "dataType": "string",
+      "dataType": "categorical",
       "description": "Customer segment (Premium, Standard, Basic)",
       "featureSources": [
         {
-          "id": "col-uuid-3",
-          "type": "column",
           "name": "segment",
-          "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.segment"
+          "dataType": "string",
+          "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.segment",
+          "dataSource": {
+            "id": "col-uuid-3",
+            "type": "column",
+            "name": "segment",
+            "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.segment"
+          }
         }
       ]
     },
     {
       "name": "avg_order_value",
-      "dataType": "float",
+      "dataType": "numerical",
       "description": "Average order value",
       "featureAlgorithm": "monetary / frequency"
     }
@@ -942,37 +1148,184 @@ View the complete ML Model schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: User or team that owns this model
+**Description**: Owners of this ML Model
 
 ```json
 {
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "data-science",
-    "displayName": "Data Science Team"
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "data-science",
+      "displayName": "Data Science Team"
+    }
+  ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Followers of this ML Model
+
+```json
+{
+  "followers": [
+    {
+      "id": "user-uuid-1",
+      "type": "user",
+      "name": "jane.smith"
+    },
+    {
+      "id": "user-uuid-2",
+      "type": "user",
+      "name": "john.doe"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Domains the MLModel belongs to. When not set, the MLModel inherits the domain from the ML Model Service it belongs to.
+
+```json
+{
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Customer Analytics",
+      "fullyQualifiedName": "Customer Analytics"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "product-uuid",
+      "type": "dataProduct",
+      "name": "Customer360",
+      "fullyQualifiedName": "Customer360"
+    }
+  ]
+}
+```
+
+---
+
+#### `votes` (Votes)
+**Type**: `object`
+**Required**: No
+**Description**: Votes on the entity
+
+```json
+{
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2,
+    "upVoters": [
+      {"id": "user-uuid-1", "type": "user"}
+    ]
   }
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
+#### `lifeCycle` (LifeCycle)
 **Type**: `object`
 **Required**: No
-**Description**: Data domain this model belongs to
+**Description**: Life Cycle properties of the entity
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Customer Analytics",
-    "fullyQualifiedName": "Customer Analytics"
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "jane.smith"
+    },
+    "updated": {
+      "timestamp": 1704240000000,
+      "user": "john.doe"
+    }
   }
+}
+```
+
+---
+
+#### `certification` (AssetCertification)
+**Type**: `object`
+**Required**: No
+**Description**: Certification of the ML Model
+
+```json
+{
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certified.Production"
+    }
+  }
+}
+```
+
+---
+
+#### `sourceUrl` (sourceUrl)
+**Type**: `string` (URL format)
+**Required**: No
+**Description**: Source URL of mlModel
+
+```json
+{
+  "sourceUrl": "https://github.com/company/ml-models/tree/main/churn-predictor"
+}
+```
+
+---
+
+#### `sourceHash` (string)
+**Type**: `string`
+**Required**: No
+**Min Length**: 1
+**Max Length**: 32
+**Description**: Source hash of the entity
+
+```json
+{
+  "sourceHash": "a1b2c3d4e5f6"
+}
+```
+
+---
+
+#### `entityStatus` (Status)
+**Type**: `object`
+**Required**: No
+**Description**: Status of the MlModel
+
+```json
+{
+  "entityStatus": "Active"
 }
 ```
 
@@ -1004,26 +1357,6 @@ View the complete ML Model schema in your preferred format:
       "source": "Classification",
       "labelType": "Manual",
       "state": "Confirmed"
-    }
-  ]
-}
-```
-
----
-
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
-**Required**: No
-**Description**: Business glossary terms linked to this model
-
-```json
-{
-  "glossaryTerms": [
-    {
-      "fullyQualifiedName": "BusinessGlossary.CustomerChurn"
-    },
-    {
-      "fullyQualifiedName": "BusinessGlossary.PredictiveModel"
     }
   ]
 }
@@ -1072,6 +1405,125 @@ View the complete ML Model schema in your preferred format:
 
 ---
 
+#### `impersonatedBy` (impersonatedBy)
+**Type**: `string`
+**Required**: No (system-managed)
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": "automation-bot"
+}
+```
+
+---
+
+#### `serviceType` (mlModelServiceType)
+**Type**: `string`
+**Required**: No (system-managed)
+**Description**: Service type where this pipeline is hosted in
+
+```json
+{
+  "serviceType": "Mlflow"
+}
+```
+
+---
+
+#### `changeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [
+      {
+        "name": "mlHyperParameters",
+        "newValue": "[{\"name\":\"max_depth\",\"value\":\"6\"}]"
+      }
+    ],
+    "fieldsUpdated": [],
+    "fieldsDeleted": [],
+    "previousVersion": 2.0
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No (system-managed)
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `extension` (entityExtension)
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity
+
+```json
+{
+  "extension": {
+    "customProperty1": "value1",
+    "customProperty2": "value2"
+  }
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URL format)
+**Required**: No (system-managed)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "https://openmetadata.example.com/api/v1/mlmodels/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
+}
+```
+
+---
+
+#### `usageSummary` (usageDetails)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Latest usage information for this ML Model
+
+```json
+{
+  "usageSummary": {
+    "dailyStats": {
+      "count": 150,
+      "percentileRank": 85.5
+    },
+    "weeklyStats": {
+      "count": 950,
+      "percentileRank": 82.3
+    },
+    "monthlyStats": {
+      "count": 4200,
+      "percentileRank": 79.8
+    },
+    "date": "2024-01-15"
+  }
+}
+```
+
+---
+
 ## Complete Example
 
 ### Customer Churn Predictor
@@ -1088,26 +1540,31 @@ View the complete ML Model schema in your preferred format:
   "mlFeatures": [
     {
       "name": "recency",
-      "dataType": "integer",
+      "dataType": "numerical",
       "description": "Days since last purchase",
       "featureSources": [
         {
-          "id": "col-uuid-1",
-          "type": "column",
           "name": "last_purchase_date",
-          "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.last_purchase_date"
+          "dataType": "date",
+          "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.last_purchase_date",
+          "dataSource": {
+            "id": "col-uuid-1",
+            "type": "column",
+            "name": "last_purchase_date",
+            "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.last_purchase_date"
+          }
         }
       ],
       "featureAlgorithm": "DATEDIFF(CURRENT_DATE, last_purchase_date)"
     },
     {
       "name": "frequency",
-      "dataType": "integer",
+      "dataType": "numerical",
       "description": "Number of orders in last 90 days"
     },
     {
       "name": "monetary",
-      "dataType": "float",
+      "dataType": "numerical",
       "description": "Total spend in last 90 days"
     }
   ],
@@ -1125,31 +1582,65 @@ View the complete ML Model schema in your preferred format:
   "dashboard": {
     "id": "dashboard-uuid",
     "type": "dashboard",
-    "name": "churn_model_performance"
+    "name": "churn_model_performance",
+    "fullyQualifiedName": "tableau.churn_model_performance"
   },
   "service": {
     "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
     "type": "mlmodelService",
-    "name": "mlflow_prod"
+    "name": "mlflow_prod",
+    "fullyQualifiedName": "mlflow_prod"
   },
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "data-science"
-  },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Customer Analytics"
-  },
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "data-science",
+      "displayName": "Data Science Team"
+    }
+  ],
+  "followers": [
+    {
+      "id": "user-uuid-1",
+      "type": "user",
+      "name": "jane.smith"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Customer Analytics",
+      "fullyQualifiedName": "Customer Analytics"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "product-uuid",
+      "type": "dataProduct",
+      "name": "Customer360"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Production"},
     {"tagFQN": "ModelType.Classification"},
     {"tagFQN": "Compliance.BiasChecked"}
   ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.CustomerChurn"}
-  ],
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2
+  },
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "jane.smith"
+    }
+  },
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certified.Production"
+    }
+  },
   "version": 3.1,
   "updatedAt": 1704240000000,
   "updatedBy": "jane.smith"
@@ -1169,22 +1660,22 @@ View the complete ML Model schema in your preferred format:
   "mlFeatures": [
     {
       "name": "user_id",
-      "dataType": "integer",
+      "dataType": "numerical",
       "description": "User identifier"
     },
     {
       "name": "product_views",
-      "dataType": "array",
-      "description": "Recently viewed products"
+      "dataType": "numerical",
+      "description": "Recently viewed products count"
     },
     {
       "name": "purchase_history",
-      "dataType": "array",
-      "description": "Past purchases"
+      "dataType": "numerical",
+      "description": "Past purchases count"
     },
     {
       "name": "user_segment",
-      "dataType": "string",
+      "dataType": "categorical",
       "description": "User demographic segment"
     }
   ],
@@ -1196,13 +1687,19 @@ View the complete ML Model schema in your preferred format:
   ],
   "server": "https://runtime.sagemaker.us-west-2.amazonaws.com/endpoints/product-rec-v3/invocations",
   "service": {
+    "id": "8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e",
     "type": "mlmodelService",
-    "name": "sagemaker_models"
+    "name": "sagemaker_models",
+    "fullyQualifiedName": "sagemaker_models"
   },
-  "owner": {
-    "type": "team",
-    "name": "ml-ops"
-  },
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team",
+      "name": "ml-ops",
+      "displayName": "ML Operations Team"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Production"},
     {"tagFQN": "ModelType.Recommendation"}
@@ -1231,8 +1728,14 @@ om:MlModel a owl:Class ;
         om:features "MlFeature[]" ;
         om:hyperparameters "MlHyperParameter[]" ;
         om:service "MLModelService" ;
-        om:owner "Owner" ;
+        om:owners "Owner[]" ;
+        om:followers "User[]" ;
+        om:domains "Domain[]" ;
+        om:dataProducts "DataProduct[]" ;
         om:tags "Tag[]" ;
+        om:votes "Votes" ;
+        om:lifeCycle "LifeCycle" ;
+        om:certification "AssetCertification" ;
     ] .
 ```
 
@@ -1286,14 +1789,42 @@ ex:churn_predictor a om:MlModel ;
       "@id": "om:belongsToService",
       "@type": "@id"
     },
-    "owner": {
+    "owners": {
       "@id": "om:ownedBy",
-      "@type": "@id"
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:followedBy",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:inDomain",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:partOfDataProduct",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
       "@id": "om:hasTag",
       "@type": "@id",
       "@container": "@set"
+    },
+    "votes": {
+      "@id": "om:hasVotes",
+      "@type": "@id"
+    },
+    "lifeCycle": {
+      "@id": "om:hasLifeCycle",
+      "@type": "@id"
+    },
+    "certification": {
+      "@id": "om:hasCertification",
+      "@type": "@id"
     }
   }
 }
@@ -1319,18 +1850,26 @@ ex:churn_predictor a om:MlModel ;
     {
       "@type": "MlFeature",
       "name": "recency",
-      "dataType": "integer"
+      "dataType": "numerical"
     },
     {
       "@type": "MlFeature",
       "name": "frequency",
-      "dataType": "integer"
+      "dataType": "numerical"
     }
   ],
-  "owner": {
-    "@id": "https://example.com/teams/data-science",
-    "@type": "Team"
-  },
+  "owners": [
+    {
+      "@id": "https://example.com/teams/data-science",
+      "@type": "Team"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/customer-analytics",
+      "@type": "Domain"
+    }
+  ],
   "tags": [
     {"@id": "https://open-metadata.org/tags/Tier/Production"}
   ]
@@ -1436,7 +1975,7 @@ Get a list of ML models, optionally filtered by service.
 ```http
 GET /v1/mlmodels
 Query Parameters:
-  - fields: Fields to include (mlFeatures, mlHyperParameters, owner, tags, etc.)
+  - fields: Fields to include (mlFeatures, mlHyperParameters, owners, tags, etc.)
   - service: Filter by ML model service name
   - limit: Number of results (1-1000000, default 10)
   - before/after: Cursor-based pagination
@@ -1498,11 +2037,11 @@ Get an ML model by its fully qualified name.
 ```http
 GET /v1/mlmodels/name/{fqn}
 Query Parameters:
-  - fields: Fields to include (mlFeatures, mlHyperParameters, owner, tags, etc.)
+  - fields: Fields to include (mlFeatures, mlHyperParameters, owners, tags, etc.)
   - include: all | deleted | non-deleted
 
 Example:
-GET /v1/mlmodels/name/mlflow_prod.customer_churn_predictor?fields=mlFeatures,mlHyperParameters,owner,tags
+GET /v1/mlmodels/name/mlflow_prod.customer_churn_predictor?fields=mlFeatures,mlHyperParameters,owners,tags
 
 Response: MlModel
 ```

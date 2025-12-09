@@ -74,6 +74,11 @@
       "@id": "om:belongsToDomain",
       "@type": "@id"
     },
+    "domains": {
+      "@id": "om:hasDomains",
+      "@type": "@id",
+      "@container": "@set"
+    },
     "dataProducts": {
       "@id": "om:hasDataProduct",
       "@type": "@id",
@@ -128,6 +133,46 @@
     "TagLabel": "om:TagLabel",
     "labelType": "om:labelType",
     "tagState": "om:tagState",
-    "tagSource": "om:tagSource"
+    "tagSource": "om:tagSource",
+    "certification": {
+      "@id": "om:hasCertification",
+      "@type": "@id"
+    },
+    "entityStatus": {
+      "@id": "om:hasEntityStatus",
+      "@type": "@id"
+    },
+    "sourceHash": {
+      "@id": "om:sourceHash",
+      "@type": "xsd:string"
+    },
+    "impersonatedBy": {
+      "@id": "om:impersonatedBy",
+      "@type": "@id"
+    },
+    "incrementalChangeDescription": {
+      "@id": "om:hasIncrementalChangeDescription",
+      "@type": "@json"
+    },
+    "usageSummary": {
+      "@id": "om:usageSummary",
+      "@type": "@id"
+    },
+    "processedLineage": {
+      "@id": "om:processedLineage",
+      "@type": "xsd:boolean"
+    },
+    "Votes": "om:Votes",
+    "upVotes": {
+      "@id": "om:upVotes",
+      "@type": "xsd:integer"
+    },
+    "downVotes": {
+      "@id": "om:downVotes",
+      "@type": "xsd:integer"
+    },
+    "LifeCycle": "om:LifeCycle",
+    "AssetCertification": "om:AssetCertification",
+    "ChangeDescription": "om:ChangeDescription"
   }
 }

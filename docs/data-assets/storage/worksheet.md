@@ -39,178 +39,172 @@ View the complete Worksheet schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/data/worksheet.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Worksheet",
-      "description": "Individual worksheet/sheet within a spreadsheet file.",
+      "$comment": "@om-entity-type",
+      "description": "This schema defines the Worksheet entity. A Worksheet is a tab or sheet within a spreadsheet file (Google Sheets, Excel) that contains structured data.",
       "type": "object",
-
-      "definitions": {
-        "columnDefinition": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string",
-              "description": "Column header name"
-            },
-            "dataType": {
-              "type": "string",
-              "enum": ["string", "number", "date", "boolean", "formula", "mixed"]
-            },
-            "columnIndex": {
-              "type": "integer",
-              "description": "Zero-based column index"
-            },
-            "columnLetter": {
-              "type": "string",
-              "description": "Excel-style column letter (A, B, C, etc.)"
-            },
-            "description": {
-              "type": "string"
-            },
-            "tags": {
-              "type": "array",
-              "items": {
-                "$ref": "../../type/tagLabel.json"
-              }
-            }
-          }
-        }
-      },
-
+      "javaType": "org.openmetadata.schema.entity.data.Worksheet",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface"
+      ],
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this worksheet instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Worksheet name",
+          "description": "Name of the worksheet.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified path: driveService.directory.spreadsheet.worksheetName",
+          "description": "Fully qualified name of the worksheet.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this worksheet.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the worksheet.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
         "spreadsheet": {
-          "description": "Reference to parent spreadsheet",
+          "description": "Reference to the parent File entity (with fileType=Spreadsheet)",
           "$ref": "../../type/entityReference.json"
         },
-        "sheetIndex": {
-          "description": "Zero-based index of this worksheet",
-          "type": "integer"
+        "service": {
+          "description": "Link to the drive service",
+          "$ref": "../../type/entityReference.json"
         },
-        "columns": {
-          "description": "Column definitions",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/columnDefinition"
-          }
+        "serviceType": {
+          "description": "Type of drive service",
+          "$ref": "../../entity/services/driveService.json#/definitions/driveServiceType"
         },
-        "columnCount": {
-          "description": "Number of columns with data",
+        "worksheetId": {
+          "description": "Native worksheet/tab ID",
+          "type": "string"
+        },
+        "index": {
+          "description": "Position/index of the worksheet in the spreadsheet",
           "type": "integer"
         },
         "rowCount": {
-          "description": "Number of rows with data",
+          "description": "Number of rows in the worksheet",
           "type": "integer"
         },
-        "hasHeader": {
-          "description": "Whether first row contains column headers",
+        "columnCount": {
+          "description": "Number of columns in the worksheet",
+          "type": "integer"
+        },
+        "columns": {
+          "description": "Column definitions if structured data",
+          "type": "array",
+          "items": {
+            "$ref": "../data/table.json#/definitions/column"
+          },
+          "default": []
+        },
+        "sampleData": {
+          "description": "Sample data from the worksheet",
+          "$ref": "../data/table.json#/definitions/tableData"
+        },
+        "isHidden": {
+          "description": "Whether the worksheet is hidden",
           "type": "boolean",
-          "default": true
+          "default": false
         },
-        "headerRow": {
-          "description": "Row index containing headers (usually 0 or 1)",
-          "type": "integer",
-          "default": 0
+        "sourceUrl": {
+          "description": "Link to this worksheet in the source system.",
+          "$ref": "../../type/basic.json#/definitions/sourceUrl"
         },
-        "dataStartRow": {
-          "description": "Row index where data starts",
-          "type": "integer",
-          "default": 1
+        "href": {
+          "description": "Link to the resource corresponding to this worksheet.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "namedRanges": {
-          "description": "Named cell ranges in this worksheet",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {"type": "string"},
-              "range": {"type": "string", "example": "A1:D10"},
-              "description": {"type": "string"}
-            }
-          }
+        "owners": {
+          "description": "Owners of this worksheet.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "formulas": {
-          "description": "Number of cells with formulas",
-          "type": "integer"
-        },
-        "pivotTables": {
-          "description": "Pivot tables in this worksheet",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {"type": "string"},
-              "sourceRange": {"type": "string"},
-              "location": {"type": "string"}
-            }
-          }
-        },
-        "charts": {
-          "description": "Charts/visualizations in worksheet",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["line", "bar", "pie", "scatter", "area"]
-              },
-              "dataRange": {"type": "string"}
-            }
-          }
-        },
-        "owner": {
-          "description": "Owner of this worksheet",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Domain this worksheet belongs to",
-          "$ref": "../../type/entityReference.json"
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "tags": {
-          "description": "Tags for this worksheet",
+          "description": "Tags associated with this worksheet.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": null
         },
-        "glossaryTerms": {
-          "description": "Glossary terms for columns",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
         },
-        "usedBy": {
-          "description": "Pipelines using this worksheet as source",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "domains": {
+          "description": "Domains the Worksheet belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
         },
         "extension": {
-          "description": "Custom properties",
+          "description": "Entity extension data with custom attributes added to the entity.",
           "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "usageSummary": {
+          "description": "Latest usage information for this worksheet.",
+          "$ref": "../../type/usageDetails.json",
+          "default": null
+        },
+        "entityStatus": {
+          "description": "Status of the Worksheet.",
+          "$ref": "../../type/status.json"
         }
       },
-      "required": ["id", "name", "spreadsheet"],
+      "required": ["id", "name", "spreadsheet", "service"],
       "additionalProperties": false
     }
     ```
@@ -221,48 +215,89 @@ View the complete Worksheet schema in your preferred format:
 
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
-    @prefix om-ws: <https://open-metadata.org/schema/entity/data/> .
+    @prefix om-entity: <https://open-metadata.org/schema/entity/data/> .
     @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
     @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix dcterms: <http://purl.org/dc/terms/> .
 
-    # Worksheet Class
-    om-ws:Worksheet a owl:Class ;
+    # Worksheet Class Definition
+    om-entity:Worksheet a owl:Class ;
         rdfs:label "Worksheet" ;
-        rdfs:comment "Individual worksheet/sheet within a spreadsheet" ;
-        rdfs:isDefinedBy om: .
+        rdfs:comment "A tab or sheet within a spreadsheet file (Google Sheets, Excel) that contains structured data." ;
+        rdfs:subClassOf om:Entity ;
+        rdfs:isDefinedBy <https://open-metadata.org/schema/entity/data/worksheet.json> .
 
-    # Properties
-    om-ws:sheetIndex a owl:DatatypeProperty ;
-        rdfs:label "sheet index" ;
-        rdfs:comment "Zero-based index of worksheet in spreadsheet" ;
-        rdfs:domain om-ws:Worksheet ;
+    # Core Identity Properties
+    om-entity:worksheetId a owl:DatatypeProperty ;
+        rdfs:label "worksheet id" ;
+        rdfs:comment "Native worksheet/tab ID from the source system" ;
+        rdfs:domain om-entity:Worksheet ;
+        rdfs:range xsd:string .
+
+    om-entity:index a owl:DatatypeProperty ;
+        rdfs:label "index" ;
+        rdfs:comment "Position/index of the worksheet in the spreadsheet" ;
+        rdfs:domain om-entity:Worksheet ;
         rdfs:range xsd:integer .
 
-    om-ws:columnCount a owl:DatatypeProperty ;
-        rdfs:label "column count" ;
-        rdfs:comment "Number of columns with data" ;
-        rdfs:domain om-ws:Worksheet ;
-        rdfs:range xsd:integer .
-
-    om-ws:rowCount a owl:DatatypeProperty ;
+    # Structural Properties
+    om-entity:rowCount a owl:DatatypeProperty ;
         rdfs:label "row count" ;
-        rdfs:comment "Number of rows with data" ;
-        rdfs:domain om-ws:Worksheet ;
+        rdfs:comment "Number of rows in the worksheet" ;
+        rdfs:domain om-entity:Worksheet ;
         rdfs:range xsd:integer .
 
-    om-ws:hasColumn a owl:ObjectProperty ;
-        rdfs:label "has column" ;
-        rdfs:comment "Columns in this worksheet" ;
-        rdfs:domain om-ws:Worksheet ;
-        rdfs:range om-ws:Column .
+    om-entity:columnCount a owl:DatatypeProperty ;
+        rdfs:label "column count" ;
+        rdfs:comment "Number of columns in the worksheet" ;
+        rdfs:domain om-entity:Worksheet ;
+        rdfs:range xsd:integer .
 
-    om-ws:usedBy a owl:ObjectProperty ;
-        rdfs:label "used by" ;
-        rdfs:comment "Pipelines consuming this worksheet" ;
-        rdfs:domain om-ws:Worksheet ;
-        rdfs:range om:Pipeline .
+    om-entity:isHidden a owl:DatatypeProperty ;
+        rdfs:label "is hidden" ;
+        rdfs:comment "Whether the worksheet is hidden in the spreadsheet" ;
+        rdfs:domain om-entity:Worksheet ;
+        rdfs:range xsd:boolean .
+
+    # Relationships
+    om-entity:spreadsheet a owl:ObjectProperty ;
+        rdfs:label "spreadsheet" ;
+        rdfs:comment "Reference to the parent File entity (with fileType=Spreadsheet)" ;
+        rdfs:domain om-entity:Worksheet ;
+        rdfs:range om-entity:File .
+
+    om-entity:service a owl:ObjectProperty ;
+        rdfs:label "service" ;
+        rdfs:comment "Link to the drive service" ;
+        rdfs:domain om-entity:Worksheet ;
+        rdfs:range om:Service .
+
+    om-entity:hasColumn a owl:ObjectProperty ;
+        rdfs:label "has column" ;
+        rdfs:comment "Column definitions if structured data" ;
+        rdfs:domain om-entity:Worksheet ;
+        rdfs:range om-entity:Column .
+
+    om-entity:sampleData a owl:ObjectProperty ;
+        rdfs:label "sample data" ;
+        rdfs:comment "Sample data from the worksheet" ;
+        rdfs:domain om-entity:Worksheet ;
+        rdfs:range om:TableData .
+
+    # Metadata Properties
+    om-entity:sourceUrl a owl:DatatypeProperty ;
+        rdfs:label "source URL" ;
+        rdfs:comment "Link to this worksheet in the source system" ;
+        rdfs:domain om-entity:Worksheet ;
+        rdfs:range xsd:anyURI .
+
+    om-entity:usageSummary a owl:ObjectProperty ;
+        rdfs:label "usage summary" ;
+        rdfs:comment "Latest usage information for this worksheet" ;
+        rdfs:domain om-entity:Worksheet ;
+        rdfs:range om:UsageDetails .
     ```
 
 === "JSON-LD Context"
@@ -275,27 +310,130 @@ View the complete Worksheet schema in your preferred format:
         "@vocab": "https://open-metadata.org/schema/entity/data/",
         "om": "https://open-metadata.org/schema/",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
 
         "Worksheet": {
-          "@id": "om:Worksheet",
+          "@id": "Worksheet",
           "@type": "@id"
         },
-        "sheetIndex": {
-          "@id": "om:sheetIndex",
-          "@type": "xsd:integer"
+        "id": {
+          "@id": "@id",
+          "@type": "@id"
         },
-        "columnCount": {
-          "@id": "om:columnCount",
+        "name": {
+          "@id": "om:name",
+          "@type": "xsd:string"
+        },
+        "fullyQualifiedName": {
+          "@id": "om:fullyQualifiedName",
+          "@type": "xsd:string"
+        },
+        "displayName": {
+          "@id": "om:displayName",
+          "@type": "xsd:string"
+        },
+        "description": {
+          "@id": "om:description",
+          "@type": "xsd:string"
+        },
+        "spreadsheet": {
+          "@id": "spreadsheet",
+          "@type": "@id"
+        },
+        "service": {
+          "@id": "service",
+          "@type": "@id"
+        },
+        "serviceType": {
+          "@id": "om:serviceType",
+          "@type": "xsd:string"
+        },
+        "worksheetId": {
+          "@id": "worksheetId",
+          "@type": "xsd:string"
+        },
+        "index": {
+          "@id": "index",
           "@type": "xsd:integer"
         },
         "rowCount": {
-          "@id": "om:rowCount",
+          "@id": "rowCount",
+          "@type": "xsd:integer"
+        },
+        "columnCount": {
+          "@id": "columnCount",
           "@type": "xsd:integer"
         },
         "columns": {
-          "@id": "om:hasColumn",
+          "@id": "hasColumn",
           "@type": "@id",
           "@container": "@set"
+        },
+        "sampleData": {
+          "@id": "sampleData",
+          "@type": "@id"
+        },
+        "isHidden": {
+          "@id": "isHidden",
+          "@type": "xsd:boolean"
+        },
+        "sourceUrl": {
+          "@id": "sourceUrl",
+          "@type": "xsd:anyURI"
+        },
+        "href": {
+          "@id": "om:href",
+          "@type": "xsd:anyURI"
+        },
+        "owners": {
+          "@id": "om:owner",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:follower",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "tags": {
+          "@id": "om:tag",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:domain",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:dataProduct",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "version": {
+          "@id": "om:version",
+          "@type": "xsd:string"
+        },
+        "updatedAt": {
+          "@id": "om:updatedAt",
+          "@type": "xsd:dateTime"
+        },
+        "updatedBy": {
+          "@id": "om:updatedBy",
+          "@type": "xsd:string"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
+        },
+        "usageSummary": {
+          "@id": "usageSummary",
+          "@type": "@id"
+        },
+        "entityStatus": {
+          "@id": "om:entityStatus",
+          "@type": "xsd:string"
         }
       }
     }
@@ -311,43 +449,51 @@ Worksheets have structured schemas similar to database tables:
 
 ```json
 {
-  "name": "Daily Sales",
-  "spreadsheet": "Sales_Report_2024.gsheet",
-  "sheetIndex": 0,
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "name": "Daily_Sales",
+  "fullyQualifiedName": "googleDrive.Reports.Sales_Report_2024.Daily_Sales",
+  "displayName": "Daily Sales",
+  "spreadsheet": {
+    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "type": "file",
+    "name": "Sales_Report_2024",
+    "fullyQualifiedName": "googleDrive.Reports.Sales_Report_2024"
+  },
+  "service": {
+    "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+    "type": "driveService",
+    "name": "googleDrive"
+  },
+  "worksheetId": "123456789",
+  "index": 0,
   "columns": [
     {
       "name": "Date",
-      "dataType": "date",
-      "columnIndex": 0,
-      "columnLetter": "A",
+      "dataType": "DATE",
+      "ordinalPosition": 1,
       "description": "Transaction date"
     },
     {
-      "name": "Product ID",
-      "dataType": "string",
-      "columnIndex": 1,
-      "columnLetter": "B",
+      "name": "Product_ID",
+      "dataType": "VARCHAR",
+      "ordinalPosition": 2,
       "tags": [{"tagFQN": "PII.ProductIdentifier"}]
     },
     {
       "name": "Quantity",
-      "dataType": "number",
-      "columnIndex": 2,
-      "columnLetter": "C"
+      "dataType": "INT",
+      "ordinalPosition": 3
     },
     {
       "name": "Revenue",
-      "dataType": "formula",
-      "columnIndex": 3,
-      "columnLetter": "D",
+      "dataType": "DECIMAL",
+      "ordinalPosition": 4,
       "description": "Calculated as Quantity * Price"
     }
   ],
   "columnCount": 4,
   "rowCount": 1500,
-  "hasHeader": true,
-  "headerRow": 0,
-  "dataStartRow": 1
+  "isHidden": false
 }
 ```
 
@@ -361,19 +507,35 @@ Worksheet as ETL source:
 
 ```json
 {
-  "name": "Customer Master",
-  "spreadsheet": "CRM_Export.gsheet",
+  "id": "d4e5f6a7-b8c9-0123-def4-56789abcdef0",
+  "name": "Customer_Master",
+  "fullyQualifiedName": "googleDrive.CRM.CRM_Export.Customer_Master",
+  "displayName": "Customer Master",
+  "spreadsheet": {
+    "id": "e5f6a7b8-c9d0-1234-ef56-789abcdef012",
+    "type": "file",
+    "name": "CRM_Export",
+    "fullyQualifiedName": "googleDrive.CRM.CRM_Export"
+  },
+  "service": {
+    "id": "f6a7b8c9-d0e1-2345-f678-9abcdef01234",
+    "type": "driveService",
+    "name": "googleDrive"
+  },
+  "worksheetId": "987654321",
+  "index": 0,
   "columns": [
-    {"name": "customer_id", "dataType": "string"},
-    {"name": "name", "dataType": "string"},
-    {"name": "email", "dataType": "string"},
-    {"name": "created_date", "dataType": "date"}
+    {"name": "customer_id", "dataType": "VARCHAR", "ordinalPosition": 1},
+    {"name": "name", "dataType": "VARCHAR", "ordinalPosition": 2},
+    {"name": "email", "dataType": "VARCHAR", "ordinalPosition": 3},
+    {"name": "created_date", "dataType": "DATE", "ordinalPosition": 4}
   ],
   "rowCount": 50000,
-  "lineage": {
-    "downstream": ["pipeline.customer_sync", "table.dim_customers"]
-  },
-  "tags": ["CRM", "Source Data"]
+  "columnCount": 4,
+  "tags": [
+    {"tagFQN": "CRM"},
+    {"tagFQN": "SourceData"}
+  ]
 }
 ```
 
@@ -383,18 +545,30 @@ Worksheet as lookup table:
 
 ```json
 {
-  "name": "Country Codes",
-  "spreadsheet": "Reference_Data.xlsx",
+  "id": "a7b8c9d0-e1f2-3456-7890-abcdef123456",
+  "name": "Country_Codes",
+  "fullyQualifiedName": "oneDrive.Reference.Reference_Data.Country_Codes",
+  "displayName": "Country Codes",
+  "spreadsheet": {
+    "id": "b8c9d0e1-f2a3-4567-890a-bcdef1234567",
+    "type": "file",
+    "name": "Reference_Data",
+    "fullyQualifiedName": "oneDrive.Reference.Reference_Data"
+  },
+  "service": {
+    "id": "c9d0e1f2-a3b4-5678-90ab-cdef12345678",
+    "type": "driveService",
+    "name": "oneDrive"
+  },
+  "worksheetId": "111222333",
+  "index": 0,
   "columns": [
-    {"name": "country_code", "dataType": "string"},
-    {"name": "country_name", "dataType": "string"},
-    {"name": "region", "dataType": "string"}
+    {"name": "country_code", "dataType": "VARCHAR", "ordinalPosition": 1},
+    {"name": "country_name", "dataType": "VARCHAR", "ordinalPosition": 2},
+    {"name": "region", "dataType": "VARCHAR", "ordinalPosition": 3}
   ],
   "rowCount": 195,
-  "namedRanges": [
-    {"name": "CountryList", "range": "A2:A196"}
-  ],
-  "usedBy": ["pipeline.address_validation"]
+  "columnCount": 3
 }
 ```
 
@@ -404,20 +578,43 @@ Complex worksheet with formulas:
 
 ```json
 {
-  "name": "Revenue Forecast",
-  "spreadsheet": "Q4_Model.xlsx",
+  "id": "d0e1f2a3-b4c5-6789-0abc-def123456789",
+  "name": "Revenue_Forecast",
+  "fullyQualifiedName": "googleDrive.Finance.Q4_Model.Revenue_Forecast",
+  "displayName": "Revenue Forecast",
+  "spreadsheet": {
+    "id": "e1f2a3b4-c5d6-7890-abcd-ef1234567890",
+    "type": "file",
+    "name": "Q4_Model",
+    "fullyQualifiedName": "googleDrive.Finance.Q4_Model"
+  },
+  "service": {
+    "id": "f2a3b4c5-d6e7-8901-bcde-f12345678901",
+    "type": "driveService",
+    "name": "googleDrive"
+  },
+  "worksheetId": "444555666",
+  "index": 0,
   "columns": [
-    {"name": "Month", "dataType": "date"},
-    {"name": "Base Revenue", "dataType": "number"},
-    {"name": "Growth Rate", "dataType": "number"},
-    {"name": "Forecasted Revenue", "dataType": "formula"}
+    {"name": "Month", "dataType": "DATE", "ordinalPosition": 1},
+    {"name": "Base_Revenue", "dataType": "DECIMAL", "ordinalPosition": 2},
+    {"name": "Growth_Rate", "dataType": "DECIMAL", "ordinalPosition": 3},
+    {"name": "Forecasted_Revenue", "dataType": "DECIMAL", "ordinalPosition": 4}
   ],
-  "formulas": 36,
-  "charts": [
-    {"type": "line", "dataRange": "A1:D13"}
+  "rowCount": 12,
+  "columnCount": 4,
+  "owners": [
+    {
+      "id": "a3b4c5d6-e7f8-9012-3456-789abcdef012",
+      "type": "team",
+      "name": "finance-team"
+    }
   ],
-  "owner": "finance-team",
-  "tags": ["Financial", "Forecast", "Q4 2024"]
+  "tags": [
+    {"tagFQN": "Financial"},
+    {"tagFQN": "Forecast"},
+    {"tagFQN": "Q4_2024"}
+  ]
 }
 ```
 
@@ -500,26 +697,31 @@ POST /v1/drives/worksheets
 Content-Type: application/json
 
 {
-  "name": "Daily Sales",
-  "spreadsheet": "googleDrive.Reports.Sales_Report_2024",
-  "sheetIndex": 0,
+  "name": "Daily_Sales",
+  "displayName": "Daily Sales",
+  "spreadsheet": {
+    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "type": "file"
+  },
+  "service": {
+    "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+    "type": "driveService"
+  },
+  "worksheetId": "123456789",
+  "index": 0,
   "columns": [
     {
       "name": "Date",
-      "dataType": "date",
-      "columnIndex": 0,
-      "columnLetter": "A"
+      "dataType": "DATE",
+      "ordinalPosition": 1
     },
     {
       "name": "Amount",
-      "dataType": "number",
-      "columnIndex": 1,
-      "columnLetter": "B"
+      "dataType": "DECIMAL",
+      "ordinalPosition": 2
     }
   ],
-  "hasHeader": true,
-  "headerRow": 0,
-  "dataStartRow": 1
+  "isHidden": false
 }
 
 Response: Worksheet
@@ -563,13 +765,12 @@ PATCH /v1/drives/worksheets/name/{fqn}
 Content-Type: application/json-patch+json
 
 [
-  {"op": "add", "path": "/tags", "value": [{"tagFQN": "PII.Sensitive"}]},
+  {"op": "add", "path": "/tags/-", "value": {"tagFQN": "PII.Sensitive"}},
   {"op": "replace", "path": "/description", "value": "Updated worksheet description"},
   {"op": "add", "path": "/columns/-", "value": {
     "name": "Region",
-    "dataType": "string",
-    "columnIndex": 2,
-    "columnLetter": "C"
+    "dataType": "VARCHAR",
+    "ordinalPosition": 3
   }}
 ]
 
@@ -585,9 +786,18 @@ PUT /v1/drives/worksheets
 Content-Type: application/json
 
 {
-  "name": "Monthly Summary",
-  "spreadsheet": "googleDrive.Reports.Sales_2024",
-  "sheetIndex": 1,
+  "name": "Monthly_Summary",
+  "displayName": "Monthly Summary",
+  "spreadsheet": {
+    "id": "f3a4b5c6-d7e8-9012-3456-789abcdef012",
+    "type": "file"
+  },
+  "service": {
+    "id": "a4b5c6d7-e8f9-0123-4567-89abcdef0123",
+    "type": "driveService"
+  },
+  "worksheetId": "777888999",
+  "index": 1,
   "columns": [...]
 }
 

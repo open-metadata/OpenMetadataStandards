@@ -1490,3 +1490,319 @@ om:apiDocumentation a owl:ObjectProperty ;
     rdfs:comment "Link to API documentation" ;
     rdfs:domain om:DataService ;
     rdfs:range foaf:Document .
+
+#################################################################
+# Entity Governance Properties (from JSON Schema)
+#################################################################
+
+om:Votes a owl:Class ;
+    rdfs:label "Votes" ;
+    rdfs:comment "Votes on an entity (upvotes and downvotes)" ;
+    rdfs:subClassOf om:Entity .
+
+om:LifeCycle a owl:Class ;
+    rdfs:label "Life Cycle" ;
+    rdfs:comment "Life cycle properties of an entity including created, updated, accessed timestamps" ;
+    rdfs:subClassOf om:Entity .
+
+om:AssetCertification a owl:Class ;
+    rdfs:label "Asset Certification" ;
+    rdfs:comment "Certification status of an asset" ;
+    rdfs:subClassOf om:Entity .
+
+om:EntityStatus a owl:Class ;
+    rdfs:label "Entity Status" ;
+    rdfs:comment "Current status of an entity (Active, Deleted, Draft)" ;
+    rdfs:subClassOf om:Entity .
+
+om:hasVotes a owl:ObjectProperty ;
+    rdfs:label "has votes" ;
+    rdfs:comment "Votes on the entity" ;
+    rdfs:domain om:Entity ;
+    rdfs:range om:Votes .
+
+om:upVotes a owl:DatatypeProperty ;
+    rdfs:label "up votes" ;
+    rdfs:comment "Number of up votes" ;
+    rdfs:domain om:Votes ;
+    rdfs:range xsd:integer .
+
+om:downVotes a owl:DatatypeProperty ;
+    rdfs:label "down votes" ;
+    rdfs:comment "Number of down votes" ;
+    rdfs:domain om:Votes ;
+    rdfs:range xsd:integer .
+
+om:hasLifeCycle a owl:ObjectProperty ;
+    rdfs:label "has life cycle" ;
+    rdfs:comment "Life cycle properties of the entity" ;
+    rdfs:domain om:Entity ;
+    rdfs:range om:LifeCycle .
+
+om:lifeCycleCreated a owl:ObjectProperty ;
+    rdfs:label "life cycle created" ;
+    rdfs:comment "Access details when entity was created" ;
+    rdfs:domain om:LifeCycle .
+
+om:lifeCycleUpdated a owl:ObjectProperty ;
+    rdfs:label "life cycle updated" ;
+    rdfs:comment "Access details when entity was last updated" ;
+    rdfs:domain om:LifeCycle .
+
+om:lifeCycleAccessed a owl:ObjectProperty ;
+    rdfs:label "life cycle accessed" ;
+    rdfs:comment "Access details when entity was last accessed" ;
+    rdfs:domain om:LifeCycle .
+
+om:hasCertification a owl:ObjectProperty ;
+    rdfs:label "has certification" ;
+    rdfs:comment "Certification status of the asset" ;
+    rdfs:domain om:Entity ;
+    rdfs:range om:AssetCertification .
+
+om:certificationTagLabel a owl:ObjectProperty ;
+    rdfs:label "certification tag label" ;
+    rdfs:comment "Tag label for the certification" ;
+    rdfs:domain om:AssetCertification ;
+    rdfs:range om:Tag .
+
+om:hasEntityStatus a owl:ObjectProperty ;
+    rdfs:label "has entity status" ;
+    rdfs:comment "Current status of the entity" ;
+    rdfs:domain om:Entity ;
+    rdfs:range om:EntityStatus .
+
+om:sourceHash a owl:DatatypeProperty ;
+    rdfs:label "source hash" ;
+    rdfs:comment "Source hash of the entity for change detection" ;
+    rdfs:domain om:Entity ;
+    rdfs:range xsd:string .
+
+om:sourceUrl a owl:DatatypeProperty ;
+    rdfs:label "source URL" ;
+    rdfs:comment "URL to visit/manage the entity in the source system" ;
+    rdfs:domain om:Entity ;
+    rdfs:range xsd:anyURI .
+
+om:impersonatedBy a owl:ObjectProperty ;
+    rdfs:label "impersonated by" ;
+    rdfs:comment "Bot user that performed the action on behalf of the actual user" ;
+    rdfs:domain om:Entity ;
+    rdfs:range om:Bot .
+
+om:hasFollowers a owl:ObjectProperty ;
+    rdfs:label "has followers" ;
+    rdfs:comment "Users who follow this entity" ;
+    rdfs:domain om:Entity ;
+    rdfs:range prov:Agent .
+
+om:hasDataProducts a owl:ObjectProperty ;
+    rdfs:label "has data products" ;
+    rdfs:comment "Data products this entity is part of" ;
+    rdfs:domain om:DataAsset ;
+    rdfs:range om:DataProduct .
+
+om:hasDomains a owl:ObjectProperty ;
+    rdfs:label "has domains" ;
+    rdfs:comment "Domains the entity belongs to" ;
+    rdfs:domain om:Entity ;
+    rdfs:range om:Domain .
+
+om:hasOwners a owl:ObjectProperty ;
+    rdfs:label "has owners" ;
+    rdfs:comment "Owners of this entity (plural)" ;
+    rdfs:subPropertyOf dcat:contactPoint ;
+    rdfs:domain om:Entity ;
+    rdfs:range prov:Agent .
+
+#################################################################
+# Table-specific Properties (from JSON Schema)
+#################################################################
+
+om:ProfilerConfig a owl:Class ;
+    rdfs:label "Profiler Config" ;
+    rdfs:comment "Configuration for table profiling" ;
+    rdfs:subClassOf om:Entity .
+
+om:TableProfile a owl:Class ;
+    rdfs:label "Table Profile" ;
+    rdfs:comment "Profile data for a table including statistics" ;
+    rdfs:subClassOf om:Entity .
+
+om:hasProfilerConfig a owl:ObjectProperty ;
+    rdfs:label "has profiler config" ;
+    rdfs:comment "Profiler configuration for the table" ;
+    rdfs:domain om:Table ;
+    rdfs:range om:ProfilerConfig .
+
+om:hasProfile a owl:ObjectProperty ;
+    rdfs:label "has profile" ;
+    rdfs:comment "Latest profile data for the table" ;
+    rdfs:domain om:Table ;
+    rdfs:range om:TableProfile .
+
+om:usageSummary a owl:ObjectProperty ;
+    rdfs:label "usage summary" ;
+    rdfs:comment "Latest usage information for the entity" ;
+    rdfs:domain om:DataAsset .
+
+om:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:label "retention period" ;
+    rdfs:comment "Retention period of the data in ISO 8601 duration format" ;
+    rdfs:domain om:Table ;
+    rdfs:range xsd:duration .
+
+om:sampleData a owl:ObjectProperty ;
+    rdfs:label "sample data" ;
+    rdfs:comment "Sample data from the table" ;
+    rdfs:domain om:Table .
+
+om:tableType a owl:DatatypeProperty ;
+    rdfs:label "table type" ;
+    rdfs:comment "Type of table (Regular, External, View, MaterializedView, etc.)" ;
+    rdfs:domain om:Table ;
+    rdfs:range xsd:string .
+
+om:schemaDefinition a owl:DatatypeProperty ;
+    rdfs:label "schema definition" ;
+    rdfs:comment "DDL schema definition for the table" ;
+    rdfs:domain om:Table ;
+    rdfs:range xsd:string .
+
+om:processedLineage a owl:DatatypeProperty ;
+    rdfs:label "processed lineage" ;
+    rdfs:comment "Whether lineage has been processed for this entity" ;
+    rdfs:domain om:DataAsset ;
+    rdfs:range xsd:boolean .
+
+#################################################################
+# Pipeline-specific Properties (from JSON Schema)
+#################################################################
+
+om:PipelineStatus a owl:Class ;
+    rdfs:label "Pipeline Status" ;
+    rdfs:comment "Status of a pipeline execution" ;
+    rdfs:subClassOf om:Entity .
+
+om:hasPipelineStatus a owl:ObjectProperty ;
+    rdfs:label "has pipeline status" ;
+    rdfs:comment "Latest status of the pipeline" ;
+    rdfs:domain om:Pipeline ;
+    rdfs:range om:PipelineStatus .
+
+om:scheduleInterval a owl:DatatypeProperty ;
+    rdfs:label "schedule interval" ;
+    rdfs:comment "Scheduler interval in cron format" ;
+    rdfs:domain om:Pipeline ;
+    rdfs:range xsd:string .
+
+om:concurrency a owl:DatatypeProperty ;
+    rdfs:label "concurrency" ;
+    rdfs:comment "Concurrency level of the pipeline" ;
+    rdfs:domain om:Pipeline ;
+    rdfs:range xsd:integer .
+
+om:pipelineLocation a owl:DatatypeProperty ;
+    rdfs:label "pipeline location" ;
+    rdfs:comment "Pipeline code location" ;
+    rdfs:domain om:Pipeline ;
+    rdfs:range xsd:string .
+
+#################################################################
+# Test Definition Properties (from JSON Schema)
+#################################################################
+
+om:TestCaseParameter a owl:Class ;
+    rdfs:label "Test Case Parameter" ;
+    rdfs:comment "Parameter definition for a test case" ;
+    rdfs:subClassOf om:Entity .
+
+om:hasParameterDefinition a owl:ObjectProperty ;
+    rdfs:label "has parameter definition" ;
+    rdfs:comment "Parameter definitions for a test" ;
+    rdfs:domain om:TestDefinition ;
+    rdfs:range om:TestCaseParameter .
+
+om:testPlatform a owl:DatatypeProperty ;
+    rdfs:label "test platform" ;
+    rdfs:comment "Platform where tests are defined (OpenMetadata, GreatExpectations, dbt, Deequ, Soda, Other)" ;
+    rdfs:domain om:TestDefinition ;
+    rdfs:range xsd:string .
+
+om:dataQualityDimension a owl:DatatypeProperty ;
+    rdfs:label "data quality dimension" ;
+    rdfs:comment "Data quality dimension (Completeness, Accuracy, Consistency, Validity, Uniqueness, Integrity, SQL)" ;
+    rdfs:domain om:TestDefinition ;
+    rdfs:range xsd:string .
+
+om:supportedDataTypes a owl:DatatypeProperty ;
+    rdfs:label "supported data types" ;
+    rdfs:comment "Data types supported by this test definition" ;
+    rdfs:domain om:TestDefinition ;
+    rdfs:range xsd:string .
+
+om:supportsRowLevelPassedFailed a owl:DatatypeProperty ;
+    rdfs:label "supports row level passed failed" ;
+    rdfs:comment "Whether the test case supports row level passed/failed" ;
+    rdfs:domain om:TestDefinition ;
+    rdfs:range xsd:boolean .
+
+om:supportsDynamicAssertion a owl:DatatypeProperty ;
+    rdfs:label "supports dynamic assertion" ;
+    rdfs:comment "Whether the test case supports dynamic assertions" ;
+    rdfs:domain om:TestDefinition ;
+    rdfs:range xsd:boolean .
+
+#################################################################
+# Change Description Properties (from JSON Schema)
+#################################################################
+
+om:ChangeDescription a owl:Class ;
+    rdfs:label "Change Description" ;
+    rdfs:comment "Description of changes that led to a version of an entity" ;
+    rdfs:subClassOf om:Entity .
+
+om:hasChangeDescription a owl:ObjectProperty ;
+    rdfs:label "has change description" ;
+    rdfs:comment "Change that led to this version of the entity" ;
+    rdfs:domain om:Entity ;
+    rdfs:range om:ChangeDescription .
+
+om:hasIncrementalChangeDescription a owl:ObjectProperty ;
+    rdfs:label "has incremental change description" ;
+    rdfs:comment "Incremental change that led to this version" ;
+    rdfs:domain om:Entity ;
+    rdfs:range om:ChangeDescription .
+
+om:updatedAt a owl:DatatypeProperty ;
+    rdfs:label "updated at" ;
+    rdfs:comment "Last update time in Unix epoch milliseconds" ;
+    rdfs:domain om:Entity ;
+    rdfs:range xsd:long .
+
+om:updatedBy a owl:DatatypeProperty ;
+    rdfs:label "updated by" ;
+    rdfs:comment "User who made the update" ;
+    rdfs:domain om:Entity ;
+    rdfs:range xsd:string .
+
+om:deleted a owl:DatatypeProperty ;
+    rdfs:label "deleted" ;
+    rdfs:comment "Whether the entity has been soft deleted" ;
+    rdfs:domain om:Entity ;
+    rdfs:range xsd:boolean .
+
+#################################################################
+# Dashboard Data Model (from JSON Schema)
+#################################################################
+
+om:DashboardDataModel a owl:Class ;
+    rdfs:label "Dashboard Data Model" ;
+    rdfs:comment "Dashboard Data Model entity to capture the data models used by dashboards" ;
+    rdfs:subClassOf om:DataAsset .
+
+om:dataModelType a owl:DatatypeProperty ;
+    rdfs:label "data model type" ;
+    rdfs:comment "Type of data model (TableauDataModel, SupersetDataModel, MetabaseDataModel, LookMlView, LookMlExplore, PowerBIDataModel, QlikDataModel)" ;
+    rdfs:domain om:DashboardDataModel ;
+    rdfs:range xsd:string .

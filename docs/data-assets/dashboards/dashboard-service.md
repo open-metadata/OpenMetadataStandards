@@ -135,112 +135,166 @@ View the complete DashboardService schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/services/dashboardService.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "DashboardService",
-      "description": "A `DashboardService` entity represents a BI platform service that hosts dashboards and visualizations.",
+      "title": "Dashboard Service",
+      "description": "This schema defines the Dashboard Service entity, such as Looker and Superset.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.services.DashboardService",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface",
+        "org.openmetadata.schema.ServiceEntityInterface"
+      ],
 
       "definitions": {
         "dashboardServiceType": {
-          "description": "Type of dashboard service",
+          "description": "Type of Dashboard service - Superset, Looker, Redash, Tableau, Metabase, PowerBi, Mode, or Lightdash",
           "type": "string",
+          "javaInterfaces": ["org.openmetadata.schema.EnumInterface"],
           "enum": [
-            "Tableau", "Looker", "PowerBI", "Superset",
-            "Metabase", "Redash", "Mode", "Lightdash",
-            "QlikSense", "QlikCloud", "Domo", "MicroStrategy",
-            "QuickSight", "ThoughtSpot", "DataStudio", "Custom"
+            "Superset", "Looker", "Tableau", "Redash", "Metabase",
+            "PowerBI", "PowerBIReportServer", "Mode", "CustomDashboard",
+            "DomoDashboard", "QuickSight", "QlikSense", "Lightdash",
+            "MicroStrategy", "QlikCloud", "Sigma", "ThoughtSpot",
+            "Grafana", "Hex"
           ]
         },
-        "connection": {
+        "dashboardConnection": {
           "type": "object",
+          "javaType": "org.openmetadata.schema.type.DashboardConnection",
+          "description": "Dashboard Connection.",
+          "javaInterfaces": [
+            "org.openmetadata.schema.ServiceConnectionEntityInterface"
+          ],
           "properties": {
-            "type": {
-              "$ref": "#/definitions/dashboardServiceType"
-            },
-            "hostPort": {
-              "description": "Host and port of the dashboard service",
-              "type": "string",
-              "format": "uri"
-            },
-            "username": {
-              "description": "Username for authentication",
-              "type": "string"
-            },
-            "apiKey": {
-              "description": "API key for authentication",
-              "type": "string"
-            },
-            "token": {
-              "description": "Access token",
-              "type": "string"
-            },
-            "env": {
-              "description": "Environment (for cloud services)",
-              "type": "string"
-            },
-            "site": {
-              "description": "Site name (Tableau)",
-              "type": "string"
-            },
-            "projectFilter": {
-              "description": "Filter dashboards by project",
-              "type": "array",
-              "items": {"type": "string"}
+            "config": {
+              "mask": true,
+              "oneOf": [
+                {"$ref": "./connections/dashboard/lookerConnection.json"},
+                {"$ref": "./connections/dashboard/metabaseConnection.json"},
+                {"$ref": "./connections/dashboard/powerBIConnection.json"},
+                {"$ref": "./connections/dashboard/powerBIReportServerConnection.json"},
+                {"$ref": "./connections/dashboard/redashConnection.json"},
+                {"$ref": "./connections/dashboard/supersetConnection.json"},
+                {"$ref": "./connections/dashboard/tableauConnection.json"},
+                {"$ref": "./connections/dashboard/modeConnection.json"},
+                {"$ref": "./connections/dashboard/customDashboardConnection.json"},
+                {"$ref": "./connections/dashboard/domoDashboardConnection.json"},
+                {"$ref": "./connections/dashboard/quickSightConnection.json"},
+                {"$ref": "./connections/dashboard/qlikSenseConnection.json"},
+                {"$ref": "./connections/dashboard/lightdashConnection.json"},
+                {"$ref": "./connections/dashboard/microStrategyConnection.json"},
+                {"$ref": "./connections/dashboard/qlikCloudConnection.json"},
+                {"$ref": "./connections/dashboard/sigmaConnection.json"},
+                {"$ref": "./connections/dashboard/thoughtSpotConnection.json"},
+                {"$ref": "./connections/dashboard/grafanaConnection.json"},
+                {"$ref": "./connections/dashboard/hexConnection.json"}
+              ]
             }
           },
-          "required": ["type", "hostPort"]
+          "additionalProperties": false
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this dashboard service instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Service name",
+          "description": "Name that identifies this dashboard service.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: serviceName",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this dashboard service.",
           "type": "string"
         },
-        "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
-        },
         "serviceType": {
+          "description": "Type of dashboard service such as Looker or Superset...",
           "$ref": "#/definitions/dashboardServiceType"
         },
+        "description": {
+          "description": "Description of a dashboard service instance.",
+          "$ref": "../../type/basic.json#/definitions/markdown"
+        },
         "connection": {
-          "$ref": "#/definitions/connection"
+          "$ref": "#/definitions/dashboardConnection"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "pipelines": {
+          "description": "References to pipelines deployed for this dashboard service.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "testConnectionResult": {
+          "description": "Last test connection results for this service",
+          "$ref": "connections/testConnectionResult.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this Dashboard Service.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
+        },
+        "owners": {
+          "description": "Owners of this dashboard service.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "version": {
-          "description": "Metadata version",
+          "description": "Metadata version of the entity.",
           "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this dashboard service.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "domains": {
+          "description": "Domains the Dashboard service belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "ingestionRunner": {
+          "description": "The ingestion agent responsible for executing the ingestion pipeline.",
+          "$ref": "../../type/entityReference.json"
         }
       },
 
-      "required": ["id", "name", "serviceType", "connection"]
+      "required": ["id", "name", "serviceType"],
+      "additionalProperties": false
     }
     ```
 
@@ -253,74 +307,156 @@ View the complete DashboardService schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # DashboardService Class Definition
     om:DashboardService a owl:Class ;
         rdfs:subClassOf om:Service ;
-        rdfs:label "DashboardService" ;
-        rdfs:comment "A BI platform service that hosts dashboards and visualizations" ;
+        rdfs:label "Dashboard Service" ;
+        rdfs:comment "This schema defines the Dashboard Service entity, such as Looker and Superset." ;
         om:hierarchyLevel 1 .
 
-    # Properties
+    # Core Properties
     om:dashboardServiceName a owl:DatatypeProperty ;
         rdfs:domain om:DashboardService ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the dashboard service" .
+        rdfs:comment "Name that identifies this dashboard service" .
+
+    om:fullyQualifiedName a owl:DatatypeProperty ;
+        rdfs:domain om:DashboardService ;
+        rdfs:range xsd:string ;
+        rdfs:label "fullyQualifiedName" ;
+        rdfs:comment "FullyQualifiedName same as name" .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:DashboardService ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this dashboard service" .
+
+    om:description a owl:DatatypeProperty ;
+        rdfs:domain om:DashboardService ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of a dashboard service instance" .
 
     om:serviceType a owl:DatatypeProperty ;
         rdfs:domain om:DashboardService ;
         rdfs:range om:DashboardServiceType ;
         rdfs:label "serviceType" ;
-        rdfs:comment "Type of BI platform: Tableau, Looker, PowerBI, etc." .
+        rdfs:comment "Type of dashboard service such as Looker or Superset" .
 
     om:connection a owl:ObjectProperty ;
         rdfs:domain om:DashboardService ;
-        rdfs:range om:Connection ;
+        rdfs:range om:DashboardConnection ;
         rdfs:label "connection" ;
         rdfs:comment "Connection configuration for the BI platform" .
 
+    # Relationship Properties
     om:hostsDashboard a owl:ObjectProperty ;
         rdfs:domain om:DashboardService ;
         rdfs:range om:Dashboard ;
         rdfs:label "hostsDashboard" ;
         rdfs:comment "Dashboards hosted by this service" .
 
-    om:ownedBy a owl:ObjectProperty ;
+    om:hasOwner a owl:ObjectProperty ;
         rdfs:domain om:DashboardService ;
-        rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this service" .
+        rdfs:range om:EntityReference ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this dashboard service" .
+
+    om:belongsToDomain a owl:ObjectProperty ;
+        rdfs:domain om:DashboardService ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the Dashboard service belongs to" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:DashboardService ;
-        rdfs:range om:Tag ;
-        rdfs:label "hasTag" ;
-        rdfs:comment "Classification tags applied to service" .
+        rdfs:range om:TagLabel ;
+        rdfs:label "tags" ;
+        rdfs:comment "Tags for this Dashboard Service" .
+
+    om:hasPipeline a owl:ObjectProperty ;
+        rdfs:domain om:DashboardService ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "pipelines" ;
+        rdfs:comment "References to pipelines deployed for this dashboard service" .
+
+    om:hasDataProduct a owl:ObjectProperty ;
+        rdfs:domain om:DashboardService ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "dataProducts" ;
+        rdfs:comment "List of data products this entity is part of" .
+
+    om:hasFollower a owl:ObjectProperty ;
+        rdfs:domain om:DashboardService ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this entity" .
+
+    om:hasIngestionRunner a owl:ObjectProperty ;
+        rdfs:domain om:DashboardService ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "ingestionRunner" ;
+        rdfs:comment "The ingestion agent responsible for executing the ingestion pipeline" .
+
+    # System Properties
+    om:deleted a owl:DatatypeProperty ;
+        rdfs:domain om:DashboardService ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When true indicates the entity has been soft deleted" .
+
+    om:href a owl:DatatypeProperty ;
+        rdfs:domain om:DashboardService ;
+        rdfs:range xsd:anyURI ;
+        rdfs:label "href" ;
+        rdfs:comment "Link to the resource corresponding to this dashboard service" .
 
     # Dashboard Service Type Enumeration
     om:DashboardServiceType a owl:Class ;
         owl:oneOf (
-            om:Tableau
-            om:Looker
-            om:PowerBI
             om:Superset
+            om:Looker
+            om:Tableau
+            om:Redash
             om:Metabase
+            om:PowerBI
+            om:PowerBIReportServer
+            om:Mode
+            om:CustomDashboard
+            om:DomoDashboard
+            om:QuickSight
+            om:QlikSense
+            om:Lightdash
+            om:MicroStrategy
+            om:QlikCloud
+            om:Sigma
+            om:ThoughtSpot
+            om:Grafana
+            om:Hex
         ) .
 
     # Example Instance
     ex:tableauProdService a om:DashboardService ;
+        om:id "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"^^xsd:string ;
         om:dashboardServiceName "tableau_prod" ;
         om:fullyQualifiedName "tableau_prod" ;
         om:serviceType om:Tableau ;
         om:displayName "Tableau Production" ;
+        om:description "Production Tableau server hosting all business dashboards" ;
         om:connection ex:tableauConnection ;
-        om:ownedBy ex:biTeam ;
+        om:hasOwner ex:biTeam ;
+        om:belongsToDomain ex:analyticsDomain ;
         om:hasTag ex:tierGold ;
+        om:hasPipeline ex:tableauMetadataPipeline ;
         om:hostsDashboard ex:salesDashboard ;
-        om:hostsDashboard ex:marketingDashboard .
+        om:hostsDashboard ex:marketingDashboard ;
+        om:deleted "false"^^xsd:boolean ;
+        om:href "https://api.example.com/api/v1/services/dashboardServices/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"^^xsd:anyURI .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -338,6 +474,10 @@ View the complete DashboardService schema in your preferred format:
         "xsd": "http://www.w3.org/2001/XMLSchema#",
 
         "DashboardService": "om:DashboardService",
+        "id": {
+          "@id": "om:id",
+          "@type": "xsd:string"
+        },
         "name": {
           "@id": "om:dashboardServiceName",
           "@type": "xsd:string"
@@ -362,23 +502,52 @@ View the complete DashboardService schema in your preferred format:
           "@id": "om:connection",
           "@type": "@id"
         },
+        "pipelines": {
+          "@id": "om:hasPipeline",
+          "@type": "@id",
+          "@container": "@set"
+        },
         "dashboards": {
           "@id": "om:hostsDashboard",
           "@type": "@id",
           "@container": "@set"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
+        "owners": {
+          "@id": "om:hasOwner",
+          "@type": "@id",
+          "@container": "@set"
         },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
+        "domains": {
+          "@id": "om:belongsToDomain",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:hasDataProduct",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:hasFollower",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "ingestionRunner": {
+          "@id": "om:hasIngestionRunner",
+          "@type": "@id"
+        },
+        "href": {
+          "@id": "om:href",
+          "@type": "xsd:anyURI"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
         }
       }
     }
@@ -392,6 +561,7 @@ View the complete DashboardService schema in your preferred format:
       "@type": "DashboardService",
       "@id": "https://example.com/services/tableau_prod",
 
+      "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
       "name": "tableau_prod",
       "fullyQualifiedName": "tableau_prod",
       "displayName": "Tableau Production",
@@ -399,19 +569,40 @@ View the complete DashboardService schema in your preferred format:
       "serviceType": "Tableau",
 
       "connection": {
-        "@type": "Connection",
-        "hostPort": "https://tableau.example.com",
-        "username": "api_user",
-        "site": "default",
-        "env": "PROD"
+        "@type": "DashboardConnection",
+        "config": {
+          "type": "Tableau",
+          "hostPort": "https://tableau.example.com",
+          "username": "api_user",
+          "site": "default",
+          "env": "PROD"
+        }
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/bi-team",
-        "@type": "Team",
-        "name": "bi-team",
-        "displayName": "BI Team"
-      },
+      "pipelines": [
+        {
+          "@id": "https://example.com/pipelines/tableau_metadata_pipeline",
+          "@type": "Pipeline",
+          "name": "tableau_metadata_pipeline"
+        }
+      ],
+
+      "owners": [
+        {
+          "@id": "https://example.com/teams/bi-team",
+          "@type": "Team",
+          "name": "bi-team",
+          "displayName": "BI Team"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/Analytics",
+          "@type": "Domain",
+          "name": "Analytics"
+        }
+      ],
 
       "tags": [
         {
@@ -431,7 +622,12 @@ View the complete DashboardService schema in your preferred format:
           "@type": "Dashboard",
           "name": "marketing-analytics"
         }
-      ]
+      ],
+
+      "dataProducts": [],
+      "followers": [],
+      "href": "https://api.example.com/api/v1/services/dashboardServices/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+      "deleted": false
     }
     ```
 
@@ -532,22 +728,25 @@ View the complete DashboardService schema in your preferred format:
 **Required**: Yes
 **Allowed Values**:
 
-- `Tableau` - Tableau Server or Tableau Cloud
-- `Looker` - Looker/LookML platform
-- `PowerBI` - Microsoft Power BI
 - `Superset` - Apache Superset
-- `Metabase` - Metabase
+- `Looker` - Looker/LookML platform
+- `Tableau` - Tableau Server or Tableau Cloud
 - `Redash` - Redash
+- `Metabase` - Metabase
+- `PowerBI` - Microsoft Power BI
+- `PowerBIReportServer` - Microsoft Power BI Report Server
 - `Mode` - Mode Analytics
-- `Lightdash` - Lightdash
-- `QlikSense` - Qlik Sense
-- `QlikCloud` - Qlik Cloud
-- `Domo` - Domo
-- `MicroStrategy` - MicroStrategy
+- `CustomDashboard` - Custom BI platform
+- `DomoDashboard` - Domo
 - `QuickSight` - Amazon QuickSight
+- `QlikSense` - Qlik Sense
+- `Lightdash` - Lightdash
+- `MicroStrategy` - MicroStrategy
+- `QlikCloud` - Qlik Cloud
+- `Sigma` - Sigma Computing
 - `ThoughtSpot` - ThoughtSpot
-- `DataStudio` - Google Data Studio (Looker Studio)
-- `Custom` - Custom BI platform
+- `Grafana` - Grafana
+- `Hex` - Hex
 
 ```json
 {
@@ -557,39 +756,54 @@ View the complete DashboardService schema in your preferred format:
 
 ---
 
-#### `connection` (Connection)
+#### `connection` (DashboardConnection)
 **Type**: `object`
-**Required**: Yes
+**Required**: No
 **Description**: Connection configuration specific to the BI platform
 
-**Connection Object Properties**:
+The connection object contains a `config` property that references the specific connection type based on the service:
+
+**Connection Object Structure**:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `type` | DashboardServiceType | Yes | Service type |
-| `hostPort` | string (URI) | Yes | Host and port (e.g., https://tableau.example.com) |
-| `username` | string | No | Username for authentication |
-| `password` | string | No | Password (encrypted) |
-| `apiKey` | string | No | API key for authentication |
-| `token` | string | No | Access token |
-| `env` | string | No | Environment (PROD, DEV, etc.) |
-| `site` | string | No | Site name (Tableau) |
-| `clientId` | string | No | OAuth client ID |
-| `clientSecret` | string | No | OAuth client secret |
-| `projectFilter` | string[] | No | Filter dashboards by project/workspace |
+| `config` | oneOf[connections] | Yes | Service-specific connection configuration (masked for security) |
+
+**Supported Connection Types** (referenced via `oneOf`):
+
+- `lookerConnection.json` - Looker connection
+- `metabaseConnection.json` - Metabase connection
+- `powerBIConnection.json` - Power BI connection
+- `powerBIReportServerConnection.json` - Power BI Report Server connection
+- `redashConnection.json` - Redash connection
+- `supersetConnection.json` - Superset connection
+- `tableauConnection.json` - Tableau connection
+- `modeConnection.json` - Mode connection
+- `customDashboardConnection.json` - Custom dashboard connection
+- `domoDashboardConnection.json` - Domo connection
+- `quickSightConnection.json` - QuickSight connection
+- `qlikSenseConnection.json` - Qlik Sense connection
+- `lightdashConnection.json` - Lightdash connection
+- `microStrategyConnection.json` - MicroStrategy connection
+- `qlikCloudConnection.json` - Qlik Cloud connection
+- `sigmaConnection.json` - Sigma connection
+- `thoughtSpotConnection.json` - ThoughtSpot connection
+- `grafanaConnection.json` - Grafana connection
+- `hexConnection.json` - Hex connection
 
 **Tableau Example**:
 
 ```json
 {
   "connection": {
-    "type": "Tableau",
-    "hostPort": "https://tableau.example.com",
-    "username": "api_user",
-    "apiKey": "encrypted_key",
-    "site": "default",
-    "env": "PROD",
-    "projectFilter": ["Sales", "Marketing"]
+    "config": {
+      "type": "Tableau",
+      "hostPort": "https://tableau.example.com",
+      "username": "api_user",
+      "apiKey": "encrypted_key",
+      "site": "default",
+      "env": "PROD"
+    }
   }
 }
 ```
@@ -599,12 +813,13 @@ View the complete DashboardService schema in your preferred format:
 ```json
 {
   "connection": {
-    "type": "PowerBI",
-    "hostPort": "https://api.powerbi.com",
-    "clientId": "oauth_client_id",
-    "clientSecret": "encrypted_secret",
-    "tenantId": "tenant-uuid",
-    "scope": ["https://analysis.windows.net/powerbi/api/.default"]
+    "config": {
+      "type": "PowerBI",
+      "hostPort": "https://api.powerbi.com",
+      "clientId": "oauth_client_id",
+      "clientSecret": "encrypted_secret",
+      "tenantId": "tenant-uuid"
+    }
   }
 }
 ```
@@ -614,10 +829,12 @@ View the complete DashboardService schema in your preferred format:
 ```json
 {
   "connection": {
-    "type": "Looker",
-    "hostPort": "https://looker.example.com:19999",
-    "clientId": "looker_client_id",
-    "clientSecret": "encrypted_secret"
+    "config": {
+      "type": "Looker",
+      "hostPort": "https://looker.example.com:19999",
+      "clientId": "looker_client_id",
+      "clientSecret": "encrypted_secret"
+    }
   }
 }
 ```
@@ -626,37 +843,47 @@ View the complete DashboardService schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array` of entity references
 **Required**: No
-**Description**: User or team that owns this service
+**Description**: Users or teams that own this service
 
 ```json
 {
-  "owner": {
-    "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
-    "type": "team",
-    "name": "bi-team",
-    "displayName": "BI Team"
-  }
+  "owners": [
+    {
+      "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      "type": "team",
+      "name": "bi-team",
+      "displayName": "BI Team"
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9a0b",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `domains` (EntityReferenceList)
+**Type**: `array` of entity references
 **Required**: No
-**Description**: Data domain this service belongs to
+**Description**: Data domains this service belongs to
 
 ```json
 {
-  "domain": {
-    "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
-    "type": "domain",
-    "name": "Analytics",
-    "fullyQualifiedName": "Analytics"
-  }
+  "domains": [
+    {
+      "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
+      "type": "domain",
+      "name": "Analytics",
+      "fullyQualifiedName": "Analytics"
+    }
+  ]
 }
 ```
 
@@ -665,6 +892,7 @@ View the complete DashboardService schema in your preferred format:
 #### `tags[]` (TagLabel[])
 **Type**: `array`
 **Required**: No
+**Default**: `[]`
 **Description**: Classification tags applied to the service
 
 ```json
@@ -678,6 +906,127 @@ View the complete DashboardService schema in your preferred format:
       "state": "Confirmed"
     }
   ]
+}
+```
+
+---
+
+#### `pipelines` (EntityReferenceList)
+**Type**: `array` of entity references
+**Required**: No
+**Description**: References to pipelines deployed for this dashboard service
+
+```json
+{
+  "pipelines": [
+    {
+      "id": "c1d2e3f4-a5b6-7c8d-9e0f-1a2b3c4d5e6f",
+      "type": "pipeline",
+      "name": "tableau_metadata_pipeline",
+      "fullyQualifiedName": "tableau_prod.tableau_metadata_pipeline"
+    }
+  ]
+}
+```
+
+---
+
+#### `testConnectionResult` (TestConnectionResult)
+**Type**: `object`
+**Required**: No
+**Description**: Last test connection results for this service
+
+```json
+{
+  "testConnectionResult": {
+    "status": "successful",
+    "lastUpdatedAt": 1704240000000
+  }
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of entity references
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "d1e2f3a4-b5c6-7d8e-9f0a-1b2c3d4e5f6a",
+      "type": "dataProduct",
+      "name": "analytics_product",
+      "fullyQualifiedName": "analytics_product"
+    }
+  ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `array` of entity references
+**Required**: No
+**Description**: Followers of this entity
+
+```json
+{
+  "followers": [
+    {
+      "id": "e1f2a3b4-c5d6-7e8f-9a0b-1c2d3e4f5a6b",
+      "type": "user",
+      "name": "jane.smith",
+      "displayName": "Jane Smith"
+    }
+  ]
+}
+```
+
+---
+
+#### `ingestionRunner` (EntityReference)
+**Type**: `object`
+**Required**: No
+**Description**: The ingestion agent responsible for executing the ingestion pipeline
+
+```json
+{
+  "ingestionRunner": {
+    "id": "f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c",
+    "type": "ingestionPipeline",
+    "name": "openmetadata_agent",
+    "fullyQualifiedName": "openmetadata_agent"
+  }
+}
+```
+
+---
+
+#### `href` (URI)
+**Type**: `string` (URI format)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this dashboard service
+
+```json
+{
+  "href": "https://api.example.com/api/v1/services/dashboardServices/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
 }
 ```
 
@@ -724,6 +1073,67 @@ View the complete DashboardService schema in your preferred format:
 
 ---
 
+#### `impersonatedBy` (string)
+**Type**: `string`
+**Required**: No (system-managed)
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": "ingestion_bot"
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "description",
+        "oldValue": "Old description",
+        "newValue": "Updated description"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.4
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Incremental change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "tags",
+        "oldValue": [],
+        "newValue": [{"tagFQN": "Tier.Gold"}]
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.4
+  }
+}
+```
+
+---
+
 ## Complete Example
 
 ```json
@@ -735,24 +1145,25 @@ View the complete DashboardService schema in your preferred format:
   "description": "# Tableau Production\n\nProduction Tableau server hosting all business dashboards.",
   "serviceType": "Tableau",
   "connection": {
-    "type": "Tableau",
-    "hostPort": "https://tableau.example.com",
-    "username": "api_user",
-    "apiKey": "encrypted_api_key",
-    "site": "default",
-    "env": "PROD",
-    "projectFilter": ["Sales", "Marketing", "Finance"]
+    "config": {
+      "type": "Tableau",
+      "hostPort": "https://tableau.example.com",
+      "username": "api_user",
+      "apiKey": "encrypted_api_key",
+      "site": "default",
+      "env": "PROD"
+    }
   },
-  "owner": {
-    "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
-    "type": "team",
-    "name": "bi-team",
-    "displayName": "BI Team"
-  },
-  "domain": {
-    "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
-    "type": "domain",
-    "name": "Analytics"
+  "pipelines": [
+    {
+      "id": "c1d2e3f4-a5b6-7c8d-9e0f-1a2b3c4d5e6f",
+      "type": "pipeline",
+      "name": "tableau_metadata_pipeline"
+    }
+  ],
+  "testConnectionResult": {
+    "status": "successful",
+    "lastUpdatedAt": 1704240000000
   },
   "tags": [
     {
@@ -760,6 +1171,25 @@ View the complete DashboardService schema in your preferred format:
       "source": "Classification"
     }
   ],
+  "owners": [
+    {
+      "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      "type": "team",
+      "name": "bi-team",
+      "displayName": "BI Team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
+      "type": "domain",
+      "name": "Analytics"
+    }
+  ],
+  "dataProducts": [],
+  "followers": [],
+  "href": "https://api.example.com/api/v1/services/dashboardServices/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+  "deleted": false,
   "version": 1.5,
   "updatedAt": 1704240000000,
   "updatedBy": "admin"
@@ -775,19 +1205,55 @@ View the complete DashboardService schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 om:DashboardService a owl:Class ;
     rdfs:subClassOf om:Service ;
-    rdfs:label "DashboardService" ;
-    rdfs:comment "A BI platform service that hosts dashboards" ;
-    om:hasProperties [
-        om:name "string" ;
-        om:serviceType "DashboardServiceType" ;
-        om:connection "Connection" ;
-        om:owner "Owner" ;
-        om:tags "Tag[]" ;
-    ] .
+    rdfs:label "Dashboard Service" ;
+    rdfs:comment "This schema defines the Dashboard Service entity, such as Looker and Superset." .
+
+# Core datatype properties
+om:dashboardServiceName a owl:DatatypeProperty ;
+    rdfs:domain om:DashboardService ;
+    rdfs:range xsd:string .
+
+om:serviceType a owl:DatatypeProperty ;
+    rdfs:domain om:DashboardService ;
+    rdfs:range om:DashboardServiceType .
+
+# Object properties
+om:connection a owl:ObjectProperty ;
+    rdfs:domain om:DashboardService ;
+    rdfs:range om:DashboardConnection .
+
+om:hasOwner a owl:ObjectProperty ;
+    rdfs:domain om:DashboardService ;
+    rdfs:range om:EntityReference .
+
+om:belongsToDomain a owl:ObjectProperty ;
+    rdfs:domain om:DashboardService ;
+    rdfs:range om:EntityReference .
+
+om:hasTag a owl:ObjectProperty ;
+    rdfs:domain om:DashboardService ;
+    rdfs:range om:TagLabel .
+
+om:hasPipeline a owl:ObjectProperty ;
+    rdfs:domain om:DashboardService ;
+    rdfs:range om:EntityReference .
+
+om:hasDataProduct a owl:ObjectProperty ;
+    rdfs:domain om:DashboardService ;
+    rdfs:range om:EntityReference .
+
+om:hasFollower a owl:ObjectProperty ;
+    rdfs:domain om:DashboardService ;
+    rdfs:range om:EntityReference .
+
+om:hasIngestionRunner a owl:ObjectProperty ;
+    rdfs:domain om:DashboardService ;
+    rdfs:range om:EntityReference .
 ```
 
 ### Instance Example
@@ -795,18 +1261,24 @@ om:DashboardService a owl:Class ;
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix ex: <https://example.com/services/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:tableau_prod a om:DashboardService ;
-    om:name "tableau_prod" ;
+    om:id "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"^^xsd:string ;
+    om:dashboardServiceName "tableau_prod" ;
     om:fullyQualifiedName "tableau_prod" ;
     om:displayName "Tableau Production" ;
-    om:description "Production Tableau server" ;
+    om:description "Production Tableau server hosting all business dashboards" ;
     om:serviceType om:Tableau ;
     om:connection ex:tableauConnection ;
-    om:ownedBy ex:bi_team ;
+    om:hasOwner ex:bi_team ;
+    om:belongsToDomain ex:analytics_domain ;
     om:hasTag ex:tier_gold ;
+    om:hasPipeline ex:tableau_metadata_pipeline ;
     om:hostsDashboard ex:sales_dashboard ;
-    om:hostsDashboard ex:marketing_dashboard .
+    om:hostsDashboard ex:marketing_dashboard ;
+    om:deleted "false"^^xsd:boolean ;
+    om:href "https://api.example.com/api/v1/services/dashboardServices/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"^^xsd:anyURI .
 ```
 
 ---
@@ -818,11 +1290,29 @@ ex:tableau_prod a om:DashboardService ;
   "@context": {
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+
     "DashboardService": "om:DashboardService",
-    "name": "om:name",
-    "fullyQualifiedName": "om:fullyQualifiedName",
-    "displayName": "om:displayName",
-    "description": "om:description",
+    "id": {
+      "@id": "om:id",
+      "@type": "xsd:string"
+    },
+    "name": {
+      "@id": "om:dashboardServiceName",
+      "@type": "xsd:string"
+    },
+    "fullyQualifiedName": {
+      "@id": "om:fullyQualifiedName",
+      "@type": "xsd:string"
+    },
+    "displayName": {
+      "@id": "om:displayName",
+      "@type": "xsd:string"
+    },
+    "description": {
+      "@id": "om:description",
+      "@type": "xsd:string"
+    },
     "serviceType": {
       "@id": "om:serviceType",
       "@type": "@vocab"
@@ -831,14 +1321,47 @@ ex:tableau_prod a om:DashboardService ;
       "@id": "om:connection",
       "@type": "@id"
     },
-    "owner": {
-      "@id": "om:ownedBy",
-      "@type": "@id"
+    "pipelines": {
+      "@id": "om:hasPipeline",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "owners": {
+      "@id": "om:hasOwner",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:belongsToDomain",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
       "@id": "om:hasTag",
       "@type": "@id",
       "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:hasDataProduct",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:hasFollower",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "ingestionRunner": {
+      "@id": "om:hasIngestionRunner",
+      "@type": "@id"
+    },
+    "href": {
+      "@id": "om:href",
+      "@type": "xsd:anyURI"
+    },
+    "deleted": {
+      "@id": "om:deleted",
+      "@type": "xsd:boolean"
     }
   }
 }
@@ -851,21 +1374,51 @@ ex:tableau_prod a om:DashboardService ;
   "@context": "https://open-metadata.org/context/dashboardService.jsonld",
   "@type": "DashboardService",
   "@id": "https://example.com/services/tableau_prod",
+
+  "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
   "name": "tableau_prod",
   "fullyQualifiedName": "tableau_prod",
   "displayName": "Tableau Production",
+  "description": "Production Tableau server hosting all business dashboards",
   "serviceType": "Tableau",
+
   "connection": {
-    "@type": "Connection",
-    "hostPort": "https://tableau.example.com"
+    "@type": "DashboardConnection",
+    "config": {
+      "type": "Tableau",
+      "hostPort": "https://tableau.example.com"
+    }
   },
-  "owner": {
-    "@id": "https://example.com/teams/bi-team",
-    "@type": "Team"
-  },
+
+  "pipelines": [
+    {
+      "@id": "https://example.com/pipelines/tableau_metadata_pipeline",
+      "@type": "Pipeline"
+    }
+  ],
+
+  "owners": [
+    {
+      "@id": "https://example.com/teams/bi-team",
+      "@type": "Team"
+    }
+  ],
+
+  "domains": [
+    {
+      "@id": "https://example.com/domains/Analytics",
+      "@type": "Domain"
+    }
+  ],
+
   "tags": [
     {"@id": "https://open-metadata.org/tags/Tier/Gold"}
-  ]
+  ],
+
+  "dataProducts": [],
+  "followers": [],
+  "href": "https://api.example.com/api/v1/services/dashboardServices/1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+  "deleted": false
 }
 ```
 

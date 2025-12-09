@@ -150,105 +150,174 @@ View the complete Dashboard schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/data/dashboard.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Dashboard",
-      "description": "A `Dashboard` entity represents a BI dashboard containing multiple visualizations and charts.",
+      "$comment": "@om-entity-type",
+      "description": "This schema defines the Dashboard entity. Dashboards are computed from data and visually present data, metrics, and KPIs. They are typically updated in real-time and allow interactive data exploration.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.Dashboard",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "definitions": {
         "dashboardType": {
-          "description": "Type of dashboard",
+          "javaType": "org.openmetadata.schema.type.DashboardType",
+          "description": "This schema defines the type used for describing different types of dashboards.",
           "type": "string",
+          "default": "Dashboard",
           "enum": [
-            "Dashboard", "Report", "Story", "Workbook",
-            "Analysis", "Exploration"
+            "Dashboard",
+            "Report"
+          ],
+          "javaEnums": [
+            {
+              "name": "Dashboard"
+            },
+            {
+              "name": "Report"
+            }
           ]
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies a dashboard instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Dashboard name",
+          "description": "Name that identifies this dashboard.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name: service.dashboard",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
-        },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this Dashboard. It could be title or label from the source services.",
           "type": "string"
         },
+        "fullyQualifiedName": {
+          "description": "A unique name that identifies a dashboard in the format 'ServiceName.DashboardName'.",
+          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+        },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the dashboard, what it is, and how to use it.",
           "$ref": "../../type/basic.json#/definitions/markdown"
+        },
+        "project": {
+          "description": "Name of the project / workspace / collection in which the dashboard is contained",
+          "type": "string"
+        },
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
         },
         "dashboardType": {
           "$ref": "#/definitions/dashboardType"
         },
-        "dashboardUrl": {
-          "description": "External URL to access dashboard",
-          "type": "string",
-          "format": "uri"
+        "sourceUrl": {
+          "description": "Dashboard URL suffix from its service.",
+          "$ref": "../../type/basic.json#/definitions/sourceUrl"
         },
         "charts": {
-          "description": "Charts in this dashboard",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "All the charts included in this Dashboard.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
         },
         "dataModels": {
-          "description": "Data models used by dashboard",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "List of data models used by this dashboard or the charts contained on it.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
         },
-        "project": {
-          "description": "Project or workspace name",
-          "type": "string"
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "service": {
-          "description": "Dashboard service",
-          "$ref": "../../type/entityReference.json"
+        "owners": {
+          "description": "Owners of this dashboard.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "followers": {
+          "description": "Followers of this dashboard.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this dashboard.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "service": {
+          "description": "Link to service where this dashboard is hosted in.",
+          "$ref": "../../type/entityReference.json"
+        },
+        "serviceType": {
+          "description": "Service type where this dashboard is hosted in.",
+          "$ref": "../services/dashboardService.json#/definitions/dashboardServiceType"
         },
         "usageSummary": {
-          "description": "Usage statistics",
-          "$ref": "../../type/usageDetails.json"
+          "description": "Latest usage information for this dashboard.",
+          "$ref": "../../type/usageDetails.json",
+          "default": null
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "domains": {
+          "description": "Domains the Dashboard belongs to. When not set, the Dashboard inherits the domain from the dashboard service it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle properties of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "entityStatus": {
+          "description": "Status of the Dashboard.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "service"]
+      "required": ["id", "name", "service"],
+      "additionalProperties": false
     }
     ```
 
@@ -314,11 +383,11 @@ View the complete Dashboard schema in your preferred format:
         rdfs:label "belongsToService" ;
         rdfs:comment "Dashboard service hosting this dashboard" .
 
-    om:ownedBy a owl:ObjectProperty ;
+    om:hasOwners a owl:ObjectProperty ;
         rdfs:domain om:Dashboard ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this dashboard" .
+        rdfs:label "hasOwners" ;
+        rdfs:comment "Users or teams that own this dashboard" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:Dashboard ;
@@ -337,8 +406,6 @@ View the complete Dashboard schema in your preferred format:
         owl:oneOf (
             om:DashboardType_Dashboard
             om:DashboardType_Report
-            om:DashboardType_Story
-            om:DashboardType_Workbook
         ) .
 
     # Example Instance
@@ -347,13 +414,15 @@ View the complete Dashboard schema in your preferred format:
         om:fullyQualifiedName "tableau_prod.sales_overview" ;
         om:displayName "Sales Overview Dashboard" ;
         om:dashboardType om:DashboardType_Dashboard ;
-        om:dashboardUrl "https://tableau.example.com/views/sales_overview" ;
+        om:sourceUrl "/views/sales_overview" ;
         om:belongsToService ex:tableauProdService ;
-        om:ownedBy ex:salesTeam ;
+        om:hasOwners ex:salesTeam ;
+        om:hasFollowers ex:user1, ex:user2 ;
         om:hasTag ex:tierGold ;
         om:linkedToGlossaryTerm ex:revenueTerm ;
         om:hasChart ex:monthlySalesChart ;
-        om:hasChart ex:regionalBreakdownChart .
+        om:hasChart ex:regionalBreakdownChart ;
+        om:inDomains ex:salesDomain .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -391,8 +460,8 @@ View the complete Dashboard schema in your preferred format:
           "@id": "om:dashboardType",
           "@type": "@vocab"
         },
-        "dashboardUrl": {
-          "@id": "om:dashboardUrl",
+        "sourceUrl": {
+          "@id": "om:sourceUrl",
           "@type": "xsd:anyURI"
         },
         "charts": {
@@ -409,23 +478,42 @@ View the complete Dashboard schema in your preferred format:
           "@id": "om:belongsToService",
           "@type": "@id"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
+        "owners": {
+          "@id": "om:hasOwners",
+          "@type": "@id",
+          "@container": "@set"
         },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
+        "followers": {
+          "@id": "om:hasFollowers",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:inDomains",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:partOfDataProducts",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
         },
-        "glossaryTerms": {
-          "@id": "om:linkedToGlossaryTerm",
-          "@type": "@id",
-          "@container": "@set"
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@id"
+        },
+        "lifeCycle": {
+          "@id": "om:hasLifeCycle",
+          "@type": "@id"
+        },
+        "certification": {
+          "@id": "om:hasCertification",
+          "@type": "@id"
         }
       }
     }
@@ -444,7 +532,7 @@ View the complete Dashboard schema in your preferred format:
       "displayName": "Sales Overview Dashboard",
       "description": "Executive dashboard showing sales performance metrics",
       "dashboardType": "Dashboard",
-      "dashboardUrl": "https://tableau.example.com/views/sales_overview",
+      "sourceUrl": "/views/sales_overview",
 
       "service": {
         "@id": "https://example.com/services/tableau_prod",
@@ -452,25 +540,35 @@ View the complete Dashboard schema in your preferred format:
         "name": "tableau_prod"
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/sales-team",
-        "@type": "Team",
-        "name": "sales-team",
-        "displayName": "Sales Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/sales-team",
+          "@type": "Team",
+          "name": "sales-team",
+          "displayName": "Sales Team"
+        }
+      ],
+
+      "followers": [
+        {
+          "@id": "https://example.com/users/user1",
+          "@type": "User",
+          "name": "user1"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/Sales",
+          "@type": "Domain",
+          "name": "Sales"
+        }
+      ],
 
       "tags": [
         {
           "@id": "https://open-metadata.org/tags/Tier/Gold",
           "tagFQN": "Tier.Gold"
-        }
-      ],
-
-      "glossaryTerms": [
-        {
-          "@id": "https://example.com/glossary/Revenue",
-          "@type": "GlossaryTerm",
-          "fullyQualifiedName": "BusinessGlossary.Revenue"
         }
       ],
 
@@ -591,10 +689,6 @@ View the complete Dashboard schema in your preferred format:
 
 - `Dashboard` - Interactive dashboard
 - `Report` - Static report
-- `Story` - Data story/narrative (Tableau)
-- `Workbook` - Collection of dashboards (Excel, Tableau)
-- `Analysis` - Ad-hoc analysis
-- `Exploration` - Data exploration view
 
 ```json
 {
@@ -604,14 +698,14 @@ View the complete Dashboard schema in your preferred format:
 
 ---
 
-#### `dashboardUrl` (uri)
-**Type**: `string` (URI format)
+#### `sourceUrl` (sourceUrl)
+**Type**: `string`
 **Required**: No
-**Description**: External URL to access the dashboard in the BI tool
+**Description**: Dashboard URL suffix from its service
 
 ```json
 {
-  "dashboardUrl": "https://tableau.example.com/views/sales_overview"
+  "sourceUrl": "/views/sales_overview"
 }
 ```
 
@@ -709,37 +803,81 @@ View the complete Dashboard schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array` of entity references
 **Required**: No
-**Description**: User or team that owns this dashboard
+**Description**: Owners of this dashboard
 
 ```json
 {
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "sales-team",
-    "displayName": "Sales Team"
-  }
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "sales-team",
+      "displayName": "Sales Team"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `followers` (EntityReferenceList)
+**Type**: `array` of entity references
 **Required**: No
-**Description**: Data domain this dashboard belongs to
+**Description**: Followers of this dashboard
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Sales",
-    "fullyQualifiedName": "Sales"
-  }
+  "followers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of entity references
+**Required**: No
+**Description**: Domains the Dashboard belongs to. When not set, the Dashboard inherits the domain from the dashboard service it belongs to.
+
+```json
+{
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of entity references
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "product-uuid",
+      "type": "dataProduct",
+      "name": "sales_analytics",
+      "fullyQualifiedName": "Sales.SalesAnalytics"
+    }
+  ]
 }
 ```
 
@@ -772,21 +910,92 @@ View the complete Dashboard schema in your preferred format:
 
 ---
 
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
+#### `votes` (Votes)
+**Type**: `object`
 **Required**: No
-**Description**: Business glossary terms linked to this dashboard
+**Description**: Votes on the entity
 
 ```json
 {
-  "glossaryTerms": [
-    {
-      "fullyQualifiedName": "BusinessGlossary.Revenue"
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2,
+    "upVoters": [
+      {
+        "id": "user-uuid-1",
+        "type": "user"
+      }
+    ],
+    "downVoters": []
+  }
+}
+```
+
+---
+
+#### `lifeCycle` (LifeCycle)
+**Type**: `object`
+**Required**: No
+**Description**: Life Cycle properties of the entity
+
+```json
+{
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "john.doe"
     },
-    {
-      "fullyQualifiedName": "BusinessGlossary.SalesRegion"
+    "updated": {
+      "timestamp": 1704240000000,
+      "user": "jane.smith"
     }
-  ]
+  }
+}
+```
+
+---
+
+#### `certification` (AssetCertification)
+**Type**: `object`
+**Required**: No
+**Description**: Certification information for the dashboard
+
+```json
+{
+  "certification": {
+    "certifiedBy": "data-governance-team",
+    "certifiedAt": 1704067200000,
+    "expiresAt": 1735689600000,
+    "status": "Certified"
+  }
+}
+```
+
+---
+
+#### `sourceHash` (string)
+**Type**: `string`
+**Required**: No
+**Min Length**: 1
+**Max Length**: 32
+**Description**: Source hash of the entity
+
+```json
+{
+  "sourceHash": "a1b2c3d4e5f6"
+}
+```
+
+---
+
+#### `entityStatus` (Status)
+**Type**: `object`
+**Required**: No
+**Description**: Status of the Dashboard
+
+```json
+{
+  "entityStatus": "Active"
 }
 ```
 
@@ -862,6 +1071,124 @@ View the complete Dashboard schema in your preferred format:
 
 ---
 
+#### `impersonatedBy` (impersonatedBy)
+**Type**: `object`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": {
+    "id": "bot-uuid",
+    "type": "bot",
+    "name": "ingestion-bot"
+  }
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI format)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "http://localhost:8585/api/v1/dashboards/2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e"
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-generated)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "description",
+        "oldValue": "Old description",
+        "newValue": "Updated description"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.7
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-generated)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [
+      {
+        "name": "tags",
+        "newValue": "[{\"tagFQN\": \"Tier.Gold\"}]"
+      }
+    ],
+    "fieldsUpdated": [],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `extension` (entityExtension)
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity
+
+```json
+{
+  "extension": {
+    "customProperty1": "value1",
+    "customProperty2": 123
+  }
+}
+```
+
+---
+
+#### `serviceType` (DashboardServiceType)
+**Type**: `string` enum
+**Required**: No (system-generated)
+**Description**: Service type where this dashboard is hosted in
+
+```json
+{
+  "serviceType": "Tableau"
+}
+```
+
+---
+
 ## Complete Example
 
 ```json
@@ -872,8 +1199,9 @@ View the complete Dashboard schema in your preferred format:
   "displayName": "Sales Overview Dashboard",
   "description": "# Sales Overview Dashboard\n\nExecutive dashboard showing sales performance metrics across all regions.",
   "dashboardType": "Dashboard",
-  "dashboardUrl": "https://tableau.example.com/views/sales_overview",
+  "sourceUrl": "/views/sales_overview",
   "project": "Sales Analytics",
+  "href": "http://localhost:8585/api/v1/dashboards/2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
   "charts": [
     {
       "id": "chart-1-uuid",
@@ -888,29 +1216,77 @@ View the complete Dashboard schema in your preferred format:
       "displayName": "Sales by Region"
     }
   ],
+  "dataModels": [
+    {
+      "id": "model-1-uuid",
+      "type": "dataModel",
+      "name": "sales_model"
+    }
+  ],
   "service": {
     "id": "service-uuid",
     "type": "dashboardService",
     "name": "tableau_prod"
   },
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "sales-team",
-    "displayName": "Sales Team"
-  },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Sales"
-  },
+  "serviceType": "Tableau",
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "sales-team",
+      "displayName": "Sales Team"
+    }
+  ],
+  "followers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "john.doe"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Sales"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "product-uuid",
+      "type": "dataProduct",
+      "name": "sales_analytics"
+    }
+  ],
   "tags": [
-    {"tagFQN": "Tier.Gold"},
-    {"tagFQN": "BusinessCritical"}
+    {
+      "tagFQN": "Tier.Gold",
+      "source": "Classification",
+      "labelType": "Manual",
+      "state": "Confirmed"
+    },
+    {
+      "tagFQN": "BusinessCritical",
+      "source": "Classification",
+      "labelType": "Manual",
+      "state": "Confirmed"
+    }
   ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.Revenue"}
-  ],
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2
+  },
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "john.doe"
+    }
+  },
+  "certification": {
+    "certifiedBy": "data-governance-team",
+    "certifiedAt": 1704067200000,
+    "status": "Certified"
+  },
   "usageSummary": {
     "dailyStats": {
       "count": 45,
@@ -924,7 +1300,9 @@ View the complete Dashboard schema in your preferred format:
   },
   "version": 1.8,
   "updatedAt": 1704240000000,
-  "updatedBy": "john.doe"
+  "updatedBy": "john.doe",
+  "deleted": false,
+  "sourceHash": "a1b2c3d4e5f6"
 }
 ```
 
@@ -946,11 +1324,18 @@ om:Dashboard a owl:Class ;
     om:hasProperties [
         om:name "string" ;
         om:dashboardType "DashboardType" ;
-        om:dashboardUrl "uri" ;
+        om:sourceUrl "uri" ;
         om:charts "Chart[]" ;
+        om:dataModels "DataModel[]" ;
         om:service "DashboardService" ;
-        om:owner "Owner" ;
+        om:owners "Owner[]" ;
+        om:followers "User[]" ;
+        om:domains "Domain[]" ;
+        om:dataProducts "DataProduct[]" ;
         om:tags "Tag[]" ;
+        om:votes "Votes" ;
+        om:lifeCycle "LifeCycle" ;
+        om:certification "AssetCertification" ;
     ] .
 ```
 
@@ -966,13 +1351,17 @@ ex:sales_overview a om:Dashboard ;
     om:displayName "Sales Overview Dashboard" ;
     om:description "Executive sales dashboard" ;
     om:dashboardType "Dashboard" ;
-    om:dashboardUrl "https://tableau.example.com/views/sales_overview" ;
+    om:sourceUrl "/views/sales_overview" ;
     om:belongsToService ex:tableau_prod ;
-    om:ownedBy ex:sales_team ;
+    om:hasOwners ex:sales_team ;
+    om:hasFollowers ex:user1, ex:user2 ;
+    om:inDomains ex:sales_domain ;
+    om:partOfDataProducts ex:sales_analytics ;
     om:hasTag ex:tier_gold ;
-    om:linkedToGlossaryTerm ex:revenue_term ;
     om:hasChart ex:monthly_sales_chart ;
-    om:hasChart ex:regional_breakdown_chart .
+    om:hasChart ex:regional_breakdown_chart ;
+    om:hasVotes ex:votes_summary ;
+    om:hasCertification ex:governance_certification .
 ```
 
 ---
@@ -991,8 +1380,8 @@ ex:sales_overview a om:Dashboard ;
       "@id": "om:dashboardType",
       "@type": "@vocab"
     },
-    "dashboardUrl": {
-      "@id": "om:dashboardUrl",
+    "sourceUrl": {
+      "@id": "om:sourceUrl",
       "@type": "xsd:anyURI"
     },
     "charts": {
@@ -1000,18 +1389,51 @@ ex:sales_overview a om:Dashboard ;
       "@type": "@id",
       "@container": "@list"
     },
+    "dataModels": {
+      "@id": "om:usesDataModel",
+      "@type": "@id",
+      "@container": "@set"
+    },
     "service": {
       "@id": "om:belongsToService",
       "@type": "@id"
     },
-    "owner": {
-      "@id": "om:ownedBy",
-      "@type": "@id"
+    "owners": {
+      "@id": "om:hasOwners",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:hasFollowers",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:inDomains",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:partOfDataProducts",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
       "@id": "om:hasTag",
       "@type": "@id",
       "@container": "@set"
+    },
+    "votes": {
+      "@id": "om:hasVotes",
+      "@type": "@id"
+    },
+    "lifeCycle": {
+      "@id": "om:hasLifeCycle",
+      "@type": "@id"
+    },
+    "certification": {
+      "@id": "om:hasCertification",
+      "@type": "@id"
     }
   }
 }
@@ -1051,7 +1473,7 @@ Get a list of dashboards, optionally filtered by service.
 ```http
 GET /v1/dashboards
 Query Parameters:
-  - fields: Fields to include (charts, tags, owner, usageSummary, dataModels, etc.)
+  - fields: Fields to include (charts, tags, owners, followers, domains, dataProducts, usageSummary, dataModels, etc.)
   - service: Filter by dashboard service name
   - limit: Number of results (1-1000000, default 10)
   - before/after: Cursor-based pagination
@@ -1073,7 +1495,7 @@ Content-Type: application/json
   "service": "tableau_prod",
   "displayName": "Sales Overview Dashboard",
   "description": "Executive sales performance dashboard",
-  "dashboardUrl": "https://tableau.example.com/views/sales_overview",
+  "sourceUrl": "/views/sales_overview",
   "dashboardType": "Dashboard",
   "charts": [
     {
@@ -1091,6 +1513,12 @@ Content-Type: application/json
       "type": "dashboardDataModel"
     }
   ],
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "team"
+    }
+  ],
   "tags": [
     {"tagFQN": "BusinessCritical"}
   ]
@@ -1106,11 +1534,11 @@ Get a dashboard by its fully qualified name.
 ```http
 GET /v1/dashboards/name/{fqn}
 Query Parameters:
-  - fields: Fields to include (charts, tags, owner, usageSummary, dataModels, etc.)
+  - fields: Fields to include (charts, tags, owners, followers, domains, dataProducts, usageSummary, dataModels, etc.)
   - include: all | deleted | non-deleted
 
 Example:
-GET /v1/dashboards/name/tableau_prod.sales_overview?fields=charts,tags,owner,usageSummary
+GET /v1/dashboards/name/tableau_prod.sales_overview?fields=charts,tags,owners,followers,usageSummary
 
 Response: Dashboard
 ```
@@ -1139,7 +1567,7 @@ Content-Type: application/json-patch+json
 [
   {"op": "add", "path": "/tags/-", "value": {"tagFQN": "Tier.Gold"}},
   {"op": "replace", "path": "/description", "value": "Updated sales dashboard"},
-  {"op": "add", "path": "/owner", "value": {"id": "...", "type": "team"}}
+  {"op": "add", "path": "/owners/-", "value": {"id": "...", "type": "team"}}
 ]
 
 Response: Dashboard
@@ -1156,7 +1584,7 @@ Content-Type: application/json
 {
   "name": "revenue_analytics",
   "service": "powerbi_prod",
-  "dashboardUrl": "...",
+  "sourceUrl": "/reports/revenue_analytics",
   "charts": [...]
 }
 
