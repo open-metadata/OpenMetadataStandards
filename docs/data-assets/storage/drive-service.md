@@ -31,14 +31,8 @@ graph TD
 **Supported Drive Platforms**:
 
 - **Google Drive** - Google Workspace cloud file storage and collaboration
-- **Google Shared Drives** - Team drives with shared ownership
-- **OneDrive** - Microsoft OneDrive personal and business cloud storage
-- **OneDrive for Business** - Enterprise OneDrive with SharePoint integration
 - **SharePoint** - Microsoft SharePoint document libraries and sites
-- **Dropbox** - Dropbox cloud file storage and sharing
-- **Dropbox Business** - Enterprise Dropbox with team folders
-- **Box** - Box cloud content management
-- **iCloud Drive** - Apple iCloud file storage
+- **CustomDrive** - Custom drive service implementations
 
 **Drive-Specific Features**:
 
@@ -81,14 +75,14 @@ graph TD
     end
 
     subgraph Ownership
-        DS -.->|owned by| TEAM[Team<br/>Marketing]
-        DS -.->|owned by| USER[User<br/>drive.admin]
+        DS -.->|owners| TEAM[Team<br/>Marketing]
+        DS -.->|owners| USER[User<br/>drive.admin]
     end
 
     subgraph Governance
-        DS -.->|in domain| DOM[Domain<br/>Marketing]
-        DS -.->|tagged| TAG1[Tag<br/>Tier.Gold]
-        DS -.->|tagged| TAG2[Tag<br/>Sensitive]
+        DS -.->|domains| DOM[Domain<br/>Marketing]
+        DS -.->|tags| TAG1[Tag<br/>Tier.Gold]
+        DS -.->|tags| TAG2[Tag<br/>Sensitive]
     end
 
     subgraph Data Flow
@@ -133,81 +127,160 @@ View the complete DriveService schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/services/driveService.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "DriveService",
-      "description": "Drive service for cloud document management platforms.",
+      "title": "Drive Service",
+      "description": "This schema defines the Drive Service entity, such as Google Drive.",
       "type": "object",
-
-      "properties": {
-        "id": {
-          "description": "Unique identifier",
-          "$ref": "../../type/basic.json#/definitions/uuid"
-        },
-        "name": {
-          "description": "Service name",
-          "$ref": "../../type/basic.json#/definitions/entityName"
-        },
-        "serviceType": {
-          "description": "Type of drive service",
+      "javaType": "org.openmetadata.schema.entity.services.DriveService",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface",
+        "org.openmetadata.schema.ServiceEntityInterface"
+      ],
+      "definitions": {
+        "driveServiceType": {
+          "description": "Type of drive service such as Google Drive...",
+          "javaInterfaces": [
+            "org.openmetadata.schema.EnumInterface"
+          ],
           "type": "string",
           "enum": [
             "GoogleDrive",
-            "GoogleSharedDrive",
-            "OneDrive",
-            "OneDriveForBusiness",
             "SharePoint",
-            "Dropbox",
-            "DropboxBusiness",
-            "Box",
-            "iCloudDrive"
+            "CustomDrive"
+          ],
+          "javaEnums": [
+            {
+              "name": "GoogleDrive"
+            },
+            {
+              "name": "SharePoint"
+            },
+            {
+              "name": "CustomDrive"
+            }
           ]
         },
+        "driveConnection": {
+          "type": "object",
+          "javaType": "org.openmetadata.schema.type.DriveConnection",
+          "description": "Drive Connection.",
+          "javaInterfaces": [
+            "org.openmetadata.schema.ServiceConnectionEntityInterface"
+          ],
+          "properties": {
+            "config": {
+              "mask": true,
+              "oneOf": [
+                {
+                  "$ref": "connections/drive/googleDriveConnection.json"
+                },
+                {
+                  "$ref": "connections/drive/sharePointConnection.json"
+                },
+                {
+                  "$ref": "connections/drive/customDriveConnection.json"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "properties": {
+        "id": {
+          "description": "Unique identifier of this drive service instance.",
+          "$ref": "../../type/basic.json#/definitions/uuid"
+        },
+        "name": {
+          "description": "Name that identifies this drive service.",
+          "$ref": "../../type/basic.json#/definitions/entityName"
+        },
+        "fullyQualifiedName": {
+          "description": "FullyQualifiedName same as `name`.",
+          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+        },
+        "displayName": {
+          "description": "Display Name that identifies this drive service.",
+          "type": "string"
+        },
+        "serviceType": {
+          "description": "Type of drive service such as Google Drive...",
+          "$ref": "#/definitions/driveServiceType"
+        },
         "description": {
-          "description": "Service description",
+          "description": "Description of a drive service instance.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
         "connection": {
-          "description": "Connection configuration",
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": ["GoogleDrive", "OneDrive", "SharePoint", "Dropbox", "Box"]
-            },
-            "credentials": {
-              "description": "OAuth2 or API credentials",
-              "type": "object"
-            },
-            "organizationId": {
-              "description": "Organization or tenant ID",
-              "type": "string"
-            },
-            "rootPath": {
-              "description": "Root folder path to index",
-              "type": "string"
-            }
-          }
+          "$ref": "#/definitions/driveConnection"
         },
-        "directories": {
-          "description": "Top-level directories in this drive",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "pipelines": {
+          "description": "References to pipelines deployed for this drive service to extract metadata, usage, lineage etc..",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "owner": {
-          "description": "Owner of this service",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Domain this service belongs to",
-          "$ref": "../../type/entityReference.json"
+        "testConnectionResult": {
+          "description": "Last test connection results for this service",
+          "$ref": "connections/testConnectionResult.json"
         },
         "tags": {
-          "description": "Tags for this service",
+          "description": "Tags for this drive Service.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
+        },
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this drive service.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "owners": {
+          "description": "Owners of this drive service.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "domains": {
+          "description": "Domains the Drive service belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "ingestionRunner": {
+          "description": "The ingestion agent responsible for executing the ingestion pipeline.",
+          "$ref": "../../type/entityReference.json"
         }
       },
       "required": ["id", "name", "serviceType"],
@@ -221,78 +294,143 @@ View the complete DriveService schema in your preferred format:
 
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
-    @prefix om-drive: <https://open-metadata.org/schema/entity/services/> .
+    @prefix om-entity: <https://open-metadata.org/schema/entity/> .
+    @prefix om-service: <https://open-metadata.org/schema/entity/services/> .
     @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
     @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # Drive Service Class
-    om-drive:DriveService a owl:Class ;
+    om-service:DriveService a owl:Class ;
         rdfs:label "Drive Service" ;
-        rdfs:comment "Cloud document management and file sharing platform" ;
+        rdfs:comment "This schema defines the Drive Service entity, such as Google Drive." ;
         rdfs:subClassOf om:Service ;
-        rdfs:isDefinedBy om: .
+        rdfs:isDefinedBy <https://open-metadata.org/schema/entity/services/driveService.json> .
 
-    # Properties
-    om-drive:serviceType a owl:DatatypeProperty ;
-        rdfs:label "service type" ;
-        rdfs:comment "Type of drive platform (GoogleDrive, OneDrive, etc.)" ;
-        rdfs:domain om-drive:DriveService ;
+    # Core Properties
+    om:id a owl:DatatypeProperty ;
+        rdfs:label "id" ;
+        rdfs:comment "Unique identifier of this drive service instance." ;
+        rdfs:domain om-service:DriveService ;
         rdfs:range xsd:string .
 
-    om-drive:hasDirectory a owl:ObjectProperty ;
-        rdfs:label "has directory" ;
-        rdfs:comment "Directories in this drive service" ;
-        rdfs:domain om-drive:DriveService ;
-        rdfs:range om-drive:Directory .
+    om:name a owl:DatatypeProperty ;
+        rdfs:label "name" ;
+        rdfs:comment "Name that identifies this drive service." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range xsd:string .
 
-    om-drive:hasFile a owl:ObjectProperty ;
-        rdfs:label "has file" ;
-        rdfs:comment "Files in directories" ;
-        rdfs:domain om-drive:Directory ;
-        rdfs:range om-drive:File .
+    om:fullyQualifiedName a owl:DatatypeProperty ;
+        rdfs:label "fully qualified name" ;
+        rdfs:comment "FullyQualifiedName same as `name`." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range xsd:string .
 
-    om-drive:hasWorksheet a owl:ObjectProperty ;
-        rdfs:label "has worksheet" ;
-        rdfs:comment "Worksheets in a spreadsheet" ;
-        rdfs:domain om-drive:Spreadsheet ;
-        rdfs:range om-drive:Worksheet .
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:label "display name" ;
+        rdfs:comment "Display Name that identifies this drive service." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range xsd:string .
 
-    # Directory Class
-    om-drive:Directory a owl:Class ;
-        rdfs:label "Directory" ;
-        rdfs:comment "Folder or directory in drive service" ;
-        rdfs:isDefinedBy om: .
+    om:serviceType a owl:DatatypeProperty ;
+        rdfs:label "service type" ;
+        rdfs:comment "Type of drive service such as Google Drive..." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range xsd:string .
 
-    # File Classes
-    om-drive:File a owl:Class ;
-        rdfs:label "File" ;
-        rdfs:comment "File in drive service" ;
-        rdfs:isDefinedBy om: .
+    om:description a owl:DatatypeProperty ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of a drive service instance." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range xsd:string .
 
-    om-drive:Spreadsheet a owl:Class ;
-        rdfs:label "Spreadsheet" ;
-        rdfs:comment "Spreadsheet file (Excel, Google Sheets)" ;
-        rdfs:subClassOf om-drive:File ;
-        rdfs:isDefinedBy om: .
+    # Relationship Properties
+    om:owners a owl:ObjectProperty ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this drive service." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range om:EntityReference .
 
-    om-drive:Worksheet a owl:Class ;
-        rdfs:label "Worksheet" ;
-        rdfs:comment "Individual sheet/tab in a spreadsheet" ;
-        rdfs:isDefinedBy om: .
+    om:domains a owl:ObjectProperty ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the Drive service belongs to." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range om:EntityReference .
 
-    om-drive:Document a owl:Class ;
-        rdfs:label "Document" ;
-        rdfs:comment "Document file (Word, Google Docs, PDF)" ;
-        rdfs:subClassOf om-drive:File ;
-        rdfs:isDefinedBy om: .
+    om:tags a owl:ObjectProperty ;
+        rdfs:label "tags" ;
+        rdfs:comment "Tags for this drive Service." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range om:TagLabel .
 
-    om-drive:Presentation a owl:Class ;
-        rdfs:label "Presentation" ;
-        rdfs:comment "Presentation file (PowerPoint, Google Slides)" ;
-        rdfs:subClassOf om-drive:File ;
-        rdfs:isDefinedBy om: .
+    om:followers a owl:ObjectProperty ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this entity." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range om:EntityReference .
+
+    om:dataProducts a owl:ObjectProperty ;
+        rdfs:label "data products" ;
+        rdfs:comment "List of data products this entity is part of." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range om:EntityReference .
+
+    om:pipelines a owl:ObjectProperty ;
+        rdfs:label "pipelines" ;
+        rdfs:comment "References to pipelines deployed for this drive service to extract metadata, usage, lineage etc.." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range om:EntityReference .
+
+    om:ingestionRunner a owl:ObjectProperty ;
+        rdfs:label "ingestion runner" ;
+        rdfs:comment "The ingestion agent responsible for executing the ingestion pipeline." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range om:EntityReference .
+
+    # Metadata Properties
+    om:version a owl:DatatypeProperty ;
+        rdfs:label "version" ;
+        rdfs:comment "Metadata version of the entity." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range xsd:double .
+
+    om:updatedAt a owl:DatatypeProperty ;
+        rdfs:label "updated at" ;
+        rdfs:comment "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range xsd:long .
+
+    om:updatedBy a owl:DatatypeProperty ;
+        rdfs:label "updated by" ;
+        rdfs:comment "User who made the update." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range xsd:string .
+
+    om:href a owl:DatatypeProperty ;
+        rdfs:label "href" ;
+        rdfs:comment "Link to the resource corresponding to this drive service." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range xsd:anyURI .
+
+    om:deleted a owl:DatatypeProperty ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When `true` indicates the entity has been soft deleted." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range xsd:boolean .
+
+    # Connection Properties
+    om:connection a owl:ObjectProperty ;
+        rdfs:label "connection" ;
+        rdfs:comment "Drive Connection configuration." ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range om:DriveConnection .
+
+    om:testConnectionResult a owl:ObjectProperty ;
+        rdfs:label "test connection result" ;
+        rdfs:comment "Last test connection results for this service" ;
+        rdfs:domain om-service:DriveService ;
+        rdfs:range om:TestConnectionResult .
     ```
 
 === "JSON-LD Context"
@@ -302,43 +440,111 @@ View the complete DriveService schema in your preferred format:
     ```json
     {
       "@context": {
-        "@vocab": "https://open-metadata.org/schema/entity/services/",
+        "@vocab": "https://open-metadata.org/schema/",
         "om": "https://open-metadata.org/schema/",
+        "om-service": "https://open-metadata.org/schema/entity/services/",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
 
         "DriveService": {
-          "@id": "om:DriveService",
+          "@id": "om-service:DriveService",
           "@type": "@id"
+        },
+        "id": {
+          "@id": "om:id",
+          "@type": "xsd:string"
+        },
+        "name": {
+          "@id": "om:name",
+          "@type": "xsd:string"
+        },
+        "fullyQualifiedName": {
+          "@id": "om:fullyQualifiedName",
+          "@type": "xsd:string"
+        },
+        "displayName": {
+          "@id": "om:displayName",
+          "@type": "xsd:string"
         },
         "serviceType": {
           "@id": "om:serviceType",
           "@type": "xsd:string"
         },
-        "directories": {
-          "@id": "om:hasDirectory",
-          "@type": "@id",
-          "@container": "@set"
+        "description": {
+          "@id": "om:description",
+          "@type": "xsd:string"
         },
-        "Directory": {
-          "@id": "om:Directory",
+        "connection": {
+          "@id": "om:connection",
           "@type": "@id"
         },
-        "files": {
-          "@id": "om:hasFile",
+        "pipelines": {
+          "@id": "om:pipelines",
           "@type": "@id",
           "@container": "@set"
         },
-        "Spreadsheet": {
-          "@id": "om:Spreadsheet",
+        "testConnectionResult": {
+          "@id": "om:testConnectionResult",
           "@type": "@id"
         },
-        "worksheets": {
-          "@id": "om:hasWorksheet",
+        "tags": {
+          "@id": "om:tags",
           "@type": "@id",
           "@container": "@set"
         },
-        "Worksheet": {
-          "@id": "om:Worksheet",
+        "version": {
+          "@id": "om:version",
+          "@type": "xsd:double"
+        },
+        "updatedAt": {
+          "@id": "om:updatedAt",
+          "@type": "xsd:long"
+        },
+        "updatedBy": {
+          "@id": "om:updatedBy",
+          "@type": "xsd:string"
+        },
+        "impersonatedBy": {
+          "@id": "om:impersonatedBy",
+          "@type": "xsd:string"
+        },
+        "href": {
+          "@id": "om:href",
+          "@type": "xsd:anyURI"
+        },
+        "owners": {
+          "@id": "om:owners",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "changeDescription": {
+          "@id": "om:changeDescription",
+          "@type": "@id"
+        },
+        "incrementalChangeDescription": {
+          "@id": "om:incrementalChangeDescription",
+          "@type": "@id"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
+        },
+        "dataProducts": {
+          "@id": "om:dataProducts",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:followers",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:domains",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "ingestionRunner": {
+          "@id": "om:ingestionRunner",
           "@type": "@id"
         }
       }
@@ -356,13 +562,10 @@ View the complete DriveService schema in your preferred format:
 ```yaml
 serviceType: GoogleDrive
 connection:
-  type: GoogleDrive
-  credentials:
+  config:
     clientId: xxx
     clientSecret: xxx
     refreshToken: xxx
-  organizationId: example.com
-  rootPath: /Marketing
 ```
 
 **Features**:
@@ -372,20 +575,19 @@ connection:
 - Version history and restore
 - Google Workspace integration
 
-### OneDrive / SharePoint
+### SharePoint
 
 **Configuration**:
 
 ```yaml
-serviceType: OneDriveForBusiness
+serviceType: SharePoint
 connection:
-  type: OneDrive
-  credentials:
+  config:
     tenantId: xxx
     clientId: xxx
     clientSecret: xxx
-  organizationId: contoso.sharepoint.com
-  rootPath: /sites/Marketing
+    hostPort: contoso.sharepoint.com
+    siteName: Marketing
 ```
 
 **Features**:
@@ -395,26 +597,21 @@ connection:
 - Co-authoring in Office apps
 - Compliance and retention policies
 
-### Dropbox
+### CustomDrive
 
 **Configuration**:
 
 ```yaml
-serviceType: DropboxBusiness
+serviceType: CustomDrive
 connection:
-  type: Dropbox
-  credentials:
-    accessToken: xxx
-  organizationId: example-team
-  rootPath: /Marketing
+  config:
+    # Custom configuration based on implementation
 ```
 
 **Features**:
-- File sync and sharing
-- Paper documents
-- Team folders
-- File requests
-- Smart Sync
+- Support for custom drive service implementations
+- Flexible configuration options
+- Extensible connector framework
 
 ---
 
@@ -509,9 +706,14 @@ Track important documents:
     {
       "name": "Vendor_Agreement_ACME.docx",
       "type": "Contract",
-      "tags": ["Legal", "Confidential"],
-      "owner": "legal-team",
-      "lastModified": "2024-11-20"
+      "tags": [
+        {"tagFQN": "Legal", "labelType": "Manual"},
+        {"tagFQN": "Confidential", "labelType": "Manual"}
+      ],
+      "owners": [
+        {"id": "legal-team-uuid", "type": "team"}
+      ],
+      "updatedAt": 1700486400000
     }
   ]
 }
@@ -572,24 +774,57 @@ Content-Type: application/json
 {
   "name": "google_drive_marketing",
   "serviceType": "GoogleDrive",
+  "displayName": "Google Drive - Marketing",
+  "description": "Marketing team's Google Drive service",
   "connection": {
-    "type": "GoogleDrive",
-    "credentials": {...},
-    "organizationId": "example.com"
-  }
+    "config": {
+      "clientId": "xxx",
+      "clientSecret": "xxx",
+      "refreshToken": "xxx"
+    }
+  },
+  "owners": [
+    {
+      "id": "user-uuid",
+      "type": "user"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain"
+    }
+  ]
 }
 ```
 
-### List Directories
+### Get Drive Service
 
 ```http
-GET /api/v1/services/driveServices/{id}/directories
+GET /api/v1/services/driveServices/{id}
 ```
 
-### Get Spreadsheet Metadata
+### Update Drive Service
 
 ```http
-GET /api/v1/driveFiles/{id}/worksheets
+PATCH /api/v1/services/driveServices/{id}
+Content-Type: application/json
+
+{
+  "description": "Updated description",
+  "tags": [
+    {
+      "tagFQN": "Tier.Gold",
+      "labelType": "Manual"
+    }
+  ]
+}
+```
+
+### Delete Drive Service
+
+```http
+DELETE /api/v1/services/driveServices/{id}
 ```
 
 ---

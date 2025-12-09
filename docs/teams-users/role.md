@@ -181,112 +181,101 @@ View the complete Role schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/teams/role.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Role",
-      "description": "A `Role` defines a set of permissions and policies that can be assigned to users and teams.",
-      "type": "object",
+      "description": "A `Role` is a collection of `Policies` that provides access control. A user or a team can be assigned one or multiple roles that provide privileges to a user and members of a team to perform the job function.",
       "javaType": "org.openmetadata.schema.entity.teams.Role",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
+      "type": "object",
 
       "definitions": {
-        "roleType": {
-          "description": "Type of role",
-          "type": "string",
-          "enum": [
-            "System",
-            "Custom"
-          ]
-        }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Role name",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified role name",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Name used for display purposes. Example 'Data Consumer'.",
           "type": "string"
         },
         "description": {
-          "description": "Role description",
+          "description": "Description of the role.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "roleType": {
-          "$ref": "#/definitions/roleType"
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "allowDelete": {
+          "description": "Some system roles can't be deleted",
+          "type": "boolean"
+        },
+        "allowEdit": {
+          "description": "Some system roles can't be edited",
+          "type": "boolean"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
         },
         "policies": {
-          "description": "Policies associated with this role",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "rules": {
-          "description": "Access control rules",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "resources": {
-                "type": "array",
-                "items": {"type": "string"}
-              },
-              "operations": {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "enum": [
-                    "Create", "Read", "Update", "Delete",
-                    "ViewAll", "EditAll", "EditOwner",
-                    "EditTags", "EditDescription", "EditLineage",
-                    "EditCustomFields", "EditTests", "EditQueries",
-                    "ViewUsage", "ViewTests", "ViewQueries",
-                    "ViewSampleData", "ViewDataProfile"
-                  ]
-                }
-              },
-              "effect": {
-                "type": "string",
-                "enum": ["Allow", "Deny"]
-              },
-              "condition": {
-                "type": "string",
-                "description": "Condition expression for rule"
-              }
-            },
-            "required": ["name", "resources", "operations", "effect"]
-          }
+          "description": "Policies that is attached to this role.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "users": {
-          "description": "Users assigned this role",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "Users that have this role assigned to them.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "teams": {
-          "description": "Teams assigned this role",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "Teams that have this role assigned to them.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "provider": {
+          "$ref": "../../type/basic.json#/definitions/providerType"
+        },
+        "disabled": {
+          "description": "System policy can't be deleted. Use this flag to disable them.",
+          "type": "boolean"
+        },
+        "domains": {
+          "description": "Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
         }
       },
 
-      "required": ["id", "name", "policies"]
+      "required": ["id", "name"],
+      "additionalProperties": false
     }
     ```
 
@@ -299,88 +288,102 @@ View the complete Role schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # Role Class Definition
     om:Role a owl:Class ;
         rdfs:subClassOf om:Entity ;
         rdfs:label "Role" ;
-        rdfs:comment "A set of permissions and policies for authorization" .
+        rdfs:comment "A collection of Policies that provides access control for users and teams" .
 
-    # Properties
+    # Data Properties
     om:roleName a owl:DatatypeProperty ;
         rdfs:domain om:Role ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
         rdfs:comment "Name of the role" .
 
-    om:roleType a owl:DatatypeProperty ;
+    om:roleDisplayName a owl:DatatypeProperty ;
         rdfs:domain om:Role ;
-        rdfs:range om:RoleType ;
-        rdfs:label "roleType" ;
-        rdfs:comment "Type: System or Custom" .
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display name of the role" .
 
-    om:includesPolicy a owl:ObjectProperty ;
+    om:roleDescription a owl:DatatypeProperty ;
+        rdfs:domain om:Role ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of the role" .
+
+    om:roleAllowDelete a owl:DatatypeProperty ;
+        rdfs:domain om:Role ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "allowDelete" ;
+        rdfs:comment "Indicates if the role can be deleted" .
+
+    om:roleAllowEdit a owl:DatatypeProperty ;
+        rdfs:domain om:Role ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "allowEdit" ;
+        rdfs:comment "Indicates if the role can be edited" .
+
+    om:roleDisabled a owl:DatatypeProperty ;
+        rdfs:domain om:Role ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "disabled" ;
+        rdfs:comment "System roles can be disabled" .
+
+    om:roleDeleted a owl:DatatypeProperty ;
+        rdfs:domain om:Role ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "Soft deletion flag" .
+
+    # Object Properties
+    om:hasPolicy a owl:ObjectProperty ;
         rdfs:domain om:Role ;
         rdfs:range om:Policy ;
-        rdfs:label "includesPolicy" ;
-        rdfs:comment "Policies included in this role" .
+        rdfs:label "policies" ;
+        rdfs:comment "Policies attached to this role" .
 
-    om:hasRule a owl:ObjectProperty ;
-        rdfs:domain om:Role ;
-        rdfs:range om:AccessRule ;
-        rdfs:label "hasRule" ;
-        rdfs:comment "Access control rules" .
-
-    om:assignedToUser a owl:ObjectProperty ;
+    om:hasUser a owl:ObjectProperty ;
         rdfs:domain om:Role ;
         rdfs:range om:User ;
-        rdfs:label "assignedToUser" ;
-        rdfs:comment "Users assigned this role" .
+        rdfs:label "users" ;
+        rdfs:comment "Users that have this role assigned" .
 
-    om:assignedToTeam a owl:ObjectProperty ;
+    om:hasTeam a owl:ObjectProperty ;
         rdfs:domain om:Role ;
         rdfs:range om:Team ;
-        rdfs:label "assignedToTeam" ;
-        rdfs:comment "Teams assigned this role" .
+        rdfs:label "teams" ;
+        rdfs:comment "Teams that have this role assigned" .
 
-    # Role Type Enumeration
-    om:RoleType a owl:Class ;
-        owl:oneOf (
-            om:SystemRole
-            om:CustomRole
-        ) .
+    om:hasDomain a owl:ObjectProperty ;
+        rdfs:domain om:Role ;
+        rdfs:range om:Domain ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the role belongs to" .
 
-    # Access Rule Class
-    om:AccessRule a owl:Class ;
-        rdfs:label "AccessRule" ;
-        rdfs:comment "Defines access permissions for resources" .
-
-    om:ruleResources a owl:DatatypeProperty ;
-        rdfs:domain om:AccessRule ;
-        rdfs:range xsd:string ;
-        rdfs:label "resources" .
-
-    om:ruleOperations a owl:DatatypeProperty ;
-        rdfs:domain om:AccessRule ;
-        rdfs:range xsd:string ;
-        rdfs:label "operations" .
-
-    om:ruleEffect a owl:DatatypeProperty ;
-        rdfs:domain om:AccessRule ;
-        rdfs:range om:Effect ;
-        rdfs:label "effect" .
+    om:roleProvider a owl:ObjectProperty ;
+        rdfs:domain om:Role ;
+        rdfs:range om:ProviderType ;
+        rdfs:label "provider" ;
+        rdfs:comment "Provider type for the role" .
 
     # Example Instance
     ex:dataEngineerRole a om:Role ;
         om:roleName "DataEngineer" ;
-        om:displayName "Data Engineer" ;
-        om:roleType om:SystemRole ;
-        om:includesPolicy ex:dataAccessPolicy ;
-        om:includesPolicy ex:pipelineManagementPolicy ;
-        om:assignedToUser ex:janeDoe ;
-        om:assignedToTeam ex:dataEngineeringTeam .
+        om:roleDisplayName "Data Engineer" ;
+        om:roleDescription "Role for data engineers with permissions to manage data pipelines" ;
+        om:roleAllowDelete false ;
+        om:roleAllowEdit false ;
+        om:roleDisabled false ;
+        om:hasPolicy ex:dataAccessPolicy ;
+        om:hasPolicy ex:pipelineManagementPolicy ;
+        om:hasUser ex:janeDoe ;
+        om:hasTeam ex:dataEngineeringTeam ;
+        om:hasDomain ex:dataPlatformDomain .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -407,36 +410,52 @@ View the complete Role schema in your preferred format:
           "@type": "xsd:string"
         },
         "displayName": {
-          "@id": "om:displayName",
+          "@id": "om:roleDisplayName",
           "@type": "xsd:string"
         },
         "description": {
-          "@id": "om:description",
+          "@id": "om:roleDescription",
           "@type": "xsd:string"
         },
-        "roleType": {
-          "@id": "om:roleType",
-          "@type": "@vocab"
+        "allowDelete": {
+          "@id": "om:roleAllowDelete",
+          "@type": "xsd:boolean"
+        },
+        "allowEdit": {
+          "@id": "om:roleAllowEdit",
+          "@type": "xsd:boolean"
+        },
+        "disabled": {
+          "@id": "om:roleDisabled",
+          "@type": "xsd:boolean"
+        },
+        "deleted": {
+          "@id": "om:roleDeleted",
+          "@type": "xsd:boolean"
         },
         "policies": {
-          "@id": "om:includesPolicy",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "rules": {
-          "@id": "om:hasRule",
+          "@id": "om:hasPolicy",
           "@type": "@id",
           "@container": "@set"
         },
         "users": {
-          "@id": "om:assignedToUser",
+          "@id": "om:hasUser",
           "@type": "@id",
           "@container": "@set"
         },
         "teams": {
-          "@id": "om:assignedToTeam",
+          "@id": "om:hasTeam",
           "@type": "@id",
           "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:hasDomain",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "provider": {
+          "@id": "om:roleProvider",
+          "@type": "@vocab"
         }
       }
     }
@@ -454,7 +473,10 @@ View the complete Role schema in your preferred format:
       "fullyQualifiedName": "DataEngineer",
       "displayName": "Data Engineer",
       "description": "Role for data engineers with permissions to manage data pipelines and infrastructure",
-      "roleType": "System",
+      "allowDelete": false,
+      "allowEdit": false,
+      "disabled": false,
+      "deleted": false,
 
       "policies": [
         {
@@ -466,21 +488,6 @@ View the complete Role schema in your preferred format:
           "@id": "https://example.com/policies/pipeline-management",
           "@type": "Policy",
           "name": "PipelineManagement"
-        }
-      ],
-
-      "rules": [
-        {
-          "name": "TableAccess",
-          "resources": ["table"],
-          "operations": ["Read", "Update", "EditDescription", "EditOwner", "EditTags"],
-          "effect": "Allow"
-        },
-        {
-          "name": "PipelineManagement",
-          "resources": ["pipeline"],
-          "operations": ["Create", "Read", "Update", "Delete"],
-          "effect": "Allow"
         }
       ],
 
@@ -497,6 +504,14 @@ View the complete Role schema in your preferred format:
           "@id": "https://example.com/teams/data-engineering",
           "@type": "Team",
           "name": "DataEngineering"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/data-platform",
+          "@type": "Domain",
+          "name": "DataPlatform"
         }
       ]
     }
@@ -591,30 +606,12 @@ View the complete Role schema in your preferred format:
 
 ---
 
-### Role Type Properties
+### Policy Properties
 
-#### `roleType` (RoleType enum)
-**Type**: `string` enum
-**Required**: No (default: `Custom`)
-**Allowed Values**:
-
-- `System` - Built-in system role (cannot be deleted)
-- `Custom` - User-defined custom role
-
-```json
-{
-  "roleType": "System"
-}
-```
-
----
-
-### Policy and Rule Properties
-
-#### `policies[]` (EntityReference[])
-**Type**: `array` of Policy references
-**Required**: Yes
-**Description**: Policies associated with this role
+#### `policies` (EntityReferenceList)
+**Type**: EntityReferenceList
+**Required**: No
+**Description**: Policies that are attached to this role
 
 ```json
 {
@@ -637,84 +634,12 @@ View the complete Role schema in your preferred format:
 
 ---
 
-#### `rules[]` (AccessRule[])
-**Type**: `array` of rule objects
-**Required**: No
-**Description**: Access control rules defining permissions
-
-**Rule Object Properties**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | Yes | Rule name |
-| `resources` | string[] | Yes | Resource types (table, pipeline, dashboard, etc.) |
-| `operations` | string[] | Yes | Allowed operations |
-| `effect` | enum | Yes | Allow or Deny |
-| `condition` | string | No | Conditional expression |
-
-**Available Operations**:
-
-- `Create` - Create new entities
-- `Read` - Read entity data
-- `Update` - Update entity
-- `Delete` - Delete entity
-- `ViewAll` - View all entities
-- `EditAll` - Edit all entities
-- `EditOwner` - Change ownership
-- `EditTags` - Modify tags
-- `EditDescription` - Edit descriptions
-- `EditLineage` - Modify lineage
-- `EditCustomFields` - Edit custom properties
-- `EditTests` - Manage data quality tests
-- `EditQueries` - Edit queries
-- `ViewUsage` - View usage statistics
-- `ViewTests` - View test results
-- `ViewQueries` - View queries
-- `ViewSampleData` - View sample data
-- `ViewDataProfile` - View data profiles
-
-**Example**:
-
-```json
-{
-  "rules": [
-    {
-      "name": "TableReadWrite",
-      "resources": ["table"],
-      "operations": ["Read", "Update", "EditDescription", "EditOwner", "EditTags"],
-      "effect": "Allow"
-    },
-    {
-      "name": "PipelineFullAccess",
-      "resources": ["pipeline"],
-      "operations": ["Create", "Read", "Update", "Delete"],
-      "effect": "Allow"
-    },
-    {
-      "name": "DashboardReadOnly",
-      "resources": ["dashboard"],
-      "operations": ["Read", "ViewAll"],
-      "effect": "Allow"
-    },
-    {
-      "name": "SensitiveDataRestriction",
-      "resources": ["table"],
-      "operations": ["ViewSampleData"],
-      "effect": "Deny",
-      "condition": "hasPIITag(resource)"
-    }
-  ]
-}
-```
-
----
-
 ### Assignment Properties
 
-#### `users[]` (EntityReference[])
-**Type**: `array` of User references
+#### `users` (EntityReferenceList)
+**Type**: EntityReferenceList
 **Required**: No
-**Description**: Users assigned this role
+**Description**: Users that have this role assigned to them
 
 ```json
 {
@@ -737,10 +662,10 @@ View the complete Role schema in your preferred format:
 
 ---
 
-#### `teams[]` (EntityReference[])
-**Type**: `array` of Team references
+#### `teams` (EntityReferenceList)
+**Type**: EntityReferenceList
 **Required**: No
-**Description**: Teams assigned this role
+**Description**: Teams that have this role assigned to them
 
 ```json
 {
@@ -752,6 +677,161 @@ View the complete Role schema in your preferred format:
       "displayName": "Data Engineering Team"
     }
   ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: EntityReferenceList
+**Required**: No
+**Description**: Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to
+
+```json
+{
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "DataPlatform",
+      "displayName": "Data Platform Domain"
+    }
+  ]
+}
+```
+
+---
+
+### System Properties
+
+#### `allowDelete` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Description**: Some system roles can't be deleted
+
+```json
+{
+  "allowDelete": false
+}
+```
+
+---
+
+#### `allowEdit` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Description**: Some system roles can't be edited
+
+```json
+{
+  "allowEdit": false
+}
+```
+
+---
+
+#### `disabled` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Description**: System policy can't be deleted. Use this flag to disable them
+
+```json
+{
+  "disabled": false
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `provider` (providerType)
+**Type**: providerType reference
+**Required**: No
+**Description**: Provider type for the role
+
+```json
+{
+  "provider": "system"
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI format)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "http://localhost:8585/api/v1/roles/c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f"
+}
+```
+
+---
+
+#### `impersonatedBy` (impersonatedBy)
+**Type**: impersonatedBy reference
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": "bot-user"
+}
+```
+
+---
+
+#### `changeDescription` (changeDescription)
+**Type**: changeDescription object
+**Required**: No (system-generated)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "policies",
+        "oldValue": "[]",
+        "newValue": "[{\"id\":\"policy-uuid\",\"type\":\"policy\"}]"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.0
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (changeDescription)
+**Type**: changeDescription object
+**Required**: No (system-generated)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
 }
 ```
 
@@ -807,7 +887,14 @@ View the complete Role schema in your preferred format:
   "fullyQualifiedName": "DataEngineer",
   "displayName": "Data Engineer",
   "description": "# Data Engineer Role\n\nProvides permissions for data engineers to manage data pipelines, tables, and infrastructure.",
-  "roleType": "System",
+  "version": 1.2,
+  "updatedAt": 1704240000000,
+  "updatedBy": "admin",
+  "href": "http://localhost:8585/api/v1/roles/c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+  "allowDelete": false,
+  "allowEdit": false,
+  "deleted": false,
+  "disabled": false,
   "policies": [
     {
       "id": "policy-uuid-1",
@@ -818,26 +905,6 @@ View the complete Role schema in your preferred format:
       "id": "policy-uuid-2",
       "type": "policy",
       "name": "PipelineManagementPolicy"
-    }
-  ],
-  "rules": [
-    {
-      "name": "TableAccess",
-      "resources": ["table"],
-      "operations": ["Read", "Update", "EditDescription", "EditOwner", "EditTags", "ViewDataProfile"],
-      "effect": "Allow"
-    },
-    {
-      "name": "PipelineManagement",
-      "resources": ["pipeline"],
-      "operations": ["Create", "Read", "Update", "Delete"],
-      "effect": "Allow"
-    },
-    {
-      "name": "DashboardView",
-      "resources": ["dashboard"],
-      "operations": ["Read", "ViewAll"],
-      "effect": "Allow"
     }
   ],
   "users": [
@@ -856,9 +923,14 @@ View the complete Role schema in your preferred format:
       "displayName": "Data Engineering Team"
     }
   ],
-  "version": 1.2,
-  "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "DataPlatform",
+      "displayName": "Data Platform Domain"
+    }
+  ]
 }
 ```
 
@@ -873,13 +945,13 @@ View the complete Role schema in your preferred format:
   "name": "Admin",
   "displayName": "Administrator",
   "description": "Full system administration access",
-  "roleType": "System",
-  "rules": [
+  "allowDelete": false,
+  "allowEdit": false,
+  "policies": [
     {
-      "name": "FullAccess",
-      "resources": ["all"],
-      "operations": ["Create", "Read", "Update", "Delete", "EditAll", "ViewAll"],
-      "effect": "Allow"
+      "id": "admin-policy-uuid",
+      "type": "policy",
+      "name": "AdminPolicy"
     }
   ]
 }
@@ -892,19 +964,18 @@ View the complete Role schema in your preferred format:
   "name": "DataSteward",
   "displayName": "Data Steward",
   "description": "Data governance and quality management",
-  "roleType": "System",
-  "rules": [
+  "allowDelete": false,
+  "allowEdit": false,
+  "policies": [
     {
-      "name": "GovernanceAccess",
-      "resources": ["table", "dashboard", "pipeline"],
-      "operations": ["Read", "EditTags", "EditDescription", "EditOwner", "EditTests", "ViewAll"],
-      "effect": "Allow"
+      "id": "governance-policy-uuid",
+      "type": "policy",
+      "name": "GovernancePolicy"
     },
     {
-      "name": "GlossaryManagement",
-      "resources": ["glossary", "glossaryTerm"],
-      "operations": ["Create", "Read", "Update", "Delete"],
-      "effect": "Allow"
+      "id": "glossary-policy-uuid",
+      "type": "policy",
+      "name": "GlossaryManagementPolicy"
     }
   ]
 }
@@ -917,20 +988,13 @@ View the complete Role schema in your preferred format:
   "name": "DataConsumer",
   "displayName": "Data Consumer",
   "description": "Read-only access to data assets",
-  "roleType": "System",
-  "rules": [
+  "allowDelete": false,
+  "allowEdit": false,
+  "policies": [
     {
-      "name": "ReadOnlyAccess",
-      "resources": ["table", "dashboard", "pipeline"],
-      "operations": ["Read", "ViewAll"],
-      "effect": "Allow"
-    },
-    {
-      "name": "NoSensitiveData",
-      "resources": ["table"],
-      "operations": ["ViewSampleData"],
-      "effect": "Deny",
-      "condition": "hasPIITag(resource)"
+      "id": "read-only-policy-uuid",
+      "type": "policy",
+      "name": "ReadOnlyAccessPolicy"
     }
   ]
 }
@@ -945,19 +1009,25 @@ View the complete Role schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 om:Role a owl:Class ;
     rdfs:subClassOf om:Entity ;
     rdfs:label "Role" ;
-    rdfs:comment "Set of permissions and policies" ;
+    rdfs:comment "Collection of Policies that provides access control" ;
     om:hasProperties [
         om:name "string" ;
-        om:roleType "RoleType" ;
+        om:displayName "string" ;
+        om:description "string" ;
+        om:allowDelete "boolean" ;
+        om:allowEdit "boolean" ;
+        om:disabled "boolean" ;
+        om:deleted "boolean" ;
         om:policies "Policy[]" ;
-        om:rules "AccessRule[]" ;
         om:users "User[]" ;
         om:teams "Team[]" ;
+        om:domains "Domain[]" ;
+        om:provider "ProviderType" ;
     ] .
 ```
 
@@ -969,12 +1039,16 @@ om:Role a owl:Class ;
 
 ex:dataEngineerRole a om:Role ;
     om:roleName "DataEngineer" ;
-    om:displayName "Data Engineer" ;
-    om:roleType om:SystemRole ;
-    om:includesPolicy ex:dataAccessPolicy ;
-    om:includesPolicy ex:pipelineManagementPolicy ;
-    om:assignedToUser ex:janeDoe ;
-    om:assignedToTeam ex:dataEngineeringTeam .
+    om:roleDisplayName "Data Engineer" ;
+    om:roleDescription "Role for data engineers with permissions to manage data pipelines" ;
+    om:roleAllowDelete false ;
+    om:roleAllowEdit false ;
+    om:roleDisabled false ;
+    om:hasPolicy ex:dataAccessPolicy ;
+    om:hasPolicy ex:pipelineManagementPolicy ;
+    om:hasUser ex:janeDoe ;
+    om:hasTeam ex:dataEngineeringTeam ;
+    om:hasDomain ex:dataPlatformDomain .
 ```
 
 ---
@@ -987,19 +1061,47 @@ ex:dataEngineerRole a om:Role ;
     "@vocab": "https://open-metadata.org/schema/",
     "Role": "om:Role",
     "name": "om:roleName",
-    "roleType": {
-      "@id": "om:roleType",
-      "@type": "@vocab"
+    "displayName": "om:roleDisplayName",
+    "description": "om:roleDescription",
+    "allowDelete": {
+      "@id": "om:roleAllowDelete",
+      "@type": "xsd:boolean"
+    },
+    "allowEdit": {
+      "@id": "om:roleAllowEdit",
+      "@type": "xsd:boolean"
+    },
+    "disabled": {
+      "@id": "om:roleDisabled",
+      "@type": "xsd:boolean"
+    },
+    "deleted": {
+      "@id": "om:roleDeleted",
+      "@type": "xsd:boolean"
     },
     "policies": {
-      "@id": "om:includesPolicy",
+      "@id": "om:hasPolicy",
       "@type": "@id",
       "@container": "@set"
     },
     "users": {
-      "@id": "om:assignedToUser",
+      "@id": "om:hasUser",
       "@type": "@id",
       "@container": "@set"
+    },
+    "teams": {
+      "@id": "om:hasTeam",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:hasDomain",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "provider": {
+      "@id": "om:roleProvider",
+      "@type": "@vocab"
     }
   }
 }
@@ -1014,7 +1116,11 @@ ex:dataEngineerRole a om:Role ;
   "@id": "https://example.com/roles/data-engineer",
   "name": "DataEngineer",
   "displayName": "Data Engineer",
-  "roleType": "System",
+  "description": "Role for data engineers with permissions to manage data pipelines",
+  "allowDelete": false,
+  "allowEdit": false,
+  "disabled": false,
+  "deleted": false,
   "policies": [
     {
       "@id": "https://example.com/policies/data-access",
@@ -1025,6 +1131,18 @@ ex:dataEngineerRole a om:Role ;
     {
       "@id": "https://example.com/users/jane.doe",
       "@type": "User"
+    }
+  ],
+  "teams": [
+    {
+      "@id": "https://example.com/teams/data-engineering",
+      "@type": "Team"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/data-platform",
+      "@type": "Domain"
     }
   ]
 }

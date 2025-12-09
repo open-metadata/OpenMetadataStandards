@@ -133,17 +133,16 @@ graph TD
 ---
 
 ### Child Entities
-- **Topic**: Event streams and message topics managed by this service
+- **Pipeline**: Ingestion pipelines for extracting topic configs and schemas
 
 ### Associated Entities
-- **Owner**: User or team owning this service
-- **Domain**: Business domain assignment
-- **Tag**: Classification tags
-- **Pipeline**: Data pipelines producing/consuming events
-- **Dashboard**: Dashboards monitoring event streams
-- **Table**: Source tables (via CDC) and sink tables (event history)
-- **Application**: Producer and consumer applications
-- **TestCase**: Data quality tests for schema validation, lag monitoring, partition balance
+- **Owners**: Users or teams owning this service (plural)
+- **Domains**: Business domain assignments (plural)
+- **DataProducts**: Data products this service is part of
+- **Followers**: Users following this service
+- **Tags**: Classification tags
+- **IngestionRunner**: The ingestion agent responsible for executing pipelines
+- **TestConnectionResult**: Connection test status and results
 
 ---
 
@@ -159,105 +158,159 @@ View the complete MessagingService schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/services/messagingService.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "MessagingService",
-      "description": "A `MessagingService` represents a message broker or event streaming platform that manages topics and event streams.",
+      "title": "Messaging Service",
+      "description": "This schema defines the Messaging Service entity, such as Kafka and Pulsar.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.services.MessagingService",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface",
+        "org.openmetadata.schema.ServiceEntityInterface"
+      ],
 
       "definitions": {
         "messagingServiceType": {
-          "description": "Type of messaging service",
+          "description": "Type of messaging service - Kafka or Pulsar.",
           "type": "string",
-          "enum": [
-            "Kafka", "Pulsar", "Kinesis", "Redpanda",
-            "RabbitMQ", "ActiveMQ", "AzureEventHub",
-            "GooglePubSub", "Confluent"
+          "javaInterfaces": ["org.openmetadata.schema.EnumInterface"],
+          "enum": ["Kafka", "Redpanda", "Kinesis", "CustomMessaging"],
+          "javaEnums": [
+            { "name": "Kafka" },
+            { "name": "Redpanda" },
+            { "name": "Kinesis" },
+            { "name": "CustomMessaging" }
           ]
+        },
+        "brokers": {
+          "description": "Multiple bootstrap addresses for Kafka. Single proxy address for Pulsar.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": null
         },
         "messagingConnection": {
           "type": "object",
+          "javaType": "org.openmetadata.schema.type.MessagingConnection",
+          "description": "Dashboard Connection.",
+          "javaInterfaces": [
+            "org.openmetadata.schema.ServiceConnectionEntityInterface"
+          ],
           "properties": {
-            "type": {
-              "$ref": "#/definitions/messagingServiceType"
-            },
-            "brokerUrl": {
-              "type": "string",
-              "description": "Broker connection URL"
-            },
-            "schemaRegistry": {
-              "type": "string",
-              "description": "Schema registry URL"
-            },
-            "securityProtocol": {
-              "type": "string",
-              "enum": ["PLAINTEXT", "SSL", "SASL_PLAINTEXT", "SASL_SSL"]
-            },
-            "saslMechanism": {
-              "type": "string",
-              "enum": ["PLAIN", "SCRAM-SHA-256", "SCRAM-SHA-512", "GSSAPI", "OAUTHBEARER"]
+            "config": {
+              "mask": true,
+              "oneOf": [
+                { "$ref": "./connections/messaging/kafkaConnection.json" },
+                { "$ref": "./connections/messaging/redpandaConnection.json" },
+                { "$ref": "./connections/messaging/kinesisConnection.json" },
+                { "$ref": "connections/messaging/customMessagingConnection.json" }
+              ]
             }
           },
-          "required": ["type", "brokerUrl"]
+          "additionalProperties": false
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this messaging service instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Service name",
+          "description": "Name that identifies this messaging service.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service_name",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
-        "displayName": {
-          "description": "Display name",
-          "type": "string"
-        },
-        "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
-        },
         "serviceType": {
+          "description": "Type of messaging service such as Kafka or Pulsar...",
           "$ref": "#/definitions/messagingServiceType"
         },
+        "description": {
+          "description": "Description of a messaging service instance.",
+          "$ref": "../../type/basic.json#/definitions/markdown"
+        },
+        "displayName": {
+          "description": "Display Name that identifies this messaging service. It could be title or label from the source services.",
+          "type": "string"
+        },
         "connection": {
-          "description": "Connection configuration",
           "$ref": "#/definitions/messagingConnection"
         },
-        "topics": {
-          "description": "Topics in this service",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "pipelines": {
+          "description": "References to pipelines deployed for this messaging service to extract topic configs and schemas.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "testConnectionResult": {
+          "description": "Last test connection results for this service",
+          "$ref": "connections/testConnectionResult.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this Message Service.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
         "version": {
-          "description": "Metadata version",
+          "description": "Metadata version of the entity.",
           "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "owners": {
+          "description": "Owners of this messaging service.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this messaging service.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "domains": {
+          "description": "Domains the Messaging service belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "ingestionRunner": {
+          "description": "The ingestion agent responsible for executing the ingestion pipeline.",
+          "$ref": "../../type/entityReference.json"
         }
       },
 
-      "required": ["id", "name", "serviceType", "connection"]
+      "required": ["id", "name", "serviceType"],
+      "additionalProperties": false
     }
     ```
 
@@ -270,81 +323,123 @@ View the complete MessagingService schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # MessagingService Class Definition
     om:MessagingService a owl:Class ;
         rdfs:subClassOf om:Service ;
         rdfs:label "MessagingService" ;
-        rdfs:comment "A message broker or event streaming platform managing topics and event streams" ;
+        rdfs:comment "This schema defines the Messaging Service entity, such as Kafka and Pulsar." ;
         om:hierarchyLevel 1 .
 
-    # Properties
+    # Datatype Properties
     om:serviceName a owl:DatatypeProperty ;
         rdfs:domain om:MessagingService ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the messaging service" .
+        rdfs:comment "Name that identifies this messaging service" .
+
+    om:fullyQualifiedName a owl:DatatypeProperty ;
+        rdfs:domain om:MessagingService ;
+        rdfs:range xsd:string ;
+        rdfs:label "fullyQualifiedName" ;
+        rdfs:comment "FullyQualifiedName same as name" .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:MessagingService ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this messaging service" .
+
+    om:description a owl:DatatypeProperty ;
+        rdfs:domain om:MessagingService ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of a messaging service instance" .
 
     om:serviceType a owl:DatatypeProperty ;
         rdfs:domain om:MessagingService ;
         rdfs:range om:MessagingServiceType ;
         rdfs:label "serviceType" ;
-        rdfs:comment "Type: Kafka, Pulsar, Kinesis, etc." .
+        rdfs:comment "Type of messaging service such as Kafka or Pulsar" .
 
-    om:brokerUrl a owl:DatatypeProperty ;
+    om:deleted a owl:DatatypeProperty ;
         rdfs:domain om:MessagingService ;
-        rdfs:range xsd:anyURI ;
-        rdfs:label "brokerUrl" ;
-        rdfs:comment "Broker connection URL" .
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When true indicates the entity has been soft deleted" .
 
-    om:schemaRegistryUrl a owl:DatatypeProperty ;
+    # Object Properties
+    om:hasConnection a owl:ObjectProperty ;
         rdfs:domain om:MessagingService ;
-        rdfs:range xsd:anyURI ;
-        rdfs:label "schemaRegistry" ;
-        rdfs:comment "Schema registry endpoint URL" .
+        rdfs:range om:MessagingConnection ;
+        rdfs:label "connection" ;
+        rdfs:comment "Connection configuration for the messaging service" .
 
-    om:hasTopic a owl:ObjectProperty ;
+    om:hasPipeline a owl:ObjectProperty ;
         rdfs:domain om:MessagingService ;
-        rdfs:range om:Topic ;
-        rdfs:label "hasTopic" ;
-        rdfs:comment "Topics managed by this service" .
+        rdfs:range om:Pipeline ;
+        rdfs:label "pipelines" ;
+        rdfs:comment "References to pipelines deployed for this messaging service" .
 
-    om:ownedBy a owl:ObjectProperty ;
+    om:hasOwner a owl:ObjectProperty ;
         rdfs:domain om:MessagingService ;
-        rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this service" .
+        rdfs:range om:EntityReference ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this messaging service" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:MessagingService ;
-        rdfs:range om:Tag ;
-        rdfs:label "hasTag" ;
-        rdfs:comment "Classification tags applied to service" .
+        rdfs:range om:TagLabel ;
+        rdfs:label "tags" ;
+        rdfs:comment "Tags for this Message Service" .
+
+    om:inDomain a owl:ObjectProperty ;
+        rdfs:domain om:MessagingService ;
+        rdfs:range om:Domain ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the Messaging service belongs to" .
+
+    om:hasDataProduct a owl:ObjectProperty ;
+        rdfs:domain om:MessagingService ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "dataProducts" ;
+        rdfs:comment "List of data products this entity is part of" .
+
+    om:hasFollower a owl:ObjectProperty ;
+        rdfs:domain om:MessagingService ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this entity" .
+
+    om:hasIngestionRunner a owl:ObjectProperty ;
+        rdfs:domain om:MessagingService ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "ingestionRunner" ;
+        rdfs:comment "The ingestion agent responsible for executing the ingestion pipeline" .
 
     # MessagingServiceType Enumeration
     om:MessagingServiceType a owl:Class ;
         owl:oneOf (
-            om:KafkaService
-            om:PulsarService
-            om:KinesisService
-            om:RedpandaService
-            om:RabbitMQService
-            om:GooglePubSubService
+            om:Kafka
+            om:Redpanda
+            om:Kinesis
+            om:CustomMessaging
         ) .
 
     # Example Instance
     ex:kafkaProduction a om:MessagingService ;
         om:serviceName "kafka_prod" ;
         om:fullyQualifiedName "kafka_prod" ;
-        om:serviceType om:KafkaService ;
-        om:brokerUrl "kafka-prod.example.com:9092" ;
-        om:schemaRegistryUrl "https://schema-registry.example.com" ;
-        om:ownedBy ex:dataEngineeringTeam ;
+        om:displayName "Kafka Production Cluster" ;
+        om:description "Production Kafka cluster for real-time event streaming" ;
+        om:serviceType om:Kafka ;
+        om:hasConnection ex:kafkaProdConnection ;
+        om:hasOwner ex:dataEngineeringTeam ;
         om:hasTag ex:tierCritical ;
-        om:hasTopic ex:userEventsTopic ;
-        om:hasTopic ex:orderEventsTopic .
+        om:inDomain ex:engineeringDomain ;
+        om:deleted false .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -386,23 +481,43 @@ View the complete MessagingService schema in your preferred format:
           "@id": "om:hasConnection",
           "@type": "@id"
         },
-        "topics": {
-          "@id": "om:hasTopic",
+        "pipelines": {
+          "@id": "om:hasPipeline",
           "@type": "@id",
           "@container": "@set"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
+        "owners": {
+          "@id": "om:hasOwner",
+          "@type": "@id",
+          "@container": "@set"
         },
-        "domain": {
+        "domains": {
           "@id": "om:inDomain",
-          "@type": "@id"
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:hasDataProduct",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:hasFollower",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
+        },
+        "ingestionRunner": {
+          "@id": "om:hasIngestionRunner",
+          "@type": "@id"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
         }
       }
     }
@@ -423,24 +538,29 @@ View the complete MessagingService schema in your preferred format:
       "serviceType": "Kafka",
 
       "connection": {
-        "type": "Kafka",
-        "brokerUrl": "kafka-prod.example.com:9092",
-        "schemaRegistry": "https://schema-registry.example.com",
-        "securityProtocol": "SASL_SSL",
-        "saslMechanism": "SCRAM-SHA-256"
+        "@id": "https://example.com/connections/kafka_prod_conn",
+        "config": {
+          "@type": "KafkaConnection",
+          "bootstrapServers": "kafka-prod.example.com:9092",
+          "schemaRegistryURL": "https://schema-registry.example.com"
+        }
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/data-engineering",
-        "@type": "Team",
-        "name": "DataEngineering"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-engineering",
+          "@type": "Team",
+          "name": "DataEngineering"
+        }
+      ],
 
-      "domain": {
-        "@id": "https://example.com/domains/Engineering",
-        "@type": "Domain",
-        "name": "Engineering"
-      },
+      "domains": [
+        {
+          "@id": "https://example.com/domains/Engineering",
+          "@type": "Domain",
+          "name": "Engineering"
+        }
+      ],
 
       "tags": [
         {
@@ -453,20 +573,15 @@ View the complete MessagingService schema in your preferred format:
         }
       ],
 
-      "topics": [
+      "pipelines": [
         {
-          "@id": "https://example.com/topics/user_events",
-          "@type": "Topic",
-          "name": "user_events",
-          "fullyQualifiedName": "kafka_prod.user_events"
-        },
-        {
-          "@id": "https://example.com/topics/order_events",
-          "@type": "Topic",
-          "name": "order_events",
-          "fullyQualifiedName": "kafka_prod.order_events"
+          "@id": "https://example.com/pipelines/kafka_ingestion",
+          "@type": "Pipeline",
+          "name": "kafka_ingestion"
         }
-      ]
+      ],
+
+      "deleted": false
     }
     ```
 
@@ -569,14 +684,9 @@ View the complete MessagingService schema in your preferred format:
 **Allowed Values**:
 
 - `Kafka` - Apache Kafka
-- `Pulsar` - Apache Pulsar
-- `Kinesis` - Amazon Kinesis
 - `Redpanda` - Redpanda
-- `RabbitMQ` - RabbitMQ
-- `ActiveMQ` - Apache ActiveMQ
-- `AzureEventHub` - Azure Event Hubs
-- `GooglePubSub` - Google Cloud Pub/Sub
-- `Confluent` - Confluent Cloud
+- `Kinesis` - Amazon Kinesis
+- `CustomMessaging` - Custom messaging service
 
 ```json
 {
@@ -588,38 +698,27 @@ View the complete MessagingService schema in your preferred format:
 
 #### `connection` (messagingConnection)
 **Type**: `object`
-**Required**: Yes
+**Required**: No
 **Description**: Connection configuration for the messaging platform
 
-**Connection Properties**:
+The connection object contains a `config` property that uses `oneOf` to specify the connection type. The config can be one of:
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `type` | messagingServiceType | Yes | Service type |
-| `brokerUrl` | string | Yes | Broker connection URL |
-| `schemaRegistry` | string | No | Schema registry URL |
-| `securityProtocol` | enum | No | PLAINTEXT, SSL, SASL_PLAINTEXT, SASL_SSL |
-| `saslMechanism` | enum | No | PLAIN, SCRAM-SHA-256, SCRAM-SHA-512, GSSAPI, OAUTHBEARER |
-| `consumerConfig` | object | No | Additional consumer configuration |
-| `producerConfig` | object | No | Additional producer configuration |
+- `kafkaConnection.json` - Apache Kafka connection configuration
+- `redpandaConnection.json` - Redpanda connection configuration
+- `kinesisConnection.json` - Amazon Kinesis connection configuration
+- `customMessagingConnection.json` - Custom messaging service connection
 
 **Example**:
 
 ```json
 {
   "connection": {
-    "type": "Kafka",
-    "brokerUrl": "kafka-prod.example.com:9092",
-    "schemaRegistry": "https://schema-registry.example.com",
-    "securityProtocol": "SASL_SSL",
-    "saslMechanism": "SCRAM-SHA-256",
-    "consumerConfig": {
-      "auto.offset.reset": "earliest",
-      "enable.auto.commit": "false"
-    },
-    "producerConfig": {
-      "compression.type": "snappy",
-      "acks": "all"
+    "config": {
+      "type": "Kafka",
+      "bootstrapServers": "kafka-prod.example.com:9092",
+      "schemaRegistryURL": "https://schema-registry.example.com",
+      "securityProtocol": "SASL_SSL",
+      "saslMechanism": "SCRAM-SHA-256"
     }
   }
 }
@@ -629,25 +728,19 @@ View the complete MessagingService schema in your preferred format:
 
 ### Child Resources
 
-#### `topics[]` (Topic[])
-**Type**: `array` of Topic references
-**Required**: No (populated by discovery)
-**Description**: Topics managed by this service
+#### `pipelines` (EntityReferenceList)
+**Type**: `array` of Pipeline references
+**Required**: No
+**Description**: References to pipelines deployed for this messaging service to extract topic configs and schemas
 
 ```json
 {
-  "topics": [
+  "pipelines": [
     {
-      "id": "topic-uuid-1",
-      "type": "topic",
-      "name": "user_events",
-      "fullyQualifiedName": "kafka_prod.user_events"
-    },
-    {
-      "id": "topic-uuid-2",
-      "type": "topic",
-      "name": "order_events",
-      "fullyQualifiedName": "kafka_prod.order_events"
+      "id": "pipeline-uuid-1",
+      "type": "pipeline",
+      "name": "kafka_metadata_ingestion",
+      "fullyQualifiedName": "kafka_prod.kafka_metadata_ingestion"
     }
   ]
 }
@@ -657,37 +750,47 @@ View the complete MessagingService schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: User or team that owns this service
+**Description**: Owners of this messaging service
 
 ```json
 {
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "DataEngineering",
-    "displayName": "Data Engineering Team"
-  }
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team",
+      "name": "DataEngineering",
+      "displayName": "Data Engineering Team"
+    },
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: Data domain this service belongs to
+**Description**: Domains the Messaging service belongs to
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Engineering",
-    "fullyQualifiedName": "Engineering"
-  }
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Engineering",
+      "fullyQualifiedName": "Engineering"
+    }
+  ]
 }
 ```
 
@@ -696,7 +799,8 @@ View the complete MessagingService schema in your preferred format:
 #### `tags[]` (TagLabel[])
 **Type**: `array`
 **Required**: No
-**Description**: Classification tags applied to the service
+**Default**: `[]`
+**Description**: Tags for this Message Service
 
 ```json
 {
@@ -715,6 +819,111 @@ View the complete MessagingService schema in your preferred format:
       "state": "Confirmed"
     }
   ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "CustomerDataProduct",
+      "fullyQualifiedName": "CustomerDataProduct"
+    }
+  ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Followers of this entity
+
+```json
+{
+  "followers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "jane.smith",
+      "displayName": "Jane Smith"
+    }
+  ]
+}
+```
+
+---
+
+### Connection and Runtime Properties
+
+#### `testConnectionResult` (TestConnectionResult)
+**Type**: `object`
+**Required**: No
+**Description**: Last test connection results for this service
+
+```json
+{
+  "testConnectionResult": {
+    "status": "successful",
+    "timestamp": 1704240000000,
+    "message": "Connection test successful"
+  }
+}
+```
+
+---
+
+#### `ingestionRunner` (EntityReference)
+**Type**: `object`
+**Required**: No
+**Description**: The ingestion agent responsible for executing the ingestion pipeline
+
+```json
+{
+  "ingestionRunner": {
+    "id": "runner-uuid",
+    "type": "ingestionPipeline",
+    "name": "kafka_ingestion_runner"
+  }
+}
+```
+
+---
+
+### System Properties
+
+#### `href` (string)
+**Type**: `string` (URI)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this messaging service
+
+```json
+{
+  "href": "https://openmetadata.example.com/api/v1/services/messagingServices/a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6"
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
 }
 ```
 
@@ -750,12 +959,77 @@ View the complete MessagingService schema in your preferred format:
 
 #### `updatedBy` (string)
 **Type**: `string`
-**Required**: Yes (system-managed)
+**Required**: No (system-managed)
 **Description**: User who made the update
 
 ```json
 {
   "updatedBy": "admin"
+}
+```
+
+---
+
+#### `impersonatedBy` (EntityReference)
+**Type**: `object`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": {
+    "id": "bot-uuid",
+    "type": "bot",
+    "name": "ingestion-bot"
+  }
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "tags",
+        "oldValue": [],
+        "newValue": [{"tagFQN": "Tier.Critical"}]
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity (incremental)
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "displayName",
+        "oldValue": "Kafka Prod",
+        "newValue": "Kafka Production Cluster"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
 }
 ```
 
@@ -769,37 +1043,65 @@ View the complete MessagingService schema in your preferred format:
   "name": "kafka_prod",
   "fullyQualifiedName": "kafka_prod",
   "displayName": "Kafka Production Cluster",
-  "description": "# Kafka Production Cluster\n\nProduction Kafka cluster for real-time event streaming.",
+  "description": "Production Kafka cluster for real-time event streaming",
   "serviceType": "Kafka",
   "connection": {
-    "type": "Kafka",
-    "brokerUrl": "kafka-prod.example.com:9092",
-    "schemaRegistry": "https://schema-registry.example.com",
-    "securityProtocol": "SASL_SSL",
-    "saslMechanism": "SCRAM-SHA-256"
+    "config": {
+      "type": "Kafka",
+      "bootstrapServers": "kafka-prod.example.com:9092",
+      "schemaRegistryURL": "https://schema-registry.example.com",
+      "securityProtocol": "SASL_SSL",
+      "saslMechanism": "SCRAM-SHA-256"
+    }
   },
-  "topics": [
+  "pipelines": [
     {
-      "id": "topic-uuid-1",
-      "type": "topic",
-      "name": "user_events",
-      "fullyQualifiedName": "kafka_prod.user_events"
+      "id": "pipeline-uuid-1",
+      "type": "pipeline",
+      "name": "kafka_metadata_ingestion",
+      "fullyQualifiedName": "kafka_prod.kafka_metadata_ingestion"
     }
   ],
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "DataEngineering"
+  "testConnectionResult": {
+    "status": "successful",
+    "timestamp": 1704240000000
   },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Engineering"
-  },
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team",
+      "name": "DataEngineering",
+      "displayName": "Data Engineering Team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Engineering",
+      "fullyQualifiedName": "Engineering"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "CustomerDataProduct"
+    }
+  ],
+  "followers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "jane.smith"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Critical"},
     {"tagFQN": "Environment.Production"}
   ],
+  "href": "https://openmetadata.example.com/api/v1/services/messagingServices/a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
+  "deleted": false,
   "version": 1.2,
   "updatedAt": 1704240000000,
   "updatedBy": "admin"
@@ -815,20 +1117,13 @@ View the complete MessagingService schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 om:MessagingService a owl:Class ;
     rdfs:subClassOf om:Service ;
     rdfs:label "MessagingService" ;
-    rdfs:comment "A message broker or event streaming platform" ;
-    om:hasProperties [
-        om:name "string" ;
-        om:serviceType "MessagingServiceType" ;
-        om:brokerUrl "URI" ;
-        om:topics "Topic[]" ;
-        om:owner "Owner" ;
-        om:tags "Tag[]" ;
-    ] .
+    rdfs:comment "This schema defines the Messaging Service entity, such as Kafka and Pulsar." .
 ```
 
 ### Instance Example
@@ -836,19 +1131,23 @@ om:MessagingService a owl:Class ;
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix ex: <https://example.com/services/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:kafka_prod a om:MessagingService ;
-    om:name "kafka_prod" ;
+    om:serviceName "kafka_prod" ;
     om:fullyQualifiedName "kafka_prod" ;
     om:displayName "Kafka Production Cluster" ;
     om:description "Production Kafka cluster for real-time event streaming" ;
-    om:serviceType "Kafka" ;
-    om:brokerUrl "kafka-prod.example.com:9092" ;
-    om:schemaRegistryUrl "https://schema-registry.example.com" ;
-    om:ownedBy ex:dataEngineeringTeam ;
+    om:serviceType om:Kafka ;
+    om:hasConnection ex:kafkaProdConnection ;
+    om:hasPipeline ex:kafkaMetadataIngestion ;
+    om:hasOwner ex:dataEngineeringTeam ;
+    om:inDomain ex:engineeringDomain ;
+    om:hasDataProduct ex:customerDataProduct ;
+    om:hasFollower ex:janeSmith ;
     om:hasTag ex:tierCritical ;
-    om:hasTopic ex:userEventsTopic ;
-    om:hasTopic ex:orderEventsTopic .
+    om:hasTag ex:envProduction ;
+    om:deleted "false"^^xsd:boolean .
 ```
 
 ---
@@ -860,28 +1159,65 @@ ex:kafka_prod a om:MessagingService ;
   "@context": {
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
     "MessagingService": "om:MessagingService",
-    "name": "om:name",
-    "fullyQualifiedName": "om:fullyQualifiedName",
-    "displayName": "om:displayName",
-    "serviceType": "om:serviceType",
+    "name": {
+      "@id": "om:serviceName",
+      "@type": "xsd:string"
+    },
+    "fullyQualifiedName": {
+      "@id": "om:fullyQualifiedName",
+      "@type": "xsd:string"
+    },
+    "displayName": {
+      "@id": "om:displayName",
+      "@type": "xsd:string"
+    },
+    "description": {
+      "@id": "om:description",
+      "@type": "xsd:string"
+    },
+    "serviceType": {
+      "@id": "om:serviceType",
+      "@type": "@vocab"
+    },
     "connection": {
       "@id": "om:hasConnection",
       "@type": "@id"
     },
-    "topics": {
-      "@id": "om:hasTopic",
+    "pipelines": {
+      "@id": "om:hasPipeline",
       "@type": "@id",
       "@container": "@set"
     },
-    "owner": {
-      "@id": "om:ownedBy",
-      "@type": "@id"
+    "owners": {
+      "@id": "om:hasOwner",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:inDomain",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:hasDataProduct",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:hasFollower",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
       "@id": "om:hasTag",
       "@type": "@id",
       "@container": "@set"
+    },
+    "deleted": {
+      "@id": "om:deleted",
+      "@type": "xsd:boolean"
     }
   }
 }
@@ -895,21 +1231,46 @@ ex:kafka_prod a om:MessagingService ;
   "@type": "MessagingService",
   "@id": "https://example.com/services/kafka_prod",
   "name": "kafka_prod",
+  "fullyQualifiedName": "kafka_prod",
+  "displayName": "Kafka Production Cluster",
+  "description": "Production Kafka cluster for real-time event streaming",
   "serviceType": "Kafka",
   "connection": {
-    "brokerUrl": "kafka-prod.example.com:9092",
-    "schemaRegistry": "https://schema-registry.example.com"
-  },
-  "owner": {
-    "@id": "https://example.com/teams/data-engineering",
-    "@type": "Team"
-  },
-  "topics": [
-    {
-      "@id": "https://example.com/topics/user_events",
-      "@type": "Topic"
+    "@id": "https://example.com/connections/kafka_prod_conn",
+    "config": {
+      "@type": "KafkaConnection",
+      "bootstrapServers": "kafka-prod.example.com:9092",
+      "schemaRegistryURL": "https://schema-registry.example.com"
     }
-  ]
+  },
+  "owners": [
+    {
+      "@id": "https://example.com/teams/data-engineering",
+      "@type": "Team",
+      "name": "DataEngineering"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/Engineering",
+      "@type": "Domain",
+      "name": "Engineering"
+    }
+  ],
+  "tags": [
+    {
+      "@id": "https://open-metadata.org/tags/Tier/Critical",
+      "tagFQN": "Tier.Critical"
+    }
+  ],
+  "pipelines": [
+    {
+      "@id": "https://example.com/pipelines/kafka_ingestion",
+      "@type": "Pipeline",
+      "name": "kafka_ingestion"
+    }
+  ],
+  "deleted": false
 }
 ```
 

@@ -48,8 +48,8 @@ View the complete Table schema in your preferred format:
           "description": "Type of table",
           "type": "string",
           "enum": [
-            "Regular", "External", "View", "SecureView",
-            "MaterializedView", "Iceberg", "Partitioned",
+            "Regular", "External", "Dynamic", "View", "SecureView",
+            "MaterializedView", "Iceberg", "Local", "Partitioned",
             "Foreign", "Transient", "Stream"
           ]
         },
@@ -58,11 +58,19 @@ View the complete Table schema in your preferred format:
           "properties": {
             "constraintType": {
               "type": "string",
-              "enum": ["PRIMARY_KEY", "FOREIGN_KEY", "UNIQUE"]
+              "enum": ["UNIQUE", "PRIMARY_KEY", "FOREIGN_KEY", "SORT_KEY", "DIST_KEY", "CLUSTER_KEY"]
             },
             "columns": {
               "type": "array",
               "items": {"type": "string"}
+            },
+            "referredColumns": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "relationshipType": {
+              "type": "string",
+              "enum": ["ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_ONE", "MANY_TO_MANY"]
             }
           }
         }
@@ -117,13 +125,17 @@ View the complete Table schema in your preferred format:
           "description": "Database service",
           "$ref": "../../type/entityReference.json"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "owners": {
+          "description": "Owners of this table",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "domains": {
+          "description": "Domains the asset belongs to",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "tags": {
           "description": "Classification tags",
@@ -132,12 +144,21 @@ View the complete Table schema in your preferred format:
             "$ref": "../../type/tagLabel.json"
           }
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "followers": {
+          "description": "Followers of this table",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity",
+          "$ref": "../../type/votes.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "certification": {
+          "description": "Asset certification",
+          "$ref": "../../type/assetCertification.json"
         },
         "version": {
           "description": "Metadata version",
@@ -145,7 +166,7 @@ View the complete Table schema in your preferred format:
         }
       },
 
-      "required": ["id", "name", "columns", "databaseSchema"]
+      "required": ["id", "name", "columns"]
     }
     ```
 
@@ -199,11 +220,11 @@ View the complete Table schema in your preferred format:
         rdfs:label "belongsToSchema" ;
         rdfs:comment "Parent database schema" .
 
-    om:ownedBy a owl:ObjectProperty ;
+    om:hasOwner a owl:ObjectProperty ;
         rdfs:domain om:Table ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this table" .
+        rdfs:label "hasOwner" ;
+        rdfs:comment "Users or teams that own this table" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:Table ;
@@ -217,14 +238,51 @@ View the complete Table schema in your preferred format:
         rdfs:label "linkedToGlossaryTerm" ;
         rdfs:comment "Business glossary terms" .
 
+    om:followedBy a owl:ObjectProperty ;
+        rdfs:domain om:Table ;
+        rdfs:range om:User ;
+        rdfs:label "followedBy" ;
+        rdfs:comment "Users following this table" .
+
+    om:hasDomain a owl:ObjectProperty ;
+        rdfs:domain om:Table ;
+        rdfs:range om:Domain ;
+        rdfs:label "hasDomain" ;
+        rdfs:comment "Domains the asset belongs to" .
+
+    om:hasVotes a owl:ObjectProperty ;
+        rdfs:domain om:Table ;
+        rdfs:range om:Votes ;
+        rdfs:label "hasVotes" ;
+        rdfs:comment "Votes on the entity" .
+
+    om:hasLifeCycle a owl:ObjectProperty ;
+        rdfs:domain om:Table ;
+        rdfs:range om:LifeCycle ;
+        rdfs:label "hasLifeCycle" ;
+        rdfs:comment "Life cycle of the entity" .
+
+    om:hasCertification a owl:ObjectProperty ;
+        rdfs:domain om:Table ;
+        rdfs:range om:AssetCertification ;
+        rdfs:label "hasCertification" ;
+        rdfs:comment "Certification status of the table" .
+
     # Table Type Enumeration
     om:TableType a owl:Class ;
         owl:oneOf (
             om:RegularTable
-            om:ViewTable
-            om:MaterializedViewTable
             om:ExternalTable
+            om:DynamicTable
+            om:ViewTable
+            om:SecureViewTable
+            om:MaterializedViewTable
+            om:IcebergTable
+            om:LocalTable
+            om:PartitionedTable
+            om:ForeignTable
             om:TransientTable
+            om:StreamTable
         ) .
 
     # Example Instance
@@ -233,10 +291,14 @@ View the complete Table schema in your preferred format:
         om:fullyQualifiedName "postgres_prod.ecommerce.public.customers" ;
         om:tableType om:RegularTable ;
         om:belongsToSchema ex:publicSchema ;
-        om:ownedBy ex:janeDoe ;
+        om:hasOwner ex:janeDoe ;
+        om:hasOwner ex:dataEngineeringTeam ;
+        om:hasDomain ex:salesDomain ;
         om:hasTag ex:tierGold ;
         om:hasTag ex:complianceGDPR ;
         om:linkedToGlossaryTerm ex:customerTerm ;
+        om:followedBy ex:johnSmith ;
+        om:followedBy ex:aliceWilliams ;
         om:hasColumn ex:customerIdColumn ;
         om:hasColumn ex:emailColumn .
     ```
@@ -293,23 +355,42 @@ View the complete Table schema in your preferred format:
           "@id": "om:belongsToService",
           "@type": "@id"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
+        "owners": {
+          "@id": "om:hasOwner",
+          "@type": "@id",
+          "@container": "@set"
         },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
+        "domains": {
+          "@id": "om:hasDomain",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:partOfDataProduct",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
         },
-        "glossaryTerms": {
-          "@id": "om:linkedToGlossaryTerm",
+        "followers": {
+          "@id": "om:followedBy",
           "@type": "@id",
           "@container": "@set"
+        },
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@id"
+        },
+        "lifeCycle": {
+          "@id": "om:hasLifeCycle",
+          "@type": "@id"
+        },
+        "certification": {
+          "@id": "om:hasCertification",
+          "@type": "@id"
         }
       }
     }
@@ -347,12 +428,36 @@ View the complete Table schema in your preferred format:
         "name": "postgres_prod"
       },
 
-      "owner": {
-        "@id": "https://example.com/users/jane.doe",
-        "@type": "User",
-        "name": "jane.doe",
-        "displayName": "Jane Doe"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/users/jane.doe",
+          "@type": "User",
+          "name": "jane.doe",
+          "displayName": "Jane Doe"
+        },
+        {
+          "@id": "https://example.com/teams/data-engineering",
+          "@type": "Team",
+          "name": "data-engineering",
+          "displayName": "Data Engineering"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/Sales",
+          "@type": "Domain",
+          "name": "Sales"
+        }
+      ],
+
+      "followers": [
+        {
+          "@id": "https://example.com/users/john.smith",
+          "@type": "User",
+          "name": "john.smith"
+        }
+      ],
 
       "tags": [
         {
@@ -362,14 +467,6 @@ View the complete Table schema in your preferred format:
         {
           "@id": "https://open-metadata.org/tags/Compliance/GDPR",
           "tagFQN": "Compliance.GDPR"
-        }
-      ],
-
-      "glossaryTerms": [
-        {
-          "@id": "https://example.com/glossary/Customer",
-          "@type": "GlossaryTerm",
-          "fullyQualifiedName": "BusinessGlossary.Customer"
         }
       ],
 
@@ -507,9 +604,8 @@ View the complete Table schema in your preferred format:
 | `precision` | integer | No | Precision for numeric types |
 | `scale` | integer | No | Scale for numeric types |
 | `ordinalPosition` | integer | No | Position in table |
-| `constraint` | Constraint enum | No | PRIMARY_KEY, UNIQUE, NOT_NULL, FOREIGN_KEY |
+| `constraint` | Constraint enum | No | NULL, NOT_NULL, UNIQUE, PRIMARY_KEY |
 | `tags` | TagLabel[] | No | Tags applied to column |
-| `glossaryTerms` | GlossaryTerm[] | No | Business terms |
 | `customMetrics` | CustomMetric[] | No | Custom column metrics |
 
 **Example**:
@@ -548,11 +644,6 @@ View the complete Table schema in your preferred format:
           "tagFQN": "Compliance.GDPR",
           "source": "Classification"
         }
-      ],
-      "glossaryTerms": [
-        {
-          "fullyQualifiedName": "BusinessGlossary.EmailAddress"
-        }
       ]
     },
     {
@@ -588,12 +679,17 @@ View the complete Table schema in your preferred format:
 **Allowed Values**:
 
 - `Regular` - Standard database table
-- `View` - SQL view
-- `MaterializedView` - Materialized view with physical storage
 - `External` - External table (e.g., Hive external table)
-- `Temporary` - Temporary table
+- `Dynamic` - Dynamic table (Snowflake)
+- `View` - SQL view
 - `SecureView` - Secure view (Snowflake)
+- `MaterializedView` - Materialized view with physical storage
+- `Iceberg` - Apache Iceberg table
+- `Local` - Local table
+- `Partitioned` - Partitioned table
+- `Foreign` - Foreign table
 - `Transient` - Transient table (Snowflake)
+- `Stream` - Stream table (Snowflake)
 
 ```json
 {
@@ -620,7 +716,8 @@ View the complete Table schema in your preferred format:
     {
       "constraintType": "FOREIGN_KEY",
       "columns": ["country_id"],
-      "referredColumns": ["countries.country_id"]
+      "referredColumns": ["postgres_prod.ecommerce.public.countries.country_id"],
+      "relationshipType": "MANY_TO_ONE"
     },
     {
       "constraintType": "UNIQUE",
@@ -707,36 +804,158 @@ View the complete Table schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: User or team that owns this table
+**Description**: Users or teams that own this table
 
 ```json
 {
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "user",
-    "name": "jane.doe",
-    "displayName": "Jane Doe"
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "user",
+      "name": "jane.doe",
+      "displayName": "Jane Doe"
+    },
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "team",
+      "name": "data-engineering",
+      "displayName": "Data Engineering"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Data domains this table belongs to
+
+```json
+{
+  "domains": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+      "type": "dataProduct",
+      "name": "customer-360",
+      "fullyQualifiedName": "customer-360"
+    }
+  ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No (system-managed)
+**Description**: Users following this table
+
+```json
+{
+  "followers": [
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "type": "user",
+      "name": "john.smith",
+      "displayName": "John Smith"
+    }
+  ]
+}
+```
+
+---
+
+#### `votes` (Votes)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Votes on the entity
+
+```json
+{
+  "votes": {
+    "upVotes": 12,
+    "downVotes": 2,
+    "upVoters": [
+      {
+        "id": "user-1-uuid",
+        "type": "user",
+        "name": "alice.johnson"
+      }
+    ],
+    "downVoters": []
   }
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
+#### `lifeCycle` (LifeCycle)
 **Type**: `object`
 **Required**: No
-**Description**: Data domain this table belongs to
+**Description**: Life cycle of the entity
 
 ```json
 {
-  "domain": {
-    "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
-    "type": "domain",
-    "name": "Sales",
-    "fullyQualifiedName": "Sales"
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1609459200000,
+      "user": {
+        "id": "user-uuid",
+        "type": "user",
+        "name": "jane.doe"
+      }
+    },
+    "updated": {
+      "timestamp": 1704240000000,
+      "user": {
+        "id": "user-uuid",
+        "type": "user",
+        "name": "jane.doe"
+      }
+    }
+  }
+}
+```
+
+---
+
+#### `certification` (AssetCertification)
+**Type**: `object`
+**Required**: No
+**Description**: Asset certification status
+
+```json
+{
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certification.Gold",
+      "source": "Classification"
+    }
   }
 }
 ```
@@ -769,21 +988,6 @@ View the complete Table schema in your preferred format:
 ```
 
 ---
-
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
-**Required**: No
-**Description**: Business glossary terms linked to this table
-
-```json
-{
-  "glossaryTerms": [
-    {
-      "fullyQualifiedName": "BusinessGlossary.Customer"
-    }
-  ]
-}
-```
 
 ---
 
@@ -1065,22 +1269,30 @@ View the complete Table schema in your preferred format:
     "type": "databaseService",
     "name": "postgres_prod"
   },
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "user",
-    "name": "jane.doe"
-  },
-  "domain": {
-    "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
-    "type": "domain",
-    "name": "Sales"
-  },
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "user",
+      "name": "jane.doe"
+    }
+  ],
+  "domains": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "domain",
+      "name": "Sales"
+    }
+  ],
+  "followers": [
+    {
+      "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+      "type": "user",
+      "name": "john.smith"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Gold"},
     {"tagFQN": "Compliance.GDPR"}
-  ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.Customer"}
   ],
   "version": 2.3,
   "updatedAt": 1704240000000,
@@ -1126,7 +1338,10 @@ ex:customers a om:Table ;
     om:description "Contains all customer records" ;
     om:tableType "Regular" ;
     om:belongsTo ex:public_schema ;
-    om:ownedBy ex:jane_doe ;
+    om:hasOwner ex:jane_doe ;
+    om:hasOwner ex:data_engineering_team ;
+    om:hasDomain ex:sales_domain ;
+    om:followedBy ex:john_smith ;
     om:hasTag ex:tier_gold ;
     om:hasTag ex:compliance_gdpr ;
     om:linkedToGlossaryTerm ex:customer_term ;
@@ -1159,17 +1374,23 @@ ex:customers a om:Table ;
       "@id": "om:belongsTo",
       "@type": "@id"
     },
-    "owner": {
-      "@id": "om:ownedBy",
-      "@type": "@id"
-    },
-    "tags": {
-      "@id": "om:hasTag",
+    "owners": {
+      "@id": "om:hasOwner",
       "@type": "@id",
       "@container": "@set"
     },
-    "glossaryTerms": {
-      "@id": "om:linkedToGlossaryTerm",
+    "domains": {
+      "@id": "om:hasDomain",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:followedBy",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "tags": {
+      "@id": "om:hasTag",
       "@type": "@id",
       "@container": "@set"
     }
@@ -1192,10 +1413,24 @@ ex:customers a om:Table ;
     "@id": "https://example.com/data/public_schema",
     "@type": "DatabaseSchema"
   },
-  "owner": {
-    "@id": "https://example.com/users/jane_doe",
-    "@type": "User"
-  },
+  "owners": [
+    {
+      "@id": "https://example.com/users/jane_doe",
+      "@type": "User"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/Sales",
+      "@type": "Domain"
+    }
+  ],
+  "followers": [
+    {
+      "@id": "https://example.com/users/john_smith",
+      "@type": "User"
+    }
+  ],
   "tags": [
     {"@id": "https://open-metadata.org/tags/Tier/Gold"},
     {"@id": "https://open-metadata.org/tags/Compliance/GDPR"}
@@ -1234,10 +1469,14 @@ ex:customers a om:Table ;
 - **TestCase**: Data quality tests on this table
 
 ### Associated Entities
-- **Owner**: User or team owning this table
-- **Domain**: Business domain assignment
-- **Tag**: Classification tags
-- **GlossaryTerm**: Business terminology
+- **Owners**: Users or teams owning this table
+- **Domains**: Business domain assignments
+- **DataProducts**: Data products this table is part of
+- **Followers**: Users following this table
+- **Tags**: Classification tags
+- **Votes**: User votes on this table
+- **LifeCycle**: Lifecycle information
+- **Certification**: Asset certification status
 - **Dashboard**: Dashboards using this table
 - **MLModel**: ML models trained on this table
 - **Pipeline**: Pipelines reading/writing this table
@@ -1259,13 +1498,21 @@ graph TD
     USR[User<br/>jane.doe] -.->|owns| TBL
     TEAM[Team<br/>DataEngineering] -.->|owns| TBL
 
+    %% Cross-entity relationships - Following
+    FOLL1[User<br/>john.smith] -.->|follows| TBL
+    FOLL2[User<br/>alice.williams] -.->|follows| TBL
+
     %% Cross-entity relationships - Governance
     DOM[Domain<br/>Sales] -.->|groups| TBL
+    DP[DataProduct<br/>Customer360] -.->|includes| TBL
     TAG1[Tag<br/>Tier.Gold] -.->|classifies| TBL
     TAG2[Tag<br/>Compliance.GDPR] -.->|classifies| TBL
     TAG3[Tag<br/>PII.Sensitive.Email] -.->|classifies| COL2
     TAG4[Tag<br/>PII.NonSensitive.Name] -.->|classifies| COL3
     GT[GlossaryTerm<br/>Customer] -.->|describes| TBL
+    VOTES[Votes<br/>12 up, 2 down] -.->|rates| TBL
+    LC[LifeCycle<br/>Active] -.->|tracks| TBL
+    CERT[Certification<br/>Gold] -.->|certifies| TBL
 
     %% Cross-entity relationships - Quality
     TS[TestSuite<br/>customers_suite] -.->|validates| TBL
@@ -1314,8 +1561,19 @@ Common custom properties include:
 
 - **Data Classification**: Sensitivity level
 - **Cost Center**: Billing allocation
-- **Retention Period**: Data retention requirements
 - **Application Owner**: Owning application/team
+
+Additional standard properties available:
+
+- **retentionPeriod**: Data retention period (ISO 8601 duration format)
+- **compressionEnabled**: Whether compression is enabled
+- **compressionCodec**: Compression algorithm (LZ4, ZSTD, Snappy, etc.)
+- **compressionStrategy**: Compression configuration including type, segment/order columns, and level
+- **fileFormat**: File format for file/datalake tables (csv, parquet, json, avro, etc.)
+- **sourceUrl**: Source URL of table
+- **sourceHash**: Source hash of the entity
+- **processedLineage**: Whether lineage has been processed
+- **entityStatus**: Status of the table
 
 See [Custom Properties](../../metadata-specifications/custom-properties.md)
 for details on defining and using custom properties.

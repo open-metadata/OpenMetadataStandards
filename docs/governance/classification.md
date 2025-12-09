@@ -7,7 +7,7 @@
 
 ## Overview
 
-The **Classification** entity represents a hierarchical taxonomy system for organizing tags. Classifications enable structured governance through categories like PII, Compliance, Data Quality, and Tier. Each classification contains a hierarchy of tags.
+The **Classification** entity contains hierarchical terms called tags used for categorizing and classifying data assets and other entities. Classifications enable structured governance through categories like PII, Compliance, Data Quality, and Tier. Each classification contains a hierarchy of tags.
 
 ## Relationship Diagram
 
@@ -86,69 +86,137 @@ View the complete Classification schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/classification/classification.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Classification",
-      "description": "A `Classification` defines a hierarchical taxonomy of tags for data governance and organization.",
+      "$comment": "@om-entity-type",
+      "description": "A `Classification` entity contains hierarchical terms called tags used for categorizing and classifying data assets and other entities.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.classification.Classification",
-
-      "definitions": {
-        "provider": {
-          "description": "Provider of the classification",
-          "type": "string",
-          "enum": ["System", "User"]
-        },
-        "mutuallyExclusive": {
-          "description": "Tags in this classification are mutually exclusive",
-          "type": "boolean",
-          "default": false
-        }
-      },
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this entity instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Classification name",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name of the classification",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this entity.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description of the classification purpose",
+          "description": "Description of the classification.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "provider": {
-          "$ref": "#/definitions/provider"
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
         },
-        "mutuallyExclusive": {
-          "$ref": "#/definitions/mutuallyExclusive"
+        "termCount": {
+          "description": "Total number of children tag terms under this classification. This includes all the children in the hierarchy.",
+          "type": "integer",
+          "minimum": 0
         },
-        "tags": {
-          "description": "Tags in this classification",
-          "type": "array",
-          "items": {
-            "$ref": "../classification/tag.json"
-          }
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
         },
-        "disabled": {
-          "description": "Whether this classification is disabled",
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to the classification.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "usageCount": {
+          "description": "Count of how many times the tags from this classification are used.",
+          "type": "integer"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
           "type": "boolean",
           "default": false
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "provider": {
+          "$ref": "../../type/basic.json#/definitions/providerType"
+        },
+        "disabled": {
+          "description": "System classifications can't be deleted. Use this flag to disable them.",
+          "type": "boolean",
+          "default": false
+        },
+        "mutuallyExclusive": {
+          "description": "Tags under this classification are mutually exclusive. When mutually exclusive is `true` the tags from this classification are used to **classify** an entity. An entity can only be in one class - example, it can only be either `tier1` or `tier2` and not both. When mutually exclusive is `false`, the tags from this classification are used to **categorize** an entity. An entity have multiple tags simultaneously - example a customer can be `newCustomer` and `atRisk` simultaneously.",
+          "type": "boolean",
+          "default": "false"
+        },
+        "domains": {
+          "description": "Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "owners": {
+          "description": "Owners of this Classification.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "reviewers": {
+          "description": "User references of the reviewers for this tag.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "entityStatus": {
+          "description": "Status of the tag.",
+          "$ref": "../../type/status.json"
+        },
+        "autoClassificationConfig": {
+          "description": "Configuration for automatic classification behavior",
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "description": "Whether automatic classification is enabled for this classification",
+              "type": "boolean",
+              "default": false
+            },
+            "conflictResolution": {
+              "description": "Strategy for resolving conflicts when multiple tags match",
+              "type": "string",
+              "enum": ["highest_confidence", "highest_priority", "most_specific"],
+              "default": "highest_confidence"
+            },
+            "minimumConfidence": {
+              "description": "Minimum confidence score required to apply a tag",
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "default": 0.6
+            },
+            "requireExplicitMatch": {
+              "description": "Only apply tags when recognizers explicitly match (no default tagging)",
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "additionalProperties": false
         }
       },
 
-      "required": ["id", "name", "description"]
+      "required": ["id", "name", "description"],
+      "additionalProperties": false
     }
     ```
 
@@ -161,18 +229,17 @@ View the complete Classification schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
     @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
     # Classification Class Definition
     om:Classification a owl:Class ;
-        rdfs:subClassOf om:GovernanceAsset, skos:ConceptScheme ;
+        rdfs:subClassOf om:Entity, skos:ConceptScheme ;
         rdfs:label "Classification" ;
-        rdfs:comment "A hierarchical taxonomy system for organizing tags" ;
-        om:hierarchyLevel 1 .
+        rdfs:comment "A Classification entity contains hierarchical terms called tags used for categorizing and classifying data assets and other entities" .
 
-    # Properties
+    # Datatype Properties
     om:classificationName a owl:DatatypeProperty ;
         rdfs:domain om:Classification ;
         rdfs:range xsd:string ;
@@ -183,39 +250,80 @@ View the complete Classification schema in your preferred format:
         rdfs:domain om:Classification ;
         rdfs:range xsd:string ;
         rdfs:label "fullyQualifiedName" ;
-        rdfs:comment "Complete name of the classification" .
+        rdfs:comment "FullyQualifiedName same as name" .
 
-    om:classificationProvider a owl:DatatypeProperty ;
+    om:displayName a owl:DatatypeProperty ;
         rdfs:domain om:Classification ;
-        rdfs:range om:ClassificationProvider ;
-        rdfs:label "provider" ;
-        rdfs:comment "Provider: System or User" .
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this entity" .
+
+    om:description a owl:DatatypeProperty ;
+        rdfs:domain om:Classification ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of the classification" .
+
+    om:termCount a owl:DatatypeProperty ;
+        rdfs:domain om:Classification ;
+        rdfs:range xsd:integer ;
+        rdfs:label "termCount" ;
+        rdfs:comment "Total number of children tag terms under this classification" .
+
+    om:usageCount a owl:DatatypeProperty ;
+        rdfs:domain om:Classification ;
+        rdfs:range xsd:integer ;
+        rdfs:label "usageCount" ;
+        rdfs:comment "Count of how many times the tags from this classification are used" .
 
     om:mutuallyExclusive a owl:DatatypeProperty ;
         rdfs:domain om:Classification ;
         rdfs:range xsd:boolean ;
         rdfs:label "mutuallyExclusive" ;
-        rdfs:comment "Whether tags in this classification are mutually exclusive" .
+        rdfs:comment "Tags under this classification are mutually exclusive" .
 
-    om:isDisabled a owl:DatatypeProperty ;
+    om:disabled a owl:DatatypeProperty ;
         rdfs:domain om:Classification ;
         rdfs:range xsd:boolean ;
         rdfs:label "disabled" ;
-        rdfs:comment "Whether this classification is disabled" .
+        rdfs:comment "System classifications can't be deleted. Use this flag to disable them" .
 
-    om:hasTag a owl:ObjectProperty ;
+    om:deleted a owl:DatatypeProperty ;
         rdfs:domain om:Classification ;
-        rdfs:range om:Tag ;
-        rdfs:label "hasTag" ;
-        rdfs:comment "Tags in this classification" ;
-        owl:equivalentProperty skos:hasTopConcept .
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When true indicates the entity has been soft deleted" .
 
-    # Provider Enumeration
-    om:ClassificationProvider a owl:Class ;
-        owl:oneOf (
-            om:SystemProvider
-            om:UserProvider
-        ) .
+    # Object Properties
+    om:hasProvider a owl:ObjectProperty ;
+        rdfs:domain om:Classification ;
+        rdfs:range om:ProviderType ;
+        rdfs:label "provider" ;
+        rdfs:comment "Provider type of the classification" .
+
+    om:hasDomain a owl:ObjectProperty ;
+        rdfs:domain om:Classification ;
+        rdfs:range om:Domain ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the asset belongs to" .
+
+    om:hasOwner a owl:ObjectProperty ;
+        rdfs:domain om:Classification ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this Classification" .
+
+    om:hasReviewer a owl:ObjectProperty ;
+        rdfs:domain om:Classification ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "reviewers" ;
+        rdfs:comment "User references of the reviewers for this tag" .
+
+    om:hasAutoClassificationConfig a owl:ObjectProperty ;
+        rdfs:domain om:Classification ;
+        rdfs:range om:AutoClassificationConfig ;
+        rdfs:label "autoClassificationConfig" ;
+        rdfs:comment "Configuration for automatic classification behavior" .
 
     # Example Instances
     ex:piiClassification a om:Classification, skos:ConceptScheme ;
@@ -223,22 +331,23 @@ View the complete Classification schema in your preferred format:
         om:fullyQualifiedName "PII" ;
         om:displayName "Personally Identifiable Information" ;
         om:description "Classification for personally identifiable information" ;
-        om:classificationProvider om:SystemProvider ;
+        om:hasProvider om:SystemProvider ;
         om:mutuallyExclusive false ;
-        om:isDisabled false ;
-        skos:hasTopConcept ex:sensitiveTag ;
-        skos:hasTopConcept ex:nonSensitiveTag .
+        om:disabled false ;
+        om:deleted false ;
+        om:termCount 8 ;
+        om:usageCount 145 .
 
     ex:tierClassification a om:Classification, skos:ConceptScheme ;
         om:classificationName "Tier" ;
         om:fullyQualifiedName "Tier" ;
         om:displayName "Data Tier" ;
         om:description "Data tier classification for priority and criticality" ;
-        om:classificationProvider om:SystemProvider ;
+        om:hasProvider om:SystemProvider ;
         om:mutuallyExclusive true ;
-        skos:hasTopConcept ex:goldTag ;
-        skos:hasTopConcept ex:silverTag ;
-        skos:hasTopConcept ex:bronzeTag .
+        om:disabled false ;
+        om:termCount 3 ;
+        om:usageCount 523 .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -258,6 +367,10 @@ View the complete Classification schema in your preferred format:
 
         "Classification": "om:Classification",
         "ConceptScheme": "skos:ConceptScheme",
+        "id": {
+          "@id": "@id",
+          "@type": "@id"
+        },
         "name": {
           "@id": "om:classificationName",
           "@type": "xsd:string"
@@ -274,22 +387,68 @@ View the complete Classification schema in your preferred format:
           "@id": "om:description",
           "@type": "xsd:string"
         },
+        "version": {
+          "@id": "om:version",
+          "@type": "xsd:double"
+        },
+        "termCount": {
+          "@id": "om:termCount",
+          "@type": "xsd:integer"
+        },
+        "updatedAt": {
+          "@id": "om:updatedAt",
+          "@type": "xsd:long"
+        },
+        "updatedBy": {
+          "@id": "om:updatedBy",
+          "@type": "xsd:string"
+        },
+        "href": {
+          "@id": "om:href",
+          "@type": "@id"
+        },
+        "usageCount": {
+          "@id": "om:usageCount",
+          "@type": "xsd:integer"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
+        },
         "provider": {
-          "@id": "om:classificationProvider",
+          "@id": "om:hasProvider",
           "@type": "@vocab"
+        },
+        "disabled": {
+          "@id": "om:disabled",
+          "@type": "xsd:boolean"
         },
         "mutuallyExclusive": {
           "@id": "om:mutuallyExclusive",
           "@type": "xsd:boolean"
         },
-        "disabled": {
-          "@id": "om:isDisabled",
-          "@type": "xsd:boolean"
-        },
-        "tags": {
-          "@id": "skos:hasTopConcept",
+        "domains": {
+          "@id": "om:hasDomain",
           "@type": "@id",
           "@container": "@set"
+        },
+        "owners": {
+          "@id": "om:hasOwner",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "reviewers": {
+          "@id": "om:hasReviewer",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "entityStatus": {
+          "@id": "om:entityStatus",
+          "@type": "@id"
+        },
+        "autoClassificationConfig": {
+          "@id": "om:hasAutoClassificationConfig",
+          "@type": "@id"
         }
       }
     }
@@ -301,52 +460,33 @@ View the complete Classification schema in your preferred format:
     {
       "@context": "https://open-metadata.org/context/classification.jsonld",
       "@type": ["Classification", "ConceptScheme"],
-      "@id": "https://open-metadata.org/classifications/PII",
+      "@id": "https://open-metadata.org/classifications/3c4d5e6f-7a8b-4c9d-0e1f-2a3b4c5d6e7f",
 
+      "id": "3c4d5e6f-7a8b-4c9d-0e1f-2a3b4c5d6e7f",
       "name": "PII",
       "fullyQualifiedName": "PII",
       "displayName": "Personally Identifiable Information",
       "description": "# PII Classification\n\nClassification for personally identifiable information to ensure compliance with privacy regulations.\n\n## Categories\n- **Sensitive**: Data requiring strict protection (SSN, financial info)\n- **NonSensitive**: Less critical personal data (name, public contact info)",
+      "version": 1.5,
+      "termCount": 8,
+      "updatedAt": 1704240000000,
+      "updatedBy": "admin",
+      "href": "https://open-metadata.org/api/v1/classifications/3c4d5e6f-7a8b-4c9d-0e1f-2a3b4c5d6e7f",
+      "usageCount": 145,
+      "deleted": false,
       "provider": "System",
-      "mutuallyExclusive": false,
       "disabled": false,
-
-      "tags": [
+      "mutuallyExclusive": false,
+      "owners": [
         {
-          "@type": "Tag",
-          "@id": "https://open-metadata.org/tags/PII/Sensitive",
-          "name": "Sensitive",
-          "fullyQualifiedName": "PII.Sensitive",
-          "description": "Highly sensitive personal information",
-          "children": [
-            {
-              "@type": "Tag",
-              "@id": "https://open-metadata.org/tags/PII/Sensitive/Email",
-              "name": "Email",
-              "fullyQualifiedName": "PII.Sensitive.Email"
-            },
-            {
-              "@type": "Tag",
-              "@id": "https://open-metadata.org/tags/PII/Sensitive/SSN",
-              "name": "SSN",
-              "fullyQualifiedName": "PII.Sensitive.SSN"
-            }
-          ]
-        },
+          "@id": "https://open-metadata.org/users/admin",
+          "@type": "User"
+        }
+      ],
+      "domains": [
         {
-          "@type": "Tag",
-          "@id": "https://open-metadata.org/tags/PII/NonSensitive",
-          "name": "NonSensitive",
-          "fullyQualifiedName": "PII.NonSensitive",
-          "description": "Less sensitive personal information",
-          "children": [
-            {
-              "@type": "Tag",
-              "@id": "https://open-metadata.org/tags/PII/NonSensitive/Name",
-              "name": "Name",
-              "fullyQualifiedName": "PII.NonSensitive.Name"
-            }
-          ]
+          "@id": "https://open-metadata.org/domains/DataGovernance",
+          "@type": "Domain"
         }
       ]
     }
@@ -377,7 +517,7 @@ View the complete Classification schema in your preferred format:
 #### `id` (uuid)
 **Type**: `string` (UUID format)
 **Required**: Yes (system-generated)
-**Description**: Unique identifier for this classification
+**Description**: Unique identifier of this entity instance
 
 ```json
 {
@@ -407,7 +547,7 @@ View the complete Classification schema in your preferred format:
 **Type**: `string`
 **Required**: Yes (system-generated)
 **Pattern**: `^((?!::).)*$`
-**Description**: Fully qualified name of the classification
+**Description**: FullyQualifiedName same as `name`
 
 ```json
 {
@@ -420,7 +560,7 @@ View the complete Classification schema in your preferred format:
 #### `displayName`
 **Type**: `string`
 **Required**: No
-**Description**: Human-readable display name
+**Description**: Display Name that identifies this entity
 
 ```json
 {
@@ -433,7 +573,7 @@ View the complete Classification schema in your preferred format:
 #### `description` (markdown)
 **Type**: `string` (Markdown format)
 **Required**: Yes
-**Description**: Rich text description of the classification's purpose
+**Description**: Description of the classification
 
 ```json
 {
@@ -445,13 +585,10 @@ View the complete Classification schema in your preferred format:
 
 ### Configuration Properties
 
-#### `provider` (Provider enum)
-**Type**: `string` enum
-**Required**: No (default: `User`)
-**Allowed Values**:
-
-- `System` - System-provided classification (cannot be deleted)
-- `User` - User-defined classification (can be modified/deleted)
+#### `provider` (providerType)
+**Type**: Reference to providerType
+**Required**: No
+**Description**: Provider type of the classification (System or User)
 
 ```json
 {
@@ -464,7 +601,7 @@ View the complete Classification schema in your preferred format:
 #### `mutuallyExclusive` (boolean)
 **Type**: `boolean`
 **Required**: No (default: false)
-**Description**: Whether only one tag from this classification can be applied to an asset
+**Description**: Tags under this classification are mutually exclusive. When mutually exclusive is `true` the tags from this classification are used to **classify** an entity. An entity can only be in one class - example, it can only be either `tier1` or `tier2` and not both. When mutually exclusive is `false`, the tags from this classification are used to **categorize** an entity. An entity have multiple tags simultaneously - example a customer can be `newCustomer` and `atRisk` simultaneously.
 
 ```json
 {
@@ -479,7 +616,7 @@ View the complete Classification schema in your preferred format:
 #### `disabled` (boolean)
 **Type**: `boolean`
 **Required**: No (default: false)
-**Description**: Whether this classification is disabled and hidden from users
+**Description**: System classifications can't be deleted. Use this flag to disable them.
 
 ```json
 {
@@ -489,84 +626,25 @@ View the complete Classification schema in your preferred format:
 
 ---
 
-### Structure Properties
-
-#### `tags[]` (Tag[])
-**Type**: `array` of Tag objects
-**Required**: No
-**Description**: Hierarchical tags in this classification
-
-**Tag Object Properties** (see [Tag](tag.md) for full specification):
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | Yes | Tag name |
-| `displayName` | string | No | Display name |
-| `description` | markdown | No | Tag description |
-| `fullyQualifiedName` | string | Yes | Full tag path (e.g., PII.Sensitive.Email) |
-| `classification` | reference | Yes | Parent classification |
-| `parent` | reference | No | Parent tag (for nested tags) |
-| `children` | Tag[] | No | Child tags |
-| `disabled` | boolean | No | Whether tag is disabled |
-
-**Example with Nested Hierarchy**:
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: When `true` indicates the entity has been soft deleted
 
 ```json
 {
-  "tags": [
-    {
-      "name": "Sensitive",
-      "fullyQualifiedName": "PII.Sensitive",
-      "displayName": "Sensitive PII",
-      "description": "Highly sensitive personal information requiring strict access controls",
-      "children": [
-        {
-          "name": "Email",
-          "fullyQualifiedName": "PII.Sensitive.Email",
-          "description": "Email addresses"
-        },
-        {
-          "name": "SSN",
-          "fullyQualifiedName": "PII.Sensitive.SSN",
-          "description": "Social Security Numbers"
-        },
-        {
-          "name": "CreditCard",
-          "fullyQualifiedName": "PII.Sensitive.CreditCard",
-          "description": "Credit card numbers and payment information"
-        }
-      ]
-    },
-    {
-      "name": "NonSensitive",
-      "fullyQualifiedName": "PII.NonSensitive",
-      "displayName": "Non-Sensitive PII",
-      "description": "Less critical personal information",
-      "children": [
-        {
-          "name": "Name",
-          "fullyQualifiedName": "PII.NonSensitive.Name",
-          "description": "Person names"
-        },
-        {
-          "name": "PhoneNumber",
-          "fullyQualifiedName": "PII.NonSensitive.PhoneNumber",
-          "description": "Phone numbers"
-        }
-      ]
-    }
-  ]
+  "deleted": false
 }
 ```
 
 ---
 
-### Versioning Properties
+### Metadata Properties
 
 #### `version` (entityVersion)
 **Type**: `number`
 **Required**: Yes (system-managed)
-**Description**: Metadata version number, incremented on changes
+**Description**: Metadata version of the entity
 
 ```json
 {
@@ -576,10 +654,37 @@ View the complete Classification schema in your preferred format:
 
 ---
 
+#### `termCount` (integer)
+**Type**: `integer`
+**Required**: No (system-managed)
+**Minimum**: 0
+**Description**: Total number of children tag terms under this classification. This includes all the children in the hierarchy.
+
+```json
+{
+  "termCount": 8
+}
+```
+
+---
+
+#### `usageCount` (integer)
+**Type**: `integer`
+**Required**: No (system-managed)
+**Description**: Count of how many times the tags from this classification are used
+
+```json
+{
+  "usageCount": 145
+}
+```
+
+---
+
 #### `updatedAt` (timestamp)
 **Type**: `integer` (Unix epoch milliseconds)
-**Required**: Yes (system-managed)
-**Description**: Last update timestamp
+**Required**: No (system-managed)
+**Description**: Last update time corresponding to the new version of the entity in Unix epoch time milliseconds
 
 ```json
 {
@@ -591,12 +696,168 @@ View the complete Classification schema in your preferred format:
 
 #### `updatedBy` (string)
 **Type**: `string`
-**Required**: Yes (system-managed)
+**Required**: No (system-managed)
 **Description**: User who made the update
 
 ```json
 {
   "updatedBy": "admin"
+}
+```
+
+---
+
+#### `impersonatedBy` (impersonatedBy)
+**Type**: Reference to impersonatedBy
+**Required**: No (system-managed)
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": "ingestion-bot"
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI format)
+**Required**: No (system-managed)
+**Description**: Link to the resource corresponding to the classification
+
+```json
+{
+  "href": "https://open-metadata.org/api/v1/classifications/3c4d5e6f-7a8b-4c9d-0e1f-2a3b4c5d6e7f"
+}
+```
+
+---
+
+#### `changeDescription` (changeDescription)
+**Type**: Reference to changeDescription
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": ["mutuallyExclusive"],
+    "fieldsDeleted": [],
+    "previousVersion": 1.4
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (changeDescription)
+**Type**: Reference to changeDescription
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+---
+
+### Relationship Properties
+
+#### `domains` (entityReferenceList)
+**Type**: Array of entity references
+**Required**: No
+**Description**: Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.
+
+```json
+{
+  "domains": [
+    {
+      "id": "5d6e7f8a-9b0c-1d2e-3f4a-5b6c7d8e9f0a",
+      "type": "domain",
+      "name": "DataGovernance",
+      "fullyQualifiedName": "DataGovernance"
+    }
+  ]
+}
+```
+
+---
+
+#### `owners` (entityReferenceList)
+**Type**: Array of entity references
+**Required**: No
+**Description**: Owners of this Classification
+
+```json
+{
+  "owners": [
+    {
+      "id": "6e7f8a9b-0c1d-2e3f-4a5b-6c7d8e9f0a1b",
+      "type": "user",
+      "name": "admin",
+      "fullyQualifiedName": "admin"
+    }
+  ]
+}
+```
+
+---
+
+#### `reviewers` (entityReferenceList)
+**Type**: Array of entity references
+**Required**: No
+**Description**: User references of the reviewers for this tag
+
+```json
+{
+  "reviewers": [
+    {
+      "id": "7f8a9b0c-1d2e-3f4a-5b6c-7d8e9f0a1b2c",
+      "type": "user",
+      "name": "data-steward",
+      "fullyQualifiedName": "data-steward"
+    }
+  ]
+}
+```
+
+---
+
+#### `entityStatus` (status)
+**Type**: Reference to status
+**Required**: No
+**Description**: Status of the tag
+
+```json
+{
+  "entityStatus": "Active"
+}
+```
+
+---
+
+### Auto-Classification Configuration
+
+#### `autoClassificationConfig` (object)
+**Type**: `object`
+**Required**: No
+**Description**: Configuration for automatic classification behavior
+
+**Properties**:
+
+- **`enabled`** (boolean, default: false): Whether automatic classification is enabled for this classification
+- **`conflictResolution`** (string enum, default: "highest_confidence"): Strategy for resolving conflicts when multiple tags match
+  - `highest_confidence` - Use tag with highest confidence score
+  - `highest_priority` - Use tag with highest priority
+  - `most_specific` - Use most specific tag in hierarchy
+- **`minimumConfidence`** (number, default: 0.6): Minimum confidence score required to apply a tag (range: 0.0-1.0)
+- **`requireExplicitMatch`** (boolean, default: true): Only apply tags when recognizers explicitly match (no default tagging)
+
+```json
+{
+  "autoClassificationConfig": {
+    "enabled": true,
+    "conflictResolution": "highest_confidence",
+    "minimumConfidence": 0.8,
+    "requireExplicitMatch": true
+  }
 }
 ```
 
@@ -612,43 +873,52 @@ View the complete Classification schema in your preferred format:
   "name": "PII",
   "fullyQualifiedName": "PII",
   "displayName": "Personally Identifiable Information",
-  "description": "Classification for personally identifiable information",
+  "description": "Classification for personally identifiable information to ensure compliance with privacy regulations like GDPR, CCPA, and HIPAA.",
+  "version": 1.5,
+  "termCount": 8,
+  "updatedAt": 1704240000000,
+  "updatedBy": "admin",
+  "href": "https://open-metadata.org/api/v1/classifications/3c4d5e6f-7a8b-4c9d-0e1f-2a3b4c5d6e7f",
+  "usageCount": 145,
+  "deleted": false,
   "provider": "System",
-  "mutuallyExclusive": false,
   "disabled": false,
-  "tags": [
+  "mutuallyExclusive": false,
+  "domains": [
     {
-      "name": "Sensitive",
-      "fullyQualifiedName": "PII.Sensitive",
-      "description": "Highly sensitive personal information",
-      "children": [
-        {
-          "name": "Email",
-          "fullyQualifiedName": "PII.Sensitive.Email"
-        },
-        {
-          "name": "SSN",
-          "fullyQualifiedName": "PII.Sensitive.SSN"
-        }
-      ]
-    },
-    {
-      "name": "NonSensitive",
-      "fullyQualifiedName": "PII.NonSensitive",
-      "description": "Less sensitive personal information",
-      "children": [
-        {
-          "name": "Name",
-          "fullyQualifiedName": "PII.NonSensitive.Name"
-        }
-      ]
+      "id": "5d6e7f8a-9b0c-1d2e-3f4a-5b6c7d8e9f0a",
+      "type": "domain",
+      "name": "DataGovernance",
+      "fullyQualifiedName": "DataGovernance"
     }
   ],
-  "version": 1.5,
-  "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "owners": [
+    {
+      "id": "6e7f8a9b-0c1d-2e3f-4a5b-6c7d8e9f0a1b",
+      "type": "user",
+      "name": "admin",
+      "fullyQualifiedName": "admin"
+    }
+  ],
+  "reviewers": [
+    {
+      "id": "7f8a9b0c-1d2e-3f4a-5b6c-7d8e9f0a1b2c",
+      "type": "user",
+      "name": "data-steward",
+      "fullyQualifiedName": "data-steward"
+    }
+  ],
+  "entityStatus": "Active",
+  "autoClassificationConfig": {
+    "enabled": true,
+    "conflictResolution": "highest_confidence",
+    "minimumConfidence": 0.8,
+    "requireExplicitMatch": true
+  }
 }
 ```
+
+**Note**: Tags are managed separately via the Tag entity API. See [Tag](tag.md) documentation for managing the hierarchical tag structure under this classification.
 
 ### Tier Classification (Mutually Exclusive)
 
@@ -658,30 +928,25 @@ View the complete Classification schema in your preferred format:
   "name": "Tier",
   "fullyQualifiedName": "Tier",
   "displayName": "Data Tier",
-  "description": "Data tier classification for priority and criticality",
-  "provider": "System",
-  "mutuallyExclusive": true,
-  "disabled": false,
-  "tags": [
-    {
-      "name": "Gold",
-      "fullyQualifiedName": "Tier.Gold",
-      "description": "Mission-critical data with highest priority"
-    },
-    {
-      "name": "Silver",
-      "fullyQualifiedName": "Tier.Silver",
-      "description": "Important data with medium priority"
-    },
-    {
-      "name": "Bronze",
-      "fullyQualifiedName": "Tier.Bronze",
-      "description": "Standard data with normal priority"
-    }
-  ],
+  "description": "Data tier classification for priority and criticality. Only one tier can be assigned per asset.",
   "version": 1.0,
+  "termCount": 3,
   "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "updatedBy": "admin",
+  "href": "https://open-metadata.org/api/v1/classifications/4d5e6f7a-8b9c-4d0e-1f2a-3b4c5d6e7f8a",
+  "usageCount": 523,
+  "deleted": false,
+  "provider": "System",
+  "disabled": false,
+  "mutuallyExclusive": true,
+  "owners": [
+    {
+      "id": "6e7f8a9b-0c1d-2e3f-4a5b-6c7d8e9f0a1b",
+      "type": "user",
+      "name": "admin",
+      "fullyQualifiedName": "admin"
+    }
+  ]
 }
 ```
 
@@ -694,20 +959,14 @@ View the complete Classification schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
 om:Classification a owl:Class ;
-    rdfs:subClassOf om:GovernanceAsset, skos:ConceptScheme ;
+    rdfs:subClassOf om:Entity, skos:ConceptScheme ;
     rdfs:label "Classification" ;
-    rdfs:comment "A hierarchical taxonomy system for organizing tags" ;
-    om:hasProperties [
-        om:name "string" ;
-        om:description "string" ;
-        om:provider "ClassificationProvider" ;
-        om:mutuallyExclusive "boolean" ;
-        om:tags "Tag[]" ;
-    ] .
+    rdfs:comment "A Classification entity contains hierarchical terms called tags used for categorizing and classifying data assets and other entities" .
 ```
 
 ### Instance Example
@@ -716,23 +975,36 @@ om:Classification a owl:Class ;
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix ex: <https://open-metadata.org/classifications/> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:PII a om:Classification, skos:ConceptScheme ;
     om:classificationName "PII" ;
     om:fullyQualifiedName "PII" ;
     om:displayName "Personally Identifiable Information" ;
-    om:description "Classification for personally identifiable information" ;
-    om:classificationProvider om:SystemProvider ;
+    om:description "Classification for personally identifiable information to ensure compliance with privacy regulations like GDPR, CCPA, and HIPAA." ;
+    om:hasProvider om:SystemProvider ;
     om:mutuallyExclusive false ;
-    om:isDisabled false ;
-    skos:hasTopConcept ex:PII_Sensitive ;
-    skos:hasTopConcept ex:PII_NonSensitive .
+    om:disabled false ;
+    om:deleted false ;
+    om:termCount 8 ;
+    om:usageCount 145 ;
+    om:version "1.5"^^xsd:double ;
+    om:updatedAt "1704240000000"^^xsd:long ;
+    om:updatedBy "admin" ;
+    om:href <https://open-metadata.org/api/v1/classifications/3c4d5e6f-7a8b-4c9d-0e1f-2a3b4c5d6e7f> ;
+    om:hasOwner ex:admin ;
+    om:hasDomain ex:DataGovernance .
 
-ex:PII_Sensitive a om:Tag, skos:Concept ;
-    skos:inScheme ex:PII ;
-    skos:prefLabel "Sensitive" ;
-    skos:narrower ex:PII_Sensitive_Email ;
-    skos:narrower ex:PII_Sensitive_SSN .
+ex:Tier a om:Classification, skos:ConceptScheme ;
+    om:classificationName "Tier" ;
+    om:fullyQualifiedName "Tier" ;
+    om:displayName "Data Tier" ;
+    om:description "Data tier classification for priority and criticality. Only one tier can be assigned per asset." ;
+    om:hasProvider om:SystemProvider ;
+    om:mutuallyExclusive true ;
+    om:disabled false ;
+    om:termCount 3 ;
+    om:usageCount 523 .
 ```
 
 ---
@@ -745,13 +1017,20 @@ ex:PII_Sensitive a om:Tag, skos:Concept ;
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
     "skos": "http://www.w3.org/2004/02/skos/core#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
     "Classification": "om:Classification",
     "ConceptScheme": "skos:ConceptScheme",
     "name": "om:classificationName",
     "description": "om:description",
-    "provider": "om:classificationProvider",
+    "provider": "om:hasProvider",
     "mutuallyExclusive": "om:mutuallyExclusive",
-    "tags": "skos:hasTopConcept"
+    "disabled": "om:disabled",
+    "deleted": "om:deleted",
+    "termCount": "om:termCount",
+    "usageCount": "om:usageCount",
+    "domains": "om:hasDomain",
+    "owners": "om:hasOwner",
+    "reviewers": "om:hasReviewer"
   }
 }
 ```
@@ -762,18 +1041,22 @@ ex:PII_Sensitive a om:Tag, skos:Concept ;
 {
   "@context": "https://open-metadata.org/context/classification.jsonld",
   "@type": ["Classification", "ConceptScheme"],
-  "@id": "https://open-metadata.org/classifications/PII",
+  "@id": "https://open-metadata.org/classifications/3c4d5e6f-7a8b-4c9d-0e1f-2a3b4c5d6e7f",
   "name": "PII",
   "fullyQualifiedName": "PII",
   "displayName": "Personally Identifiable Information",
+  "description": "Classification for personally identifiable information to ensure compliance with privacy regulations like GDPR, CCPA, and HIPAA.",
   "provider": "System",
   "mutuallyExclusive": false,
-  "tags": [
-    {
-      "@type": "Tag",
-      "@id": "https://open-metadata.org/tags/PII/Sensitive"
-    }
-  ]
+  "disabled": false,
+  "deleted": false,
+  "termCount": 8,
+  "usageCount": 145,
+  "version": 1.5,
+  "updatedAt": 1704240000000,
+  "updatedBy": "admin",
+  "domains": ["DataGovernance"],
+  "owners": ["admin"]
 }
 ```
 

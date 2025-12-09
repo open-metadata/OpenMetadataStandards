@@ -159,176 +159,170 @@ View the complete ApiEndpoint schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/data/apiEndpoint.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ApiEndpoint",
-      "description": "An `ApiEndpoint` represents a single API endpoint with request/response schemas and OpenAPI specification.",
+      "title": "APIEndpoint",
+      "$comment": "@om-entity-type",
+      "description": "This schema defines the APIEndpoint entity. An APIEndpoint is a specific endpoint of an API that is part of an API Collection.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.data.ApiEndpoint",
+      "javaType": "org.openmetadata.schema.entity.data.APIEndpoint",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "definitions": {
-        "httpMethod": {
-          "description": "HTTP method for the endpoint",
+        "apiRequestMethod": {
+          "javaType": "org.openmetadata.schema.type.APIRequestMethod",
+          "description": "This schema defines the Request Method type for APIs.",
           "type": "string",
-          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
-        },
-        "requestSchema": {
-          "type": "object",
-          "properties": {
-            "schemaType": {
-              "type": "string",
-              "enum": ["JSON", "XML", "FormData", "Protobuf", "Avro"]
-            },
-            "schemaDefinition": {
-              "type": "object"
-            },
-            "contentType": {
-              "type": "string"
-            },
-            "parameters": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/parameter"
-              }
-            }
-          }
-        },
-        "responseSchema": {
-          "type": "object",
-          "properties": {
-            "statusCode": {
-              "type": "integer"
-            },
-            "description": {
-              "type": "string"
-            },
-            "schemaType": {
-              "type": "string",
-              "enum": ["JSON", "XML", "Protobuf", "Avro"]
-            },
-            "schemaDefinition": {
-              "type": "object"
-            },
-            "contentType": {
-              "type": "string"
-            }
-          }
-        },
-        "parameter": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "in": {
-              "type": "string",
-              "enum": ["query", "header", "path", "cookie"]
-            },
-            "required": {
-              "type": "boolean"
-            },
-            "schema": {
-              "type": "object"
-            },
-            "description": {
-              "type": "string"
-            }
-          }
-        },
-        "authentication": {
-          "type": "object",
-          "properties": {
-            "required": {
-              "type": "boolean"
-            },
-            "type": {
-              "type": "string",
-              "enum": ["None", "Basic", "Bearer", "OAuth2", "APIKey", "JWT"]
-            },
-            "scopes": {
-              "type": "array",
-              "items": {"type": "string"}
-            }
-          }
+          "default": "GET",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "HEAD",
+            "CONNECT",
+            "OPTIONS",
+            "TRACE"
+          ]
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies a API Endpoint instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Endpoint name",
+          "description": "Name that identifies this API Endpoint.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
+        "displayName": {
+          "description": "Display Name that identifies this API Endpoint.",
+          "type": "string"
+        },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service.collection.endpoint",
+          "description": "A unique name that identifies a API Collection in the format 'ServiceName.ApiCollectionName.APIEndpoint'.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
-        "displayName": {
-          "description": "Display name",
-          "type": "string"
-        },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the API Endpoint, what it is, and how to use it.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "endpointURL": {
-          "description": "Full endpoint URL path",
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
           "type": "string"
         },
-        "httpMethod": {
-          "$ref": "#/definitions/httpMethod"
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "endpointURL": {
+          "title": "Endpoint URL",
+          "description": "EndPoint URL for the API Collection. Capture the Root URL of the collection.",
+          "type": "string",
+          "format": "uri"
+        },
+        "requestMethod": {
+          "description": "Request Method for the API Endpoint.",
+          "$ref": "#/definitions/apiRequestMethod"
         },
         "requestSchema": {
-          "$ref": "#/definitions/requestSchema"
+          "description": "Request Schema for the API Endpoint.",
+          "$ref": "../../type/apiSchema.json"
         },
-        "responseSchemas": {
-          "description": "Response schemas by status code",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/responseSchema"
-          }
-        },
-        "authentication": {
-          "$ref": "#/definitions/authentication"
+        "responseSchema": {
+          "description": "Response Schema for the API Endpoint.",
+          "$ref": "../../type/apiSchema.json"
         },
         "apiCollection": {
-          "description": "Parent API collection",
+          "description": "Reference to API Collection that contains this API Endpoint.",
           "$ref": "../../type/entityReference.json"
         },
-        "service": {
-          "description": "API service",
-          "$ref": "../../type/entityReference.json"
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "owners": {
+          "description": "Owners of this API Collection.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "followers": {
+          "description": "Followers of this API Collection.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this API Collection.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "service": {
+          "description": "Link to service where this API Collection is hosted in.",
+          "$ref": "../../type/entityReference.json"
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "serviceType": {
+          "description": "Service type where this API Collection is hosted in.",
+          "$ref": "../services/apiService.json#/definitions/apiServiceType"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "domains": {
+          "description": "Domains the API Collection belongs to. When not set, the API Collection inherits the domain from the API service it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle properties of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "entityStatus": {
+          "description": "Status of the APIEndpoint.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "endpointURL", "httpMethod", "apiCollection"]
+      "required": ["id", "name", "service", "endpointURL"],
+      "additionalProperties": false
     }
     ```
 
@@ -370,11 +364,11 @@ View the complete ApiEndpoint schema in your preferred format:
         rdfs:label "endpointURL" ;
         rdfs:comment "URL path for the endpoint" .
 
-    om:httpMethod a owl:DatatypeProperty ;
+    om:requestMethod a owl:DatatypeProperty ;
         rdfs:domain om:ApiEndpoint ;
-        rdfs:range om:HttpMethod ;
-        rdfs:label "httpMethod" ;
-        rdfs:comment "HTTP method: GET, POST, PUT, DELETE, etc." .
+        rdfs:range om:APIRequestMethod ;
+        rdfs:label "requestMethod" ;
+        rdfs:comment "Request method: GET, POST, PUT, PATCH, DELETE, HEAD, CONNECT, OPTIONS, TRACE" .
 
     om:hasRequestSchema a owl:ObjectProperty ;
         rdfs:domain om:ApiEndpoint ;
@@ -400,11 +394,47 @@ View the complete ApiEndpoint schema in your preferred format:
         rdfs:label "requiresAuthentication" ;
         rdfs:comment "Authentication requirements" .
 
-    om:ownedBy a owl:ObjectProperty ;
+    om:hasOwners a owl:ObjectProperty ;
         rdfs:domain om:ApiEndpoint ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this endpoint" .
+        rdfs:label "hasOwners" ;
+        rdfs:comment "Users or teams that own this endpoint" .
+
+    om:hasFollowers a owl:ObjectProperty ;
+        rdfs:domain om:ApiEndpoint ;
+        rdfs:range om:User ;
+        rdfs:label "hasFollowers" ;
+        rdfs:comment "Users following this endpoint" .
+
+    om:inDomains a owl:ObjectProperty ;
+        rdfs:domain om:ApiEndpoint ;
+        rdfs:range om:Domain ;
+        rdfs:label "inDomains" ;
+        rdfs:comment "Domains this endpoint belongs to" .
+
+    om:partOfDataProducts a owl:ObjectProperty ;
+        rdfs:domain om:ApiEndpoint ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "partOfDataProducts" ;
+        rdfs:comment "Data products this endpoint is part of" .
+
+    om:hasVotes a owl:ObjectProperty ;
+        rdfs:domain om:ApiEndpoint ;
+        rdfs:range om:Votes ;
+        rdfs:label "hasVotes" ;
+        rdfs:comment "Votes on this endpoint" .
+
+    om:hasLifeCycle a owl:ObjectProperty ;
+        rdfs:domain om:ApiEndpoint ;
+        rdfs:range om:LifeCycle ;
+        rdfs:label "hasLifeCycle" ;
+        rdfs:comment "Life cycle properties of the endpoint" .
+
+    om:hasCertification a owl:ObjectProperty ;
+        rdfs:domain om:ApiEndpoint ;
+        rdfs:range om:AssetCertification ;
+        rdfs:label "hasCertification" ;
+        rdfs:comment "Certification status of the endpoint" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:ApiEndpoint ;
@@ -418,14 +448,18 @@ View the complete ApiEndpoint schema in your preferred format:
         rdfs:label "linkedToGlossaryTerm" ;
         rdfs:comment "Business glossary terms" .
 
-    # HTTP Method Enumeration
-    om:HttpMethod a owl:Class ;
+    # API Request Method Enumeration
+    om:APIRequestMethod a owl:Class ;
         owl:oneOf (
             om:GET
             om:POST
             om:PUT
             om:PATCH
             om:DELETE
+            om:HEAD
+            om:CONNECT
+            om:OPTIONS
+            om:TRACE
         ) .
 
     # Example Instance
@@ -434,13 +468,15 @@ View the complete ApiEndpoint schema in your preferred format:
         om:fullyQualifiedName "production_api_gateway.payments_api.createPayment" ;
         om:displayName "Create Payment" ;
         om:endpointURL "/api/v2/payments" ;
-        om:httpMethod om:POST ;
+        om:requestMethod om:POST ;
         om:belongsToCollection ex:paymentsAPI ;
-        om:ownedBy ex:paymentsTeam ;
+        om:hasOwners ex:paymentsTeam ;
+        om:hasFollowers ex:user1, ex:user2 ;
         om:hasTag ex:tierGold ;
-        om:requiresAuthentication ex:oauth2Auth ;
         om:hasRequestSchema ex:createPaymentRequest ;
-        om:hasResponseSchema ex:createPaymentResponse200 .
+        om:hasResponseSchema ex:createPaymentResponse200 ;
+        om:inDomains ex:financeDomain ;
+        om:partOfDataProducts ex:paymentsDataProduct .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -478,18 +514,17 @@ View the complete ApiEndpoint schema in your preferred format:
           "@id": "om:endpointURL",
           "@type": "xsd:string"
         },
-        "httpMethod": {
-          "@id": "om:httpMethod",
+        "requestMethod": {
+          "@id": "om:requestMethod",
           "@type": "@vocab"
         },
         "requestSchema": {
           "@id": "om:hasRequestSchema",
           "@type": "@id"
         },
-        "responseSchemas": {
+        "responseSchema": {
           "@id": "om:hasResponseSchema",
-          "@type": "@id",
-          "@container": "@set"
+          "@type": "@id"
         },
         "apiCollection": {
           "@id": "om:belongsToCollection",
@@ -499,27 +534,42 @@ View the complete ApiEndpoint schema in your preferred format:
           "@id": "om:belongsToService",
           "@type": "@id"
         },
-        "authentication": {
-          "@id": "om:requiresAuthentication",
-          "@type": "@id"
+        "owners": {
+          "@id": "om:hasOwners",
+          "@type": "@id",
+          "@container": "@set"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
+        "followers": {
+          "@id": "om:hasFollowers",
+          "@type": "@id",
+          "@container": "@set"
         },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
+        "domains": {
+          "@id": "om:inDomains",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:partOfDataProducts",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
         },
-        "glossaryTerms": {
-          "@id": "om:linkedToGlossaryTerm",
-          "@type": "@id",
-          "@container": "@set"
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@id"
+        },
+        "lifeCycle": {
+          "@id": "om:hasLifeCycle",
+          "@type": "@id"
+        },
+        "certification": {
+          "@id": "om:hasCertification",
+          "@type": "@id"
         }
       }
     }
@@ -538,7 +588,7 @@ View the complete ApiEndpoint schema in your preferred format:
       "displayName": "Create Payment",
       "description": "Creates a new payment transaction",
       "endpointURL": "/api/v2/payments",
-      "httpMethod": "POST",
+      "requestMethod": "POST",
 
       "requestSchema": {
         "schemaType": "JSON",
@@ -554,39 +604,19 @@ View the complete ApiEndpoint schema in your preferred format:
         }
       },
 
-      "responseSchemas": [
-        {
-          "statusCode": 200,
-          "description": "Payment created successfully",
-          "schemaType": "JSON",
-          "contentType": "application/json",
-          "schemaDefinition": {
-            "type": "object",
-            "properties": {
-              "paymentId": {"type": "string"},
-              "status": {"type": "string"},
-              "amount": {"type": "number"}
-            }
-          }
-        },
-        {
-          "statusCode": 400,
-          "description": "Invalid request",
-          "schemaType": "JSON",
-          "schemaDefinition": {
-            "type": "object",
-            "properties": {
-              "error": {"type": "string"},
-              "message": {"type": "string"}
-            }
+      "responseSchema": {
+        "statusCode": 200,
+        "description": "Payment created successfully",
+        "schemaType": "JSON",
+        "contentType": "application/json",
+        "schemaDefinition": {
+          "type": "object",
+          "properties": {
+            "paymentId": {"type": "string"},
+            "status": {"type": "string"},
+            "amount": {"type": "number"}
           }
         }
-      ],
-
-      "authentication": {
-        "required": true,
-        "type": "OAuth2",
-        "scopes": ["payments.write"]
       },
 
       "apiCollection": {
@@ -601,12 +631,38 @@ View the complete ApiEndpoint schema in your preferred format:
         "name": "production_api_gateway"
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/payments",
-        "@type": "Team",
-        "name": "payments",
-        "displayName": "Payments Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/payments",
+          "@type": "Team",
+          "name": "payments",
+          "displayName": "Payments Team"
+        }
+      ],
+
+      "followers": [
+        {
+          "@id": "https://example.com/users/user1",
+          "@type": "User",
+          "name": "user1"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/finance",
+          "@type": "Domain",
+          "name": "Finance"
+        }
+      ],
+
+      "dataProducts": [
+        {
+          "@id": "https://example.com/dataProducts/payments",
+          "@type": "DataProduct",
+          "name": "Payments Data Product"
+        }
+      ],
 
       "tags": [
         {
@@ -617,7 +673,25 @@ View the complete ApiEndpoint schema in your preferred format:
           "@id": "https://open-metadata.org/tags/Compliance/PCI-DSS",
           "tagFQN": "Compliance.PCI-DSS"
         }
-      ]
+      ],
+
+      "votes": {
+        "upVotes": 15,
+        "downVotes": 2
+      },
+
+      "lifeCycle": {
+        "created": {
+          "timestamp": 1704067200000,
+          "user": "admin"
+        }
+      },
+
+      "certification": {
+        "tagLabel": {
+          "tagFQN": "Certification.Gold"
+        }
+      }
     }
     ```
 
@@ -728,9 +802,10 @@ View the complete ApiEndpoint schema in your preferred format:
 
 ---
 
-#### `httpMethod` (HttpMethod enum)
+#### `requestMethod` (apiRequestMethod enum)
 **Type**: `string` enum
-**Required**: Yes
+**Required**: No
+**Default**: `GET`
 **Allowed Values**:
 
 - `GET` - Retrieve resource
@@ -739,11 +814,13 @@ View the complete ApiEndpoint schema in your preferred format:
 - `PATCH` - Update resource
 - `DELETE` - Delete resource
 - `HEAD` - Get headers only
+- `CONNECT` - Establish tunnel
 - `OPTIONS` - Get allowed methods
+- `TRACE` - Diagnostic trace
 
 ```json
 {
-  "httpMethod": "POST"
+  "requestMethod": "POST"
 }
 ```
 
@@ -751,19 +828,10 @@ View the complete ApiEndpoint schema in your preferred format:
 
 ### Schema Properties
 
-#### `requestSchema` (RequestSchema)
+#### `requestSchema` (apiSchema)
 **Type**: `object`
 **Required**: No
-**Description**: Request body and parameter schema
-
-**RequestSchema Properties**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `schemaType` | SchemaType enum | Yes | JSON, XML, FormData, Protobuf, Avro |
-| `contentType` | string | Yes | MIME type (application/json, etc.) |
-| `schemaDefinition` | object | No | JSON Schema or schema definition |
-| `parameters` | Parameter[] | No | Query, path, header parameters |
+**Description**: Request Schema for the API Endpoint
 
 **Example**:
 
@@ -771,52 +839,21 @@ View the complete ApiEndpoint schema in your preferred format:
 {
   "requestSchema": {
     "schemaType": "JSON",
-    "contentType": "application/json",
-    "schemaDefinition": {
-      "type": "object",
-      "properties": {
-        "amount": {
-          "type": "number",
-          "minimum": 0.01,
-          "description": "Payment amount"
-        },
-        "currency": {
-          "type": "string",
-          "pattern": "^[A-Z]{3}$",
-          "description": "ISO 4217 currency code"
-        },
-        "customerId": {
-          "type": "string",
-          "format": "uuid",
-          "description": "Customer UUID"
-        },
-        "paymentMethod": {
-          "type": "string",
-          "enum": ["card", "bank_transfer", "wallet"]
-        }
-      },
-      "required": ["amount", "currency", "customerId"]
-    },
-    "parameters": [
+    "schemaFields": [
       {
-        "name": "idempotencyKey",
-        "in": "header",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "description": "Idempotency key to prevent duplicate requests"
+        "name": "amount",
+        "dataType": "NUMBER",
+        "description": "Payment amount"
       },
       {
-        "name": "async",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "boolean",
-          "default": false
-        },
-        "description": "Process payment asynchronously"
+        "name": "currency",
+        "dataType": "STRING",
+        "description": "ISO 4217 currency code"
+      },
+      {
+        "name": "customerId",
+        "dataType": "STRING",
+        "description": "Customer UUID"
       }
     ]
   }
@@ -825,133 +862,42 @@ View the complete ApiEndpoint schema in your preferred format:
 
 ---
 
-#### `responseSchemas[]` (ResponseSchema[])
-**Type**: `array`
+#### `responseSchema` (apiSchema)
+**Type**: `object`
 **Required**: No
-**Description**: Response schemas for different HTTP status codes
-
-**ResponseSchema Properties**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `statusCode` | integer | Yes | HTTP status code (200, 400, etc.) |
-| `description` | string | No | Response description |
-| `schemaType` | SchemaType enum | Yes | JSON, XML, Protobuf, Avro |
-| `contentType` | string | Yes | MIME type |
-| `schemaDefinition` | object | No | JSON Schema or schema definition |
+**Description**: Response Schema for the API Endpoint
 
 **Example**:
 
 ```json
 {
-  "responseSchemas": [
-    {
-      "statusCode": 200,
-      "description": "Payment created successfully",
-      "schemaType": "JSON",
-      "contentType": "application/json",
-      "schemaDefinition": {
-        "type": "object",
-        "properties": {
-          "paymentId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["pending", "processing", "completed", "failed"]
-          },
-          "amount": {
-            "type": "number"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
+  "responseSchema": {
+    "schemaType": "JSON",
+    "schemaFields": [
+      {
+        "name": "paymentId",
+        "dataType": "STRING",
+        "description": "Unique payment identifier"
+      },
+      {
+        "name": "status",
+        "dataType": "STRING",
+        "description": "Payment status"
+      },
+      {
+        "name": "amount",
+        "dataType": "NUMBER",
+        "description": "Payment amount"
+      },
+      {
+        "name": "currency",
+        "dataType": "STRING",
+        "description": "Currency code"
       }
-    },
-    {
-      "statusCode": 400,
-      "description": "Invalid request",
-      "schemaType": "JSON",
-      "contentType": "application/json",
-      "schemaDefinition": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "string",
-            "enum": ["invalid_amount", "invalid_currency", "invalid_customer"]
-          },
-          "message": {
-            "type": "string"
-          },
-          "details": {
-            "type": "object"
-          }
-        }
-      }
-    },
-    {
-      "statusCode": 401,
-      "description": "Unauthorized - missing or invalid authentication",
-      "schemaType": "JSON",
-      "contentType": "application/json"
-    },
-    {
-      "statusCode": 429,
-      "description": "Rate limit exceeded",
-      "schemaType": "JSON",
-      "contentType": "application/json",
-      "schemaDefinition": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "string",
-            "const": "rate_limit_exceeded"
-          },
-          "retryAfter": {
-            "type": "integer",
-            "description": "Seconds until retry is allowed"
-          }
-        }
-      }
-    }
-  ]
-}
-```
-
----
-
-### Authentication Properties
-
-#### `authentication` (Authentication)
-**Type**: `object`
-**Required**: No
-**Description**: Authentication requirements for this endpoint
-
-```json
-{
-  "authentication": {
-    "required": true,
-    "type": "OAuth2",
-    "scopes": ["payments.write", "customers.read"],
-    "description": "Requires OAuth2 authentication with payment write permissions"
+    ]
   }
 }
 ```
-
-**Authentication Types**:
-
-- `None` - No authentication required
-- `Basic` - HTTP Basic authentication
-- `Bearer` - Bearer token authentication
-- `OAuth2` - OAuth 2.0 authentication
-- `APIKey` - API key authentication
-- `JWT` - JSON Web Token authentication
 
 ---
 
@@ -995,37 +941,81 @@ View the complete ApiEndpoint schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array`
 **Required**: No
-**Description**: User or team that owns this endpoint
+**Description**: Users or teams that own this endpoint
 
 ```json
 {
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "payments",
-    "displayName": "Payments Team"
-  }
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team",
+      "name": "payments",
+      "displayName": "Payments Team"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `followers` (EntityReferenceList)
+**Type**: `array`
 **Required**: No
-**Description**: Data domain this endpoint belongs to
+**Description**: Users following this API endpoint
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Finance",
-    "fullyQualifiedName": "Finance"
-  }
+  "followers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array`
+**Required**: No
+**Description**: Domains the API endpoint belongs to
+
+```json
+{
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Finance",
+      "fullyQualifiedName": "Finance"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array`
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "PaymentsDataProduct",
+      "fullyQualifiedName": "Finance.PaymentsDataProduct"
+    }
+  ]
 }
 ```
 
@@ -1062,21 +1052,130 @@ View the complete ApiEndpoint schema in your preferred format:
 
 ---
 
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
+#### `votes` (Votes)
+**Type**: `object`
 **Required**: No
-**Description**: Business glossary terms linked to this endpoint
+**Description**: Votes on the entity
 
 ```json
 {
-  "glossaryTerms": [
-    {
-      "fullyQualifiedName": "BusinessGlossary.Payment"
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2,
+    "upVoters": ["user1-uuid", "user2-uuid"],
+    "downVoters": ["user3-uuid"]
+  }
+}
+```
+
+---
+
+#### `lifeCycle` (LifeCycle)
+**Type**: `object`
+**Required**: No
+**Description**: Life Cycle properties of the entity
+
+```json
+{
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "admin"
     },
-    {
-      "fullyQualifiedName": "BusinessGlossary.Transaction"
+    "updated": {
+      "timestamp": 1704153600000,
+      "user": "jane.developer"
     }
-  ]
+  }
+}
+```
+
+---
+
+#### `certification` (AssetCertification)
+**Type**: `object`
+**Required**: No
+**Description**: Certification status of the endpoint
+
+```json
+{
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certification.Gold",
+      "description": "Gold tier certified endpoint"
+    }
+  }
+}
+```
+
+---
+
+#### `extension` (EntityExtension)
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes
+
+```json
+{
+  "extension": {
+    "customProperty1": "value1",
+    "customProperty2": "value2"
+  }
+}
+```
+
+---
+
+#### `serviceType` (apiServiceType)
+**Type**: `string`
+**Required**: No
+**Description**: Service type where this API endpoint is hosted
+
+```json
+{
+  "serviceType": "REST"
+}
+```
+
+---
+
+#### `sourceHash` (string)
+**Type**: `string`
+**Required**: No
+**Min Length**: 1
+**Max Length**: 32
+**Description**: Source hash of the entity
+
+```json
+{
+  "sourceHash": "a1b2c3d4e5f6"
+}
+```
+
+---
+
+#### `entityStatus` (Status)
+**Type**: `object`
+**Required**: No
+**Description**: Status of the APIEndpoint
+
+```json
+{
+  "entityStatus": "Active"
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: false
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
 }
 ```
 
@@ -1125,7 +1224,7 @@ View the complete ApiEndpoint schema in your preferred format:
 
 ## Complete Example
 
-### OpenAPI-Compliant REST Endpoint
+### API Endpoint Example
 
 ```json
 {
@@ -1135,98 +1234,121 @@ View the complete ApiEndpoint schema in your preferred format:
   "displayName": "Create Payment",
   "description": "# Create Payment Endpoint\n\nCreates a new payment transaction.",
   "endpointURL": "/api/v2/payments",
-  "httpMethod": "POST",
+  "requestMethod": "POST",
   "requestSchema": {
     "schemaType": "JSON",
-    "contentType": "application/json",
-    "schemaDefinition": {
-      "type": "object",
-      "properties": {
-        "amount": {
-          "type": "number",
-          "minimum": 0.01
-        },
-        "currency": {
-          "type": "string",
-          "pattern": "^[A-Z]{3}$"
-        },
-        "customerId": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "paymentMethod": {
-          "type": "string",
-          "enum": ["card", "bank_transfer", "wallet"]
-        }
-      },
-      "required": ["amount", "currency", "customerId"]
-    },
-    "parameters": [
+    "schemaFields": [
       {
-        "name": "idempotencyKey",
-        "in": "header",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
+        "name": "amount",
+        "dataType": "NUMBER",
+        "description": "Payment amount"
+      },
+      {
+        "name": "currency",
+        "dataType": "STRING",
+        "description": "ISO 4217 currency code"
+      },
+      {
+        "name": "customerId",
+        "dataType": "STRING",
+        "description": "Customer UUID"
       }
     ]
   },
-  "responseSchemas": [
-    {
-      "statusCode": 200,
-      "description": "Payment created successfully",
-      "schemaType": "JSON",
-      "contentType": "application/json",
-      "schemaDefinition": {
-        "type": "object",
-        "properties": {
-          "paymentId": {"type": "string", "format": "uuid"},
-          "status": {"type": "string"},
-          "amount": {"type": "number"}
-        }
+  "responseSchema": {
+    "schemaType": "JSON",
+    "schemaFields": [
+      {
+        "name": "paymentId",
+        "dataType": "STRING",
+        "description": "Unique payment identifier"
+      },
+      {
+        "name": "status",
+        "dataType": "STRING",
+        "description": "Payment status"
+      },
+      {
+        "name": "amount",
+        "dataType": "NUMBER",
+        "description": "Payment amount"
       }
-    },
-    {
-      "statusCode": 400,
-      "description": "Invalid request",
-      "schemaType": "JSON",
-      "contentType": "application/json"
-    }
-  ],
-  "authentication": {
-    "required": true,
-    "type": "OAuth2",
-    "scopes": ["payments.write"]
+    ]
   },
   "apiCollection": {
     "id": "collection-uuid",
     "type": "apiCollection",
-    "name": "payments_api"
+    "name": "payments_api",
+    "fullyQualifiedName": "production_api_gateway.payments_api"
   },
   "service": {
     "id": "service-uuid",
     "type": "apiService",
-    "name": "production_api_gateway"
+    "name": "production_api_gateway",
+    "fullyQualifiedName": "production_api_gateway"
   },
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "payments"
-  },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Finance"
-  },
-  "tags": [
-    {"tagFQN": "Tier.Gold"},
-    {"tagFQN": "Compliance.PCI-DSS"}
+  "serviceType": "REST",
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team",
+      "name": "payments",
+      "displayName": "Payments Team"
+    }
   ],
+  "followers": [
+    {
+      "id": "user1-uuid",
+      "type": "user",
+      "name": "john.doe"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Finance",
+      "fullyQualifiedName": "Finance"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "PaymentsDataProduct"
+    }
+  ],
+  "tags": [
+    {
+      "tagFQN": "Tier.Gold",
+      "source": "Classification",
+      "labelType": "Manual",
+      "state": "Confirmed"
+    },
+    {
+      "tagFQN": "Compliance.PCI-DSS",
+      "source": "Classification"
+    }
+  ],
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2
+  },
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "admin"
+    }
+  },
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certification.Gold"
+    }
+  },
   "version": 4.2,
   "updatedAt": 1704240000000,
-  "updatedBy": "jane.developer"
+  "updatedBy": "jane.developer",
+  "deleted": false
 }
 ```
 
@@ -1248,13 +1370,18 @@ om:ApiEndpoint a owl:Class ;
     om:hasProperties [
         om:name "string" ;
         om:endpointURL "string" ;
-        om:httpMethod "HttpMethod" ;
+        om:requestMethod "APIRequestMethod" ;
         om:requestSchema "RequestSchema" ;
-        om:responseSchemas "ResponseSchema[]" ;
-        om:authentication "Authentication" ;
+        om:responseSchema "ResponseSchema" ;
         om:apiCollection "ApiCollection" ;
-        om:owner "Owner" ;
+        om:owners "Owner[]" ;
+        om:followers "User[]" ;
+        om:domains "Domain[]" ;
+        om:dataProducts "DataProduct[]" ;
         om:tags "Tag[]" ;
+        om:votes "Votes" ;
+        om:lifeCycle "LifeCycle" ;
+        om:certification "AssetCertification" ;
     ] .
 ```
 
@@ -1269,11 +1396,18 @@ ex:createPayment a om:ApiEndpoint ;
     om:fullyQualifiedName "production_api_gateway.payments_api.createPayment" ;
     om:displayName "Create Payment" ;
     om:endpointURL "/api/v2/payments" ;
-    om:httpMethod om:POST ;
+    om:requestMethod om:POST ;
     om:belongsToCollection ex:paymentsAPI ;
-    om:ownedBy ex:paymentsTeam ;
+    om:hasOwners ex:paymentsTeam ;
+    om:hasFollowers ex:user1, ex:user2 ;
     om:hasTag ex:tierGold ;
-    om:requiresAuthentication ex:oauth2Auth .
+    om:hasRequestSchema ex:createPaymentRequest ;
+    om:hasResponseSchema ex:createPaymentResponse ;
+    om:inDomains ex:financeDomain ;
+    om:partOfDataProducts ex:paymentsDataProduct ;
+    om:hasVotes ex:votesObject ;
+    om:hasLifeCycle ex:lifeCycleObject ;
+    om:hasCertification ex:goldCertification .
 ```
 
 ---
@@ -1288,22 +1422,49 @@ ex:createPayment a om:ApiEndpoint ;
     "ApiEndpoint": "om:ApiEndpoint",
     "name": "om:name",
     "endpointURL": "om:endpointURL",
-    "httpMethod": "om:httpMethod",
+    "requestMethod": "om:requestMethod",
     "requestSchema": {
       "@id": "om:hasRequestSchema",
       "@type": "@id"
     },
-    "responseSchemas": {
+    "responseSchema": {
       "@id": "om:hasResponseSchema",
-      "@type": "@id",
-      "@container": "@set"
+      "@type": "@id"
     },
     "apiCollection": {
       "@id": "om:belongsToCollection",
       "@type": "@id"
     },
-    "owner": {
-      "@id": "om:ownedBy",
+    "owners": {
+      "@id": "om:hasOwners",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:hasFollowers",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:inDomains",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:partOfDataProducts",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "votes": {
+      "@id": "om:hasVotes",
+      "@type": "@id"
+    },
+    "lifeCycle": {
+      "@id": "om:hasLifeCycle",
+      "@type": "@id"
+    },
+    "certification": {
+      "@id": "om:hasCertification",
       "@type": "@id"
     }
   }
@@ -1319,11 +1480,23 @@ ex:createPayment a om:ApiEndpoint ;
   "@id": "https://example.com/api/endpoints/create_payment",
   "name": "createPayment",
   "endpointURL": "/api/v2/payments",
-  "httpMethod": "POST",
+  "requestMethod": "POST",
   "apiCollection": {
     "@id": "https://example.com/api/payments",
     "@type": "ApiCollection"
-  }
+  },
+  "owners": [
+    {
+      "@id": "https://example.com/teams/payments",
+      "@type": "Team"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/finance",
+      "@type": "Domain"
+    }
+  ]
 }
 ```
 
@@ -1376,7 +1549,7 @@ Users can follow API endpoints to receive notifications about schema changes, de
 ```http
 GET /v1/apiEndpoints
 Query Parameters:
-  - fields: Fields to include (owners, followers, tags, extension, domains, dataProducts, sourceHash)
+  - fields: Fields to include (owners, followers, tags, extension, domains, dataProducts, votes, lifeCycle, certification, sourceHash)
   - service: Filter by API service name (e.g., "OpenMetadata API Service")
   - apiCollection: Filter by API collection name (e.g., "UsersAPI")
   - limit: Number of results (1-1000000, default 10)
@@ -1390,7 +1563,7 @@ Response: APIEndpointList
 **Example Request**:
 
 ```http
-GET /v1/apiEndpoints?apiCollection=payments_api&fields=requestSchema,responseSchemas,tags&limit=50
+GET /v1/apiEndpoints?apiCollection=payments_api&fields=requestSchema,responseSchema,tags,owners&limit=50
 ```
 
 ---
@@ -1407,79 +1580,53 @@ Content-Type: application/json
   "displayName": "Create Payment",
   "description": "Creates a new payment transaction",
   "endpointURL": "/api/v2/payments",
-  "httpMethod": "POST",
+  "requestMethod": "POST",
   "requestSchema": {
     "schemaType": "JSON",
-    "contentType": "application/json",
-    "schemaDefinition": {
-      "type": "object",
-      "properties": {
-        "amount": {
-          "type": "number",
-          "minimum": 0.01,
-          "description": "Payment amount"
-        },
-        "currency": {
-          "type": "string",
-          "pattern": "^[A-Z]{3}$",
-          "description": "ISO 4217 currency code"
-        },
-        "customerId": {
-          "type": "string",
-          "format": "uuid",
-          "description": "Customer UUID"
-        },
-        "paymentMethod": {
-          "type": "string",
-          "enum": ["card", "bank_transfer", "wallet"]
-        }
-      },
-      "required": ["amount", "currency", "customerId"]
-    },
-    "parameters": [
+    "schemaFields": [
       {
-        "name": "idempotencyKey",
-        "in": "header",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "description": "Idempotency key to prevent duplicate requests"
+        "name": "amount",
+        "dataType": "NUMBER",
+        "description": "Payment amount"
+      },
+      {
+        "name": "currency",
+        "dataType": "STRING",
+        "description": "ISO 4217 currency code"
+      },
+      {
+        "name": "customerId",
+        "dataType": "STRING",
+        "description": "Customer UUID"
       }
     ]
   },
-  "responseSchemas": [
-    {
-      "statusCode": 200,
-      "description": "Payment created successfully",
-      "schemaType": "JSON",
-      "contentType": "application/json",
-      "schemaDefinition": {
-        "type": "object",
-        "properties": {
-          "paymentId": {"type": "string", "format": "uuid"},
-          "status": {"type": "string", "enum": ["pending", "processing", "completed"]},
-          "amount": {"type": "number"}
-        }
+  "responseSchema": {
+    "schemaType": "JSON",
+    "schemaFields": [
+      {
+        "name": "paymentId",
+        "dataType": "STRING",
+        "description": "Unique payment identifier"
+      },
+      {
+        "name": "status",
+        "dataType": "STRING",
+        "description": "Payment status"
+      },
+      {
+        "name": "amount",
+        "dataType": "NUMBER",
+        "description": "Payment amount"
       }
-    },
+    ]
+  },
+  "owners": [
     {
-      "statusCode": 400,
-      "description": "Invalid request",
-      "schemaType": "JSON",
-      "contentType": "application/json"
+      "id": "team-uuid",
+      "type": "team"
     }
   ],
-  "authentication": {
-    "required": true,
-    "type": "OAuth2",
-    "scopes": ["payments.write"]
-  },
-  "owner": {
-    "id": "team-uuid",
-    "type": "team"
-  },
   "tags": [
     {"tagFQN": "Tier.Gold"},
     {"tagFQN": "Compliance.PCI-DSS"}
@@ -1496,7 +1643,7 @@ Response: APIEndpoint
 ```http
 GET /v1/apiEndpoints/name/{fqn}
 Query Parameters:
-  - fields: Fields to include (requestSchema, responseSchemas, owners, followers, tags, extension)
+  - fields: Fields to include (requestSchema, responseSchema, owners, followers, tags, extension, domains, dataProducts, votes, lifeCycle, certification)
   - include: all | deleted | non-deleted (default: non-deleted)
 
 Response: APIEndpoint
@@ -1505,7 +1652,7 @@ Response: APIEndpoint
 **Example Request**:
 
 ```http
-GET /v1/apiEndpoints/name/production_api_gateway.payments_api.createPayment?fields=requestSchema,responseSchemas,owner,tags
+GET /v1/apiEndpoints/name/production_api_gateway.payments_api.createPayment?fields=requestSchema,responseSchema,owners,tags
 ```
 
 ---
@@ -1542,8 +1689,8 @@ Content-Type: application/json-patch+json
   },
   {
     "op": "replace",
-    "path": "/authentication/scopes",
-    "value": ["payments.write", "payments.refund"]
+    "path": "/requestMethod",
+    "value": "PUT"
   }
 ]
 
@@ -1562,16 +1709,14 @@ Content-Type: application/json
   "name": "getPayment",
   "apiCollection": "production_api_gateway.payments_api",
   "endpointURL": "/api/v2/payments/{id}",
-  "httpMethod": "GET",
+  "requestMethod": "GET",
   "requestSchema": {
     "schemaType": "JSON",
-    "contentType": "application/json",
-    "parameters": [
+    "schemaFields": [
       {
         "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {"type": "string", "format": "uuid"}
+        "dataType": "STRING",
+        "description": "Payment ID"
       }
     ]
   }
@@ -1690,13 +1835,13 @@ Content-Type: application/json
       "name": "getCustomer",
       "apiCollection": "production_api_gateway.customers_api",
       "endpointURL": "/api/v2/customers/{id}",
-      "httpMethod": "GET"
+      "requestMethod": "GET"
     },
     {
       "name": "listCustomers",
       "apiCollection": "production_api_gateway.customers_api",
       "endpointURL": "/api/v2/customers",
-      "httpMethod": "GET"
+      "requestMethod": "GET"
     }
   ]
 }

@@ -150,124 +150,136 @@ View the complete ApiCollection schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/data/apiCollection.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ApiCollection",
-      "description": "An `ApiCollection` groups related API endpoints together, providing versioning and shared configuration.",
+      "title": "APICollection",
+      "$comment": "@om-entity-type",
+      "description": "This schema defines the APICollection entity. API Collection allows user to group multiple APIs together. In OpenAPI specification its marked as a Tag.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.data.ApiCollection",
-
-      "definitions": {
-        "apiVersion": {
-          "description": "API version specification",
-          "type": "object",
-          "properties": {
-            "version": {
-              "type": "string",
-              "pattern": "^(v)?\\d+(\\.\\d+)?(\\.\\d+)?$"
-            },
-            "versioningScheme": {
-              "type": "string",
-              "enum": ["URL", "Header", "QueryParam"]
-            },
-            "deprecated": {
-              "type": "boolean"
-            },
-            "sunsetDate": {
-              "type": "string",
-              "format": "date-time"
-            }
-          }
-        },
-        "rateLimit": {
-          "type": "object",
-          "properties": {
-            "requestsPerMinute": {
-              "type": "integer"
-            },
-            "requestsPerHour": {
-              "type": "integer"
-            },
-            "requestsPerDay": {
-              "type": "integer"
-            }
-          }
-        }
-      },
+      "javaType": "org.openmetadata.schema.entity.data.APICollection",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies a API Collection instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Collection name",
+          "description": "Name that identifies this API Collection.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
+        "displayName": {
+          "description": "Display Name that identifies this API Collection. It could be title or label from the source services.",
+          "type": "string"
+        },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service.collection",
+          "description": "A unique name that identifies a API Collection in the format 'ServiceName.ApiCollectionName'.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
-        "displayName": {
-          "description": "Display name",
-          "type": "string"
-        },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the API Collection, what it is, and how to use it.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "apiVersion": {
-          "$ref": "#/definitions/apiVersion"
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
         },
-        "basePath": {
-          "description": "Base path for all endpoints in collection",
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
           "type": "string"
         },
-        "endpoints": {
-          "description": "API endpoints in this collection",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
         },
-        "service": {
-          "description": "Parent API service",
-          "$ref": "../../type/entityReference.json"
+        "endpointURL": {
+          "title": "Endpoint URL",
+          "description": "EndPoint URL for the API Collection. Capture the Root URL of the collection.",
+          "type": "string",
+          "format": "uri"
         },
-        "rateLimit": {
-          "$ref": "#/definitions/rateLimit"
+        "apiEndpoints": {
+          "description": "All the APIs included in this API Collection.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
         },
-        "authentication": {
-          "description": "Authentication requirements",
-          "type": "object"
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "owners": {
+          "description": "Owners of this API Collection.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this API Collection.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "service": {
+          "description": "Link to service where this API Collection is hosted in.",
+          "$ref": "../../type/entityReference.json"
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "serviceType": {
+          "description": "Service type where this API Collection is hosted in.",
+          "$ref": "../services/apiService.json#/definitions/apiServiceType"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "domains": {
+          "description": "Domains the API Collection belongs to. When not set, the API Collection inherits the domain from the API service it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle properties of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "entityStatus": {
+          "description": "Status of the API Collection.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "service"]
+      "required": ["id", "name", "service", "endpointURL"],
+      "additionalProperties": false
     }
     ```
 
@@ -284,79 +296,103 @@ View the complete ApiCollection schema in your preferred format:
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # ApiCollection Class Definition
-    om:ApiCollection a owl:Class ;
+    om:APICollection a owl:Class ;
         rdfs:subClassOf om:DataAsset ;
-        rdfs:label "ApiCollection" ;
-        rdfs:comment "A collection of related API endpoints sharing configuration and versioning" ;
+        rdfs:label "APICollection" ;
+        rdfs:comment "API Collection allows user to group multiple APIs together. In OpenAPI specification its marked as a Tag." ;
         om:hierarchyLevel 2 .
 
     # Properties
     om:collectionName a owl:DatatypeProperty ;
-        rdfs:domain om:ApiCollection ;
+        rdfs:domain om:APICollection ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the API collection" .
+        rdfs:comment "Name that identifies this API Collection" .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:APICollection ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this API Collection" .
 
     om:fullyQualifiedName a owl:DatatypeProperty ;
-        rdfs:domain om:ApiCollection ;
+        rdfs:domain om:APICollection ;
         rdfs:range xsd:string ;
         rdfs:label "fullyQualifiedName" ;
-        rdfs:comment "Complete hierarchical name: service.collection" .
+        rdfs:comment "A unique name that identifies a API Collection in the format 'ServiceName.ApiCollectionName'" .
 
-    om:basePath a owl:DatatypeProperty ;
-        rdfs:domain om:ApiCollection ;
-        rdfs:range xsd:string ;
-        rdfs:label "basePath" ;
-        rdfs:comment "Base URL path for all endpoints in collection" .
+    om:endpointURL a owl:DatatypeProperty ;
+        rdfs:domain om:APICollection ;
+        rdfs:range xsd:anyURI ;
+        rdfs:label "endpointURL" ;
+        rdfs:comment "EndPoint URL for the API Collection. Capture the Root URL of the collection" .
 
-    om:apiVersion a owl:DatatypeProperty ;
-        rdfs:domain om:ApiCollection ;
-        rdfs:range xsd:string ;
-        rdfs:label "apiVersion" ;
-        rdfs:comment "API version (e.g., v1, v2.0)" .
-
-    om:hasEndpoint a owl:ObjectProperty ;
-        rdfs:domain om:ApiCollection ;
+    om:hasApiEndpoint a owl:ObjectProperty ;
+        rdfs:domain om:APICollection ;
         rdfs:range om:ApiEndpoint ;
-        rdfs:label "hasEndpoint" ;
-        rdfs:comment "Endpoints in this collection" .
+        rdfs:label "hasApiEndpoint" ;
+        rdfs:comment "All the APIs included in this API Collection" .
 
     om:belongsToService a owl:ObjectProperty ;
-        rdfs:domain om:ApiCollection ;
+        rdfs:domain om:APICollection ;
         rdfs:range om:ApiService ;
         rdfs:label "belongsToService" ;
-        rdfs:comment "Parent API service" .
+        rdfs:comment "Link to service where this API Collection is hosted in" .
 
-    om:ownedBy a owl:ObjectProperty ;
-        rdfs:domain om:ApiCollection ;
+    om:hasOwners a owl:ObjectProperty ;
+        rdfs:domain om:APICollection ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this collection" .
+        rdfs:label "hasOwners" ;
+        rdfs:comment "Owners of this API Collection" .
 
     om:hasTag a owl:ObjectProperty ;
-        rdfs:domain om:ApiCollection ;
+        rdfs:domain om:APICollection ;
         rdfs:range om:Tag ;
         rdfs:label "hasTag" ;
-        rdfs:comment "Classification tags applied to collection" .
+        rdfs:comment "Tags for this API Collection" .
 
-    om:linkedToGlossaryTerm a owl:ObjectProperty ;
-        rdfs:domain om:ApiCollection ;
-        rdfs:range om:GlossaryTerm ;
-        rdfs:label "linkedToGlossaryTerm" ;
-        rdfs:comment "Business glossary terms" .
+    om:inDomains a owl:ObjectProperty ;
+        rdfs:domain om:APICollection ;
+        rdfs:range om:Domain ;
+        rdfs:label "inDomains" ;
+        rdfs:comment "Domains the API Collection belongs to" .
+
+    om:hasDataProducts a owl:ObjectProperty ;
+        rdfs:domain om:APICollection ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "hasDataProducts" ;
+        rdfs:comment "List of data products this entity is part of" .
+
+    om:hasVotes a owl:ObjectProperty ;
+        rdfs:domain om:APICollection ;
+        rdfs:range om:Votes ;
+        rdfs:label "hasVotes" ;
+        rdfs:comment "Votes on the entity" .
+
+    om:hasLifeCycle a owl:ObjectProperty ;
+        rdfs:domain om:APICollection ;
+        rdfs:range om:LifeCycle ;
+        rdfs:label "hasLifeCycle" ;
+        rdfs:comment "Life Cycle properties of the entity" .
+
+    om:hasCertification a owl:ObjectProperty ;
+        rdfs:domain om:APICollection ;
+        rdfs:range om:AssetCertification ;
+        rdfs:label "hasCertification" ;
+        rdfs:comment "Asset certification information" .
 
     # Example Instance
-    ex:paymentsAPI a om:ApiCollection ;
+    ex:paymentsAPI a om:APICollection ;
         om:collectionName "payments_api" ;
         om:fullyQualifiedName "production_api_gateway.payments_api" ;
         om:displayName "Payments API" ;
-        om:basePath "/api/v2/payments" ;
-        om:apiVersion "v2" ;
+        om:endpointURL "https://api.example.com/v2/payments" ;
         om:belongsToService ex:productionAPIGateway ;
-        om:ownedBy ex:paymentsTeam ;
+        om:hasOwners ex:paymentsTeam ;
         om:hasTag ex:tierGold ;
-        om:hasEndpoint ex:createPaymentEndpoint ;
-        om:hasEndpoint ex:getPaymentEndpoint .
+        om:hasApiEndpoint ex:createPaymentEndpoint ;
+        om:hasApiEndpoint ex:getPaymentEndpoint ;
+        om:inDomains ex:financeDomain .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -373,7 +409,7 @@ View the complete ApiCollection schema in your preferred format:
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
 
-        "ApiCollection": "om:ApiCollection",
+        "APICollection": "om:APICollection",
         "name": {
           "@id": "om:collectionName",
           "@type": "xsd:string"
@@ -390,16 +426,12 @@ View the complete ApiCollection schema in your preferred format:
           "@id": "om:description",
           "@type": "xsd:string"
         },
-        "basePath": {
-          "@id": "om:basePath",
-          "@type": "xsd:string"
+        "endpointURL": {
+          "@id": "om:endpointURL",
+          "@type": "xsd:anyURI"
         },
-        "apiVersion": {
-          "@id": "om:apiVersion",
-          "@type": "@id"
-        },
-        "endpoints": {
-          "@id": "om:hasEndpoint",
+        "apiEndpoints": {
+          "@id": "om:hasApiEndpoint",
           "@type": "@id",
           "@container": "@set"
         },
@@ -407,23 +439,37 @@ View the complete ApiCollection schema in your preferred format:
           "@id": "om:belongsToService",
           "@type": "@id"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
+        "owners": {
+          "@id": "om:hasOwners",
+          "@type": "@id",
+          "@container": "@set"
         },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
+        "domains": {
+          "@id": "om:inDomains",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
         },
-        "glossaryTerms": {
-          "@id": "om:linkedToGlossaryTerm",
+        "dataProducts": {
+          "@id": "om:hasDataProducts",
           "@type": "@id",
           "@container": "@set"
+        },
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@id"
+        },
+        "lifeCycle": {
+          "@id": "om:hasLifeCycle",
+          "@type": "@id"
+        },
+        "certification": {
+          "@id": "om:hasCertification",
+          "@type": "@id"
         }
       }
     }
@@ -434,20 +480,14 @@ View the complete ApiCollection schema in your preferred format:
     ```json
     {
       "@context": "https://open-metadata.org/context/apiCollection.jsonld",
-      "@type": "ApiCollection",
+      "@type": "APICollection",
       "@id": "https://example.com/api/collections/payments",
 
       "name": "payments_api",
       "fullyQualifiedName": "production_api_gateway.payments_api",
       "displayName": "Payments API",
       "description": "REST API for payment processing and transaction management",
-      "basePath": "/api/v2/payments",
-
-      "apiVersion": {
-        "version": "v2",
-        "versioningScheme": "URL",
-        "deprecated": false
-      },
+      "endpointURL": "https://api.example.com/v2/payments",
 
       "service": {
         "@id": "https://example.com/services/production_api_gateway",
@@ -455,12 +495,22 @@ View the complete ApiCollection schema in your preferred format:
         "name": "production_api_gateway"
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/payments",
-        "@type": "Team",
-        "name": "payments",
-        "displayName": "Payments Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/payments",
+          "@type": "Team",
+          "name": "payments",
+          "displayName": "Payments Team"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/finance",
+          "@type": "Domain",
+          "name": "Finance"
+        }
+      ],
 
       "tags": [
         {
@@ -473,7 +523,7 @@ View the complete ApiCollection schema in your preferred format:
         }
       ],
 
-      "endpoints": [
+      "apiEndpoints": [
         {
           "@id": "https://example.com/api/endpoints/create_payment",
           "@type": "ApiEndpoint",
@@ -584,95 +634,14 @@ View the complete ApiCollection schema in your preferred format:
 
 ### Configuration Properties
 
-#### `basePath`
-**Type**: `string`
-**Required**: No
-**Description**: Base URL path for all endpoints in this collection
+#### `endpointURL`
+**Type**: `string` (URI format)
+**Required**: Yes
+**Description**: EndPoint URL for the API Collection. Capture the Root URL of the collection.
 
 ```json
 {
-  "basePath": "/api/v2/payments"
-}
-```
-
----
-
-#### `apiVersion` (ApiVersion)
-**Type**: `object`
-**Required**: No
-**Description**: API version specification and deprecation information
-
-**ApiVersion Properties**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `version` | string | Yes | Version identifier (v1, v2.0, etc.) |
-| `versioningScheme` | VersionScheme enum | No | URL, Header, or QueryParam |
-| `deprecated` | boolean | No | Whether this version is deprecated |
-| `sunsetDate` | date-time | No | When this version will be removed |
-| `releaseDate` | date-time | No | When this version was released |
-
-**Example**:
-
-```json
-{
-  "apiVersion": {
-    "version": "v2",
-    "versioningScheme": "URL",
-    "deprecated": false,
-    "releaseDate": "2024-01-15T00:00:00Z"
-  }
-}
-```
-
-**Deprecated Version Example**:
-
-```json
-{
-  "apiVersion": {
-    "version": "v1",
-    "versioningScheme": "URL",
-    "deprecated": true,
-    "sunsetDate": "2024-12-31T23:59:59Z",
-    "releaseDate": "2022-06-01T00:00:00Z"
-  }
-}
-```
-
----
-
-#### `rateLimit` (RateLimit)
-**Type**: `object`
-**Required**: No
-**Description**: Rate limiting configuration for this collection
-
-```json
-{
-  "rateLimit": {
-    "requestsPerMinute": 1000,
-    "requestsPerHour": 50000,
-    "requestsPerDay": 1000000,
-    "burstLimit": 2000
-  }
-}
-```
-
----
-
-#### `authentication` (object)
-**Type**: `object`
-**Required**: No
-**Description**: Authentication requirements for this collection
-
-```json
-{
-  "authentication": {
-    "required": true,
-    "methods": ["OAuth2", "APIKey"],
-    "scopes": ["payments.read", "payments.write"],
-    "apiKeyLocation": "header",
-    "apiKeyName": "X-API-Key"
-  }
+  "endpointURL": "https://api.example.com/v2/payments"
 }
 ```
 
@@ -680,14 +649,15 @@ View the complete ApiCollection schema in your preferred format:
 
 ### Structure Properties
 
-#### `endpoints[]` (EntityReference[])
-**Type**: `array`
+#### `apiEndpoints` (EntityReferenceList)
+**Type**: `EntityReferenceList`
 **Required**: No
-**Description**: API endpoints in this collection
+**Default**: `null`
+**Description**: All the APIs included in this API Collection.
 
 ```json
 {
-  "endpoints": [
+  "apiEndpoints": [
     {
       "id": "endpoint-uuid-1",
       "type": "apiEndpoint",
@@ -712,12 +682,25 @@ View the complete ApiCollection schema in your preferred format:
 
 ---
 
+#### `href`
+**Type**: `string` (URI format)
+**Required**: No (system-managed)
+**Description**: Link to the resource corresponding to this entity.
+
+```json
+{
+  "href": "https://platform.open-metadata.org/api/v1/apiCollections/2b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d6e"
+}
+```
+
+---
+
 ### Location Properties
 
 #### `service` (EntityReference)
 **Type**: `object`
 **Required**: Yes
-**Description**: Reference to parent API service
+**Description**: Link to service where this API Collection is hosted in.
 
 ```json
 {
@@ -732,39 +715,57 @@ View the complete ApiCollection schema in your preferred format:
 
 ---
 
-### Governance Properties
-
-#### `owner` (EntityReference)
-**Type**: `object`
-**Required**: No
-**Description**: User or team that owns this API collection
+#### `serviceType`
+**Type**: `string` (enum)
+**Required**: No (system-managed)
+**Description**: Service type where this API Collection is hosted in.
 
 ```json
 {
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "payments",
-    "displayName": "Payments Team"
-  }
+  "serviceType": "REST"
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+### Governance Properties
+
+#### `owners` (EntityReferenceList)
+**Type**: `EntityReferenceList`
 **Required**: No
-**Description**: Data domain this collection belongs to
+**Default**: `null`
+**Description**: Owners of this API Collection.
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Finance",
-    "fullyQualifiedName": "Finance"
-  }
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team",
+      "name": "payments",
+      "displayName": "Payments Team"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `EntityReferenceList`
+**Required**: No
+**Description**: Domains the API Collection belongs to. When not set, the API Collection inherits the domain from the API service it belongs to.
+
+```json
+{
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Finance",
+      "fullyQualifiedName": "Finance"
+    }
+  ]
 }
 ```
 
@@ -773,7 +774,8 @@ View the complete ApiCollection schema in your preferred format:
 #### `tags[]` (TagLabel[])
 **Type**: `array`
 **Required**: No
-**Description**: Classification tags applied to the collection
+**Default**: `[]`
+**Description**: Tags for this API Collection.
 
 ```json
 {
@@ -797,21 +799,74 @@ View the complete ApiCollection schema in your preferred format:
 
 ---
 
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
+#### `dataProducts` (EntityReferenceList)
+**Type**: `EntityReferenceList`
 **Required**: No
-**Description**: Business glossary terms linked to this collection
+**Description**: List of data products this entity is part of.
 
 ```json
 {
-  "glossaryTerms": [
+  "dataProducts": [
     {
-      "fullyQualifiedName": "BusinessGlossary.Payment"
-    },
-    {
-      "fullyQualifiedName": "BusinessGlossary.Transaction"
+      "id": "product-uuid",
+      "type": "dataProduct",
+      "name": "customer_360",
+      "fullyQualifiedName": "CustomerDomain.customer_360"
     }
   ]
+}
+```
+
+---
+
+#### `votes`
+**Type**: `object`
+**Required**: No
+**Description**: Votes on the entity.
+
+```json
+{
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2,
+    "upVoters": ["user1", "user2"],
+    "downVoters": ["user3"]
+  }
+}
+```
+
+---
+
+#### `lifeCycle`
+**Type**: `object`
+**Required**: No
+**Description**: Life Cycle properties of the entity.
+
+```json
+{
+  "lifeCycle": {
+    "stage": "Production",
+    "accessed": {
+      "timestamp": 1704240000000
+    }
+  }
+}
+```
+
+---
+
+#### `certification`
+**Type**: `object`
+**Required**: No
+**Description**: Asset certification information.
+
+```json
+{
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certified.Gold"
+    }
+  }
 }
 ```
 
@@ -858,6 +913,127 @@ View the complete ApiCollection schema in your preferred format:
 
 ---
 
+#### `impersonatedBy`
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Bot user that performed the action on behalf of the actual user.
+
+```json
+{
+  "impersonatedBy": {
+    "id": "bot-uuid",
+    "type": "bot",
+    "name": "ingestion-bot"
+  }
+}
+```
+
+---
+
+#### `changeDescription`
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity.
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [
+      {
+        "name": "tags",
+        "newValue": "[{\"tagFQN\":\"Tier.Gold\"}]"
+      }
+    ],
+    "fieldsUpdated": [],
+    "fieldsDeleted": [],
+    "previousVersion": 2.0
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription`
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Incremental change that lead to this version of the entity.
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "description",
+        "oldValue": "Old description",
+        "newValue": "Updated description"
+      }
+    ],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `deleted`
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted.
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `extension`
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity.
+
+```json
+{
+  "extension": {
+    "customProperty1": "value1",
+    "customProperty2": 123
+  }
+}
+```
+
+---
+
+#### `sourceHash`
+**Type**: `string`
+**Required**: No
+**Min Length**: 1
+**Max Length**: 32
+**Description**: Source hash of the entity
+
+```json
+{
+  "sourceHash": "abc123def456"
+}
+```
+
+---
+
+#### `entityStatus`
+**Type**: `string` (enum)
+**Required**: No
+**Description**: Status of the API Collection.
+
+```json
+{
+  "entityStatus": "Active"
+}
+```
+
+---
+
 ## Complete Example
 
 ```json
@@ -867,24 +1043,8 @@ View the complete ApiCollection schema in your preferred format:
   "fullyQualifiedName": "production_api_gateway.payments_api",
   "displayName": "Payments API",
   "description": "# Payments API\n\nREST API for payment processing and transaction management.",
-  "basePath": "/api/v2/payments",
-  "apiVersion": {
-    "version": "v2",
-    "versioningScheme": "URL",
-    "deprecated": false,
-    "releaseDate": "2024-01-15T00:00:00Z"
-  },
-  "rateLimit": {
-    "requestsPerMinute": 1000,
-    "requestsPerHour": 50000,
-    "requestsPerDay": 1000000
-  },
-  "authentication": {
-    "required": true,
-    "methods": ["OAuth2", "APIKey"],
-    "scopes": ["payments.read", "payments.write"]
-  },
-  "endpoints": [
+  "endpointURL": "https://api.example.com/v2/payments",
+  "apiEndpoints": [
     {
       "id": "endpoint-uuid-1",
       "type": "apiEndpoint",
@@ -898,32 +1058,61 @@ View the complete ApiCollection schema in your preferred format:
       "fullyQualifiedName": "production_api_gateway.payments_api.getPayment"
     }
   ],
+  "href": "https://platform.open-metadata.org/api/v1/apiCollections/2b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d6e",
   "service": {
     "id": "service-uuid",
     "type": "apiService",
     "name": "production_api_gateway"
   },
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "payments",
-    "displayName": "Payments Team"
-  },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Finance"
-  },
+  "serviceType": "REST",
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team",
+      "name": "payments",
+      "displayName": "Payments Team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Finance"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "product-uuid",
+      "type": "dataProduct",
+      "name": "customer_360"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Gold"},
     {"tagFQN": "Compliance.PCI-DSS"}
   ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.Payment"}
-  ],
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2
+  },
+  "lifeCycle": {
+    "stage": "Production"
+  },
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certified.Gold"
+    }
+  },
   "version": 3.1,
   "updatedAt": 1704240000000,
-  "updatedBy": "john.developer"
+  "updatedBy": "john.developer",
+  "deleted": false,
+  "extension": {
+    "cost_center": "CC-001",
+    "sla": "99.9%"
+  },
+  "sourceHash": "abc123def456",
+  "entityStatus": "Active"
 }
 ```
 
@@ -938,18 +1127,22 @@ View the complete ApiCollection schema in your preferred format:
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
 
-om:ApiCollection a owl:Class ;
+om:APICollection a owl:Class ;
     rdfs:subClassOf om:DataAsset ;
-    rdfs:label "ApiCollection" ;
-    rdfs:comment "A collection of related API endpoints" ;
+    rdfs:label "APICollection" ;
+    rdfs:comment "API Collection allows user to group multiple APIs together" ;
     om:hasProperties [
         om:name "string" ;
-        om:basePath "string" ;
-        om:apiVersion "ApiVersion" ;
-        om:endpoints "ApiEndpoint[]" ;
+        om:endpointURL "anyURI" ;
+        om:apiEndpoints "ApiEndpoint[]" ;
         om:service "ApiService" ;
-        om:owner "Owner" ;
+        om:owners "Owner[]" ;
+        om:domains "Domain[]" ;
         om:tags "Tag[]" ;
+        om:dataProducts "DataProduct[]" ;
+        om:votes "Votes" ;
+        om:lifeCycle "LifeCycle" ;
+        om:certification "AssetCertification" ;
     ] .
 ```
 
@@ -959,17 +1152,17 @@ om:ApiCollection a owl:Class ;
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix ex: <https://example.com/> .
 
-ex:payments_api a om:ApiCollection ;
+ex:payments_api a om:APICollection ;
     om:collectionName "payments_api" ;
     om:fullyQualifiedName "production_api_gateway.payments_api" ;
     om:displayName "Payments API" ;
-    om:basePath "/api/v2/payments" ;
-    om:apiVersion "v2" ;
+    om:endpointURL "https://api.example.com/v2/payments" ;
     om:belongsToService ex:productionAPIGateway ;
-    om:ownedBy ex:paymentsTeam ;
+    om:hasOwners ex:paymentsTeam ;
     om:hasTag ex:tierGold ;
-    om:hasEndpoint ex:createPayment ;
-    om:hasEndpoint ex:getPayment .
+    om:hasApiEndpoint ex:createPayment ;
+    om:hasApiEndpoint ex:getPayment ;
+    om:inDomains ex:financeDomain .
 ```
 
 ---
@@ -981,12 +1174,11 @@ ex:payments_api a om:ApiCollection ;
   "@context": {
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
-    "ApiCollection": "om:ApiCollection",
+    "APICollection": "om:APICollection",
     "name": "om:name",
-    "basePath": "om:basePath",
-    "apiVersion": "om:apiVersion",
-    "endpoints": {
-      "@id": "om:hasEndpoint",
+    "endpointURL": "om:endpointURL",
+    "apiEndpoints": {
+      "@id": "om:hasApiEndpoint",
       "@type": "@id",
       "@container": "@set"
     },
@@ -994,9 +1186,15 @@ ex:payments_api a om:ApiCollection ;
       "@id": "om:belongsToService",
       "@type": "@id"
     },
-    "owner": {
-      "@id": "om:ownedBy",
-      "@type": "@id"
+    "owners": {
+      "@id": "om:hasOwners",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:inDomains",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
       "@id": "om:hasTag",
@@ -1012,19 +1210,27 @@ ex:payments_api a om:ApiCollection ;
 ```json
 {
   "@context": "https://open-metadata.org/context/apiCollection.jsonld",
-  "@type": "ApiCollection",
+  "@type": "APICollection",
   "@id": "https://example.com/api/payments",
   "name": "payments_api",
-  "basePath": "/api/v2/payments",
-  "apiVersion": {
-    "version": "v2",
-    "deprecated": false
-  },
+  "endpointURL": "https://api.example.com/v2/payments",
   "service": {
     "@id": "https://example.com/services/production_api_gateway",
     "@type": "ApiService"
   },
-  "endpoints": [
+  "owners": [
+    {
+      "@id": "https://example.com/teams/payments",
+      "@type": "Team"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/finance",
+      "@type": "Domain"
+    }
+  ],
+  "apiEndpoints": [
     {
       "@id": "https://example.com/api/endpoints/create_payment",
       "@type": "ApiEndpoint"
@@ -1103,27 +1309,19 @@ Content-Type: application/json
   "service": "production_api_gateway",
   "displayName": "Payments API",
   "description": "REST API for payment processing and transaction management",
-  "basePath": "/api/v2/payments",
-  "apiVersion": {
-    "version": "v2",
-    "versioningScheme": "URL",
-    "deprecated": false,
-    "releaseDate": "2024-01-15T00:00:00Z"
-  },
-  "rateLimit": {
-    "requestsPerMinute": 1000,
-    "requestsPerHour": 50000,
-    "requestsPerDay": 1000000
-  },
-  "authentication": {
-    "required": true,
-    "methods": ["OAuth2", "APIKey"],
-    "scopes": ["payments.read", "payments.write"]
-  },
-  "owner": {
-    "id": "team-uuid",
-    "type": "team"
-  },
+  "endpointURL": "https://api.example.com/v2/payments",
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Gold"},
     {"tagFQN": "Compliance.PCI-DSS"}
@@ -1186,8 +1384,8 @@ Content-Type: application/json-patch+json
   },
   {
     "op": "replace",
-    "path": "/rateLimit/requestsPerMinute",
-    "value": 2000
+    "path": "/endpointURL",
+    "value": "https://api.example.com/v3/payments"
   }
 ]
 
@@ -1205,11 +1403,7 @@ Content-Type: application/json
 {
   "name": "payments_api",
   "service": "production_api_gateway",
-  "basePath": "/api/v2/payments",
-  "apiVersion": {
-    "version": "v2",
-    "versioningScheme": "URL"
-  }
+  "endpointURL": "https://api.example.com/v2/payments"
 }
 
 Response: APICollection
@@ -1304,12 +1498,12 @@ Content-Type: application/json
     {
       "name": "users_api",
       "service": "production_api_gateway",
-      "basePath": "/api/v2/users"
+      "endpointURL": "https://api.example.com/v2/users"
     },
     {
       "name": "orders_api",
       "service": "production_api_gateway",
-      "basePath": "/api/v2/orders"
+      "endpointURL": "https://api.example.com/v2/orders"
     }
   ]
 }

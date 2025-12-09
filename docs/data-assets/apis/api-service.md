@@ -157,96 +157,157 @@ View the complete ApiService schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/services/apiService.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ApiService",
-      "description": "An `ApiService` represents an API gateway, service mesh, or REST API platform hosting API collections and endpoints.",
+      "title": "Api Service",
+      "description": "This schema defines the API Service entity, to capture metadata from any REST API Services.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.services.ApiService",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface",
+        "org.openmetadata.schema.ServiceEntityInterface"
+      ],
 
       "definitions": {
         "apiServiceType": {
-          "description": "Type of API service platform",
+          "description": "Type of api service such as REST, Webhook,...",
+          "javaInterfaces": [
+            "org.openmetadata.schema.EnumInterface"
+          ],
           "type": "string",
           "enum": [
-            "REST", "GraphQL", "gRPC", "SOAP",
-            "Kong", "Apigee", "AWS_API_Gateway",
-            "Azure_API_Management", "Mulesoft", "Custom"
+            "Rest",
+            "WEBHOOK"
+          ],
+          "javaEnums": [
+            {
+              "name": "Rest"
+            },
+            {
+              "name": "WEBHOOK"
+            }
           ]
         },
-        "connectionConfig": {
+        "apiConnection": {
           "type": "object",
+          "javaType": "org.openmetadata.schema.type.ApiConnection",
+          "description": "API Service Connection.",
+          "javaInterfaces": [
+            "org.openmetadata.schema.ServiceConnectionEntityInterface"
+          ],
           "properties": {
-            "endpointURL": {
-              "type": "string",
-              "format": "uri"
-            },
-            "authenticationType": {
-              "type": "string",
-              "enum": ["None", "Basic", "Bearer", "OAuth2", "APIKey", "JWT"]
-            },
-            "authenticationConfig": {
-              "type": "object"
+            "config": {
+              "mask": true,
+              "oneOf": [
+                {
+                  "$ref": "./connections/api/restConnection.json"
+                }
+              ]
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this API service instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Service name",
+          "description": "Name that identifies this API service.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service_name",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this API service.",
           "type": "string"
         },
-        "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
-        },
         "serviceType": {
+          "description": "Type of API service such as REST, WEBHOOK..",
           "$ref": "#/definitions/apiServiceType"
         },
+        "description": {
+          "description": "Description of a API service instance.",
+          "$ref": "../../type/basic.json#/definitions/markdown"
+        },
         "connection": {
-          "description": "Connection configuration",
-          "$ref": "#/definitions/connectionConfig"
+          "$ref": "#/definitions/apiConnection"
         },
-        "apiCollections": {
-          "description": "API collections in this service",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "pipelines": {
+          "description": "References to pipelines deployed for this API service to extract metadata, usage, lineage etc..",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "testConnectionResult": {
+          "description": "Last test connection results for this service",
+          "$ref": "connections/testConnectionResult.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this API Service.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
+        },
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "version": {
-          "description": "Metadata version",
+          "description": "Metadata version of the entity.",
           "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this API service.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "owners": {
+          "description": "Owners of this API service.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "domains": {
+          "description": "Domains the API service belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "ingestionRunner": {
+          "description": "The ingestion agent responsible for executing the ingestion pipeline.",
+          "$ref": "../../type/entityReference.json"
         }
       },
 
-      "required": ["id", "name", "serviceType"]
+      "required": ["id", "name", "serviceType"],
+      "additionalProperties": false
     }
     ```
 
@@ -259,74 +320,155 @@ View the complete ApiService schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # ApiService Class Definition
     om:ApiService a owl:Class ;
         rdfs:subClassOf om:Service ;
-        rdfs:label "ApiService" ;
-        rdfs:comment "An API gateway or platform hosting REST APIs, GraphQL endpoints, or gRPC services" ;
+        rdfs:label "Api Service" ;
+        rdfs:comment "This schema defines the API Service entity, to capture metadata from any REST API Services." ;
         om:hierarchyLevel 1 .
 
-    # Properties
-    om:serviceName a owl:DatatypeProperty ;
+    # Core Properties
+    om:id a owl:DatatypeProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range xsd:string ;
+        rdfs:label "id" ;
+        rdfs:comment "Unique identifier of this API service instance." .
+
+    om:name a owl:DatatypeProperty ;
         rdfs:domain om:ApiService ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the API service" .
+        rdfs:comment "Name that identifies this API service." .
+
+    om:fullyQualifiedName a owl:DatatypeProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range xsd:string ;
+        rdfs:label "fullyQualifiedName" ;
+        rdfs:comment "FullyQualifiedName same as `name`." .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this API service." .
 
     om:serviceType a owl:DatatypeProperty ;
         rdfs:domain om:ApiService ;
         rdfs:range om:ApiServiceType ;
         rdfs:label "serviceType" ;
-        rdfs:comment "Type of API platform: REST, GraphQL, gRPC, Kong, Apigee, etc." .
+        rdfs:comment "Type of API service such as REST, WEBHOOK." .
 
-    om:endpointURL a owl:DatatypeProperty ;
+    om:description a owl:DatatypeProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of a API service instance." .
+
+    om:connection a owl:ObjectProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range om:ApiConnection ;
+        rdfs:label "connection" ;
+        rdfs:comment "API Service Connection." .
+
+    om:pipelines a owl:ObjectProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "pipelines" ;
+        rdfs:comment "References to pipelines deployed for this API service to extract metadata, usage, lineage etc.." .
+
+    om:testConnectionResult a owl:ObjectProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range om:TestConnectionResult ;
+        rdfs:label "testConnectionResult" ;
+        rdfs:comment "Last test connection results for this service" .
+
+    om:tags a owl:ObjectProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range om:TagLabel ;
+        rdfs:label "tags" ;
+        rdfs:comment "Tags for this API Service." .
+
+    om:followers a owl:ObjectProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this entity." .
+
+    om:owners a owl:ObjectProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this API service." .
+
+    om:domains a owl:ObjectProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the API service belongs to." .
+
+    om:dataProducts a owl:ObjectProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "dataProducts" ;
+        rdfs:comment "List of data products this entity is part of." .
+
+    om:ingestionRunner a owl:ObjectProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "ingestionRunner" ;
+        rdfs:comment "The ingestion agent responsible for executing the ingestion pipeline." .
+
+    # Versioning Properties
+    om:version a owl:DatatypeProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range xsd:decimal ;
+        rdfs:label "version" ;
+        rdfs:comment "Metadata version of the entity." .
+
+    om:updatedAt a owl:DatatypeProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range xsd:long ;
+        rdfs:label "updatedAt" ;
+        rdfs:comment "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds." .
+
+    om:updatedBy a owl:DatatypeProperty ;
+        rdfs:domain om:ApiService ;
+        rdfs:range xsd:string ;
+        rdfs:label "updatedBy" ;
+        rdfs:comment "User who made the update." .
+
+    om:href a owl:DatatypeProperty ;
         rdfs:domain om:ApiService ;
         rdfs:range xsd:anyURI ;
-        rdfs:label "endpointURL" ;
-        rdfs:comment "Base URL for the API service" .
+        rdfs:label "href" ;
+        rdfs:comment "Link to the resource corresponding to this API service." .
 
-    om:hasApiCollection a owl:ObjectProperty ;
+    om:deleted a owl:DatatypeProperty ;
         rdfs:domain om:ApiService ;
-        rdfs:range om:ApiCollection ;
-        rdfs:label "hasApiCollection" ;
-        rdfs:comment "API collections hosted by this service" .
-
-    om:ownedBy a owl:ObjectProperty ;
-        rdfs:domain om:ApiService ;
-        rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this service" .
-
-    om:hasTag a owl:ObjectProperty ;
-        rdfs:domain om:ApiService ;
-        rdfs:range om:Tag ;
-        rdfs:label "hasTag" ;
-        rdfs:comment "Classification tags applied to service" .
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When `true` indicates the entity has been soft deleted." .
 
     # Service Type Enumeration
     om:ApiServiceType a owl:Class ;
         owl:oneOf (
-            om:RESTService
-            om:GraphQLService
-            om:gRPCService
-            om:KongService
-            om:ApigeeService
-            om:AWSAPIGateway
+            om:Rest
+            om:WEBHOOK
         ) .
 
     # Example Instance
     ex:productionAPIGateway a om:ApiService ;
-        om:serviceName "production_api_gateway" ;
+        om:id "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d" ;
+        om:name "production_api_gateway" ;
+        om:fullyQualifiedName "production_api_gateway" ;
         om:displayName "Production API Gateway" ;
-        om:serviceType om:KongService ;
-        om:endpointURL "https://api.example.com" ;
-        om:ownedBy ex:platformTeam ;
-        om:hasTag ex:tierProduction ;
-        om:hasApiCollection ex:paymentsAPI ;
-        om:hasApiCollection ex:userManagementAPI .
+        om:serviceType om:Rest ;
+        om:owners ex:platformTeam ;
+        om:tags ex:tierProduction ;
+        om:domains ex:infrastructureDomain .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -344,8 +486,12 @@ View the complete ApiService schema in your preferred format:
         "xsd": "http://www.w3.org/2001/XMLSchema#",
 
         "ApiService": "om:ApiService",
+        "id": {
+          "@id": "om:id",
+          "@type": "xsd:string"
+        },
         "name": {
-          "@id": "om:serviceName",
+          "@id": "om:name",
           "@type": "xsd:string"
         },
         "fullyQualifiedName": {
@@ -365,26 +511,64 @@ View the complete ApiService schema in your preferred format:
           "@type": "@vocab"
         },
         "connection": {
-          "@id": "om:hasConnection",
+          "@id": "om:connection",
           "@type": "@id"
         },
-        "apiCollections": {
-          "@id": "om:hasApiCollection",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "owner": {
-          "@id": "om:ownedBy",
+        "pipelines": {
+          "@id": "om:pipelines",
           "@type": "@id"
         },
-        "domain": {
-          "@id": "om:inDomain",
+        "testConnectionResult": {
+          "@id": "om:testConnectionResult",
           "@type": "@id"
         },
         "tags": {
-          "@id": "om:hasTag",
+          "@id": "om:tags",
           "@type": "@id",
           "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:followers",
+          "@type": "@id"
+        },
+        "owners": {
+          "@id": "om:owners",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:domains",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:dataProducts",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "ingestionRunner": {
+          "@id": "om:ingestionRunner",
+          "@type": "@id"
+        },
+        "version": {
+          "@id": "om:version",
+          "@type": "xsd:decimal"
+        },
+        "updatedAt": {
+          "@id": "om:updatedAt",
+          "@type": "xsd:long"
+        },
+        "updatedBy": {
+          "@id": "om:updatedBy",
+          "@type": "xsd:string"
+        },
+        "href": {
+          "@id": "om:href",
+          "@type": "xsd:anyURI"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
         }
       }
     }
@@ -398,27 +582,36 @@ View the complete ApiService schema in your preferred format:
       "@type": "ApiService",
       "@id": "https://example.com/services/production_api_gateway",
 
+      "id": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
       "name": "production_api_gateway",
       "fullyQualifiedName": "production_api_gateway",
       "displayName": "Production API Gateway",
-      "description": "Kong API Gateway hosting production REST APIs",
-      "serviceType": "Kong",
+      "description": "REST API Service hosting production REST APIs",
+      "serviceType": "Rest",
 
       "connection": {
-        "endpointURL": "https://api.example.com",
-        "authenticationType": "OAuth2",
-        "authenticationConfig": {
-          "tokenURL": "https://auth.example.com/token",
-          "scopes": ["api.read", "api.write"]
+        "config": {
+          "type": "Rest",
+          "openAPISchemaURL": "https://api.example.com/openapi.json"
         }
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/platform",
-        "@type": "Team",
-        "name": "platform",
-        "displayName": "Platform Engineering Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/platform",
+          "@type": "Team",
+          "name": "platform",
+          "displayName": "Platform Engineering Team"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/infrastructure",
+          "@type": "Domain",
+          "name": "Infrastructure"
+        }
+      ],
 
       "tags": [
         {
@@ -431,20 +624,11 @@ View the complete ApiService schema in your preferred format:
         }
       ],
 
-      "apiCollections": [
-        {
-          "@id": "https://example.com/api/collections/payments",
-          "@type": "ApiCollection",
-          "name": "payments_api",
-          "displayName": "Payments API"
-        },
-        {
-          "@id": "https://example.com/api/collections/users",
-          "@type": "ApiCollection",
-          "name": "user_management_api",
-          "displayName": "User Management API"
-        }
-      ]
+      "version": 1.5,
+      "updatedAt": 1704240000000,
+      "updatedBy": "admin",
+      "href": "https://example.com/api/v1/services/apiServices/1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+      "deleted": false
     }
     ```
 
@@ -545,87 +729,96 @@ View the complete ApiService schema in your preferred format:
 **Required**: Yes
 **Allowed Values**:
 
-- `REST` - RESTful API service
-- `GraphQL` - GraphQL API service
-- `gRPC` - gRPC service
-- `SOAP` - SOAP web service
-- `Kong` - Kong API Gateway
-- `Apigee` - Google Apigee
-- `AWS_API_Gateway` - AWS API Gateway
-- `Azure_API_Management` - Azure API Management
-- `Mulesoft` - Mulesoft Anypoint
-- `Custom` - Custom API platform
+- `Rest` - RESTful API service
+- `WEBHOOK` - Webhook service
 
 ```json
 {
-  "serviceType": "Kong"
+  "serviceType": "Rest"
 }
 ```
 
 ---
 
-#### `connection` (ConnectionConfig)
+#### `connection` (ApiConnection)
 **Type**: `object`
-**Required**: Yes
-**Description**: API service connection configuration
+**Required**: No
+**Description**: API Service Connection configuration
 
-**ConnectionConfig Properties**:
+**ApiConnection Properties**:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `endpointURL` | string (URI) | Yes | Base URL for the API service |
-| `authenticationType` | AuthType enum | No | Authentication method |
-| `authenticationConfig` | object | No | Auth-specific configuration |
-| `headers` | object | No | Default headers |
-| `timeout` | integer | No | Request timeout (seconds) |
-| `verifySsl` | boolean | No | Verify SSL certificates |
+| `config` | object | No | Connection config referencing restConnection.json |
 
 **Example**:
 
 ```json
 {
   "connection": {
-    "endpointURL": "https://api.example.com",
-    "authenticationType": "OAuth2",
-    "authenticationConfig": {
-      "tokenURL": "https://auth.example.com/token",
-      "clientId": "${OAUTH_CLIENT_ID}",
-      "clientSecret": "${OAUTH_CLIENT_SECRET}",
-      "scopes": ["api.read", "api.write"]
-    },
-    "headers": {
-      "X-API-Version": "v1",
-      "Accept": "application/json"
-    },
-    "timeout": 30,
-    "verifySsl": true
+    "config": {
+      "type": "Rest",
+      "openAPISchemaURL": "https://api.example.com/openapi.json"
+    }
   }
 }
 ```
 
 ---
 
-#### `apiCollections[]` (EntityReference[])
-**Type**: `array`
+#### `pipelines` (EntityReferenceList)
+**Type**: `object` (EntityReferenceList)
 **Required**: No
-**Description**: API collections hosted by this service
+**Description**: References to pipelines deployed for this API service to extract metadata, usage, lineage etc.
 
 ```json
 {
-  "apiCollections": [
-    {
-      "id": "col-uuid-1",
-      "type": "apiCollection",
-      "name": "payments_api",
-      "fullyQualifiedName": "production_api_gateway.payments_api"
-    },
-    {
-      "id": "col-uuid-2",
-      "type": "apiCollection",
-      "name": "user_management_api",
-      "fullyQualifiedName": "production_api_gateway.user_management_api"
-    }
-  ]
+  "pipelines": {
+    "entities": [
+      {
+        "id": "pipeline-uuid-1",
+        "type": "pipeline",
+        "name": "api_metadata_ingestion"
+      }
+    ]
+  }
+}
+```
+
+---
+
+#### `testConnectionResult` (TestConnectionResult)
+**Type**: `object`
+**Required**: No
+**Description**: Last test connection results for this service
+
+```json
+{
+  "testConnectionResult": {
+    "status": "successful",
+    "timestamp": 1704240000000
+  }
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `object` (EntityReferenceList)
+**Required**: No
+**Description**: Followers of this entity
+
+```json
+{
+  "followers": {
+    "entities": [
+      {
+        "id": "user-uuid-1",
+        "type": "user",
+        "name": "john.doe"
+      }
+    ]
+  }
 }
 ```
 
@@ -633,36 +826,66 @@ View the complete ApiService schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `object` (EntityReferenceList)
 **Required**: No
-**Description**: User or team that owns this API service
+**Description**: Owners of this API service
 
 ```json
 {
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "platform",
-    "displayName": "Platform Engineering Team"
+  "owners": {
+    "entities": [
+      {
+        "id": "team-uuid",
+        "type": "team",
+        "name": "platform",
+        "displayName": "Platform Engineering Team"
+      }
+    ]
   }
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `domains` (EntityReferenceList)
+**Type**: `object` (EntityReferenceList)
 **Required**: No
-**Description**: Data domain this service belongs to
+**Description**: Domains the API service belongs to
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Infrastructure",
-    "fullyQualifiedName": "Infrastructure"
+  "domains": {
+    "entities": [
+      {
+        "id": "domain-uuid",
+        "type": "domain",
+        "name": "Infrastructure",
+        "fullyQualifiedName": "Infrastructure"
+      }
+    ]
+  }
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `object` (EntityReferenceList)
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": {
+    "entities": [
+      {
+        "id": "product-uuid",
+        "type": "dataProduct",
+        "name": "api_platform_product",
+        "fullyQualifiedName": "api_platform_product"
+      }
+    ]
   }
 }
 ```
@@ -726,12 +949,108 @@ View the complete ApiService schema in your preferred format:
 
 #### `updatedBy` (string)
 **Type**: `string`
-**Required**: Yes (system-managed)
+**Required**: No (system-managed)
 **Description**: User who made the update
 
 ```json
 {
   "updatedBy": "admin"
+}
+```
+
+---
+
+#### `impersonatedBy` (string)
+**Type**: `string`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": "bot_user"
+}
+```
+
+---
+
+#### `href` (URI)
+**Type**: `string` (URI format)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this API service
+
+```json
+{
+  "href": "https://example.com/api/v1/services/apiServices/1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "description",
+        "oldValue": "Old description",
+        "newValue": "Updated description"
+      }
+    ],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `ingestionRunner` (EntityReference)
+**Type**: `object` (EntityReference)
+**Required**: No
+**Description**: The ingestion agent responsible for executing the ingestion pipeline
+
+```json
+{
+  "ingestionRunner": {
+    "id": "runner-uuid",
+    "type": "ingestionPipeline",
+    "name": "default_runner"
+  }
 }
 ```
 
@@ -745,48 +1064,26 @@ View the complete ApiService schema in your preferred format:
   "name": "production_api_gateway",
   "fullyQualifiedName": "production_api_gateway",
   "displayName": "Production API Gateway",
-  "description": "# Production API Gateway\n\nKong-based API gateway hosting all production REST APIs.",
-  "serviceType": "Kong",
+  "description": "# Production API Gateway\n\nREST API Service hosting all production REST APIs.",
+  "serviceType": "Rest",
   "connection": {
-    "endpointURL": "https://api.example.com",
-    "authenticationType": "OAuth2",
-    "authenticationConfig": {
-      "tokenURL": "https://auth.example.com/token",
-      "clientId": "${OAUTH_CLIENT_ID}",
-      "clientSecret": "${OAUTH_CLIENT_SECRET}",
-      "scopes": ["api.read", "api.write"]
-    },
-    "headers": {
-      "X-API-Version": "v1",
-      "Accept": "application/json"
-    },
-    "timeout": 30,
-    "verifySsl": true
-  },
-  "apiCollections": [
-    {
-      "id": "col-uuid-1",
-      "type": "apiCollection",
-      "name": "payments_api",
-      "fullyQualifiedName": "production_api_gateway.payments_api"
-    },
-    {
-      "id": "col-uuid-2",
-      "type": "apiCollection",
-      "name": "user_management_api",
-      "fullyQualifiedName": "production_api_gateway.user_management_api"
+    "config": {
+      "type": "Rest",
+      "openAPISchemaURL": "https://api.example.com/openapi.json"
     }
-  ],
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "platform",
-    "displayName": "Platform Engineering Team"
   },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Infrastructure"
+  "pipelines": {
+    "entities": [
+      {
+        "id": "pipeline-uuid",
+        "type": "pipeline",
+        "name": "api_metadata_ingestion"
+      }
+    ]
+  },
+  "testConnectionResult": {
+    "status": "successful",
+    "timestamp": 1704240000000
   },
   "tags": [
     {
@@ -796,9 +1093,36 @@ View the complete ApiService schema in your preferred format:
       "tagFQN": "Environment.Production"
     }
   ],
+  "followers": {
+    "entities": []
+  },
+  "owners": {
+    "entities": [
+      {
+        "id": "team-uuid",
+        "type": "team",
+        "name": "platform",
+        "displayName": "Platform Engineering Team"
+      }
+    ]
+  },
+  "domains": {
+    "entities": [
+      {
+        "id": "domain-uuid",
+        "type": "domain",
+        "name": "Infrastructure"
+      }
+    ]
+  },
+  "dataProducts": {
+    "entities": []
+  },
   "version": 1.5,
   "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "updatedBy": "admin",
+  "href": "https://example.com/api/v1/services/apiServices/1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+  "deleted": false
 }
 ```
 
@@ -811,19 +1135,20 @@ View the complete ApiService schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 om:ApiService a owl:Class ;
     rdfs:subClassOf om:Service ;
-    rdfs:label "ApiService" ;
-    rdfs:comment "An API gateway or platform hosting REST APIs" ;
+    rdfs:label "Api Service" ;
+    rdfs:comment "This schema defines the API Service entity, to capture metadata from any REST API Services." ;
     om:hasProperties [
         om:name "string" ;
         om:serviceType "ApiServiceType" ;
-        om:connection "ConnectionConfig" ;
-        om:apiCollections "ApiCollection[]" ;
-        om:owner "Owner" ;
-        om:tags "Tag[]" ;
+        om:connection "ApiConnection" ;
+        om:pipelines "EntityReferenceList" ;
+        om:owners "EntityReferenceList" ;
+        om:domains "EntityReferenceList" ;
+        om:tags "TagLabel[]" ;
     ] .
 ```
 
@@ -834,14 +1159,14 @@ om:ApiService a owl:Class ;
 @prefix ex: <https://example.com/> .
 
 ex:production_api_gateway a om:ApiService ;
+    om:id "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d" ;
     om:name "production_api_gateway" ;
+    om:fullyQualifiedName "production_api_gateway" ;
     om:displayName "Production API Gateway" ;
-    om:serviceType "Kong" ;
-    om:endpointURL <https://api.example.com> ;
-    om:ownedBy ex:platformTeam ;
-    om:hasTag ex:tierProduction ;
-    om:hasApiCollection ex:paymentsAPI ;
-    om:hasApiCollection ex:userManagementAPI .
+    om:serviceType om:Rest ;
+    om:owners ex:platformTeam ;
+    om:domains ex:infrastructureDomain ;
+    om:tags ex:tierProduction .
 ```
 
 ---
@@ -854,23 +1179,29 @@ ex:production_api_gateway a om:ApiService ;
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
     "ApiService": "om:ApiService",
+    "id": "om:id",
     "name": "om:name",
     "serviceType": "om:serviceType",
     "connection": {
-      "@id": "om:hasConnection",
+      "@id": "om:connection",
       "@type": "@id"
     },
-    "apiCollections": {
-      "@id": "om:hasApiCollection",
+    "pipelines": {
+      "@id": "om:pipelines",
+      "@type": "@id"
+    },
+    "owners": {
+      "@id": "om:owners",
       "@type": "@id",
       "@container": "@set"
     },
-    "owner": {
-      "@id": "om:ownedBy",
-      "@type": "@id"
+    "domains": {
+      "@id": "om:domains",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
-      "@id": "om:hasTag",
+      "@id": "om:tags",
       "@type": "@id",
       "@container": "@set"
     }
@@ -885,20 +1216,25 @@ ex:production_api_gateway a om:ApiService ;
   "@context": "https://open-metadata.org/context/apiService.jsonld",
   "@type": "ApiService",
   "@id": "https://example.com/services/production_api_gateway",
+  "id": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
   "name": "production_api_gateway",
-  "serviceType": "Kong",
+  "serviceType": "Rest",
   "connection": {
-    "endpointURL": "https://api.example.com",
-    "authenticationType": "OAuth2"
+    "config": {
+      "type": "Rest",
+      "openAPISchemaURL": "https://api.example.com/openapi.json"
+    }
   },
-  "owner": {
-    "@id": "https://example.com/teams/platform",
-    "@type": "Team"
-  },
-  "apiCollections": [
+  "owners": [
     {
-      "@id": "https://example.com/api/payments",
-      "@type": "ApiCollection"
+      "@id": "https://example.com/teams/platform",
+      "@type": "Team"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/infrastructure",
+      "@type": "Domain"
     }
   ]
 }

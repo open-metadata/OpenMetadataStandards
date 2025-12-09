@@ -1,35 +1,34 @@
 
 # Webhook
 
-A **Webhook** in OpenMetadata enables real-time event notifications by sending HTTP callbacks to external systems when specific events occur. Webhooks allow integration with third-party tools, custom applications, and workflow automation platforms.
+A **Webhook** in OpenMetadata is a subscription action configuration that defines how to send HTTP callbacks to external systems when events occur. It serves as a delivery mechanism within OpenMetadata's event subscription system.
 
 ## Overview
 
-Webhooks in OpenMetadata provide:
+The Webhook schema provides configuration for:
 
-- **Real-time Notifications**: Instant delivery of event notifications as they occur
-- **Event Filtering**: Subscribe to specific event types (entity created, updated, deleted)
-- **Custom Integration**: Connect to any HTTP endpoint that can receive POST requests
-- **Flexible Payloads**: Send complete entity metadata or customized payloads
-- **Retry Logic**: Automatic retries on delivery failures with exponential backoff
-- **Security**: Support for authentication headers, HMAC signatures, and SSL verification
+- **HTTP Endpoint Configuration**: Define the target URL to receive event notifications
+- **HTTP Method Selection**: Choose between POST (default) or PUT requests
+- **Custom Headers**: Add authentication tokens and custom headers to requests
+- **Query Parameters**: Include additional metadata in the webhook URL
+- **HMAC Security**: Sign webhook payloads with SHA256 HMAC for verification
+- **Recipient Targeting**: Control whether to notify admins, owners, or followers
+- **Email Integration**: Optionally specify email receivers for notifications
 
-Webhook events include:
-- **Entity Lifecycle**: Create, update, delete events for all entity types
-- **Metadata Changes**: Schema changes, ownership changes, tag updates
-- **Data Quality**: Test results, quality alerts, anomaly detection
-- **Access Events**: User access, policy violations
-- **Pipeline Events**: Ingestion status, pipeline failures
-- **Custom Events**: Application-specific events
+As a `SubscriptionAction`, webhooks are used within:
+- **Event Subscriptions**: React to entity lifecycle events (create, update, delete)
+- **Alert Notifications**: Deliver data quality and operational alerts
+- **Automated Workflows**: Trigger external processes based on metadata changes
+- **Custom Integrations**: Connect to Slack, MS Teams, PagerDuty, or custom applications
 
 ## Hierarchy
 
 ```mermaid
 graph LR
-    A[Organization] --> B[Webhook]
-    B --> C1[Event Subscription]
-    B --> C2[Endpoint Config]
-    B --> C3[Delivery History]
+    A[SubscriptionAction] --> B[Webhook]
+    B --> C1[Endpoint Config]
+    B --> C2[Security Config]
+    B --> C3[Notification Settings]
 
     style A fill:#667eea,color:#fff
     style B fill:#4facfe,color:#fff,stroke:#4c51bf,stroke-width:3px
@@ -37,56 +36,47 @@ graph LR
     style C2 fill:#00f2fe,color:#333
     style C3 fill:#00f2fe,color:#333
 
-    click A "#organization" "Organization"
-    click B "#webhook" "Webhook"
-    click C1 "#event-subscription" "Event Subscription"
+    click A "#subscriptionaction" "SubscriptionAction Interface"
+    click B "#webhook" "Webhook Configuration"
 ```
 
-**Click on any node to learn more about that entity.**
+**The Webhook schema implements the SubscriptionAction interface for delivering events.**
 
 ## Relationships
 
-Webhooks have relationships with various entities in the metadata ecosystem:
+The Webhook schema is used as a configuration component in the event delivery system:
 
 ```mermaid
 graph TD
     subgraph Webhook Configuration
-        A[Webhook:<br/>Slack Notifications] --> B1[Event Filter:<br/>Table Created]
-        A --> B2[Event Filter:<br/>Test Failed]
-        A --> B3[Endpoint:<br/>Slack API]
-        A --> B4[Auth:<br/>Bearer Token]
+        A[Webhook Config] --> B1[endpoint:<br/>Target URL]
+        A --> B2[secretKey:<br/>HMAC Secret]
+        A --> B3[headers:<br/>Custom Headers]
+        A --> B4[queryParams:<br/>URL Parameters]
     end
 
-    subgraph Event Sources
-        A -.->|monitors| C1[Table:<br/>All Tables]
-        A -.->|monitors| C2[TestCase:<br/>Quality Tests]
-        A -.->|monitors| C3[Pipeline:<br/>ETL Pipelines]
-        A -.->|monitors| C4[Domain:<br/>Sales Domain]
+    subgraph HTTP Settings
+        A --> C1[httpMethod:<br/>POST/PUT]
     end
 
-    subgraph Destinations
-        A -.->|sends to| D1[External System:<br/>Slack]
-        A -.->|sends to| D2[Application:<br/>Custom App]
-        A -.->|sends to| D3[Integration:<br/>PagerDuty]
+    subgraph Notification Settings
+        A --> D1[sendToAdmins]
+        A --> D2[sendToOwners]
+        A --> D3[sendToFollowers]
+        A --> D4[receivers:<br/>Email List]
     end
 
-    subgraph Governance
-        A -.->|owned by| E1[User:<br/>Integration Admin]
-        A -.->|managed by| E2[Team:<br/>DevOps]
-        A -.->|in domain| E3[Domain:<br/>Operations]
-        A -.->|tagged with| E4[Tag:<br/>Integration]
+    subgraph Used By
+        E1[Event Subscription] -.->|uses| A
+        E2[Alert] -.->|uses| A
+        E3[Notification] -.->|uses| A
     end
 
-    subgraph Delivery Tracking
-        A -.->|generates| F1[DeliveryLog:<br/>2024-01-15 10:30]
-        A -.->|generates| F2[DeliveryLog:<br/>2024-01-15 11:45]
-        F1 -.->|status| G1[Success]
-        F2 -.->|status| G2[Failed/Retry]
-    end
-
-    subgraph Related Webhooks
-        A -.->|triggers| H1[Webhook:<br/>Downstream Alert]
-        A -.->|fallback for| H2[Webhook:<br/>Backup Channel]
+    subgraph Sends To
+        A -.->|delivers to| F1[External System:<br/>Slack]
+        A -.->|delivers to| F2[Application:<br/>Custom App]
+        A -.->|delivers to| F3[Integration:<br/>PagerDuty]
+        A -.->|delivers to| F4[Email Recipients]
     end
 
     style A fill:#4facfe,color:#fff,stroke:#4c51bf,stroke-width:3px
@@ -94,43 +84,27 @@ graph TD
     style B2 fill:#00f2fe,color:#333
     style B3 fill:#00f2fe,color:#333
     style B4 fill:#00f2fe,color:#333
-    style C1 fill:#764ba2,color:#fff
-    style C2 fill:#764ba2,color:#fff
-    style C3 fill:#764ba2,color:#fff
-    style C4 fill:#764ba2,color:#fff
-    style D1 fill:#f5576c,color:#fff
-    style D2 fill:#f5576c,color:#fff
-    style D3 fill:#f5576c,color:#fff
-    style E1 fill:#43e97b,color:#333
-    style E2 fill:#43e97b,color:#333
-    style E3 fill:#f093fb,color:#333
-    style E4 fill:#fa709a,color:#fff
-    style F1 fill:#ffd700,color:#333
-    style F2 fill:#ffd700,color:#333
-    style G1 fill:#43e97b,color:#333
-    style G2 fill:#f5576c,color:#fff
-    style H1 fill:#667eea,color:#fff
-    style H2 fill:#667eea,color:#fff
-
-    click A "#webhook" "Webhook"
-    click C1 "../../data-assets/databases/table/" "Table"
-    click C2 "../../data-quality/test-case/" "Test Case"
-    click C3 "../../data-assets/pipelines/pipeline/" "Pipeline"
-    click C4 "../../domains/domain/" "Domain"
-    click E1 "../../teams-users/user/" "User"
-    click E2 "../../teams-users/team/" "Team"
-    click E3 "../../domains/domain/" "Domain"
-    click E4 "../../governance/tag/" "Tag"
+    style C1 fill:#00f2fe,color:#333
+    style D1 fill:#43e97b,color:#333
+    style D2 fill:#43e97b,color:#333
+    style D3 fill:#43e97b,color:#333
+    style D4 fill:#43e97b,color:#333
+    style E1 fill:#667eea,color:#fff
+    style E2 fill:#667eea,color:#fff
+    style E3 fill:#667eea,color:#fff
+    style F1 fill:#f5576c,color:#fff
+    style F2 fill:#f5576c,color:#fff
+    style F3 fill:#f5576c,color:#fff
+    style F4 fill:#f5576c,color:#fff
 ```
 
-**Key Relationships:**
+**Key Components:**
 
-- **Webhook Configuration**: Event filters, endpoint configuration, and authentication
-- **Event Sources**: Entities being monitored (Tables, Tests, Pipelines, Domains)
-- **Destinations**: External systems receiving webhook notifications
-- **Governance**: Ownership, team management, domain assignment, tags
-- **Delivery Tracking**: Logs of webhook deliveries with success/failure status
-- **Related Webhooks**: Triggered webhooks and fallback channels
+- **Webhook Configuration**: Endpoint URL, security settings, and HTTP configuration
+- **HTTP Settings**: Method selection (POST or PUT) for webhook delivery
+- **Notification Settings**: Recipient targeting flags and email receivers
+- **Used By**: Event subscriptions, alerts, and notifications that use webhook delivery
+- **Sends To**: External systems and applications receiving webhook events
 
 ## Schema Specifications
 
@@ -141,261 +115,71 @@ graph TD
       "$id": "https://open-metadata.org/schema/entity/events/webhook.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Webhook",
-      "description": "A Webhook enables real-time event notifications via HTTP callbacks.",
+      "description": "This schema defines webhook for receiving events from OpenMetadata.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.events.Webhook",
+      "javaType": "org.openmetadata.schema.type.Webhook",
       "javaInterfaces": [
-        "org.openmetadata.schema.EntityInterface"
+        "org.openmetadata.schema.SubscriptionAction"
       ],
       "definitions": {
-        "webhookType": {
-          "description": "Type of webhook",
+        "entityName": {
+          "description": "Unique name of the application receiving webhook events.",
           "type": "string",
-          "enum": [
-            "Generic",
-            "Slack",
-            "MSTeams",
-            "GoogleChat",
-            "Custom"
-          ],
-          "javaEnums": [
-            {
-              "name": "Generic"
-            },
-            {
-              "name": "Slack"
-            },
-            {
-              "name": "MSTeams"
-            },
-            {
-              "name": "GoogleChat"
-            },
-            {
-              "name": "Custom"
-            }
-          ]
-        },
-        "status": {
-          "description": "Status of the webhook",
-          "type": "string",
-          "enum": [
-            "active",
-            "disabled",
-            "failed",
-            "awaitingRetry",
-            "retryLimitReached"
-          ]
-        },
-        "eventFilter": {
-          "type": "object",
-          "description": "Filter for webhook events",
-          "properties": {
-            "eventType": {
-              "description": "Type of event to subscribe to",
-              "type": "string",
-              "enum": [
-                "entityCreated",
-                "entityUpdated",
-                "entitySoftDeleted",
-                "entityDeleted"
-              ]
-            },
-            "entities": {
-              "description": "List of entities to filter",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "include": {
-              "description": "Filters to include entities",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "exclude": {
-              "description": "Filters to exclude entities",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "required": [
-            "eventType"
-          ],
-          "additionalProperties": false
-        },
-        "failureDetails": {
-          "type": "object",
-          "description": "Details of webhook delivery failures",
-          "properties": {
-            "lastFailedAt": {
-              "description": "Timestamp of last failure",
-              "$ref": "../../../type/basic.json#/definitions/timestamp"
-            },
-            "lastFailedStatusCode": {
-              "description": "HTTP status code of last failure",
-              "type": "integer"
-            },
-            "lastFailedReason": {
-              "description": "Reason for last failure",
-              "type": "string"
-            },
-            "nextAttempt": {
-              "description": "Timestamp of next retry attempt",
-              "$ref": "../../../type/basic.json#/definitions/timestamp"
-            }
-          }
-        },
-        "webhookConfig": {
-          "type": "object",
-          "description": "Configuration for webhook endpoint",
-          "properties": {
-            "endpoint": {
-              "description": "HTTP endpoint URL",
-              "type": "string",
-              "format": "uri"
-            },
-            "secretKey": {
-              "description": "Secret key for HMAC signature",
-              "type": "string"
-            },
-            "sendToAdmins": {
-              "description": "Send notifications to all admins",
-              "type": "boolean",
-              "default": false
-            },
-            "sendToOwners": {
-              "description": "Send notifications to entity owners",
-              "type": "boolean",
-              "default": false
-            },
-            "sendToFollowers": {
-              "description": "Send notifications to entity followers",
-              "type": "boolean",
-              "default": false
-            },
-            "headers": {
-              "description": "Custom headers to include in requests",
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
-            },
-            "timeout": {
-              "description": "Request timeout in seconds",
-              "type": "integer",
-              "default": 10
-            }
-          },
-          "required": [
-            "endpoint"
-          ],
-          "additionalProperties": false
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "(?U)^[\\w'\\-.]+$"
         }
       },
       "properties": {
-        "id": {
-          "description": "Unique identifier of the webhook",
-          "$ref": "../../../type/basic.json#/definitions/uuid"
-        },
-        "name": {
-          "description": "Name that identifies this webhook",
-          "$ref": "../../../type/basic.json#/definitions/entityName"
-        },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name of the webhook",
-          "$ref": "../../../type/basic.json#/definitions/fullyQualifiedEntityName"
-        },
-        "displayName": {
-          "description": "Display name for the webhook",
-          "type": "string"
-        },
-        "description": {
-          "description": "Description of the webhook",
-          "$ref": "../../../type/basic.json#/definitions/markdown"
-        },
-        "webhookType": {
-          "$ref": "#/definitions/webhookType"
-        },
-        "status": {
-          "$ref": "#/definitions/status"
-        },
-        "enabled": {
-          "description": "Is the webhook enabled",
-          "type": "boolean",
-          "default": true
-        },
-        "batchSize": {
-          "description": "Maximum number of events to send in a batch",
-          "type": "integer",
-          "default": 10
-        },
-        "eventFilters": {
-          "description": "Filters for events to trigger webhook",
+        "receivers": {
+          "description": "List of receivers to send mail to",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/eventFilter"
-          }
-        },
-        "webhookConfig": {
-          "$ref": "#/definitions/webhookConfig"
-        },
-        "failureDetails": {
-          "$ref": "#/definitions/failureDetails"
-        },
-        "owner": {
-          "description": "Owner of this webhook",
-          "$ref": "../../../type/entityReference.json"
-        },
-        "tags": {
-          "description": "Tags for this webhook",
-          "type": "array",
-          "items": {
-            "$ref": "../../../type/tagLabel.json"
+            "type": "string"
           },
-          "default": null
+          "uniqueItems": true
         },
-        "version": {
-          "description": "Metadata version of the entity",
-          "$ref": "../../../type/entityHistory.json#/definitions/entityVersion"
+        "endpoint": {
+          "description": "Endpoint to receive the webhook events over POST requests.",
+          "type": "string",
+          "format": "uri"
         },
-        "updatedAt": {
-          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds",
-          "$ref": "../../../type/basic.json#/definitions/timestamp"
-        },
-        "updatedBy": {
-          "description": "User who made the update",
+        "secretKey": {
+          "description": "Secret set by the webhook client used for computing HMAC SHA256 signature of webhook payload and sent in `X-OM-Signature` header in POST requests to publish the events.",
           "type": "string"
         },
-        "href": {
-          "description": "Link to this webhook resource",
-          "$ref": "../../../type/basic.json#/definitions/href"
+        "headers": {
+          "description": "Custom headers to be sent with the webhook request.",
+          "type": "object",
+          "existingJavaType": "java.util.Map<String, String>"
         },
-        "changeDescription": {
-          "description": "Change that led to this version of the entity",
-          "$ref": "../../../type/entityHistory.json#/definitions/changeDescription"
+        "queryParams": {
+          "description": "Query parameters to be added to the webhook request URL.",
+          "type": "object",
+          "existingJavaType": "java.util.Map<String, String>"
         },
-        "deleted": {
-          "description": "When true indicates the entity has been soft deleted",
+        "httpMethod": {
+          "description": "HTTP operation to send the webhook request. Supports POST or PUT.",
+          "type": "string",
+          "enum": ["POST", "PUT"],
+          "default": "POST"
+        },
+        "sendToAdmins": {
+          "description": "Send the Event to Admins",
           "type": "boolean",
           "default": false
         },
-        "domain": {
-          "description": "Domain the webhook belongs to",
-          "$ref": "../../../type/entityReference.json"
+        "sendToOwners": {
+          "description": "Send the Event to Owners",
+          "type": "boolean",
+          "default": false
+        },
+        "sendToFollowers": {
+          "description": "Send the Event to Followers",
+          "type": "boolean",
+          "default": false
         }
       },
-      "required": [
-        "id",
-        "name",
-        "webhookType",
-        "eventFilters",
-        "webhookConfig"
-      ],
       "additionalProperties": false
     }
     ```
@@ -404,128 +188,73 @@ graph TD
 
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
-    @prefix om-entity: <https://open-metadata.org/schema/entity/> .
+    @prefix om-type: <https://open-metadata.org/schema/type/> .
     @prefix om-webhook: <https://open-metadata.org/schema/entity/events/> .
     @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
     @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
     @prefix dcterms: <http://purl.org/dc/terms/> .
-    @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-    @prefix prov: <http://www.w3.org/ns/prov#> .
 
     # Webhook Class Definition
     om-webhook:Webhook a owl:Class ;
         rdfs:label "Webhook" ;
-        rdfs:comment "Real-time event notification mechanism via HTTP callbacks" ;
-        rdfs:subClassOf om-entity:Entity ;
-        rdfs:isDefinedBy om: .
-
-    # Webhook Type Class
-    om-webhook:WebhookType a owl:Class ;
-        rdfs:label "Webhook Type" ;
-        rdfs:comment "Type of webhook (Generic, Slack, MSTeams, etc.)" ;
-        rdfs:isDefinedBy om: .
-
-    # Event Filter Class
-    om-webhook:EventFilter a owl:Class ;
-        rdfs:label "Event Filter" ;
-        rdfs:comment "Filter configuration for webhook events" ;
-        rdfs:isDefinedBy om: .
-
-    # Webhook Status Class
-    om-webhook:WebhookStatus a owl:Class ;
-        rdfs:label "Webhook Status" ;
-        rdfs:comment "Status of the webhook" ;
+        rdfs:comment "Schema for receiving events from OpenMetadata" ;
+        rdfs:subClassOf om-type:SubscriptionAction ;
         rdfs:isDefinedBy om: .
 
     # Properties
-    om-webhook:webhookType a owl:ObjectProperty ;
-        rdfs:label "webhook type" ;
-        rdfs:comment "Type of the webhook" ;
+    om-webhook:receivers a owl:DatatypeProperty ;
+        rdfs:label "receivers" ;
+        rdfs:comment "List of receivers to send mail to" ;
         rdfs:domain om-webhook:Webhook ;
-        rdfs:range om-webhook:WebhookType .
-
-    om-webhook:status a owl:ObjectProperty ;
-        rdfs:label "status" ;
-        rdfs:comment "Current status of the webhook" ;
-        rdfs:domain om-webhook:Webhook ;
-        rdfs:range om-webhook:WebhookStatus .
-
-    om-webhook:enabled a owl:DatatypeProperty ;
-        rdfs:label "enabled" ;
-        rdfs:comment "Indicates if the webhook is enabled" ;
-        rdfs:domain om-webhook:Webhook ;
-        rdfs:range xsd:boolean .
+        rdfs:range xsd:string .
 
     om-webhook:endpoint a owl:DatatypeProperty ;
         rdfs:label "endpoint" ;
-        rdfs:comment "HTTP endpoint URL to send events" ;
+        rdfs:comment "Endpoint to receive the webhook events over POST requests" ;
         rdfs:domain om-webhook:Webhook ;
         rdfs:range xsd:anyURI .
 
-    om-webhook:hasEventFilter a owl:ObjectProperty ;
-        rdfs:label "has event filter" ;
-        rdfs:comment "Event filters for the webhook" ;
+    om-webhook:secretKey a owl:DatatypeProperty ;
+        rdfs:label "secret key" ;
+        rdfs:comment "Secret set by the webhook client used for computing HMAC SHA256 signature of webhook payload and sent in X-OM-Signature header" ;
         rdfs:domain om-webhook:Webhook ;
-        rdfs:range om-webhook:EventFilter .
+        rdfs:range xsd:string .
 
-    om-webhook:monitors a owl:ObjectProperty ;
-        rdfs:label "monitors" ;
-        rdfs:comment "Entities monitored by the webhook" ;
-        rdfs:domain om-webhook:Webhook ;
-        rdfs:range om-entity:Entity .
-
-    om-webhook:sendsTo a owl:ObjectProperty ;
-        rdfs:label "sends to" ;
-        rdfs:comment "External system receiving webhook notifications" ;
+    om-webhook:headers a owl:DatatypeProperty ;
+        rdfs:label "headers" ;
+        rdfs:comment "Custom headers to be sent with the webhook request" ;
         rdfs:domain om-webhook:Webhook .
 
-    om-webhook:batchSize a owl:DatatypeProperty ;
-        rdfs:label "batch size" ;
-        rdfs:comment "Maximum events per batch" ;
+    om-webhook:queryParams a owl:DatatypeProperty ;
+        rdfs:label "query parameters" ;
+        rdfs:comment "Query parameters to be added to the webhook request URL" ;
+        rdfs:domain om-webhook:Webhook .
+
+    om-webhook:httpMethod a owl:DatatypeProperty ;
+        rdfs:label "HTTP method" ;
+        rdfs:comment "HTTP operation to send the webhook request. Supports POST or PUT" ;
         rdfs:domain om-webhook:Webhook ;
-        rdfs:range xsd:integer .
+        rdfs:range xsd:string .
 
-    om-webhook:timeout a owl:DatatypeProperty ;
-        rdfs:label "timeout" ;
-        rdfs:comment "Request timeout in seconds" ;
+    om-webhook:sendToAdmins a owl:DatatypeProperty ;
+        rdfs:label "send to admins" ;
+        rdfs:comment "Send the Event to Admins" ;
         rdfs:domain om-webhook:Webhook ;
-        rdfs:range xsd:integer .
+        rdfs:range xsd:boolean .
 
-    # Webhook Type Individuals
-    om-webhook:Generic a om-webhook:WebhookType ;
-        rdfs:label "Generic" ;
-        skos:definition "Generic webhook with custom payload" .
+    om-webhook:sendToOwners a owl:DatatypeProperty ;
+        rdfs:label "send to owners" ;
+        rdfs:comment "Send the Event to Owners" ;
+        rdfs:domain om-webhook:Webhook ;
+        rdfs:range xsd:boolean .
 
-    om-webhook:Slack a om-webhook:WebhookType ;
-        rdfs:label "Slack" ;
-        skos:definition "Slack-formatted webhook" .
-
-    om-webhook:MSTeams a om-webhook:WebhookType ;
-        rdfs:label "MS Teams" ;
-        skos:definition "Microsoft Teams webhook" .
-
-    om-webhook:GoogleChat a om-webhook:WebhookType ;
-        rdfs:label "Google Chat" ;
-        skos:definition "Google Chat webhook" .
-
-    # Webhook Status Individuals
-    om-webhook:Active a om-webhook:WebhookStatus ;
-        rdfs:label "Active" ;
-        skos:definition "Webhook is active and delivering events" .
-
-    om-webhook:Disabled a om-webhook:WebhookStatus ;
-        rdfs:label "Disabled" ;
-        skos:definition "Webhook is disabled" .
-
-    om-webhook:Failed a om-webhook:WebhookStatus ;
-        rdfs:label "Failed" ;
-        skos:definition "Webhook delivery failed" .
-
-    om-webhook:AwaitingRetry a om-webhook:WebhookStatus ;
-        rdfs:label "Awaiting Retry" ;
-        skos:definition "Webhook is waiting to retry after failure" .
+    om-webhook:sendToFollowers a owl:DatatypeProperty ;
+        rdfs:label "send to followers" ;
+        rdfs:comment "Send the Event to Followers" ;
+        rdfs:domain om-webhook:Webhook ;
+        rdfs:range xsd:boolean .
     ```
 
 === "JSON-LD Context"
@@ -539,92 +268,46 @@ graph TD
         "owl": "http://www.w3.org/2002/07/owl#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
         "dcterms": "http://purl.org/dc/terms/",
-        "skos": "http://www.w3.org/2004/02/skos/core#",
-        "prov": "http://www.w3.org/ns/prov#",
         "om": "https://open-metadata.org/schema/",
 
         "Webhook": {
           "@id": "om:Webhook",
           "@type": "@id"
         },
-        "id": {
-          "@id": "om:id",
+        "receivers": {
+          "@id": "om:receivers",
+          "@type": "xsd:string",
+          "@container": "@set"
+        },
+        "endpoint": {
+          "@id": "om:endpoint",
+          "@type": "xsd:anyURI"
+        },
+        "secretKey": {
+          "@id": "om:secretKey",
           "@type": "xsd:string"
         },
-        "name": {
-          "@id": "om:name",
+        "headers": {
+          "@id": "om:headers"
+        },
+        "queryParams": {
+          "@id": "om:queryParams"
+        },
+        "httpMethod": {
+          "@id": "om:httpMethod",
           "@type": "xsd:string"
         },
-        "fullyQualifiedName": {
-          "@id": "om:fullyQualifiedName",
-          "@type": "xsd:string"
-        },
-        "displayName": {
-          "@id": "om:displayName",
-          "@type": "xsd:string"
-        },
-        "description": {
-          "@id": "dcterms:description",
-          "@type": "xsd:string"
-        },
-        "webhookType": {
-          "@id": "om:webhookType",
-          "@type": "@id"
-        },
-        "status": {
-          "@id": "om:status",
-          "@type": "@id"
-        },
-        "enabled": {
-          "@id": "om:enabled",
+        "sendToAdmins": {
+          "@id": "om:sendToAdmins",
           "@type": "xsd:boolean"
         },
-        "batchSize": {
-          "@id": "om:batchSize",
-          "@type": "xsd:integer"
+        "sendToOwners": {
+          "@id": "om:sendToOwners",
+          "@type": "xsd:boolean"
         },
-        "eventFilters": {
-          "@id": "om:hasEventFilter",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "monitors": {
-          "@id": "om:monitors",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "sendsTo": {
-          "@id": "om:sendsTo",
-          "@type": "@id"
-        },
-        "owner": {
-          "@id": "om:owner",
-          "@type": "@id"
-        },
-        "tags": {
-          "@id": "om:tags",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "domain": {
-          "@id": "om:domain",
-          "@type": "@id"
-        },
-        "version": {
-          "@id": "om:version",
-          "@type": "xsd:string"
-        },
-        "updatedAt": {
-          "@id": "dcterms:modified",
-          "@type": "xsd:dateTime"
-        },
-        "updatedBy": {
-          "@id": "prov:wasAttributedTo",
-          "@type": "xsd:string"
-        },
-        "href": {
-          "@id": "om:href",
-          "@type": "xsd:anyURI"
+        "sendToFollowers": {
+          "@id": "om:sendToFollowers",
+          "@type": "xsd:boolean"
         }
       }
     }
@@ -634,243 +317,156 @@ graph TD
 
 ### Slack Notifications
 
-Send notifications to Slack when tables are created or updated:
+Send notifications to Slack webhook endpoint:
 
 ```json
 {
-  "name": "SlackTableNotifications",
-  "displayName": "Slack Table Notifications",
-  "webhookType": "Slack",
-  "description": "Notify Slack channel when tables are created or updated",
-  "enabled": true,
-  "eventFilters": [
-    {
-      "eventType": "entityCreated",
-      "entities": ["table"]
-    },
-    {
-      "eventType": "entityUpdated",
-      "entities": ["table"],
-      "include": ["tags", "owner", "description"]
-    }
-  ],
-  "webhookConfig": {
-    "endpoint": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "timeout": 10
+  "endpoint": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
+  "headers": {
+    "Content-Type": "application/json"
   },
-  "batchSize": 1,
-  "owner": {
-    "type": "team",
-    "name": "DataEngineering"
-  }
+  "httpMethod": "POST",
+  "sendToAdmins": false,
+  "sendToOwners": false,
+  "sendToFollowers": false
 }
 ```
 
 ### Data Quality Alerts
 
-Send webhook notifications when data quality tests fail:
+Send webhook notifications to PagerDuty:
 
 ```json
 {
-  "name": "QualityTestWebhook",
-  "displayName": "Data Quality Webhook",
-  "webhookType": "Generic",
-  "description": "Send alerts to PagerDuty when quality tests fail",
-  "enabled": true,
-  "eventFilters": [
-    {
-      "eventType": "entityUpdated",
-      "entities": ["testCase"],
-      "include": ["testCaseResult"]
-    }
-  ],
-  "webhookConfig": {
-    "endpoint": "https://events.pagerduty.com/v2/enqueue",
-    "headers": {
-      "Authorization": "Token token=YOUR_API_KEY",
-      "Content-Type": "application/json"
-    },
-    "timeout": 15
+  "endpoint": "https://events.pagerduty.com/v2/enqueue",
+  "headers": {
+    "Authorization": "Token token=YOUR_API_KEY",
+    "Content-Type": "application/json"
   },
-  "batchSize": 5,
-  "owner": {
-    "type": "team",
-    "name": "DataQuality"
-  },
-  "tags": [
-    {
-      "tagFQN": "Integration.PagerDuty"
-    }
-  ]
+  "httpMethod": "POST",
+  "sendToAdmins": true,
+  "sendToOwners": true,
+  "sendToFollowers": false
 }
 ```
 
 ### Custom Application Integration
 
-Integrate with a custom application for metadata changes:
+Integrate with a custom application with HMAC signature:
 
 ```json
 {
-  "name": "CustomAppIntegration",
-  "displayName": "Custom Application Webhook",
-  "webhookType": "Custom",
-  "description": "Send all metadata changes to custom application",
-  "enabled": true,
-  "eventFilters": [
-    {
-      "eventType": "entityCreated",
-      "entities": ["*"]
-    },
-    {
-      "eventType": "entityUpdated",
-      "entities": ["*"]
-    },
-    {
-      "eventType": "entityDeleted",
-      "entities": ["*"]
-    }
-  ],
-  "webhookConfig": {
-    "endpoint": "https://api.company.com/metadata/webhook",
-    "secretKey": "your-hmac-secret-key",
-    "headers": {
-      "Authorization": "Bearer YOUR_TOKEN",
-      "X-Custom-Header": "value"
-    },
-    "timeout": 30
+  "endpoint": "https://api.company.com/metadata/webhook",
+  "secretKey": "your-hmac-secret-key",
+  "headers": {
+    "Authorization": "Bearer YOUR_TOKEN",
+    "X-Custom-Header": "value"
   },
-  "batchSize": 10,
-  "owner": {
-    "type": "user",
-    "name": "integration.admin"
-  },
-  "domain": {
-    "type": "domain",
-    "name": "Operations"
-  }
+  "httpMethod": "POST",
+  "sendToAdmins": false,
+  "sendToOwners": false,
+  "sendToFollowers": false
 }
 ```
 
 ### Microsoft Teams Notifications
 
-Send notifications to MS Teams for critical entity changes:
+Send notifications to MS Teams:
 
 ```json
 {
-  "name": "MSTeamsAlerts",
-  "displayName": "MS Teams Critical Alerts",
-  "webhookType": "MSTeams",
-  "description": "Send critical alerts to MS Teams",
-  "enabled": true,
-  "eventFilters": [
-    {
-      "eventType": "entityDeleted",
-      "entities": ["table", "dashboard", "pipeline"]
-    },
-    {
-      "eventType": "entityUpdated",
-      "entities": ["policy"],
-      "include": ["rules"]
-    }
-  ],
-  "webhookConfig": {
-    "endpoint": "https://outlook.office.com/webhook/XXX",
-    "timeout": 10
+  "endpoint": "https://outlook.office.com/webhook/XXX",
+  "headers": {
+    "Content-Type": "application/json"
   },
-  "batchSize": 1,
-  "owner": {
-    "type": "team",
-    "name": "Governance"
-  }
+  "httpMethod": "POST",
+  "sendToAdmins": true,
+  "sendToOwners": false,
+  "sendToFollowers": false
 }
 ```
 
 ### Owner and Follower Notifications
 
-Notify owners and followers of entity changes:
+Notify entity owners and followers:
 
 ```json
 {
-  "name": "OwnerFollowerNotifications",
-  "displayName": "Owner & Follower Notifications",
-  "webhookType": "Generic",
-  "description": "Notify entity owners and followers of changes",
-  "enabled": true,
-  "eventFilters": [
-    {
-      "eventType": "entityUpdated",
-      "entities": ["table", "dashboard"],
-      "include": ["description", "tags", "tier"]
-    }
-  ],
-  "webhookConfig": {
-    "endpoint": "https://api.company.com/notifications",
-    "sendToOwners": true,
-    "sendToFollowers": true,
-    "timeout": 10
+  "endpoint": "https://api.company.com/notifications",
+  "headers": {
+    "Content-Type": "application/json"
   },
-  "batchSize": 5,
-  "owner": {
-    "type": "team",
-    "name": "DataGovernance"
-  }
+  "httpMethod": "POST",
+  "sendToAdmins": false,
+  "sendToOwners": true,
+  "sendToFollowers": true
 }
 ```
 
-### Domain-Specific Webhook
+### Email Notifications with Receivers
 
-Send notifications only for specific domains:
+Send email notifications to multiple receivers:
 
 ```json
 {
-  "name": "SalesDomainWebhook",
-  "displayName": "Sales Domain Notifications",
-  "webhookType": "Slack",
-  "description": "Notify Sales team of changes in Sales domain",
-  "enabled": true,
-  "eventFilters": [
-    {
-      "eventType": "entityCreated",
-      "entities": ["table", "dashboard"],
-      "include": ["domain:Sales"]
-    },
-    {
-      "eventType": "entityUpdated",
-      "entities": ["table", "dashboard"],
-      "include": ["domain:Sales"]
-    }
+  "receivers": [
+    "admin@company.com",
+    "data-team@company.com"
   ],
-  "webhookConfig": {
-    "endpoint": "https://hooks.slack.com/services/SALES/XXX/YYY",
-    "timeout": 10
+  "endpoint": "https://api.company.com/email-webhook",
+  "headers": {
+    "Content-Type": "application/json"
   },
-  "batchSize": 3,
-  "owner": {
-    "type": "team",
-    "name": "Sales"
-  },
-  "domain": {
-    "type": "domain",
-    "name": "Sales"
-  }
+  "httpMethod": "POST",
+  "sendToAdmins": true,
+  "sendToOwners": true,
+  "sendToFollowers": false
 }
 ```
 
-## Event Types
+### Webhook with Query Parameters and PUT Method
 
-| Event Type | Description | Example Use Case |
-|------------|-------------|------------------|
-| **entityCreated** | Fired when a new entity is created | Welcome notifications, auto-tagging |
-| **entityUpdated** | Fired when an entity is updated | Change tracking, approval workflows |
-| **entitySoftDeleted** | Fired when an entity is soft deleted | Retention workflows, archival |
-| **entityDeleted** | Fired when an entity is permanently deleted | Audit logging, cleanup tasks |
+Configure webhook with custom query parameters using PUT:
+
+```json
+{
+  "endpoint": "https://api.example.com/webhook",
+  "queryParams": {
+    "apiVersion": "v2",
+    "source": "openmetadata",
+    "format": "json"
+  },
+  "headers": {
+    "Authorization": "Bearer YOUR_TOKEN",
+    "Content-Type": "application/json"
+  },
+  "secretKey": "hmac-secret-key",
+  "httpMethod": "PUT",
+  "sendToAdmins": false,
+  "sendToOwners": true,
+  "sendToFollowers": true
+}
+```
+
+## Webhook Configuration Properties
+
+The webhook schema defines the configuration for receiving events from OpenMetadata:
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| **receivers** | array[string] | No | List of email receivers to send notifications to |
+| **endpoint** | string (URI) | No | Endpoint to receive webhook events over POST/PUT requests |
+| **secretKey** | string | No | Secret key for computing HMAC SHA256 signature sent in `X-OM-Signature` header |
+| **headers** | object | No | Custom headers to be sent with the webhook request |
+| **queryParams** | object | No | Query parameters to be added to the webhook request URL |
+| **httpMethod** | enum | No | HTTP operation to send the webhook request (POST or PUT), default: POST |
+| **sendToAdmins** | boolean | No | Send the event to admins, default: false |
+| **sendToOwners** | boolean | No | Send the event to entity owners, default: false |
+| **sendToFollowers** | boolean | No | Send the event to entity followers, default: false |
 
 ## Webhook Payload
 
-Example webhook payload sent to the endpoint:
+Example webhook payload sent to the configured endpoint:
 
 ```json
 {
@@ -907,9 +503,7 @@ Example webhook payload sent to the endpoint:
       }
     ],
     "fieldsDeleted": []
-  },
-  "webhookName": "SlackTableNotifications",
-  "signature": "sha256=abc123..."
+  }
 }
 ```
 
@@ -917,13 +511,24 @@ Example webhook payload sent to the endpoint:
 
 ### HMAC Signature Verification
 
-Webhooks can include an HMAC signature in the `X-OpenMetadata-Signature` header:
+Webhooks include an HMAC SHA256 signature in the `X-OM-Signature` header when a `secretKey` is configured:
 
 ```python
 import hmac
 import hashlib
 
 def verify_signature(payload, signature, secret_key):
+    """
+    Verify HMAC SHA256 signature from X-OM-Signature header
+
+    Args:
+        payload: The raw request body as string
+        signature: The signature from X-OM-Signature header
+        secret_key: The secretKey configured in webhook
+
+    Returns:
+        True if signature is valid, False otherwise
+    """
     expected = hmac.new(
         secret_key.encode('utf-8'),
         payload.encode('utf-8'),
@@ -934,142 +539,102 @@ def verify_signature(payload, signature, secret_key):
 
 ### Authentication Headers
 
-Add custom authentication headers:
+Add custom authentication headers in the webhook configuration:
 
 ```json
 {
-  "webhookConfig": {
-    "endpoint": "https://api.company.com/webhook",
-    "headers": {
-      "Authorization": "Bearer YOUR_TOKEN",
-      "X-API-Key": "YOUR_API_KEY"
-    }
+  "endpoint": "https://api.company.com/webhook",
+  "headers": {
+    "Authorization": "Bearer YOUR_TOKEN",
+    "X-API-Key": "YOUR_API_KEY"
   }
 }
 ```
-
-## Retry Logic
-
-Webhooks implement exponential backoff for failed deliveries:
-
-- **Initial retry**: After 1 minute
-- **Second retry**: After 5 minutes
-- **Third retry**: After 15 minutes
-- **Fourth retry**: After 1 hour
-- **Fifth retry**: After 4 hours
-- **Final retry**: After 12 hours
-
-After all retries are exhausted, the webhook status changes to `retryLimitReached`.
 
 ## Best Practices
 
-### 1. Use Specific Event Filters
-Filter events to only what you need to avoid overwhelming your endpoint.
+### 1. Implement Idempotency
+Handle duplicate events gracefully using the `eventId` in the payload.
 
-### 2. Implement Idempotency
-Handle duplicate events gracefully using the `eventId`.
+### 2. Verify Signatures
+Always verify HMAC SHA256 signatures from the `X-OM-Signature` header when using `secretKey` to ensure authenticity.
 
-### 3. Verify Signatures
-Always verify HMAC signatures to ensure authenticity.
+### 3. Handle Retries
+Implement retry logic on the receiver side for transient failures and return appropriate HTTP status codes.
 
-### 4. Handle Retries
-Implement retry logic on the receiver side for transient failures.
+### 4. Secure Endpoints
+Always use HTTPS endpoints and include authentication headers for secure webhook delivery.
 
-### 5. Monitor Webhook Health
-Track delivery success rates and failure patterns.
+### 5. Use Query Parameters
+Leverage `queryParams` to add metadata or routing information to webhook requests.
 
-### 6. Use Batching
-Enable batching for high-volume events to reduce HTTP overhead.
+### 6. Configure Notification Recipients
+Use `sendToAdmins`, `sendToOwners`, and `sendToFollowers` flags to control who receives notifications.
 
-### 7. Secure Endpoints
-Use HTTPS and authentication for webhook endpoints.
+### 7. Test Before Production
+Test webhook configuration with a test endpoint before enabling in production.
 
-### 8. Test Before Enabling
-Test webhook configuration with a test endpoint before production use.
+### 8. Monitor Webhook Deliveries
+Track webhook delivery success rates and monitor for failures in your receiving application.
 
-## Custom Properties
+## Integration with Subscriptions
 
-This entity supports custom properties through the `extension` field.
-Common custom properties include:
+The webhook schema is used as a `SubscriptionAction` in OpenMetadata's event subscription system. When configuring event subscriptions (alerts, notifications, etc.), you can specify webhook as the delivery mechanism with the properties defined in this schema.
 
-- **Data Classification**: Sensitivity level
-- **Cost Center**: Billing allocation
-- **Retention Period**: Data retention requirements
-- **Application Owner**: Owning application/team
+Example usage in a subscription configuration:
 
-See [Custom Properties](../metadata-specifications/custom-properties.md)
-for details on defining and using custom properties.
-
----
-
-## API Operations
-
-### Create Webhook
-
-```http
-POST /api/v1/webhooks
-Content-Type: application/json
-
+```json
 {
-  "name": "SampleWebhook",
-  "webhookType": "Generic",
-  "eventFilters": [...],
-  "webhookConfig": {...}
+  "name": "TableChangeSubscription",
+  "alertType": "notification",
+  "trigger": {
+    "entities": ["table"],
+    "events": ["entityCreated", "entityUpdated"]
+  },
+  "destinations": [
+    {
+      "type": "webhook",
+      "config": {
+        "endpoint": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "httpMethod": "POST",
+        "secretKey": "your-secret-key",
+        "sendToOwners": true
+      }
+    }
+  ]
 }
 ```
 
-### Get Webhook by ID
+---
 
-```http
-GET /api/v1/webhooks/{id}
+## HTTP Methods
+
+The webhook configuration supports two HTTP methods:
+
+### POST (Default)
+Most webhook endpoints use POST to receive events. This is the default method.
+
+```json
+{
+  "endpoint": "https://api.example.com/webhook",
+  "httpMethod": "POST"
+}
 ```
 
-### Update Webhook
+### PUT
+Some systems may require PUT for idempotent event delivery:
 
-```http
-PATCH /api/v1/webhooks/{id}
-Content-Type: application/json-patch+json
-
-[
-  {
-    "op": "replace",
-    "path": "/enabled",
-    "value": false
-  }
-]
+```json
+{
+  "endpoint": "https://api.example.com/webhook",
+  "httpMethod": "PUT"
+}
 ```
 
-### Delete Webhook
+## Related Schemas
 
-```http
-DELETE /api/v1/webhooks/{id}
-```
-
-### List Webhooks
-
-```http
-GET /api/v1/webhooks?webhookType=Slack&status=active
-```
-
-### Test Webhook
-
-```http
-POST /api/v1/webhooks/{id}/test
-```
-
-### Get Webhook Delivery Logs
-
-```http
-GET /api/v1/webhooks/{id}/logs?startDate=2024-01-01&endDate=2024-01-31
-```
-
-## Related Entities
-
-- **[Alert](../data-quality/alert.md)**: Alerts that can trigger webhooks
-- **[Policy](../governance/policy.md)**: Policies that can send violation webhooks
-- **[TestCase](../data-quality/test-case.md)**: Test cases that trigger quality webhooks
-- **[Pipeline](../data-assets/pipelines/pipeline.md)**: Pipelines that send status webhooks
-- **[Table](../data-assets/databases/table.md)**: Tables monitored by webhooks
-- **[User](../teams-users/user.md)**: Users owning webhooks
-- **[Team](../teams-users/team.md)**: Teams managing webhooks
-- **[Domain](../domains/domain.md)**: Domains for organizing webhooks
+- **[Alert](../data-quality/alert.md)**: Alerts that can use webhook for notifications
+- **[Ingestion Pipeline](./ingestion-pipeline.md)**: Ingestion pipelines that can trigger webhook notifications

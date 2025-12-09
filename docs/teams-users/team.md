@@ -133,132 +133,150 @@ View the complete Team schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/teams/team.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Team",
-      "description": "A `Team` represents a group of users organized in a hierarchical structure for collaboration and ownership.",
+      "description": "This schema defines the Team entity. A `Team` is a group of zero or more users and/or other teams. Teams can own zero or more data assets. Hierarchical teams are supported `Organization` -> `BusinessUnit` -> `Division` -> `Department`.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.teams.Team",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "definitions": {
         "teamType": {
-          "description": "Type of team",
+          "description": "Organization is the highest level entity. An Organization has one of more Business Units, Division, Departments, Group, or Users. A Business Unit has one or more Divisions, Departments, Group, or Users. A Division has one or more Divisions, Departments, Group, or Users. A Department has one or more Departments, Group, or Users. A Group has only Users",
           "type": "string",
           "enum": [
-            "Organization",
-            "BusinessUnit",
-            "Division",
+            "Group",
             "Department",
-            "Group"
-          ]
-        },
-        "teamProfile": {
-          "type": "object",
-          "properties": {
-            "description": {
-              "type": "string",
-              "description": "Team description"
-            },
-            "email": {
-              "type": "string",
-              "format": "email",
-              "description": "Team email for notifications"
-            },
-            "teamSize": {
-              "type": "integer",
-              "description": "Number of members"
-            }
-          }
+            "Division",
+            "BusinessUnit",
+            "Organization"
+          ],
+          "default": "Group"
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
+        "teamType": {
+          "description": "Team type",
+          "$ref": "#/definitions/teamType"
+        },
         "name": {
-          "description": "Team name",
+          "description": "A unique name of the team typically the team ID from an identity provider. Example - group Id from LDAP.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
+        "email": {
+          "description": "Email address of the team.",
+          "$ref": "../../type/basic.json#/definitions/email"
+        },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: organization.department.team",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Name used for display purposes. Example 'Data Science team'.",
+          "type": "string"
+        },
+        "externalId": {
+          "description": "External identifier for the team from an external identity provider (e.g., Azure AD group ID).",
           "type": "string"
         },
         "description": {
-          "description": "Team description",
+          "description": "Description of the team.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "teamType": {
-          "$ref": "#/definitions/teamType"
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
         },
-        "email": {
-          "description": "Team email address",
-          "type": "string",
-          "format": "email"
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
         "profile": {
-          "$ref": "#/definitions/teamProfile"
+          "description": "Team profile information.",
+          "$ref": "../../type/profile.json"
         },
         "parents": {
-          "description": "Parent teams",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "Parent teams. For an `Organization` the `parent` is always null. A `BusinessUnit` always has only one parent of type `BusinessUnit` or an `Organization`. A `Division` can have multiple parents of type `BusinessUnit` or `Division`. A `Department` can have multiple parents of type `Division` or `Department`.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "children": {
-          "description": "Child teams",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "Children teams. An `Organization` can have `BusinessUnit`, `Division` or `Department` as children. A `BusinessUnit` can have `BusinessUnit`, `Division`, or `Department` as children. A `Division` can have `Division` or `Department` as children. A `Department` can have `Department` as children.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "users": {
-          "description": "Users in this team",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "Users that are part of the team.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
         },
-        "defaultRoles": {
-          "description": "Default roles for team members",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "childrenCount": {
+          "description": "Total count of Children teams.",
+          "type": "integer"
         },
-        "policies": {
-          "description": "Policies applied to this team",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "userCount": {
+          "description": "Total count of users that are part of the team.",
+          "type": "integer"
         },
         "owns": {
-          "description": "Data assets owned by this team",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "List of entities owned by the team.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "domain": {
-          "description": "Data domain this team manages",
-          "$ref": "../../type/entityReference.json"
+        "owners": {
+          "description": "Owner of this team.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
         },
         "isJoinable": {
-          "description": "Can users join without approval",
+          "description": "Can any user join this team during sign up? Value of true indicates yes, and false no.",
+          "type": "boolean",
+          "default": true
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
           "type": "boolean",
           "default": false
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "defaultRoles": {
+          "description": "Default roles of a team. These roles will be inherited by all the users that are part of this team.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "inheritedRoles": {
+          "description": "Roles that a team is inheriting through membership in teams that have set team default roles.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "policies": {
+          "description": "Policies that is attached to this team.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "domains": {
+          "description": "Domain the Team belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
         }
       },
 
-      "required": ["id", "name", "teamType"]
+      "required": ["id", "name"],
+      "additionalProperties": false
     }
     ```
 
@@ -271,103 +289,157 @@ View the complete Team schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # Team Class Definition
     om:Team a owl:Class ;
         rdfs:subClassOf om:Entity ;
         rdfs:label "Team" ;
-        rdfs:comment "A group of users organized in a hierarchical structure" .
+        rdfs:comment "A Team is a group of zero or more users and/or other teams. Teams can own zero or more data assets." .
 
-    # Properties
+    # Datatype Properties
     om:teamName a owl:DatatypeProperty ;
         rdfs:domain om:Team ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the team" .
+        rdfs:comment "A unique name of the team typically the team ID from an identity provider" .
 
     om:teamEmail a owl:DatatypeProperty ;
         rdfs:domain om:Team ;
         rdfs:range xsd:string ;
         rdfs:label "email" ;
-        rdfs:comment "Team email address" .
+        rdfs:comment "Email address of the team" .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:Team ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Name used for display purposes" .
+
+    om:externalId a owl:DatatypeProperty ;
+        rdfs:domain om:Team ;
+        rdfs:range xsd:string ;
+        rdfs:label "externalId" ;
+        rdfs:comment "External identifier for the team from an external identity provider" .
 
     om:teamType a owl:DatatypeProperty ;
         rdfs:domain om:Team ;
         rdfs:range om:TeamType ;
         rdfs:label "teamType" ;
-        rdfs:comment "Type of team: Organization, Department, Group" .
+        rdfs:comment "Type of team: Group, Department, Division, BusinessUnit, Organization" .
 
     om:isJoinable a owl:DatatypeProperty ;
         rdfs:domain om:Team ;
         rdfs:range xsd:boolean ;
         rdfs:label "isJoinable" ;
-        rdfs:comment "Whether users can join without approval" .
+        rdfs:comment "Can any user join this team during sign up" .
 
+    om:childrenCount a owl:DatatypeProperty ;
+        rdfs:domain om:Team ;
+        rdfs:range xsd:integer ;
+        rdfs:label "childrenCount" ;
+        rdfs:comment "Total count of Children teams" .
+
+    om:userCount a owl:DatatypeProperty ;
+        rdfs:domain om:Team ;
+        rdfs:range xsd:integer ;
+        rdfs:label "userCount" ;
+        rdfs:comment "Total count of users that are part of the team" .
+
+    om:deleted a owl:DatatypeProperty ;
+        rdfs:domain om:Team ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When true indicates the entity has been soft deleted" .
+
+    # Object Properties
     om:hasParent a owl:ObjectProperty ;
         rdfs:domain om:Team ;
         rdfs:range om:Team ;
         rdfs:label "hasParent" ;
-        rdfs:comment "Parent team in hierarchy" .
+        rdfs:comment "Parent teams in the organizational hierarchy" .
 
     om:hasChild a owl:ObjectProperty ;
         rdfs:domain om:Team ;
         rdfs:range om:Team ;
         rdfs:label "hasChild" ;
-        rdfs:comment "Child teams" .
+        rdfs:comment "Children teams" .
 
     om:hasMember a owl:ObjectProperty ;
         rdfs:domain om:Team ;
         rdfs:range om:User ;
         rdfs:label "hasMember" ;
-        rdfs:comment "Users in this team" .
+        rdfs:comment "Users that are part of the team" .
+
+    om:hasOwner a owl:ObjectProperty ;
+        rdfs:domain om:Team ;
+        rdfs:range [ a owl:Class ; owl:unionOf (om:User om:Team) ] ;
+        rdfs:label "hasOwner" ;
+        rdfs:comment "Owner of this team" .
 
     om:hasDefaultRole a owl:ObjectProperty ;
         rdfs:domain om:Team ;
         rdfs:range om:Role ;
         rdfs:label "hasDefaultRole" ;
-        rdfs:comment "Default roles for team members" .
+        rdfs:comment "Default roles of a team inherited by all users" .
+
+    om:hasInheritedRole a owl:ObjectProperty ;
+        rdfs:domain om:Team ;
+        rdfs:range om:Role ;
+        rdfs:label "hasInheritedRole" ;
+        rdfs:comment "Roles that a team is inheriting through membership in teams" .
 
     om:hasPolicy a owl:ObjectProperty ;
         rdfs:domain om:Team ;
         rdfs:range om:Policy ;
         rdfs:label "hasPolicy" ;
-        rdfs:comment "Policies applied to this team" .
+        rdfs:comment "Policies that is attached to this team" .
 
     om:teamOwns a owl:ObjectProperty ;
         rdfs:domain om:Team ;
-        rdfs:range om:DataAsset ;
+        rdfs:range om:Entity ;
         rdfs:label "teamOwns" ;
-        rdfs:comment "Data assets owned by this team" .
+        rdfs:comment "List of entities owned by the team" .
 
-    om:managesDomain a owl:ObjectProperty ;
+    om:belongsToDomain a owl:ObjectProperty ;
         rdfs:domain om:Team ;
         rdfs:range om:Domain ;
-        rdfs:label "managesDomain" ;
-        rdfs:comment "Data domain managed by this team" .
+        rdfs:label "belongsToDomain" ;
+        rdfs:comment "Domain the Team belongs to" .
+
+    om:hasProfile a owl:ObjectProperty ;
+        rdfs:domain om:Team ;
+        rdfs:range om:Profile ;
+        rdfs:label "hasProfile" ;
+        rdfs:comment "Team profile information" .
 
     # Team Type Enumeration
     om:TeamType a owl:Class ;
         owl:oneOf (
-            om:OrganizationType
-            om:BusinessUnitType
-            om:DivisionType
-            om:DepartmentType
             om:GroupType
+            om:DepartmentType
+            om:DivisionType
+            om:BusinessUnitType
+            om:OrganizationType
         ) .
 
     # Example Instance
     ex:dataEngineeringTeam a om:Team ;
         om:teamName "Data Engineering" ;
+        om:displayName "Data Engineering Team" ;
         om:teamEmail "data-eng@example.com" ;
         om:teamType om:DepartmentType ;
         om:hasParent ex:engineeringTeam ;
         om:hasMember ex:janeDoe ;
         om:hasMember ex:johnSmith ;
+        om:hasOwner ex:teamLead ;
         om:hasDefaultRole ex:dataEngineerRole ;
         om:teamOwns ex:customersTable ;
-        om:isJoinable false .
+        om:belongsToDomain ex:customerDataDomain ;
+        om:isJoinable true ;
+        om:userCount 2 ;
+        om:childrenCount 0 .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -401,6 +473,10 @@ View the complete Team schema in your preferred format:
           "@id": "om:teamEmail",
           "@type": "xsd:string"
         },
+        "externalId": {
+          "@id": "om:externalId",
+          "@type": "xsd:string"
+        },
         "description": {
           "@id": "om:description",
           "@type": "xsd:string"
@@ -411,6 +487,18 @@ View the complete Team schema in your preferred format:
         },
         "isJoinable": {
           "@id": "om:isJoinable",
+          "@type": "xsd:boolean"
+        },
+        "childrenCount": {
+          "@id": "om:childrenCount",
+          "@type": "xsd:integer"
+        },
+        "userCount": {
+          "@id": "om:userCount",
+          "@type": "xsd:integer"
+        },
+        "deleted": {
+          "@id": "om:deleted",
           "@type": "xsd:boolean"
         },
         "parents": {
@@ -428,8 +516,18 @@ View the complete Team schema in your preferred format:
           "@type": "@id",
           "@container": "@set"
         },
+        "owners": {
+          "@id": "om:hasOwner",
+          "@type": "@id",
+          "@container": "@set"
+        },
         "defaultRoles": {
           "@id": "om:hasDefaultRole",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "inheritedRoles": {
+          "@id": "om:hasInheritedRole",
           "@type": "@id",
           "@container": "@set"
         },
@@ -443,8 +541,13 @@ View the complete Team schema in your preferred format:
           "@type": "@id",
           "@container": "@set"
         },
-        "domain": {
-          "@id": "om:managesDomain",
+        "domains": {
+          "@id": "om:belongsToDomain",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "profile": {
+          "@id": "om:hasProfile",
           "@type": "@id"
         }
       }
@@ -463,9 +566,12 @@ View the complete Team schema in your preferred format:
       "fullyQualifiedName": "example_org.Engineering.DataEngineering",
       "displayName": "Data Engineering",
       "email": "data-eng@example.com",
+      "externalId": "azure-ad-group-123",
       "description": "Team responsible for building and maintaining data infrastructure",
       "teamType": "Department",
-      "isJoinable": false,
+      "isJoinable": true,
+      "userCount": 2,
+      "childrenCount": 0,
 
       "parents": [
         {
@@ -488,6 +594,14 @@ View the complete Team schema in your preferred format:
         }
       ],
 
+      "owners": [
+        {
+          "@id": "https://example.com/users/team.lead",
+          "@type": "User",
+          "name": "team.lead"
+        }
+      ],
+
       "defaultRoles": [
         {
           "@id": "https://example.com/roles/data-engineer",
@@ -504,11 +618,13 @@ View the complete Team schema in your preferred format:
         }
       ],
 
-      "domain": {
-        "@id": "https://example.com/domains/data-platform",
-        "@type": "Domain",
-        "name": "DataPlatform"
-      }
+      "domains": [
+        {
+          "@id": "https://example.com/domains/data-platform",
+          "@type": "Domain",
+          "name": "DataPlatform"
+        }
+      ]
     }
     ```
 
@@ -578,11 +694,24 @@ View the complete Team schema in your preferred format:
 #### `displayName`
 **Type**: `string`
 **Required**: No
-**Description**: Human-readable display name
+**Description**: Name used for display purposes. Example 'Data Science team'.
 
 ```json
 {
   "displayName": "Data Engineering Team"
+}
+```
+
+---
+
+#### `externalId`
+**Type**: `string`
+**Required**: No
+**Description**: External identifier for the team from an external identity provider (e.g., Azure AD group ID).
+
+```json
+{
+  "externalId": "azure-ad-group-12345"
 }
 ```
 
@@ -605,14 +734,16 @@ View the complete Team schema in your preferred format:
 
 #### `teamType` (TeamType enum)
 **Type**: `string` enum
-**Required**: Yes
+**Required**: No (default: "Group")
 **Allowed Values**:
 
-- `Organization` - Top-level organization
-- `BusinessUnit` - Business unit within organization
-- `Division` - Division within business unit
+- `Group` - Working group or project team (default)
 - `Department` - Department within division
-- `Group` - Working group or project team
+- `Division` - Division within business unit
+- `BusinessUnit` - Business unit within organization
+- `Organization` - Top-level organization
+
+**Description**: Organization is the highest level entity. An Organization has one of more Business Units, Division, Departments, Group, or Users. A Business Unit has one or more Divisions, Departments, Group, or Users. A Division has one or more Divisions, Departments, Group, or Users. A Department has one or more Departments, Group, or Users. A Group has only Users.
 
 ```json
 {
@@ -625,7 +756,7 @@ View the complete Team schema in your preferred format:
 #### `email`
 **Type**: `string` (email format)
 **Required**: No
-**Description**: Team email address for notifications
+**Description**: Email address of the team.
 
 ```json
 {
@@ -635,12 +766,40 @@ View the complete Team schema in your preferred format:
 
 ---
 
+#### `profile`
+**Type**: `object` (Profile reference)
+**Required**: No
+**Description**: Team profile information.
+
+```json
+{
+  "profile": {
+    "$ref": "../../type/profile.json"
+  }
+}
+```
+
+---
+
+#### `href`
+**Type**: `string` (URI format)
+**Required**: No
+**Description**: Link to the resource corresponding to this entity.
+
+```json
+{
+  "href": "https://api.example.com/v1/teams/a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
+}
+```
+
+---
+
 ### Hierarchy Properties
 
-#### `parents[]` (EntityReference[])
-**Type**: `array` of Team references
+#### `parents` (EntityReferenceList)
+**Type**: `EntityReferenceList` (array of Team references)
 **Required**: No
-**Description**: Parent teams in the organizational hierarchy
+**Description**: Parent teams. For an `Organization` the `parent` is always null. A `BusinessUnit` always has only one parent of type `BusinessUnit` or an `Organization`. A `Division` can have multiple parents of type `BusinessUnit` or `Division`. A `Department` can have multiple parents of type `Division` or `Department`.
 
 ```json
 {
@@ -657,10 +816,10 @@ View the complete Team schema in your preferred format:
 
 ---
 
-#### `children[]` (EntityReference[])
-**Type**: `array` of Team references
+#### `children` (EntityReferenceList)
+**Type**: `EntityReferenceList` (array of Team references)
 **Required**: No
-**Description**: Child teams reporting to this team
+**Description**: Children teams. An `Organization` can have `BusinessUnit`, `Division` or `Department` as children. A `BusinessUnit` can have `BusinessUnit`, `Division`, or `Department` as children. A `Division` can have `Division` or `Department` as children. A `Department` can have `Department` as children.
 
 ```json
 {
@@ -685,10 +844,10 @@ View the complete Team schema in your preferred format:
 
 ### Membership Properties
 
-#### `users[]` (EntityReference[])
-**Type**: `array` of User references
-**Required**: No
-**Description**: Users who are members of this team
+#### `users` (EntityReferenceList)
+**Type**: `EntityReferenceList` (array of User references)
+**Required**: No (default: null)
+**Description**: Users that are part of the team.
 
 ```json
 {
@@ -711,14 +870,40 @@ View the complete Team schema in your preferred format:
 
 ---
 
-#### `isJoinable`
-**Type**: `boolean`
-**Required**: No (default: false)
-**Description**: Whether users can join this team without approval
+#### `userCount`
+**Type**: `integer`
+**Required**: No
+**Description**: Total count of users that are part of the team.
 
 ```json
 {
-  "isJoinable": false
+  "userCount": 15
+}
+```
+
+---
+
+#### `childrenCount`
+**Type**: `integer`
+**Required**: No
+**Description**: Total count of Children teams.
+
+```json
+{
+  "childrenCount": 3
+}
+```
+
+---
+
+#### `isJoinable`
+**Type**: `boolean`
+**Required**: No (default: true)
+**Description**: Can any user join this team during sign up? Value of true indicates yes, and false no.
+
+```json
+{
+  "isJoinable": true
 }
 ```
 
@@ -726,10 +911,10 @@ View the complete Team schema in your preferred format:
 
 ### Role and Policy Properties
 
-#### `defaultRoles[]` (EntityReference[])
-**Type**: `array` of Role references
+#### `defaultRoles` (EntityReferenceList)
+**Type**: `EntityReferenceList` (array of Role references)
 **Required**: No
-**Description**: Default roles automatically assigned to team members
+**Description**: Default roles of a team. These roles will be inherited by all the users that are part of this team.
 
 ```json
 {
@@ -746,10 +931,30 @@ View the complete Team schema in your preferred format:
 
 ---
 
-#### `policies[]` (EntityReference[])
-**Type**: `array` of Policy references
+#### `inheritedRoles` (EntityReferenceList)
+**Type**: `EntityReferenceList` (array of Role references)
 **Required**: No
-**Description**: Access control policies applied to this team
+**Description**: Roles that a team is inheriting through membership in teams that have set team default roles.
+
+```json
+{
+  "inheritedRoles": [
+    {
+      "id": "role-uuid",
+      "type": "role",
+      "name": "OrganizationViewer",
+      "fullyQualifiedName": "OrganizationViewer"
+    }
+  ]
+}
+```
+
+---
+
+#### `policies` (EntityReferenceList)
+**Type**: `EntityReferenceList` (array of Policy references)
+**Required**: No
+**Description**: Policies that is attached to this team.
 
 ```json
 {
@@ -774,10 +979,10 @@ View the complete Team schema in your preferred format:
 
 ### Ownership Properties
 
-#### `owns[]` (EntityReference[])
-**Type**: `array`
+#### `owns` (EntityReferenceList)
+**Type**: `EntityReferenceList` (array of entity references)
 **Required**: No
-**Description**: Data assets owned by this team
+**Description**: List of entities owned by the team.
 
 ```json
 {
@@ -804,19 +1009,41 @@ View the complete Team schema in your preferred format:
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
-**Required**: No
-**Description**: Data domain this team manages
+#### `owners` (EntityReferenceList)
+**Type**: `EntityReferenceList` (array of User or Team references)
+**Required**: No (default: null)
+**Description**: Owner of this team.
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "DataPlatform",
-    "fullyQualifiedName": "DataPlatform"
-  }
+  "owners": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "team.lead",
+      "displayName": "Team Lead"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `EntityReferenceList` (array of Domain references)
+**Required**: No
+**Description**: Domain the Team belongs to.
+
+```json
+{
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "DataPlatform",
+      "fullyQualifiedName": "DataPlatform"
+    }
+  ]
 }
 ```
 
@@ -850,14 +1077,85 @@ View the complete Team schema in your preferred format:
 
 ---
 
-#### `updatedBy` (string)
+#### `updatedBy`
 **Type**: `string`
-**Required**: Yes (system-managed)
-**Description**: User who made the update
+**Required**: No (system-managed)
+**Description**: User who made the update.
 
 ```json
 {
   "updatedBy": "admin"
+}
+```
+
+---
+
+#### `impersonatedBy`
+**Type**: `object`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user.
+
+```json
+{
+  "impersonatedBy": {
+    "type": "bot",
+    "name": "automation-bot"
+  }
+}
+```
+
+---
+
+#### `changeDescription`
+**Type**: `object`
+**Required**: No
+**Description**: Change that lead to this version of the entity.
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "displayName",
+        "oldValue": "Data Eng",
+        "newValue": "Data Engineering Team"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.0
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription`
+**Type**: `object`
+**Required**: No
+**Description**: Change that lead to this version of the entity.
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [],
+    "fieldsDeleted": [],
+    "previousVersion": 2.0
+  }
+}
+```
+
+---
+
+#### `deleted`
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: When `true` indicates the entity has been soft deleted.
+
+```json
+{
+  "deleted": false
 }
 ```
 
@@ -868,13 +1166,14 @@ View the complete Team schema in your preferred format:
 ```json
 {
   "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+  "teamType": "Department",
   "name": "DataEngineering",
+  "email": "data-eng@example.com",
   "fullyQualifiedName": "example_org.Engineering.DataEngineering",
   "displayName": "Data Engineering Team",
+  "externalId": "azure-ad-group-12345",
   "description": "# Data Engineering Team\n\nResponsible for building and maintaining data infrastructure, pipelines, and platforms.",
-  "teamType": "Department",
-  "email": "data-eng@example.com",
-  "isJoinable": false,
+  "href": "https://api.example.com/v1/teams/a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
   "parents": [
     {
       "id": "parent-uuid",
@@ -895,6 +1194,7 @@ View the complete Team schema in your preferred format:
       "name": "Analytics"
     }
   ],
+  "childrenCount": 2,
   "users": [
     {
       "id": "user-uuid-1",
@@ -909,6 +1209,16 @@ View the complete Team schema in your preferred format:
       "displayName": "John Smith"
     }
   ],
+  "userCount": 2,
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "user",
+      "name": "team.lead",
+      "displayName": "Team Lead"
+    }
+  ],
+  "isJoinable": true,
   "defaultRoles": [
     {
       "id": "role-uuid",
@@ -934,14 +1244,17 @@ View the complete Team schema in your preferred format:
       "name": "daily_etl"
     }
   ],
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "DataPlatform"
-  },
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "DataPlatform"
+    }
+  ],
   "version": 2.1,
   "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "updatedBy": "admin",
+  "deleted": false
 }
 ```
 
@@ -954,20 +1267,28 @@ View the complete Team schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 om:Team a owl:Class ;
     rdfs:subClassOf om:Entity ;
     rdfs:label "Team" ;
-    rdfs:comment "A group of users in hierarchical structure" ;
+    rdfs:comment "A Team is a group of zero or more users and/or other teams. Teams can own zero or more data assets." ;
     om:hasProperties [
         om:name "string" ;
         om:teamType "TeamType" ;
+        om:externalId "string" ;
         om:parents "Team[]" ;
         om:children "Team[]" ;
         om:users "User[]" ;
+        om:owners "EntityReference[]" ;
         om:defaultRoles "Role[]" ;
-        om:owns "DataAsset[]" ;
+        om:inheritedRoles "Role[]" ;
+        om:policies "Policy[]" ;
+        om:owns "Entity[]" ;
+        om:domains "Domain[]" ;
+        om:userCount "integer" ;
+        om:childrenCount "integer" ;
+        om:deleted "boolean" ;
     ] .
 ```
 
@@ -982,15 +1303,21 @@ ex:dataEngineeringTeam a om:Team ;
     om:displayName "Data Engineering Team" ;
     om:teamType om:DepartmentType ;
     om:teamEmail "data-eng@example.com" ;
+    om:externalId "azure-ad-group-12345" ;
     om:hasParent ex:engineeringTeam ;
     om:hasChild ex:dataPlatformTeam ;
     om:hasChild ex:analyticsTeam ;
     om:hasMember ex:janeDoe ;
     om:hasMember ex:johnSmith ;
+    om:hasOwner ex:teamLead ;
     om:hasDefaultRole ex:dataEngineerRole ;
+    om:hasPolicy ex:teamDataAccessPolicy ;
     om:teamOwns ex:customersTable ;
-    om:managesDomain ex:dataPlatformDomain ;
-    om:isJoinable false .
+    om:belongsToDomain ex:dataPlatformDomain ;
+    om:isJoinable true ;
+    om:userCount 2 ;
+    om:childrenCount 2 ;
+    om:deleted false .
 ```
 
 ---
@@ -1004,9 +1331,26 @@ ex:dataEngineeringTeam a om:Team ;
     "Team": "om:Team",
     "name": "om:teamName",
     "email": "om:teamEmail",
+    "externalId": "om:externalId",
     "teamType": {
       "@id": "om:teamType",
       "@type": "@vocab"
+    },
+    "isJoinable": {
+      "@id": "om:isJoinable",
+      "@type": "xsd:boolean"
+    },
+    "userCount": {
+      "@id": "om:userCount",
+      "@type": "xsd:integer"
+    },
+    "childrenCount": {
+      "@id": "om:childrenCount",
+      "@type": "xsd:integer"
+    },
+    "deleted": {
+      "@id": "om:deleted",
+      "@type": "xsd:boolean"
     },
     "parents": {
       "@id": "om:hasParent",
@@ -1023,8 +1367,33 @@ ex:dataEngineeringTeam a om:Team ;
       "@type": "@id",
       "@container": "@set"
     },
+    "owners": {
+      "@id": "om:hasOwner",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "defaultRoles": {
+      "@id": "om:hasDefaultRole",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "inheritedRoles": {
+      "@id": "om:hasInheritedRole",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "policies": {
+      "@id": "om:hasPolicy",
+      "@type": "@id",
+      "@container": "@set"
+    },
     "owns": {
       "@id": "om:teamOwns",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:belongsToDomain",
       "@type": "@id",
       "@container": "@set"
     }
@@ -1041,10 +1410,21 @@ ex:dataEngineeringTeam a om:Team ;
   "@id": "https://example.com/teams/data-engineering",
   "name": "DataEngineering",
   "displayName": "Data Engineering Team",
+  "email": "data-eng@example.com",
+  "externalId": "azure-ad-group-12345",
   "teamType": "Department",
+  "isJoinable": true,
+  "userCount": 2,
+  "childrenCount": 2,
   "parents": [
     {
       "@id": "https://example.com/teams/engineering",
+      "@type": "Team"
+    }
+  ],
+  "children": [
+    {
+      "@id": "https://example.com/teams/data-platform",
       "@type": "Team"
     }
   ],
@@ -1052,6 +1432,22 @@ ex:dataEngineeringTeam a om:Team ;
     {
       "@id": "https://example.com/users/jane.doe",
       "@type": "User"
+    },
+    {
+      "@id": "https://example.com/users/john.smith",
+      "@type": "User"
+    }
+  ],
+  "owners": [
+    {
+      "@id": "https://example.com/users/team.lead",
+      "@type": "User"
+    }
+  ],
+  "defaultRoles": [
+    {
+      "@id": "https://example.com/roles/data-engineer",
+      "@type": "Role"
     }
   ],
   "owns": [
@@ -1059,7 +1455,14 @@ ex:dataEngineeringTeam a om:Team ;
       "@id": "https://example.com/tables/customers",
       "@type": "Table"
     }
-  ]
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/data-platform",
+      "@type": "Domain"
+    }
+  ],
+  "deleted": false
 }
 ```
 

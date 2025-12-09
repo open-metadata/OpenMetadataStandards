@@ -164,168 +164,216 @@ View the complete Metric schema in your preferred format:
 
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/data/metric.json",
+      "$id": "https://open-metadata.org/schema/entity/data/metrics.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Metric",
-      "description": "A `Metric` represents a business metric or KPI used to measure organizational performance.",
+      "description": "This schema defines the Metrics entity. `Metrics` are measurements computed from data such as `Monthly Active Users`. Some of the metrics that measures used to determine performance against an objective are called KPIs or Key Performance Indicators, such as `User Retention`.",
+      "$comment": "@om-entity-type",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.Metric",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "definitions": {
+        "metricExpression": {
+          "type": "object",
+          "properties": {
+            "language": {
+              "javaType": "org.openmetadata.schema.type.MetricExpressionLanguage",
+              "description": "This schema defines the type of the language used for Metric Expression Code.",
+              "type": "string",
+              "enum": [
+                "SQL",
+                "Java",
+                "JavaScript",
+                "Python",
+                "External"
+              ]
+            },
+            "code": {
+              "javaType": "org.openmetadata.schema.type.MetricExpressionCode",
+              "description": "This schema defines the type of the language used for Metric Formula's Code.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
         "metricType": {
-          "description": "Type of metric",
+          "javaType": "org.openmetadata.schema.type.MetricType",
+          "description": "This schema defines the type of Metric.",
           "type": "string",
           "enum": [
-            "COUNT", "SUM", "AVERAGE", "PERCENTAGE", "RATIO",
-            "DURATION", "CURRENCY", "SCORE", "OTHER"
+            "COUNT",
+            "SUM",
+            "AVERAGE",
+            "RATIO",
+            "PERCENTAGE",
+            "MIN",
+            "MAX",
+            "MEDIAN",
+            "MODE",
+            "STANDARD_DEVIATION",
+            "VARIANCE",
+            "OTHER"
+          ]
+        },
+        "unitOfMeasurement": {
+          "javaType": "org.openmetadata.schema.type.MetricUnitOfMeasurement",
+          "description": "This schema defines the type of Metric's unit of measurement.",
+          "type": "string",
+          "enum": [
+            "COUNT",
+            "DOLLARS",
+            "PERCENTAGE",
+            "TIMESTAMP",
+            "SIZE",
+            "REQUESTS",
+            "EVENTS",
+            "TRANSACTIONS",
+            "OTHER"
           ]
         },
         "metricGranularity": {
-          "description": "Time granularity for the metric",
+          "javaType": "org.openmetadata.schema.type.MetricGranularity",
+          "description": "This schema defines the type of Metric's granularity.",
           "type": "string",
           "enum": [
-            "HOURLY", "DAILY", "WEEKLY", "MONTHLY",
-            "QUARTERLY", "YEARLY", "REAL_TIME"
+            "SECOND",
+            "MINUTE",
+            "HOUR",
+            "DAY",
+            "WEEK",
+            "MONTH",
+            "QUARTER",
+            "YEAR"
           ]
-        },
-        "metricTarget": {
-          "description": "Target or goal for the metric",
-          "type": "object",
-          "properties": {
-            "value": {
-              "description": "Target value",
-              "type": "number"
-            },
-            "targetType": {
-              "description": "Type of target",
-              "type": "string",
-              "enum": ["MINIMUM", "MAXIMUM", "EXACT", "RANGE"]
-            },
-            "startDate": {
-              "description": "Target start date",
-              "type": "string",
-              "format": "date-time"
-            },
-            "endDate": {
-              "description": "Target end date",
-              "type": "string",
-              "format": "date-time"
-            }
-          },
-          "required": ["value", "targetType"]
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies this Metric instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Metric name",
+          "description": "Name that identifies this Metric instance uniquely.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name",
+          "description": "A unique name that identifies a metric in the format 'ServiceName.MetricName'.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this metric.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of metrics instance, what it is, and how to use it.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
+        "metricExpression": {
+          "description": "Expression used to compute the metric.",
+          "$ref": "#/definitions/metricExpression"
+        },
         "metricType": {
+          "description": "Type of the metric.",
           "$ref": "#/definitions/metricType"
         },
+        "unitOfMeasurement": {
+          "description": "Unit of measurement for the metric.",
+          "$ref": "#/definitions/unitOfMeasurement"
+        },
+        "customUnitOfMeasurement": {
+          "description": "Custom unit of measurement when unitOfMeasurement is OTHER.",
+          "type": "string"
+        },
         "granularity": {
+          "description": "Metric's granularity.",
           "$ref": "#/definitions/metricGranularity"
         },
-        "unitOfMeasurement": {
-          "description": "Unit of measurement (USD, %, count, etc.)",
-          "type": "string"
-        },
-        "formula": {
-          "description": "Calculation formula or expression",
-          "type": "string"
-        },
-        "sql": {
-          "description": "SQL query to calculate the metric",
-          "type": "string"
-        },
-        "tables": {
-          "description": "Source tables used in calculation",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "columns": {
-          "description": "Source columns used in calculation",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
         "relatedMetrics": {
-          "description": "Related metrics",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "Related Metrics.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "dashboards": {
-          "description": "Dashboards displaying this metric",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
         },
-        "charts": {
-          "description": "Charts visualizing this metric",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
         },
-        "targets": {
-          "description": "Metric targets or goals",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/metricTarget"
-          }
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "owners": {
+          "description": "Owners of this metrics.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "reviewers": {
+          "description": "Reviewers of this Metric.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "followers": {
+          "description": "Followers of this API Collection.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this chart.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "domains": {
+          "description": "Domains the Glossary belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref" : "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "entityStatus": {
+          "description": "Status of the Metric.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "metricType", "description"]
+      "required": ["id", "name"],
+      "additionalProperties": false
     }
     ```
 
@@ -338,14 +386,14 @@ View the complete Metric schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # Metric Class Definition
     om:Metric a owl:Class ;
         rdfs:subClassOf om:DataAsset ;
         rdfs:label "Metric" ;
-        rdfs:comment "A business metric or KPI measuring organizational performance" ;
+        rdfs:comment "Metrics are measurements computed from data such as Monthly Active Users. Some metrics measure performance against an objective and are called KPIs or Key Performance Indicators." ;
         om:hierarchyLevel 1 .
 
     # Properties
@@ -353,67 +401,108 @@ View the complete Metric schema in your preferred format:
         rdfs:domain om:Metric ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the metric" .
+        rdfs:comment "Name that identifies this Metric instance uniquely" .
 
     om:metricType a owl:DatatypeProperty ;
         rdfs:domain om:Metric ;
         rdfs:range om:MetricType ;
         rdfs:label "metricType" ;
-        rdfs:comment "Type: COUNT, SUM, AVERAGE, PERCENTAGE, etc." .
+        rdfs:comment "Type of the metric" .
 
-    om:metricFormula a owl:DatatypeProperty ;
+    om:metricExpression a owl:ObjectProperty ;
         rdfs:domain om:Metric ;
-        rdfs:range xsd:string ;
-        rdfs:label "formula" ;
-        rdfs:comment "Calculation formula or expression" .
-
-    om:metricSQL a owl:DatatypeProperty ;
-        rdfs:domain om:Metric ;
-        rdfs:range xsd:string ;
-        rdfs:label "sql" ;
-        rdfs:comment "SQL query to calculate the metric" .
+        rdfs:range om:MetricExpression ;
+        rdfs:label "metricExpression" ;
+        rdfs:comment "Expression used to compute the metric" .
 
     om:unitOfMeasurement a owl:DatatypeProperty ;
         rdfs:domain om:Metric ;
-        rdfs:range xsd:string ;
+        rdfs:range om:MetricUnitOfMeasurement ;
         rdfs:label "unitOfMeasurement" ;
-        rdfs:comment "Unit (USD, %, count, etc.)" .
+        rdfs:comment "Unit of measurement for the metric" .
 
-    om:usesTable a owl:ObjectProperty ;
+    om:customUnitOfMeasurement a owl:DatatypeProperty ;
         rdfs:domain om:Metric ;
-        rdfs:range om:Table ;
-        rdfs:label "usesTable" ;
-        rdfs:comment "Source tables used in calculation" .
+        rdfs:range xsd:string ;
+        rdfs:label "customUnitOfMeasurement" ;
+        rdfs:comment "Custom unit of measurement when unitOfMeasurement is OTHER" .
 
-    om:usesColumn a owl:ObjectProperty ;
+    om:granularity a owl:DatatypeProperty ;
         rdfs:domain om:Metric ;
-        rdfs:range om:Column ;
-        rdfs:label "usesColumn" ;
-        rdfs:comment "Source columns used in calculation" .
-
-    om:displayedInDashboard a owl:ObjectProperty ;
-        rdfs:domain om:Metric ;
-        rdfs:range om:Dashboard ;
-        rdfs:label "displayedInDashboard" ;
-        rdfs:comment "Dashboards displaying this metric" .
-
-    om:visualizedInChart a owl:ObjectProperty ;
-        rdfs:domain om:Metric ;
-        rdfs:range om:Chart ;
-        rdfs:label "visualizedInChart" ;
-        rdfs:comment "Charts visualizing this metric" .
+        rdfs:range om:MetricGranularity ;
+        rdfs:label "granularity" ;
+        rdfs:comment "Metric's granularity" .
 
     om:relatedMetric a owl:ObjectProperty ;
         rdfs:domain om:Metric ;
         rdfs:range om:Metric ;
         rdfs:label "relatedMetric" ;
-        rdfs:comment "Related metrics" .
+        rdfs:comment "Related Metrics" .
 
-    om:hasTarget a owl:ObjectProperty ;
+    om:hasOwner a owl:ObjectProperty ;
         rdfs:domain om:Metric ;
-        rdfs:range om:MetricTarget ;
-        rdfs:label "hasTarget" ;
-        rdfs:comment "Target or goal for this metric" .
+        rdfs:range om:EntityReference ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this metrics" .
+
+    om:hasReviewer a owl:ObjectProperty ;
+        rdfs:domain om:Metric ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "reviewers" ;
+        rdfs:comment "Reviewers of this Metric" .
+
+    om:hasFollower a owl:ObjectProperty ;
+        rdfs:domain om:Metric ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this Metric" .
+
+    om:inDomain a owl:ObjectProperty ;
+        rdfs:domain om:Metric ;
+        rdfs:range om:Domain ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the Metric belongs to" .
+
+    om:inDataProduct a owl:ObjectProperty ;
+        rdfs:domain om:Metric ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "dataProducts" ;
+        rdfs:comment "List of data products this entity is part of" .
+
+    om:hasCertification a owl:ObjectProperty ;
+        rdfs:domain om:Metric ;
+        rdfs:range om:AssetCertification ;
+        rdfs:label "certification" ;
+        rdfs:comment "Asset certification for this metric" .
+
+    om:hasVotes a owl:ObjectProperty ;
+        rdfs:domain om:Metric ;
+        rdfs:range om:Votes ;
+        rdfs:label "votes" ;
+        rdfs:comment "Votes on the entity" .
+
+    om:entityStatus a owl:DatatypeProperty ;
+        rdfs:domain om:Metric ;
+        rdfs:range om:Status ;
+        rdfs:label "entityStatus" ;
+        rdfs:comment "Status of the Metric" .
+
+    # Metric Expression Class
+    om:MetricExpression a owl:Class ;
+        rdfs:label "MetricExpression" ;
+        rdfs:comment "Expression used to compute the metric" .
+
+    om:expressionLanguage a owl:DatatypeProperty ;
+        rdfs:domain om:MetricExpression ;
+        rdfs:range om:MetricExpressionLanguage ;
+        rdfs:label "language" ;
+        rdfs:comment "Language used for Metric Expression Code" .
+
+    om:expressionCode a owl:DatatypeProperty ;
+        rdfs:domain om:MetricExpression ;
+        rdfs:range xsd:string ;
+        rdfs:label "code" ;
+        rdfs:comment "Code for the metric expression" .
 
     # Metric Type Enumeration
     om:MetricType a owl:Class ;
@@ -421,24 +510,69 @@ View the complete Metric schema in your preferred format:
             om:MetricType_COUNT
             om:MetricType_SUM
             om:MetricType_AVERAGE
-            om:MetricType_PERCENTAGE
             om:MetricType_RATIO
-            om:MetricType_CURRENCY
+            om:MetricType_PERCENTAGE
+            om:MetricType_MIN
+            om:MetricType_MAX
+            om:MetricType_MEDIAN
+            om:MetricType_MODE
+            om:MetricType_STANDARD_DEVIATION
+            om:MetricType_VARIANCE
+            om:MetricType_OTHER
+        ) .
+
+    # Unit of Measurement Enumeration
+    om:MetricUnitOfMeasurement a owl:Class ;
+        owl:oneOf (
+            om:UnitOfMeasurement_COUNT
+            om:UnitOfMeasurement_DOLLARS
+            om:UnitOfMeasurement_PERCENTAGE
+            om:UnitOfMeasurement_TIMESTAMP
+            om:UnitOfMeasurement_SIZE
+            om:UnitOfMeasurement_REQUESTS
+            om:UnitOfMeasurement_EVENTS
+            om:UnitOfMeasurement_TRANSACTIONS
+            om:UnitOfMeasurement_OTHER
+        ) .
+
+    # Granularity Enumeration
+    om:MetricGranularity a owl:Class ;
+        owl:oneOf (
+            om:Granularity_SECOND
+            om:Granularity_MINUTE
+            om:Granularity_HOUR
+            om:Granularity_DAY
+            om:Granularity_WEEK
+            om:Granularity_MONTH
+            om:Granularity_QUARTER
+            om:Granularity_YEAR
+        ) .
+
+    # Expression Language Enumeration
+    om:MetricExpressionLanguage a owl:Class ;
+        owl:oneOf (
+            om:ExpressionLanguage_SQL
+            om:ExpressionLanguage_Java
+            om:ExpressionLanguage_JavaScript
+            om:ExpressionLanguage_Python
+            om:ExpressionLanguage_External
         ) .
 
     # Example Instance
-    ex:mrrMetric a om:Metric ;
-        om:metricName "monthly_recurring_revenue" ;
-        om:fullyQualifiedName "Finance.MonthlyRecurringRevenue" ;
-        om:displayName "Monthly Recurring Revenue (MRR)" ;
-        om:metricType om:MetricType_CURRENCY ;
-        om:unitOfMeasurement "USD" ;
-        om:metricFormula "SUM(subscription_amount) WHERE subscription_status = 'active'" ;
-        om:usesTable ex:subscriptionsTable ;
-        om:usesColumn ex:subscriptionAmountColumn ;
-        om:displayedInDashboard ex:revenueDashboard ;
-        om:ownedBy ex:financeTeam ;
-        om:inDomain ex:financeDomain .
+    ex:mauMetric a om:Metric ;
+        om:metricName "monthly_active_users" ;
+        om:fullyQualifiedName "Product.MonthlyActiveUsers" ;
+        om:displayName "Monthly Active Users (MAU)" ;
+        om:description "Count of unique users who performed any action in the last 30 days" ;
+        om:metricType om:MetricType_COUNT ;
+        om:unitOfMeasurement om:UnitOfMeasurement_COUNT ;
+        om:granularity om:Granularity_MONTH ;
+        om:metricExpression [
+            om:expressionLanguage om:ExpressionLanguage_SQL ;
+            om:expressionCode "SELECT COUNT(DISTINCT user_id) FROM user_activity WHERE activity_date >= CURRENT_DATE - INTERVAL '30 days'"
+        ] ;
+        om:hasOwner ex:productTeam ;
+        om:inDomain ex:productDomain .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -476,50 +610,63 @@ View the complete Metric schema in your preferred format:
           "@id": "om:metricType",
           "@type": "@vocab"
         },
-        "formula": {
-          "@id": "om:metricFormula",
-          "@type": "xsd:string"
-        },
-        "sql": {
-          "@id": "om:metricSQL",
-          "@type": "xsd:string"
+        "metricExpression": {
+          "@id": "om:metricExpression",
+          "@type": "@id"
         },
         "unitOfMeasurement": {
           "@id": "om:unitOfMeasurement",
+          "@type": "@vocab"
+        },
+        "customUnitOfMeasurement": {
+          "@id": "om:customUnitOfMeasurement",
           "@type": "xsd:string"
         },
-        "tables": {
-          "@id": "om:usesTable",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "columns": {
-          "@id": "om:usesColumn",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "dashboards": {
-          "@id": "om:displayedInDashboard",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "charts": {
-          "@id": "om:visualizedInChart",
-          "@type": "@id",
-          "@container": "@set"
+        "granularity": {
+          "@id": "om:granularity",
+          "@type": "@vocab"
         },
         "relatedMetrics": {
           "@id": "om:relatedMetric",
           "@type": "@id",
           "@container": "@set"
         },
-        "owner": {
-          "@id": "om:ownedBy",
+        "owners": {
+          "@id": "om:hasOwner",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "reviewers": {
+          "@id": "om:hasReviewer",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:hasFollower",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:inDomain",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:inDataProduct",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "certification": {
+          "@id": "om:hasCertification",
           "@type": "@id"
         },
-        "domain": {
-          "@id": "om:inDomain",
+        "votes": {
+          "@id": "om:hasVotes",
           "@type": "@id"
+        },
+        "entityStatus": {
+          "@id": "om:entityStatus",
+          "@type": "@vocab"
         }
       }
     }
@@ -531,61 +678,55 @@ View the complete Metric schema in your preferred format:
     {
       "@context": "https://open-metadata.org/context/metric.jsonld",
       "@type": "Metric",
-      "@id": "https://example.com/metrics/monthly_recurring_revenue",
+      "@id": "https://example.com/metrics/monthly_active_users",
 
-      "name": "monthly_recurring_revenue",
-      "fullyQualifiedName": "Finance.MonthlyRecurringRevenue",
-      "displayName": "Monthly Recurring Revenue (MRR)",
-      "description": "# Monthly Recurring Revenue\n\nTotal monthly revenue from active subscriptions.",
-      "metricType": "CURRENCY",
-      "granularity": "MONTHLY",
-      "unitOfMeasurement": "USD",
-      "formula": "SUM(subscription_amount) WHERE subscription_status = 'active'",
+      "name": "monthly_active_users",
+      "fullyQualifiedName": "Product.MonthlyActiveUsers",
+      "displayName": "Monthly Active Users (MAU)",
+      "description": "Count of unique users who performed any action in the last 30 days",
+      "metricType": "COUNT",
+      "granularity": "MONTH",
+      "unitOfMeasurement": "COUNT",
 
-      "tables": [
-        {
-          "@id": "https://example.com/tables/subscriptions",
-          "@type": "Table",
-          "fullyQualifiedName": "postgres_prod.finance.subscriptions"
-        }
-      ],
-
-      "columns": [
-        {
-          "@id": "https://example.com/columns/subscription_amount",
-          "@type": "Column",
-          "fullyQualifiedName": "postgres_prod.finance.subscriptions.subscription_amount"
-        }
-      ],
-
-      "dashboards": [
-        {
-          "@id": "https://example.com/dashboards/revenue_dashboard",
-          "@type": "Dashboard",
-          "name": "revenue_dashboard"
-        }
-      ],
-
-      "owner": {
-        "@id": "https://example.com/teams/finance",
-        "@type": "Team",
-        "name": "finance"
+      "metricExpression": {
+        "language": "SQL",
+        "code": "SELECT COUNT(DISTINCT user_id) FROM user_activity WHERE activity_date >= CURRENT_DATE - INTERVAL '30 days'"
       },
 
-      "domain": {
-        "@id": "https://example.com/domains/finance",
-        "@type": "Domain",
-        "name": "Finance"
-      },
-
-      "targets": [
+      "relatedMetrics": [
         {
-          "value": 1000000,
-          "targetType": "MINIMUM",
-          "startDate": "2024-01-01T00:00:00Z",
-          "endDate": "2024-12-31T23:59:59Z"
+          "@id": "https://example.com/metrics/daily_active_users",
+          "@type": "Metric",
+          "name": "daily_active_users"
         }
-      ]
+      ],
+
+      "owners": [
+        {
+          "@id": "https://example.com/teams/product",
+          "@type": "Team",
+          "name": "product"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/product",
+          "@type": "Domain",
+          "name": "Product"
+        }
+      ],
+
+      "tags": [
+        {
+          "tagFQN": "Tier.Gold",
+          "source": "Classification"
+        }
+      ],
+
+      "version": 1.0,
+      "updatedAt": 1704240000000,
+      "updatedBy": "product.analyst"
     }
     ```
 
@@ -685,22 +826,25 @@ View the complete Metric schema in your preferred format:
 
 #### `metricType` (MetricType enum)
 **Type**: `string` enum
-**Required**: Yes
+**Required**: No
 **Allowed Values**:
 
 - `COUNT` - Count of items
 - `SUM` - Sum of values
 - `AVERAGE` - Average of values
-- `PERCENTAGE` - Percentage value
 - `RATIO` - Ratio between values
-- `DURATION` - Time duration
-- `CURRENCY` - Monetary value
-- `SCORE` - Score or rating
+- `PERCENTAGE` - Percentage value
+- `MIN` - Minimum value
+- `MAX` - Maximum value
+- `MEDIAN` - Median value
+- `MODE` - Mode value
+- `STANDARD_DEVIATION` - Standard deviation
+- `VARIANCE` - Variance
 - `OTHER` - Other metric type
 
 ```json
 {
-  "metricType": "CURRENCY"
+  "metricType": "COUNT"
 }
 ```
 
@@ -711,30 +855,54 @@ View the complete Metric schema in your preferred format:
 **Required**: No
 **Allowed Values**:
 
-- `HOURLY` - Hourly metric
-- `DAILY` - Daily metric
-- `WEEKLY` - Weekly metric
-- `MONTHLY` - Monthly metric
-- `QUARTERLY` - Quarterly metric
-- `YEARLY` - Yearly metric
-- `REAL_TIME` - Real-time metric
+- `SECOND` - Second-level granularity
+- `MINUTE` - Minute-level granularity
+- `HOUR` - Hour-level granularity
+- `DAY` - Day-level granularity
+- `WEEK` - Week-level granularity
+- `MONTH` - Month-level granularity
+- `QUARTER` - Quarter-level granularity
+- `YEAR` - Year-level granularity
 
 ```json
 {
-  "granularity": "MONTHLY"
+  "granularity": "MONTH"
 }
 ```
 
 ---
 
-#### `unitOfMeasurement` (string)
-**Type**: `string`
+#### `unitOfMeasurement` (MetricUnitOfMeasurement enum)
+**Type**: `string` enum
 **Required**: No
-**Description**: Unit of measurement (USD, %, count, seconds, etc.)
+**Allowed Values**:
+
+- `COUNT` - Count
+- `DOLLARS` - Dollars
+- `PERCENTAGE` - Percentage
+- `TIMESTAMP` - Timestamp
+- `SIZE` - Size
+- `REQUESTS` - Requests
+- `EVENTS` - Events
+- `TRANSACTIONS` - Transactions
+- `OTHER` - Other unit
 
 ```json
 {
-  "unitOfMeasurement": "USD"
+  "unitOfMeasurement": "DOLLARS"
+}
+```
+
+---
+
+#### `customUnitOfMeasurement` (string)
+**Type**: `string`
+**Required**: No
+**Description**: Custom unit of measurement when unitOfMeasurement is OTHER
+
+```json
+{
+  "customUnitOfMeasurement": "API Calls per Second"
 }
 ```
 
@@ -742,81 +910,24 @@ View the complete Metric schema in your preferred format:
 
 ### Calculation Definition
 
-#### `formula` (string)
-**Type**: `string`
+#### `metricExpression` (MetricExpression)
+**Type**: `object`
 **Required**: No
-**Description**: Business formula or expression for calculating the metric
+**Description**: Expression used to compute the metric
+
+**MetricExpression Properties**:
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `language` | enum | No | Language for expression code: SQL, Java, JavaScript, Python, External |
+| `code` | string | No | Code for the metric expression |
 
 ```json
 {
-  "formula": "SUM(subscription_amount) WHERE subscription_status = 'active'"
-}
-```
-
----
-
-#### `sql` (string)
-**Type**: `string`
-**Required**: No
-**Description**: SQL query to calculate the metric
-
-```json
-{
-  "sql": "SELECT SUM(subscription_amount) AS mrr\nFROM subscriptions\nWHERE subscription_status = 'active'\n  AND DATE_TRUNC('month', subscription_date) = DATE_TRUNC('month', CURRENT_DATE)"
-}
-```
-
----
-
-### Data Source Properties
-
-#### `tables[]` (Table[])
-**Type**: `array` of Table entity references
-**Required**: No
-**Description**: Source tables used in metric calculation
-
-```json
-{
-  "tables": [
-    {
-      "id": "table-uuid",
-      "type": "table",
-      "name": "subscriptions",
-      "fullyQualifiedName": "postgres_prod.finance.subscriptions"
-    },
-    {
-      "id": "table-uuid-2",
-      "type": "table",
-      "name": "customers",
-      "fullyQualifiedName": "postgres_prod.finance.customers"
-    }
-  ]
-}
-```
-
----
-
-#### `columns[]` (Column[])
-**Type**: `array` of Column entity references
-**Required**: No
-**Description**: Specific columns used in metric calculation
-
-```json
-{
-  "columns": [
-    {
-      "id": "column-uuid",
-      "type": "column",
-      "name": "subscription_amount",
-      "fullyQualifiedName": "postgres_prod.finance.subscriptions.subscription_amount"
-    },
-    {
-      "id": "column-uuid-2",
-      "type": "column",
-      "name": "subscription_status",
-      "fullyQualifiedName": "postgres_prod.finance.subscriptions.subscription_status"
-    }
-  ]
+  "metricExpression": {
+    "language": "SQL",
+    "code": "SELECT COUNT(DISTINCT user_id) FROM user_activity WHERE activity_date >= CURRENT_DATE - INTERVAL '30 days'"
+  }
 }
 ```
 
@@ -824,10 +935,10 @@ View the complete Metric schema in your preferred format:
 
 ### Related Entities
 
-#### `relatedMetrics[]` (Metric[])
-**Type**: `array` of Metric entity references
+#### `relatedMetrics` (EntityReferenceList)
+**Type**: `EntityReferenceList`
 **Required**: No
-**Description**: Related or derived metrics
+**Description**: Related Metrics
 
 ```json
 {
@@ -835,91 +946,14 @@ View the complete Metric schema in your preferred format:
     {
       "id": "metric-uuid",
       "type": "metric",
-      "name": "annual_recurring_revenue",
-      "fullyQualifiedName": "Finance.AnnualRecurringRevenue"
+      "name": "daily_active_users",
+      "fullyQualifiedName": "Product.DailyActiveUsers"
     },
     {
       "id": "metric-uuid-2",
       "type": "metric",
-      "name": "mrr_growth_rate",
-      "fullyQualifiedName": "Finance.MRRGrowthRate"
-    }
-  ]
-}
-```
-
----
-
-#### `dashboards[]` (Dashboard[])
-**Type**: `array` of Dashboard entity references
-**Required**: No
-**Description**: Dashboards displaying this metric
-
-```json
-{
-  "dashboards": [
-    {
-      "id": "dashboard-uuid",
-      "type": "dashboard",
-      "name": "revenue_dashboard",
-      "fullyQualifiedName": "tableau_prod.revenue_dashboard"
-    }
-  ]
-}
-```
-
----
-
-#### `charts[]` (Chart[])
-**Type**: `array` of Chart entity references
-**Required**: No
-**Description**: Charts visualizing this metric
-
-```json
-{
-  "charts": [
-    {
-      "id": "chart-uuid",
-      "type": "chart",
-      "name": "mrr_trend",
-      "fullyQualifiedName": "tableau_prod.revenue_dashboard.mrr_trend"
-    }
-  ]
-}
-```
-
----
-
-### Targets and Thresholds
-
-#### `targets[]` (MetricTarget[])
-**Type**: `array` of MetricTarget objects
-**Required**: No
-**Description**: Metric targets or goals
-
-**MetricTarget Object**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `value` | number | Yes | Target value |
-| `targetType` | enum | Yes | MINIMUM, MAXIMUM, EXACT, RANGE |
-| `startDate` | datetime | No | Target start date |
-| `endDate` | datetime | No | Target end date |
-
-```json
-{
-  "targets": [
-    {
-      "value": 1000000,
-      "targetType": "MINIMUM",
-      "startDate": "2024-01-01T00:00:00Z",
-      "endDate": "2024-12-31T23:59:59Z"
-    },
-    {
-      "value": 1500000,
-      "targetType": "MAXIMUM",
-      "startDate": "2024-01-01T00:00:00Z",
-      "endDate": "2024-12-31T23:59:59Z"
+      "name": "weekly_active_users",
+      "fullyQualifiedName": "Product.WeeklyActiveUsers"
     }
   ]
 }
@@ -929,46 +963,111 @@ View the complete Metric schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `EntityReferenceList`
 **Required**: No
-**Description**: User or team that owns this metric
+**Description**: Owners of this metrics
 
 ```json
 {
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "finance-team",
-    "displayName": "Finance Team"
-  }
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "product-team",
+      "displayName": "Product Team"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `reviewers` (EntityReferenceList)
+**Type**: `EntityReferenceList`
 **Required**: No
-**Description**: Data domain this metric belongs to
+**Description**: Reviewers of this Metric
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Finance",
-    "fullyQualifiedName": "Finance"
-  }
+  "reviewers": [
+    {
+      "id": "reviewer-uuid",
+      "type": "user",
+      "name": "data.steward",
+      "displayName": "Data Steward"
+    }
+  ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `EntityReferenceList`
+**Required**: No
+**Description**: Followers of this Metric
+
+```json
+{
+  "followers": [
+    {
+      "id": "follower-uuid",
+      "type": "user",
+      "name": "analyst.user",
+      "displayName": "Analyst User"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `EntityReferenceList`
+**Required**: No
+**Description**: Domains the Metric belongs to
+
+```json
+{
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Product",
+      "fullyQualifiedName": "Product"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `EntityReferenceList`
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "UserEngagementMetrics",
+      "fullyQualifiedName": "Product.UserEngagementMetrics"
+    }
+  ]
 }
 ```
 
 ---
 
 #### `tags[]` (TagLabel[])
-**Type**: `array`
+**Type**: `array` of TagLabel
 **Required**: No
-**Description**: Classification tags applied to the metric
+**Default**: `[]`
+**Description**: Tags for this metric
 
 ```json
 {
@@ -992,21 +1091,189 @@ View the complete Metric schema in your preferred format:
 
 ---
 
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
+#### `certification` (AssetCertification)
+**Type**: `AssetCertification`
 **Required**: No
-**Description**: Business glossary terms linked to this metric
+**Description**: Asset certification for this metric
 
 ```json
 {
-  "glossaryTerms": [
-    {
-      "fullyQualifiedName": "BusinessGlossary.Revenue"
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certified.Gold"
     },
-    {
-      "fullyQualifiedName": "BusinessGlossary.Subscription"
-    }
-  ]
+    "certifiedBy": "data.governance.team",
+    "certifiedAt": 1704240000000
+  }
+}
+```
+
+---
+
+#### `votes` (Votes)
+**Type**: `Votes`
+**Required**: No
+**Description**: Votes on the entity
+
+```json
+{
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2,
+    "upVoters": ["user1", "user2"],
+    "downVoters": ["user3"]
+  }
+}
+```
+
+---
+
+#### `entityStatus` (Status)
+**Type**: `Status` enum
+**Required**: No
+**Description**: Status of the Metric
+
+```json
+{
+  "entityStatus": "Active"
+}
+```
+
+---
+
+### System Properties
+
+#### `version` (EntityVersion)
+**Type**: `number`
+**Required**: No (system-managed)
+**Description**: Metadata version of the entity
+
+```json
+{
+  "version": 1.5
+}
+```
+
+---
+
+#### `updatedAt` (timestamp)
+**Type**: `number` (Unix epoch time milliseconds)
+**Required**: No (system-managed)
+**Description**: Last update time corresponding to the new version of the entity
+
+```json
+{
+  "updatedAt": 1704240000000
+}
+```
+
+---
+
+#### `updatedBy` (string)
+**Type**: `string`
+**Required**: No (system-managed)
+**Description**: User who made the update
+
+```json
+{
+  "updatedBy": "product.analyst"
+}
+```
+
+---
+
+#### `impersonatedBy` (impersonatedBy)
+**Type**: `impersonatedBy`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": "automation.bot"
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "https://example.com/api/v1/metrics/5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b"
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `ChangeDescription`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "metricExpression",
+        "oldValue": "...",
+        "newValue": "..."
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.4
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `ChangeDescription`
+**Required**: No (system-managed)
+**Description**: Incremental change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When true indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `extension` (entityExtension)
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity
+
+```json
+{
+  "extension": {
+    "customField1": "value1",
+    "customField2": 123
+  }
 }
 ```
 
@@ -1017,73 +1284,93 @@ View the complete Metric schema in your preferred format:
 ```json
 {
   "id": "5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
-  "name": "monthly_recurring_revenue",
-  "fullyQualifiedName": "Finance.MonthlyRecurringRevenue",
-  "displayName": "Monthly Recurring Revenue (MRR)",
-  "description": "# Monthly Recurring Revenue (MRR)\n\nTotal monthly revenue from all active subscription customers.",
-  "metricType": "CURRENCY",
-  "granularity": "MONTHLY",
-  "unitOfMeasurement": "USD",
-  "formula": "SUM(subscription_amount) WHERE subscription_status = 'active'",
-  "sql": "SELECT SUM(subscription_amount) AS mrr FROM subscriptions WHERE subscription_status = 'active'",
-  "tables": [
-    {
-      "id": "table-uuid",
-      "type": "table",
-      "name": "subscriptions",
-      "fullyQualifiedName": "postgres_prod.finance.subscriptions"
-    }
-  ],
-  "columns": [
-    {
-      "id": "column-uuid",
-      "type": "column",
-      "name": "subscription_amount",
-      "fullyQualifiedName": "postgres_prod.finance.subscriptions.subscription_amount"
-    }
-  ],
+  "name": "monthly_active_users",
+  "fullyQualifiedName": "Product.MonthlyActiveUsers",
+  "displayName": "Monthly Active Users (MAU)",
+  "description": "# Monthly Active Users (MAU)\n\nCount of unique users who performed any action in the last 30 days.",
+  "metricType": "COUNT",
+  "granularity": "MONTH",
+  "unitOfMeasurement": "COUNT",
+  "metricExpression": {
+    "language": "SQL",
+    "code": "SELECT COUNT(DISTINCT user_id) FROM user_activity WHERE activity_date >= CURRENT_DATE - INTERVAL '30 days'"
+  },
   "relatedMetrics": [
     {
-      "id": "metric-uuid",
+      "id": "metric-uuid-1",
       "type": "metric",
-      "name": "annual_recurring_revenue"
-    }
-  ],
-  "dashboards": [
+      "name": "daily_active_users",
+      "fullyQualifiedName": "Product.DailyActiveUsers"
+    },
     {
-      "id": "dashboard-uuid",
-      "type": "dashboard",
-      "name": "revenue_dashboard"
+      "id": "metric-uuid-2",
+      "type": "metric",
+      "name": "weekly_active_users",
+      "fullyQualifiedName": "Product.WeeklyActiveUsers"
     }
   ],
-  "targets": [
+  "owners": [
     {
-      "value": 1000000,
-      "targetType": "MINIMUM",
-      "startDate": "2024-01-01T00:00:00Z",
-      "endDate": "2024-12-31T23:59:59Z"
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "product-team",
+      "displayName": "Product Team"
     }
   ],
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "finance-team"
-  },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Finance"
-  },
+  "reviewers": [
+    {
+      "id": "reviewer-uuid",
+      "type": "user",
+      "name": "data.steward"
+    }
+  ],
+  "followers": [
+    {
+      "id": "follower-uuid-1",
+      "type": "user",
+      "name": "analyst.user"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Product",
+      "fullyQualifiedName": "Product"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "UserEngagementMetrics"
+    }
+  ],
   "tags": [
-    {"tagFQN": "Tier.Gold"},
-    {"tagFQN": "Executive"}
+    {
+      "tagFQN": "Tier.Gold",
+      "source": "Classification"
+    },
+    {
+      "tagFQN": "Executive",
+      "source": "Classification"
+    }
   ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.Revenue"}
-  ],
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certified.Gold"
+    }
+  },
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2
+  },
+  "entityStatus": "Active",
   "version": 1.5,
   "updatedAt": 1704240000000,
-  "updatedBy": "finance.analyst"
+  "updatedBy": "product.analyst",
+  "href": "https://example.com/api/v1/metrics/5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b",
+  "deleted": false
 }
 ```
 
@@ -1091,7 +1378,27 @@ View the complete Metric schema in your preferred format:
 
 ## Examples by Type
 
-### Revenue Metric
+### Count Metric - Active Users
+
+```json
+{
+  "name": "daily_active_users",
+  "fullyQualifiedName": "Product.DailyActiveUsers",
+  "displayName": "Daily Active Users",
+  "description": "Count of unique users who performed any action in the last 24 hours",
+  "metricType": "COUNT",
+  "granularity": "DAY",
+  "unitOfMeasurement": "COUNT",
+  "metricExpression": {
+    "language": "SQL",
+    "code": "SELECT COUNT(DISTINCT user_id) FROM user_activity WHERE activity_date >= CURRENT_DATE - INTERVAL '1 day'"
+  }
+}
+```
+
+---
+
+### Sum Metric - Revenue
 
 ```json
 {
@@ -1099,46 +1406,19 @@ View the complete Metric schema in your preferred format:
   "fullyQualifiedName": "Sales.TotalRevenue",
   "displayName": "Total Revenue",
   "description": "Total revenue from all sales transactions",
-  "metricType": "CURRENCY",
-  "granularity": "DAILY",
-  "unitOfMeasurement": "USD",
-  "formula": "SUM(order_total)",
-  "sql": "SELECT SUM(order_total) FROM orders WHERE order_date >= CURRENT_DATE",
-  "tables": [
-    {
-      "type": "table",
-      "fullyQualifiedName": "postgres_prod.sales.orders"
-    }
-  ]
+  "metricType": "SUM",
+  "granularity": "DAY",
+  "unitOfMeasurement": "DOLLARS",
+  "metricExpression": {
+    "language": "SQL",
+    "code": "SELECT SUM(order_total) FROM orders WHERE order_date >= CURRENT_DATE"
+  }
 }
 ```
 
 ---
 
-### Customer Count Metric
-
-```json
-{
-  "name": "active_customers",
-  "fullyQualifiedName": "Customer.ActiveCustomers",
-  "displayName": "Active Customers",
-  "description": "Count of customers with activity in the last 30 days",
-  "metricType": "COUNT",
-  "granularity": "DAILY",
-  "unitOfMeasurement": "count",
-  "formula": "COUNT(DISTINCT customer_id) WHERE last_activity_date >= CURRENT_DATE - 30",
-  "tables": [
-    {
-      "type": "table",
-      "fullyQualifiedName": "postgres_prod.crm.customers"
-    }
-  ]
-}
-```
-
----
-
-### Conversion Rate Metric
+### Percentage Metric - Conversion Rate
 
 ```json
 {
@@ -1147,46 +1427,53 @@ View the complete Metric schema in your preferred format:
   "displayName": "Conversion Rate",
   "description": "Percentage of website visitors who make a purchase",
   "metricType": "PERCENTAGE",
-  "granularity": "WEEKLY",
-  "unitOfMeasurement": "%",
-  "formula": "(purchases / visitors) * 100",
-  "sql": "SELECT (COUNT(DISTINCT purchase_id)::DECIMAL / COUNT(DISTINCT visitor_id)) * 100 FROM events",
-  "tables": [
-    {
-      "type": "table",
-      "fullyQualifiedName": "postgres_prod.analytics.events"
-    }
-  ],
-  "targets": [
-    {
-      "value": 3.5,
-      "targetType": "MINIMUM"
-    }
-  ]
+  "granularity": "WEEK",
+  "unitOfMeasurement": "PERCENTAGE",
+  "metricExpression": {
+    "language": "SQL",
+    "code": "SELECT (COUNT(DISTINCT purchase_id)::DECIMAL / COUNT(DISTINCT visitor_id)) * 100 FROM events"
+  }
 }
 ```
 
 ---
 
-### Customer Lifetime Value (CLV)
+### Average Metric - Session Duration
 
 ```json
 {
-  "name": "customer_lifetime_value",
-  "fullyQualifiedName": "Finance.CustomerLifetimeValue",
-  "displayName": "Customer Lifetime Value (CLV)",
-  "description": "Average total revenue expected from a customer over their lifetime",
-  "metricType": "CURRENCY",
-  "granularity": "MONTHLY",
-  "unitOfMeasurement": "USD",
-  "formula": "AVG(total_customer_revenue)",
-  "sql": "SELECT AVG(total_revenue) FROM customer_revenue_summary",
-  "relatedMetrics": [
-    {
-      "type": "metric",
-      "name": "customer_acquisition_cost"
-    }
-  ]
+  "name": "avg_session_duration",
+  "fullyQualifiedName": "Analytics.AverageSessionDuration",
+  "displayName": "Average Session Duration",
+  "description": "Average time users spend in a session",
+  "metricType": "AVERAGE",
+  "granularity": "DAY",
+  "unitOfMeasurement": "TIMESTAMP",
+  "metricExpression": {
+    "language": "SQL",
+    "code": "SELECT AVG(session_duration_seconds) FROM user_sessions WHERE session_date >= CURRENT_DATE"
+  }
+}
+```
+
+---
+
+### Custom Unit Metric - API Throughput
+
+```json
+{
+  "name": "api_throughput",
+  "fullyQualifiedName": "Engineering.APIThroughput",
+  "displayName": "API Throughput",
+  "description": "Number of API requests processed per second",
+  "metricType": "RATIO",
+  "granularity": "MINUTE",
+  "unitOfMeasurement": "OTHER",
+  "customUnitOfMeasurement": "requests/second",
+  "metricExpression": {
+    "language": "Python",
+    "code": "def calculate_throughput(requests, time_window):\n    return requests / time_window"
+  }
 }
 ```
 
@@ -1216,20 +1503,23 @@ POST /api/v1/metrics
 Content-Type: application/json
 
 {
-  "name": "monthly_recurring_revenue",
-  "displayName": "Monthly Recurring Revenue (MRR)",
-  "description": "Total monthly revenue from active subscriptions",
-  "metricType": "CURRENCY",
-  "granularity": "MONTHLY",
-  "unitOfMeasurement": "USD",
-  "formula": "SUM(subscription_amount) WHERE subscription_status = 'active'"
+  "name": "monthly_active_users",
+  "displayName": "Monthly Active Users (MAU)",
+  "description": "Count of unique users who performed any action in the last 30 days",
+  "metricType": "COUNT",
+  "granularity": "MONTH",
+  "unitOfMeasurement": "COUNT",
+  "metricExpression": {
+    "language": "SQL",
+    "code": "SELECT COUNT(DISTINCT user_id) FROM user_activity WHERE activity_date >= CURRENT_DATE - INTERVAL '30 days'"
+  }
 }
 ```
 
 ### Get Metric
 
 ```http
-GET /api/v1/metrics/name/Finance.MonthlyRecurringRevenue?fields=tables,columns,dashboards,owner,targets
+GET /api/v1/metrics/name/Product.MonthlyActiveUsers?fields=relatedMetrics,owners,reviewers,followers,domains,dataProducts,certification,votes
 ```
 
 ### Update Metric
@@ -1246,35 +1536,35 @@ Content-Type: application/json-patch+json
   },
   {
     "op": "add",
-    "path": "/targets/-",
+    "path": "/owners/-",
     "value": {
-      "value": 1000000,
-      "targetType": "MINIMUM"
+      "id": "team-uuid",
+      "type": "team"
     }
   }
 ]
 ```
 
-### Link Metric to Dashboard
+### Add Owners to Metric
 
 ```http
-PUT /api/v1/metrics/{id}/dashboards
+PUT /api/v1/metrics/{id}/owners
 Content-Type: application/json
 
 {
-  "dashboards": [
+  "owners": [
     {
-      "id": "dashboard-uuid",
-      "type": "dashboard"
+      "id": "team-uuid",
+      "type": "team"
     }
   ]
 }
 ```
 
-### Get Metric Lineage
+### Get Metric Version History
 
 ```http
-GET /api/v1/metrics/{id}/lineage?upstreamDepth=3&downstreamDepth=2
+GET /api/v1/metrics/{id}/versions
 ```
 
 ---

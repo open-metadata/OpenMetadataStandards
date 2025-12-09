@@ -149,242 +149,320 @@ graph TD
 
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/data/column.json",
+      "$id": "https://open-metadata.org/schema/entity/data/table.json#/definitions/column",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Column",
-      "description": "A Column represents a field within a database table or view.",
+      "description": "This schema defines the type for a column in a table.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.data.Column",
+      "javaType": "org.openmetadata.schema.type.Column",
+      "javaInterfaces": ["org.openmetadata.schema.FieldInterface"],
       "definitions": {
+        "columnName": {
+          "description": "Local name (not fully qualified name) of the column. ColumnName is `-` when the column is not named in struct dataType. For example, BigQuery supports struct with unnamed fields.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^((?!::).)*$"
+        },
         "dataType": {
-          "description": "Data type of the column",
           "javaType": "org.openmetadata.schema.type.ColumnDataType",
+          "description": "This enum defines the type of data stored in a column.",
           "type": "string",
           "enum": [
-            "NUMBER",
-            "TINYINT",
-            "SMALLINT",
-            "INT",
-            "BIGINT",
-            "FLOAT",
-            "DOUBLE",
-            "DECIMAL",
-            "NUMERIC",
-            "TIMESTAMP",
-            "TIME",
-            "DATE",
-            "DATETIME",
-            "INTERVAL",
-            "STRING",
-            "MEDIUMTEXT",
-            "TEXT",
-            "CHAR",
-            "VARCHAR",
-            "BOOLEAN",
-            "BINARY",
-            "VARBINARY",
-            "ARRAY",
-            "BLOB",
-            "LONGBLOB",
-            "MEDIUMBLOB",
-            "MAP",
-            "STRUCT",
-            "UNION",
-            "SET",
-            "GEOGRAPHY",
-            "ENUM",
-            "JSON",
-            "UUID",
-            "BYTEA"
+            "NUMBER", "TINYINT", "SMALLINT", "INT", "BIGINT", "BYTEINT", "BYTES",
+            "FLOAT", "DOUBLE", "DECIMAL", "NUMERIC",
+            "TIMESTAMP", "TIMESTAMPZ", "TIME", "DATE", "DATETIME", "INTERVAL",
+            "STRING", "MEDIUMTEXT", "TEXT", "CHAR", "LONG", "VARCHAR",
+            "BOOLEAN", "BINARY", "VARBINARY",
+            "ARRAY", "BLOB", "LONGBLOB", "MEDIUMBLOB", "MAP", "STRUCT", "UNION", "SET",
+            "GEOGRAPHY", "ENUM", "JSON", "UUID", "VARIANT", "GEOMETRY", "BYTEA",
+            "AGGREGATEFUNCTION", "ERROR", "FIXED", "RECORD", "NULL", "SUPER",
+            "HLLSKETCH", "PG_LSN", "PG_SNAPSHOT", "TSQUERY", "TXID_SNAPSHOT",
+            "XML", "MACADDR", "TSVECTOR", "UNKNOWN", "CIDR", "INET", "CLOB",
+            "ROWID", "LOWCARDINALITY", "YEAR", "POINT", "POLYGON", "TUPLE",
+            "SPATIAL", "TABLE", "NTEXT", "IMAGE", "IPV4", "IPV6", "DATETIMERANGE",
+            "HLL", "LARGEINT", "QUANTILE_STATE", "AGG_STATE", "BITMAP", "UINT",
+            "BIT", "MONEY", "MEASURE HIDDEN", "MEASURE VISIBLE", "MEASURE",
+            "KPI", "HEIRARCHY", "HIERARCHYID"
           ]
         },
         "constraint": {
-          "description": "Column constraint type",
+          "javaType": "org.openmetadata.schema.type.ColumnConstraint",
+          "description": "This enum defines the type for column constraint.",
           "type": "string",
           "enum": [
             "NULL",
             "NOT_NULL",
             "UNIQUE",
-            "PRIMARY_KEY",
-            "FOREIGN_KEY"
-          ]
+            "PRIMARY_KEY"
+          ],
+          "default": null,
+          "additionalProperties": false
         },
         "columnProfile": {
           "type": "object",
-          "description": "Statistical profile of the column",
+          "javaType": "org.openmetadata.schema.type.ColumnProfile",
+          "description": "This schema defines the type to capture the table's column profile.",
           "properties": {
             "name": {
-              "description": "Column name",
+              "description": "Column Name.",
               "type": "string"
             },
+            "timestamp": {
+              "description": "Timestamp on which profile is taken.",
+              "$ref": "../../type/basic.json#/definitions/timestamp"
+            },
             "valuesCount": {
-              "description": "Total count of values in the column",
+              "description": "Total count of the values in this column.",
               "type": "number"
             },
             "valuesPercentage": {
-              "description": "Percentage of values in the column",
+              "description": "Percentage of values in this column with respect to row count.",
               "type": "number"
             },
             "validCount": {
-              "description": "Count of valid values",
+              "description": "Total count of valid values in this column.",
               "type": "number"
             },
             "duplicateCount": {
-              "description": "Count of duplicate values",
+              "description": "No.of Rows that contain duplicates in a column.",
               "type": "number"
             },
             "nullCount": {
-              "description": "Count of null values",
+              "description": "No.of null values in a column.",
               "type": "number"
             },
             "nullProportion": {
-              "description": "Proportion of null values",
+              "description": "No.of null value proportion in columns.",
+              "type": "number"
+            },
+            "missingPercentage": {
+              "description": "Missing Percentage is calculated by taking percentage of validCount/valuesCount.",
+              "type": "number"
+            },
+            "missingCount": {
+              "description": "Missing count is calculated by subtracting valuesCount - validCount.",
               "type": "number"
             },
             "uniqueCount": {
-              "description": "Count of unique values",
+              "description": "No. of unique values in the column.",
               "type": "number"
             },
             "uniqueProportion": {
-              "description": "Proportion of unique values",
-              "type": "number"
-            },
-            "min": {
-              "description": "Minimum value",
-              "type": ["number", "string"]
-            },
-            "max": {
-              "description": "Maximum value",
-              "type": ["number", "string"]
-            },
-            "mean": {
-              "description": "Mean value for numeric columns",
-              "type": "number"
-            },
-            "median": {
-              "description": "Median value",
-              "type": "number"
-            },
-            "stddev": {
-              "description": "Standard deviation",
-              "type": "number"
-            },
-            "sum": {
-              "description": "Sum of values for numeric columns",
+              "description": "Proportion of number of unique values in a column.",
               "type": "number"
             },
             "distinctCount": {
-              "description": "Count of distinct values",
+              "description": "Number of values that contain distinct values.",
               "type": "number"
             },
             "distinctProportion": {
-              "description": "Proportion of distinct values",
+              "description": "Proportion of distinct values in a column.",
+              "type": "number"
+            },
+            "min": {
+              "description": "Minimum value in a column.",
+              "oneOf": [
+                { "type": "number" },
+                { "type": "integer" },
+                { "$ref": "../../type/basic.json#/definitions/dateTime" },
+                { "$ref": "../../type/basic.json#/definitions/time" },
+                { "$ref": "../../type/basic.json#/definitions/date" },
+                { "type": "string" }
+              ]
+            },
+            "max": {
+              "description": "Maximum value in a column.",
+              "oneOf": [
+                { "type": "number" },
+                { "type": "integer" },
+                { "$ref": "../../type/basic.json#/definitions/dateTime" },
+                { "$ref": "../../type/basic.json#/definitions/time" },
+                { "$ref": "../../type/basic.json#/definitions/date" },
+                { "type": "string" }
+              ]
+            },
+            "minLength": {
+              "description": "Minimum string length in a column.",
+              "type": "number"
+            },
+            "maxLength": {
+              "description": "Maximum string length in a column.",
+              "type": "number"
+            },
+            "mean": {
+              "description": "Avg value in a column.",
+              "type": "number"
+            },
+            "sum": {
+              "description": "Median value in a column.",
+              "type": "number"
+            },
+            "stddev": {
+              "description": "Standard deviation of a column.",
+              "type": "number"
+            },
+            "variance": {
+              "description": "Variance of a column.",
+              "type": "number"
+            },
+            "median": {
+              "description": "Median of a column.",
+              "type": "number"
+            },
+            "firstQuartile": {
+              "description": "First quartile of a column.",
+              "type": "number"
+            },
+            "thirdQuartile": {
+              "description": "First quartile of a column.",
+              "type": "number"
+            },
+            "interQuartileRange": {
+              "description": "Inter quartile range of a column.",
+              "type": "number"
+            },
+            "nonParametricSkew": {
+              "description": "Non parametric skew of a column.",
               "type": "number"
             },
             "histogram": {
-              "description": "Histogram of value distribution",
-              "type": "object"
+              "description": "Histogram of a column.",
+              "properties": {
+                "boundaries": {
+                  "description": "Boundaries of Histogram.",
+                  "type": "array"
+                },
+                "frequencies": {
+                  "description": "Frequencies of Histogram.",
+                  "type": "array"
+                }
+              },
+              "additionalProperties": false
             },
-            "timestamp": {
-              "description": "Timestamp of the profile",
-              "$ref": "../../type/basic.json#/definitions/timestamp"
-            }
-          }
-        },
-        "dataTypeDisplay": {
-          "description": "Display name for the data type (e.g., varchar(100), decimal(10,2))",
-          "type": "string"
-        },
-        "columnConstraint": {
-          "description": "Column constraint",
-          "type": "object",
-          "properties": {
-            "constraintType": {
-              "$ref": "#/definitions/constraint"
-            },
-            "columns": {
-              "description": "List of columns involved in the constraint",
+            "customMetrics": {
+              "description": "Custom Metrics profile list bound to a column.",
               "type": "array",
               "items": {
-                "type": "string"
-              }
+                "$ref": "#/definitions/customMetricProfile"
+              },
+              "default": null
+            },
+            "cardinalityDistribution": {
+              "description": "Cardinality distribution showing top categories with an 'Others' bucket.",
+              "type": "object",
+              "properties": {
+                "categories": {
+                  "description": "List of category names including 'Others'.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "counts": {
+                  "description": "List of counts corresponding to each category.",
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "percentages": {
+                  "description": "List of percentages corresponding to each category.",
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "allValuesUnique": {
+                  "description": "Flag indicating that all values in the column are unique, so no distribution is calculated.",
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
             }
-          }
+          },
+          "required": ["name", "timestamp"],
+          "additionalProperties": false
         }
       },
       "properties": {
         "name": {
-          "description": "Name of the column",
-          "$ref": "../../type/basic.json#/definitions/entityName"
+          "$ref": "#/definitions/columnName"
         },
         "displayName": {
-          "description": "Display name for the column",
+          "description": "Display Name that identifies this column name.",
           "type": "string"
         },
         "dataType": {
+          "description": "Data type of the column (int, date etc.).",
           "$ref": "#/definitions/dataType"
         },
-        "dataTypeDisplay": {
-          "$ref": "#/definitions/dataTypeDisplay"
-        },
         "arrayDataType": {
-          "description": "Data type of array elements for ARRAY type",
+          "description": "Data type used array in dataType. For example, `array<int>` has dataType as `array` and arrayDataType as `int`.",
           "$ref": "#/definitions/dataType"
         },
         "dataLength": {
-          "description": "Length of the data type (for CHAR, VARCHAR)",
+          "description": "Length of `char`, `varchar`, `binary`, `varbinary` `dataTypes`, else null. For example, `varchar(20)` has dataType as `varchar` and dataLength as `20`.",
           "type": "integer"
         },
         "precision": {
-          "description": "Precision for numeric types",
+          "description": "The precision of a numeric is the total count of significant digits in the whole number, that is, the number of digits to both sides of the decimal point. Precision is applicable Integer types, such as `INT`, `SMALLINT`, `BIGINT`, etc. It also applies to other Numeric types, such as `NUMBER`, `DECIMAL`, `DOUBLE`, `FLOAT`, etc.",
           "type": "integer"
         },
         "scale": {
-          "description": "Scale for numeric types",
+          "description": "The scale of a numeric is the count of decimal digits in the fractional part, to the right of the decimal point. For Integer types, the scale is `0`. It mainly applies to non Integer Numeric types, such as `NUMBER`, `DECIMAL`, `DOUBLE`, `FLOAT`, etc.",
           "type": "integer"
         },
+        "dataTypeDisplay": {
+          "description": "Display name used for dataType. This is useful for complex types, such as `array<int>`, `map<int,string>`, `struct<>`, and union types.",
+          "type": "string"
+        },
         "description": {
-          "description": "Description of the column",
+          "description": "Description of the column.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name of the column",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "tags": {
-          "description": "Tags associated with the column",
+          "description": "Tags associated with the column.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
         "constraint": {
+          "description": "Column level constraint.",
           "$ref": "#/definitions/constraint"
         },
         "ordinalPosition": {
-          "description": "Ordinal position of the column in the table",
+          "description": "Ordinal position of the column.",
           "type": "integer"
         },
         "jsonSchema": {
-          "description": "JSON schema for JSON data type",
+          "description": "Json schema only if the dataType is JSON else null.",
           "type": "string"
         },
         "children": {
-          "description": "Child columns for nested types (STRUCT, MAP)",
+          "description": "Child columns if dataType or arrayDataType is `map`, `struct`, or `union` else `null`.",
           "type": "array",
           "items": {
-            "$ref": "#"
-          }
-        },
-        "customMetrics": {
-          "description": "Custom metrics for the column",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/customProperty.json"
+            "$ref": "#/definitions/column"
           }
         },
         "profile": {
-          "$ref": "#/definitions/columnProfile"
+          "description": "Latest Data profile for a Column.",
+          "$ref": "#/definitions/columnProfile",
+          "default": null
+        },
+        "customMetrics": {
+          "description": "List of Custom Metrics registered for a table.",
+          "type": "array",
+          "items": {
+            "$ref": "../../tests/customMetric.json"
+          },
+          "default": null
         }
       },
       "required": [
@@ -400,7 +478,7 @@ graph TD
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix om-entity: <https://open-metadata.org/schema/entity/> .
-    @prefix om-column: <https://open-metadata.org/schema/entity/data/> .
+    @prefix om-type: <https://open-metadata.org/schema/type/> .
     @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
     @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -408,130 +486,130 @@ graph TD
     @prefix dcterms: <http://purl.org/dc/terms/> .
     @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
-    # Column Class Definition
-    om-column:Column a owl:Class ;
+    # Column Type Definition
+    om-type:Column a owl:Class ;
         rdfs:label "Column" ;
-        rdfs:comment "A column or field within a database table or view" ;
-        rdfs:subClassOf om-entity:Entity ;
+        rdfs:comment "This schema defines the type for a column in a table." ;
+        rdfs:isDefinedBy <https://open-metadata.org/schema/entity/data/table.json#/definitions/column> .
+
+    # Column Data Type
+    om-type:ColumnDataType a owl:Class ;
+        rdfs:label "Column Data Type" ;
+        rdfs:comment "This enum defines the type of data stored in a column." ;
         rdfs:isDefinedBy om: .
 
-    # Data Type Class
-    om-column:DataType a owl:Class ;
-        rdfs:label "Data Type" ;
-        rdfs:comment "Data type of a column" ;
+    # Column Constraint Type
+    om-type:ColumnConstraint a owl:Class ;
+        rdfs:label "Column Constraint" ;
+        rdfs:comment "This enum defines the type for column constraint." ;
         rdfs:isDefinedBy om: .
 
-    # Constraint Class
-    om-column:Constraint a owl:Class ;
-        rdfs:label "Constraint" ;
-        rdfs:comment "Constraint on a column" ;
-        rdfs:isDefinedBy om: .
-
-    # Column Profile Class
-    om-column:ColumnProfile a owl:Class ;
+    # Column Profile Type
+    om-type:ColumnProfile a owl:Class ;
         rdfs:label "Column Profile" ;
-        rdfs:comment "Statistical profile of a column" ;
+        rdfs:comment "This schema defines the type to capture the table's column profile." ;
         rdfs:isDefinedBy om: .
 
     # Properties
-    om-column:dataType a owl:ObjectProperty ;
-        rdfs:label "data type" ;
-        rdfs:comment "Data type of the column" ;
-        rdfs:domain om-column:Column ;
-        rdfs:range om-column:DataType .
-
-    om-column:dataTypeDisplay a owl:DatatypeProperty ;
-        rdfs:label "data type display" ;
-        rdfs:comment "Display representation of the data type" ;
-        rdfs:domain om-column:Column ;
+    om-type:name a owl:DatatypeProperty ;
+        rdfs:label "name" ;
+        rdfs:comment "Local name (not fully qualified name) of the column" ;
+        rdfs:domain om-type:Column ;
         rdfs:range xsd:string .
 
-    om-column:dataLength a owl:DatatypeProperty ;
+    om-type:displayName a owl:DatatypeProperty ;
+        rdfs:label "display name" ;
+        rdfs:comment "Display Name that identifies this column name" ;
+        rdfs:domain om-type:Column ;
+        rdfs:range xsd:string .
+
+    om-type:dataType a owl:ObjectProperty ;
+        rdfs:label "data type" ;
+        rdfs:comment "Data type of the column (int, date etc.)" ;
+        rdfs:domain om-type:Column ;
+        rdfs:range om-type:ColumnDataType .
+
+    om-type:arrayDataType a owl:ObjectProperty ;
+        rdfs:label "array data type" ;
+        rdfs:comment "Data type used array in dataType" ;
+        rdfs:domain om-type:Column ;
+        rdfs:range om-type:ColumnDataType .
+
+    om-type:dataTypeDisplay a owl:DatatypeProperty ;
+        rdfs:label "data type display" ;
+        rdfs:comment "Display name used for dataType" ;
+        rdfs:domain om-type:Column ;
+        rdfs:range xsd:string .
+
+    om-type:dataLength a owl:DatatypeProperty ;
         rdfs:label "data length" ;
-        rdfs:comment "Length of the data type" ;
-        rdfs:domain om-column:Column ;
+        rdfs:comment "Length of char, varchar, binary, varbinary dataTypes" ;
+        rdfs:domain om-type:Column ;
         rdfs:range xsd:integer .
 
-    om-column:precision a owl:DatatypeProperty ;
+    om-type:precision a owl:DatatypeProperty ;
         rdfs:label "precision" ;
-        rdfs:comment "Precision for numeric types" ;
-        rdfs:domain om-column:Column ;
+        rdfs:comment "The precision of a numeric is the total count of significant digits" ;
+        rdfs:domain om-type:Column ;
         rdfs:range xsd:integer .
 
-    om-column:scale a owl:DatatypeProperty ;
+    om-type:scale a owl:DatatypeProperty ;
         rdfs:label "scale" ;
-        rdfs:comment "Scale for numeric types" ;
-        rdfs:domain om-column:Column ;
+        rdfs:comment "The scale of a numeric is the count of decimal digits in the fractional part" ;
+        rdfs:domain om-type:Column ;
         rdfs:range xsd:integer .
 
-    om-column:constraint a owl:ObjectProperty ;
+    om-type:constraint a owl:ObjectProperty ;
         rdfs:label "constraint" ;
-        rdfs:comment "Constraint on the column" ;
-        rdfs:domain om-column:Column ;
-        rdfs:range om-column:Constraint .
+        rdfs:comment "Column level constraint" ;
+        rdfs:domain om-type:Column ;
+        rdfs:range om-type:ColumnConstraint .
 
-    om-column:ordinalPosition a owl:DatatypeProperty ;
+    om-type:ordinalPosition a owl:DatatypeProperty ;
         rdfs:label "ordinal position" ;
-        rdfs:comment "Position of the column in the table" ;
-        rdfs:domain om-column:Column ;
+        rdfs:comment "Ordinal position of the column" ;
+        rdfs:domain om-type:Column ;
         rdfs:range xsd:integer .
 
-    om-column:belongsTo a owl:ObjectProperty ;
-        rdfs:label "belongs to" ;
-        rdfs:comment "Table to which the column belongs" ;
-        rdfs:domain om-column:Column ;
-        rdfs:range om-entity:Table .
+    om-type:jsonSchema a owl:DatatypeProperty ;
+        rdfs:label "json schema" ;
+        rdfs:comment "Json schema only if the dataType is JSON else null" ;
+        rdfs:domain om-type:Column ;
+        rdfs:range xsd:string .
 
-    om-column:foreignKeyTo a owl:ObjectProperty ;
-        rdfs:label "foreign key to" ;
-        rdfs:comment "Column referenced by foreign key" ;
-        rdfs:domain om-column:Column ;
-        rdfs:range om-column:Column .
+    om-type:children a owl:ObjectProperty ;
+        rdfs:label "children" ;
+        rdfs:comment "Child columns if dataType or arrayDataType is map, struct, or union" ;
+        rdfs:domain om-type:Column ;
+        rdfs:range om-type:Column .
 
-    om-column:derivedFrom a owl:ObjectProperty ;
-        rdfs:label "derived from" ;
-        rdfs:comment "Source column from which this column is derived" ;
-        rdfs:domain om-column:Column ;
-        rdfs:range om-column:Column .
+    om-type:profile a owl:ObjectProperty ;
+        rdfs:label "profile" ;
+        rdfs:comment "Latest Data profile for a Column" ;
+        rdfs:domain om-type:Column ;
+        rdfs:range om-type:ColumnProfile .
 
-    om-column:feedsInto a owl:ObjectProperty ;
-        rdfs:label "feeds into" ;
-        rdfs:comment "Target column that this column feeds" ;
-        rdfs:domain om-column:Column ;
-        rdfs:range om-column:Column .
+    om-type:customMetrics a owl:ObjectProperty ;
+        rdfs:label "custom metrics" ;
+        rdfs:comment "List of Custom Metrics registered for a table" ;
+        rdfs:domain om-type:Column .
 
-    om-column:hasProfile a owl:ObjectProperty ;
-        rdfs:label "has profile" ;
-        rdfs:comment "Statistical profile of the column" ;
-        rdfs:domain om-column:Column ;
-        rdfs:range om-column:ColumnProfile .
-
-    om-column:testedBy a owl:ObjectProperty ;
-        rdfs:label "tested by" ;
-        rdfs:comment "Test cases validating the column" ;
-        rdfs:domain om-column:Column ;
-        rdfs:range om-entity:TestCase .
-
-    # Constraint Individuals
-    om-column:NULL a om-column:Constraint ;
+    # Constraint Individuals (only those defined in the schema)
+    om-type:NULL a om-type:ColumnConstraint ;
         rdfs:label "NULL" ;
         skos:definition "Column allows NULL values" .
 
-    om-column:NOT_NULL a om-column:Constraint ;
+    om-type:NOT_NULL a om-type:ColumnConstraint ;
         rdfs:label "NOT NULL" ;
         skos:definition "Column does not allow NULL values" .
 
-    om-column:UNIQUE a om-column:Constraint ;
+    om-type:UNIQUE a om-type:ColumnConstraint ;
         rdfs:label "UNIQUE" ;
         skos:definition "Column values must be unique" .
 
-    om-column:PRIMARY_KEY a om-column:Constraint ;
+    om-type:PRIMARY_KEY a om-type:ColumnConstraint ;
         rdfs:label "PRIMARY KEY" ;
         skos:definition "Column is part of the primary key" .
-
-    om-column:FOREIGN_KEY a om-column:Constraint ;
-        rdfs:label "FOREIGN KEY" ;
-        skos:definition "Column is a foreign key reference" .
     ```
 
 === "JSON-LD Context"
@@ -539,14 +617,13 @@ graph TD
     ```json
     {
       "@context": {
-        "@vocab": "https://open-metadata.org/schema/entity/data/",
+        "@vocab": "https://open-metadata.org/schema/type/",
         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "owl": "http://www.w3.org/2002/07/owl#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
         "dcterms": "http://purl.org/dc/terms/",
-        "skos": "http://www.w3.org/2004/02/skos/core#",
-        "om": "https://open-metadata.org/schema/",
+        "om": "https://open-metadata.org/schema/type/",
 
         "Column": {
           "@id": "om:Column",
@@ -568,6 +645,10 @@ graph TD
           "@id": "om:dataType",
           "@type": "@id"
         },
+        "arrayDataType": {
+          "@id": "om:arrayDataType",
+          "@type": "@id"
+        },
         "dataTypeDisplay": {
           "@id": "om:dataTypeDisplay",
           "@type": "xsd:string"
@@ -584,6 +665,10 @@ graph TD
           "@id": "om:scale",
           "@type": "xsd:integer"
         },
+        "fullyQualifiedName": {
+          "@id": "om:fullyQualifiedName",
+          "@type": "xsd:string"
+        },
         "constraint": {
           "@id": "om:constraint",
           "@type": "@id"
@@ -592,21 +677,9 @@ graph TD
           "@id": "om:ordinalPosition",
           "@type": "xsd:integer"
         },
-        "belongsTo": {
-          "@id": "om:belongsTo",
-          "@type": "@id"
-        },
-        "foreignKeyTo": {
-          "@id": "om:foreignKeyTo",
-          "@type": "@id"
-        },
-        "derivedFrom": {
-          "@id": "om:derivedFrom",
-          "@type": "@id"
-        },
-        "feedsInto": {
-          "@id": "om:feedsInto",
-          "@type": "@id"
+        "jsonSchema": {
+          "@id": "om:jsonSchema",
+          "@type": "xsd:string"
         },
         "tags": {
           "@id": "om:tags",
@@ -614,11 +687,16 @@ graph TD
           "@container": "@set"
         },
         "profile": {
-          "@id": "om:hasProfile",
+          "@id": "om:profile",
           "@type": "@id"
         },
         "children": {
-          "@id": "om:hasChild",
+          "@id": "om:children",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "customMetrics": {
+          "@id": "om:customMetrics",
           "@type": "@id",
           "@container": "@set"
         }
@@ -784,38 +862,59 @@ A column with statistical profile:
 
 ## Data Types
 
+OpenMetadata supports a comprehensive set of data types across different database systems:
+
 ### Numeric Types
-- `NUMBER`, `TINYINT`, `SMALLINT`, `INT`, `BIGINT`
-- `FLOAT`, `DOUBLE`, `DECIMAL`, `NUMERIC`
+- **Integer Types**: `TINYINT`, `SMALLINT`, `INT`, `BIGINT`, `BYTEINT`, `LARGEINT`, `UINT`
+- **Decimal Types**: `NUMBER`, `DECIMAL`, `NUMERIC`, `FLOAT`, `DOUBLE`
+- **Special Numeric**: `BIT`, `MONEY`
 
 ### String Types
-- `STRING`, `TEXT`, `MEDIUMTEXT`
-- `CHAR`, `VARCHAR`
+- **Character Types**: `STRING`, `TEXT`, `MEDIUMTEXT`, `CHAR`, `VARCHAR`, `LONG`, `NTEXT`, `CLOB`
 
 ### Date/Time Types
-- `DATE`, `TIME`, `DATETIME`, `TIMESTAMP`
-- `INTERVAL`
+- `DATE`, `TIME`, `DATETIME`, `TIMESTAMP`, `TIMESTAMPZ`, `INTERVAL`, `DATETIMERANGE`, `YEAR`
 
 ### Boolean
 - `BOOLEAN`
 
 ### Binary Types
-- `BINARY`, `VARBINARY`, `BLOB`, `LONGBLOB`, `MEDIUMBLOB`, `BYTEA`
+- `BINARY`, `VARBINARY`, `BLOB`, `LONGBLOB`, `MEDIUMBLOB`, `BYTEA`, `BYTES`
 
 ### Complex Types
 - `ARRAY`: Array of values
 - `MAP`: Key-value pairs
 - `STRUCT`: Nested structure
 - `UNION`: Union type
-- `JSON`: JSON documents
+- `RECORD`: Record type
+- `TUPLE`: Tuple type
+- `TABLE`: Table type
 
-### Special Types
-- `UUID`: Universally unique identifier
+### Document & Semi-structured
+- `JSON`: JSON documents
+- `XML`: XML documents
+- `VARIANT`: Variant/flexible type (Snowflake)
+
+### Spatial & Geographic
 - `GEOGRAPHY`: Geographic coordinates
-- `ENUM`: Enumerated values
-- `SET`: Set of values
+- `GEOMETRY`: Geometric shapes
+- `POINT`: Point coordinates
+- `POLYGON`: Polygon shapes
+- `SPATIAL`: General spatial data
+
+### Specialized Types
+- **Identifiers**: `UUID`, `ROWID`
+- **Enumerations**: `ENUM`, `SET`
+- **Network**: `IPV4`, `IPV6`, `INET`, `CIDR`, `MACADDR`
+- **PostgreSQL-specific**: `PG_LSN`, `PG_SNAPSHOT`, `TSQUERY`, `TXID_SNAPSHOT`, `TSVECTOR`
+- **Analytics**: `HLLSKETCH`, `HLL`, `QUANTILE_STATE`, `AGG_STATE`, `BITMAP`, `AGGREGATEFUNCTION`
+- **Data Warehouse**: `SUPER` (Redshift), `LOWCARDINALITY` (ClickHouse)
+- **Business Intelligence**: `MEASURE`, `MEASURE HIDDEN`, `MEASURE VISIBLE`, `KPI`, `HEIRARCHY`, `HIERARCHYID`
+- **Special**: `NULL`, `UNKNOWN`, `ERROR`, `FIXED`, `IMAGE`
 
 ## Column Constraints
+
+Column-level constraints define rules that apply to individual columns:
 
 | Constraint | Description | Example |
 |------------|-------------|---------|
@@ -823,7 +922,8 @@ A column with statistical profile:
 | **NOT_NULL** | Column cannot be NULL | Required fields |
 | **UNIQUE** | All values must be unique | Email addresses |
 | **PRIMARY_KEY** | Uniquely identifies rows | Customer ID |
-| **FOREIGN_KEY** | References another table's primary key | Order customer_id → Customer id |
+
+**Note:** Foreign key constraints are defined at the table level using `tableConstraints`, not as column-level constraints.
 
 ## Column Profiling
 

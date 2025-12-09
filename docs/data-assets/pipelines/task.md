@@ -31,138 +31,78 @@ View the complete Task schema in your preferred format:
 
     **Complete JSON Schema Definition**
 
+    This schema is defined within the Pipeline schema at `definitions.task`:
+
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/data/task.json",
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Task",
-      "description": "A `Task` entity represents a single unit of work within a pipeline workflow.",
-      "type": "object",
-      "javaType": "org.openmetadata.schema.entity.data.Task",
-
-      "definitions": {
-        "taskType": {
-          "description": "Type of task operation",
-          "type": "string",
-          "enum": [
-            "SQL", "Python", "Bash", "Spark", "DBT",
-            "Custom", "Airflow", "Glue", "Lambda",
-            "DataQuality", "Sensor", "BranchOperator"
-          ]
-        },
-        "taskStatus": {
-          "description": "Task execution status",
-          "type": "string",
-          "enum": [
-            "Successful", "Failed", "Pending", "Running",
-            "Stopped", "Skipped", "UpForRetry", "Queued",
-            "Upstream_Failed"
-          ]
-        }
-      },
-
-      "properties": {
-        "id": {
-          "description": "Unique identifier",
-          "$ref": "../../type/basic.json#/definitions/uuid"
-        },
-        "name": {
-          "description": "Task name",
-          "$ref": "../../type/basic.json#/definitions/entityName"
-        },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name: service.pipeline.task",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
-        },
-        "displayName": {
-          "description": "Display name",
-          "type": "string"
-        },
-        "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
-        },
-        "taskType": {
-          "$ref": "#/definitions/taskType"
-        },
-        "taskUrl": {
-          "description": "URL to task in orchestration tool",
-          "type": "string",
-          "format": "uri"
-        },
-        "sourceUrl": {
-          "description": "URL to task source code",
-          "type": "string",
-          "format": "uri"
-        },
-        "taskStatus": {
-          "$ref": "#/definitions/taskStatus"
-        },
-        "downstreamTasks": {
-          "description": "Tasks that depend on this task",
-          "type": "array",
-          "items": {
+      "task": {
+        "type": "object",
+        "javaType": "org.openmetadata.schema.type.Task",
+        "properties": {
+          "name": {
+            "description": "Name that identifies this task instance uniquely.",
             "type": "string"
-          }
-        },
-        "upstreamTasks": {
-          "description": "Tasks this task depends on",
-          "type": "array",
-          "items": {
+          },
+          "displayName": {
+            "description": "Display Name that identifies this Task. It could be title or label from the pipeline services.",
             "type": "string"
+          },
+          "fullyQualifiedName": {
+            "description": "A unique name that identifies a pipeline in the format 'ServiceName.PipelineName.TaskName'.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of this Task.",
+            "$ref": "../../type/basic.json#/definitions/markdown"
+          },
+          "sourceUrl": {
+            "description": "Task URL to visit/manage. This URL points to respective pipeline service UI.",
+            "$ref": "../../type/basic.json#/definitions/sourceUrl"
+          },
+          "downstreamTasks": {
+            "description": "All the tasks that are downstream of this task.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": null
+          },
+          "taskType": {
+            "description": "Type of the Task. Usually refers to the class it implements.",
+            "type": "string"
+          },
+          "taskSQL": {
+            "description": "SQL used in the task. Can be used to determine the lineage.",
+            "$ref": "../../type/basic.json#/definitions/sqlQuery"
+          },
+          "startDate": {
+            "description": "start date for the task.",
+            "type": "string"
+          },
+          "endDate": {
+            "description": "end date for the task.",
+            "type": "string"
+          },
+          "tags": {
+            "description": "Tags for this task.",
+            "type": "array",
+            "items": {
+              "$ref": "../../type/tagLabel.json"
+            },
+            "default": []
+          },
+          "owners": {
+            "description": "Owners of this task.",
+            "$ref": "../../type/entityReferenceList.json"
           }
         },
-        "taskSQL": {
-          "description": "SQL query for SQL tasks",
-          "type": "string"
-        },
-        "taskCode": {
-          "description": "Code for Python/Bash tasks",
-          "type": "string"
-        },
-        "startDate": {
-          "description": "Task start date",
-          "type": "string",
-          "format": "date-time"
-        },
-        "endDate": {
-          "description": "Task end date",
-          "type": "string",
-          "format": "date-time"
-        },
-        "pipeline": {
-          "description": "Parent pipeline",
-          "$ref": "../../type/entityReference.json"
-        },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
-        },
-        "tags": {
-          "description": "Classification tags",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/tagLabel.json"
-          }
-        },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
-        }
-      },
-
-      "required": ["id", "name", "pipeline"]
+        "required": ["name"],
+        "additionalProperties": false
+      }
     }
     ```
 
-    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/schemas/entity/data/task.json)**
+    **[View Full Pipeline Schema →](https://github.com/open-metadata/openmetadata-spec/blob/main/src/main/resources/json/schema/entity/data/pipeline.json)**
 
 === "RDF"
 
@@ -171,7 +111,7 @@ View the complete Task schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # Task Class Definition
@@ -186,7 +126,13 @@ View the complete Task schema in your preferred format:
         rdfs:domain om:Task ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the task" .
+        rdfs:comment "Name that identifies this task instance uniquely" .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:Task ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display name from the pipeline services" .
 
     om:fullyQualifiedName a owl:DatatypeProperty ;
         rdfs:domain om:Task ;
@@ -194,95 +140,68 @@ View the complete Task schema in your preferred format:
         rdfs:label "fullyQualifiedName" ;
         rdfs:comment "Complete hierarchical name: service.pipeline.task" .
 
-    om:taskType a owl:DatatypeProperty ;
+    om:description a owl:DatatypeProperty ;
         rdfs:domain om:Task ;
-        rdfs:range om:TaskType ;
-        rdfs:label "taskType" ;
-        rdfs:comment "Type of task: SQL, Python, Bash, etc." .
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of this task" .
 
-    om:taskStatus a owl:DatatypeProperty ;
-        rdfs:domain om:Task ;
-        rdfs:range om:TaskStatus ;
-        rdfs:label "taskStatus" ;
-        rdfs:comment "Current execution status" .
-
-    om:taskUrl a owl:DatatypeProperty ;
+    om:sourceUrl a owl:DatatypeProperty ;
         rdfs:domain om:Task ;
         rdfs:range xsd:anyURI ;
-        rdfs:label "taskUrl" ;
-        rdfs:comment "URL to task in orchestration tool" .
+        rdfs:label "sourceUrl" ;
+        rdfs:comment "Task URL to visit/manage in pipeline service UI" .
+
+    om:taskType a owl:DatatypeProperty ;
+        rdfs:domain om:Task ;
+        rdfs:range xsd:string ;
+        rdfs:label "taskType" ;
+        rdfs:comment "Type of the task - usually refers to the class it implements" .
 
     om:taskSQL a owl:DatatypeProperty ;
         rdfs:domain om:Task ;
         rdfs:range xsd:string ;
         rdfs:label "taskSQL" ;
-        rdfs:comment "SQL query executed by this task" .
+        rdfs:comment "SQL used in the task - can be used to determine lineage" .
 
-    om:taskCode a owl:DatatypeProperty ;
+    om:startDate a owl:DatatypeProperty ;
         rdfs:domain om:Task ;
         rdfs:range xsd:string ;
-        rdfs:label "taskCode" ;
-        rdfs:comment "Python/Bash code executed by this task" .
+        rdfs:label "startDate" ;
+        rdfs:comment "Start date for the task" .
 
-    om:belongsToPipeline a owl:ObjectProperty ;
+    om:endDate a owl:DatatypeProperty ;
         rdfs:domain om:Task ;
-        rdfs:range om:Pipeline ;
-        rdfs:label "belongsToPipeline" ;
-        rdfs:comment "Parent pipeline containing this task" .
+        rdfs:range xsd:string ;
+        rdfs:label "endDate" ;
+        rdfs:comment "End date for the task" .
 
     om:hasDownstreamTask a owl:ObjectProperty ;
         rdfs:domain om:Task ;
         rdfs:range om:Task ;
         rdfs:label "hasDownstreamTask" ;
-        rdfs:comment "Tasks that depend on this task" .
-
-    om:hasUpstreamTask a owl:ObjectProperty ;
-        rdfs:domain om:Task ;
-        rdfs:range om:Task ;
-        rdfs:label "hasUpstreamTask" ;
-        rdfs:comment "Tasks this task depends on" .
+        rdfs:comment "All the tasks that are downstream of this task" .
 
     om:taskOwnedBy a owl:ObjectProperty ;
         rdfs:domain om:Task ;
         rdfs:range om:Owner ;
         rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this task" .
+        rdfs:comment "Owners of this task" .
 
     om:taskHasTag a owl:ObjectProperty ;
         rdfs:domain om:Task ;
         rdfs:range om:Tag ;
         rdfs:label "hasTag" ;
-        rdfs:comment "Classification tags applied to task" .
-
-    # Task Type Enumeration
-    om:TaskType a owl:Class ;
-        owl:oneOf (
-            om:SQL
-            om:Python
-            om:Bash
-            om:Spark
-            om:DBT
-            om:Custom
-        ) .
-
-    # Task Status Enumeration
-    om:TaskStatus a owl:Class ;
-        owl:oneOf (
-            om:Successful
-            om:Failed
-            om:Pending
-            om:Running
-            om:Stopped
-        ) .
+        rdfs:comment "Tags for this task" .
 
     # Example Instance
     ex:extractCustomersTask a om:Task ;
         om:taskName "extract_customers" ;
         om:fullyQualifiedName "airflow_prod.customer_etl.extract_customers" ;
         om:displayName "Extract Customers" ;
-        om:taskType om:Python ;
-        om:taskStatus om:Successful ;
-        om:belongsToPipeline ex:customerEtlPipeline ;
+        om:description "Extracts customer records from MongoDB production cluster" ;
+        om:taskType "Python" ;
+        om:sourceUrl "https://airflow.company.com/dags/customer_etl/tasks/extract_customers"^^xsd:anyURI ;
         om:hasDownstreamTask ex:transformCustomersTask ;
         om:taskOwnedBy ex:dataEngTeam ;
         om:taskHasTag ex:tierGold .
@@ -319,24 +238,24 @@ View the complete Task schema in your preferred format:
           "@id": "om:description",
           "@type": "xsd:string"
         },
+        "sourceUrl": {
+          "@id": "om:sourceUrl",
+          "@type": "xsd:anyURI"
+        },
         "taskType": {
           "@id": "om:taskType",
-          "@type": "@vocab"
-        },
-        "taskStatus": {
-          "@id": "om:taskStatus",
-          "@type": "@vocab"
-        },
-        "taskUrl": {
-          "@id": "om:taskUrl",
-          "@type": "xsd:anyURI"
+          "@type": "xsd:string"
         },
         "taskSQL": {
           "@id": "om:taskSQL",
           "@type": "xsd:string"
         },
-        "taskCode": {
-          "@id": "om:taskCode",
+        "startDate": {
+          "@id": "om:startDate",
+          "@type": "xsd:string"
+        },
+        "endDate": {
+          "@id": "om:endDate",
           "@type": "xsd:string"
         },
         "downstreamTasks": {
@@ -344,26 +263,13 @@ View the complete Task schema in your preferred format:
           "@type": "@id",
           "@container": "@set"
         },
-        "upstreamTasks": {
-          "@id": "om:hasUpstreamTask",
+        "owners": {
+          "@id": "om:taskOwnedBy",
           "@type": "@id",
           "@container": "@set"
-        },
-        "pipeline": {
-          "@id": "om:belongsToPipeline",
-          "@type": "@id"
-        },
-        "owner": {
-          "@id": "om:taskOwnedBy",
-          "@type": "@id"
         },
         "tags": {
           "@id": "om:taskHasTag",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "glossaryTerms": {
-          "@id": "om:taskLinkedToGlossaryTerm",
           "@type": "@id",
           "@container": "@set"
         }
@@ -384,27 +290,25 @@ View the complete Task schema in your preferred format:
       "displayName": "Extract Customers from MongoDB",
       "description": "Extracts customer records from MongoDB and stages them for transformation",
       "taskType": "Python",
-      "taskStatus": "Successful",
-      "taskUrl": "https://airflow.company.com/dags/customer_etl/tasks/extract_customers",
+      "sourceUrl": "https://airflow.company.com/dags/customer_etl/tasks/extract_customers",
 
-      "taskCode": "from airflow.providers.mongo.hooks.mongo import MongoHook\n\ndef extract_customers(**context):\n    hook = MongoHook(conn_id='mongodb_prod')\n    customers = hook.find('crm', 'customers', {})\n    return list(customers)",
+      "taskSQL": "SELECT * FROM customers WHERE status = 'active'",
 
-      "pipeline": {
-        "@id": "https://example.com/pipelines/customer_etl",
-        "@type": "Pipeline",
-        "name": "customer_etl"
-      },
+      "startDate": "2024-01-01",
+      "endDate": "2024-12-31",
 
       "downstreamTasks": [
         "transform_customers"
       ],
 
-      "owner": {
-        "@id": "https://example.com/teams/data-engineering",
-        "@type": "Team",
-        "name": "data-engineering",
-        "displayName": "Data Engineering"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-engineering",
+          "@type": "Team",
+          "name": "data-engineering",
+          "displayName": "Data Engineering"
+        }
+      ],
 
       "tags": [
         {
@@ -414,14 +318,6 @@ View the complete Task schema in your preferred format:
         {
           "@id": "https://open-metadata.org/tags/Operation/Extract",
           "tagFQN": "Operation.Extract"
-        }
-      ],
-
-      "glossaryTerms": [
-        {
-          "@id": "https://example.com/glossary/DataExtraction",
-          "@type": "GlossaryTerm",
-          "fullyQualifiedName": "BusinessGlossary.DataExtraction"
         }
       ]
     }
@@ -448,26 +344,10 @@ View the complete Task schema in your preferred format:
 
 ### Core Properties
 
-#### `id` (uuid)
-**Type**: `string` (UUID format)
-**Required**: Yes (system-generated)
-**Description**: Unique identifier for this task instance
-
-```json
-{
-  "id": "3a4b5c6d-7e8f-9a0b-1c2d-3e4f5a6b7c8d"
-}
-```
-
----
-
-#### `name` (entityName)
+#### `name`
 **Type**: `string`
 **Required**: Yes
-**Pattern**: `^[^.]*$` (no dots allowed)
-**Min Length**: 1
-**Max Length**: 256
-**Description**: Name of the task (unqualified)
+**Description**: Name that identifies this task instance uniquely
 
 ```json
 {
@@ -477,24 +357,10 @@ View the complete Task schema in your preferred format:
 
 ---
 
-#### `fullyQualifiedName` (fullyQualifiedEntityName)
-**Type**: `string`
-**Required**: Yes (system-generated)
-**Pattern**: `^((?!::).)*$`
-**Description**: Fully qualified name in the format `service.pipeline.task`
-
-```json
-{
-  "fullyQualifiedName": "airflow_prod.customer_etl.extract_customers"
-}
-```
-
----
-
 #### `displayName`
 **Type**: `string`
 **Required**: No
-**Description**: Human-readable display name
+**Description**: Display name that identifies this task. It could be title or label from the pipeline services.
 
 ```json
 {
@@ -504,14 +370,27 @@ View the complete Task schema in your preferred format:
 
 ---
 
-#### `description` (markdown)
-**Type**: `string` (Markdown format)
-**Required**: No
-**Description**: Rich text description of the task's purpose and logic
+#### `fullyQualifiedName`
+**Type**: `string`
+**Required**: No (system-generated)
+**Description**: A unique name that identifies a pipeline in the format 'ServiceName.PipelineName.TaskName'
 
 ```json
 {
-  "description": "# Extract Customers Task\n\nExtracts customer records from MongoDB production cluster.\n\n## Logic\n1. Connect to MongoDB `crm` database\n2. Query `customers` collection with filter for active customers\n3. Stage results in XCom for downstream processing\n\n## Average Duration\n- 5-10 minutes for full extract"
+  "fullyQualifiedName": "airflow_prod.customer_etl.extract_customers"
+}
+```
+
+---
+
+#### `description` (markdown)
+**Type**: `string` (Markdown format)
+**Required**: No
+**Description**: Description of this task
+
+```json
+{
+  "description": "# Extract Customers Task\n\nExtracts customer records from MongoDB production cluster.\n\n## Logic\n1. Connect to MongoDB `crm` database\n2. Query `customers` collection with filter for active customers\n3. Stage results in XCom for downstream processing"
 }
 ```
 
@@ -519,85 +398,36 @@ View the complete Task schema in your preferred format:
 
 ### Task Configuration Properties
 
-#### `taskType` (TaskType enum)
-**Type**: `string` enum
+#### `sourceUrl`
+**Type**: `string` (URI format - sourceUrl reference)
 **Required**: No
-**Allowed Values**:
-
-- `SQL` - SQL query execution
-- `Python` - Python script/function
-- `Bash` - Shell script
-- `Spark` - Spark job
-- `DBT` - dbt model run
-- `Custom` - Custom operator
-- `Airflow` - Airflow-specific operator
-- `Glue` - AWS Glue job
-- `Lambda` - AWS Lambda function
-- `DataQuality` - Data quality check
-- `Sensor` - Waiting/sensing task
-- `BranchOperator` - Conditional branching
+**Description**: Task URL to visit/manage. This URL points to respective pipeline service UI.
 
 ```json
 {
-  "taskType": "Python"
+  "sourceUrl": "https://airflow.company.com/dags/customer_etl/tasks/extract_customers"
 }
 ```
 
 ---
 
-#### `taskStatus` (TaskStatus enum)
-**Type**: `string` enum
-**Required**: No (system-populated from latest run)
-**Allowed Values**:
-
-- `Successful` - Last run completed successfully
-- `Failed` - Last run failed
-- `Pending` - Waiting to start
-- `Running` - Currently executing
-- `Stopped` - Manually stopped
-- `Skipped` - Skipped execution
-- `UpForRetry` - Failed, waiting for retry
-- `Queued` - In execution queue
-- `Upstream_Failed` - Upstream task failed
-
-```json
-{
-  "taskStatus": "Successful"
-}
-```
-
----
-
-#### `taskUrl` (URI)
-**Type**: `string` (URI format)
-**Required**: No
-**Description**: URL to view task in orchestration tool
-
-```json
-{
-  "taskUrl": "https://airflow.company.com/dags/customer_etl/tasks/extract_customers"
-}
-```
-
----
-
-#### `sourceUrl` (URI)
-**Type**: `string` (URI format)
-**Required**: No
-**Description**: URL to task source code repository
-
-```json
-{
-  "sourceUrl": "https://github.com/company/pipelines/blob/main/tasks/extract_customers.py"
-}
-```
-
----
-
-#### `taskSQL` (string)
+#### `taskType`
 **Type**: `string`
-**Required**: No (required for SQL tasks)
-**Description**: SQL query executed by this task
+**Required**: No
+**Description**: Type of the task. Usually refers to the class it implements.
+
+```json
+{
+  "taskType": "PythonOperator"
+}
+```
+
+---
+
+#### `taskSQL` (sqlQuery)
+**Type**: `string`
+**Required**: No
+**Description**: SQL used in the task. Can be used to determine the lineage.
 
 ```json
 {
@@ -607,38 +437,13 @@ View the complete Task schema in your preferred format:
 
 ---
 
-#### `taskCode` (string)
-**Type**: `string`
-**Required**: No (for Python/Bash tasks)
-**Description**: Python or Bash code executed by this task
-
-```json
-{
-  "taskCode": "from airflow.providers.mongo.hooks.mongo import MongoHook\n\ndef extract_customers(**context):\n    hook = MongoHook(conn_id='mongodb_prod')\n    customers = hook.find('crm', 'customers', {'status': 'active'})\n    return list(customers)"
-}
-```
-
----
-
 ### Dependency Properties
 
-#### `upstreamTasks[]` (string[])
+#### `downstreamTasks[]`
 **Type**: `array` of strings
 **Required**: No
-**Description**: List of task names this task depends on
-
-```json
-{
-  "upstreamTasks": ["check_mongodb_connection", "validate_schema"]
-}
-```
-
----
-
-#### `downstreamTasks[]` (string[])
-**Type**: `array` of strings
-**Required**: No
-**Description**: List of task names that depend on this task
+**Default**: null
+**Description**: All the tasks that are downstream of this task
 
 ```json
 {
@@ -650,47 +455,27 @@ View the complete Task schema in your preferred format:
 
 ### Timing Properties
 
-#### `startDate` (timestamp)
-**Type**: `string` (ISO 8601 date-time)
+#### `startDate`
+**Type**: `string`
 **Required**: No
-**Description**: Task creation or first run date
+**Description**: Start date for the task
 
 ```json
 {
-  "startDate": "2024-01-01T00:00:00Z"
+  "startDate": "2024-01-01"
 }
 ```
 
 ---
 
-#### `endDate` (timestamp)
-**Type**: `string` (ISO 8601 date-time)
+#### `endDate`
+**Type**: `string`
 **Required**: No
-**Description**: Task deprecation or end date
+**Description**: End date for the task
 
 ```json
 {
-  "endDate": "2024-12-31T23:59:59Z"
-}
-```
-
----
-
-### Location Properties
-
-#### `pipeline` (EntityReference)
-**Type**: `object`
-**Required**: Yes
-**Description**: Reference to parent pipeline
-
-```json
-{
-  "pipeline": {
-    "id": "2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
-    "type": "pipeline",
-    "name": "customer_etl",
-    "fullyQualifiedName": "airflow_prod.customer_etl"
-  }
+  "endDate": "2024-12-31"
 }
 ```
 
@@ -698,19 +483,21 @@ View the complete Task schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `EntityReferenceList`
 **Required**: No
-**Description**: User or team that owns this task
+**Description**: Owners of this task
 
 ```json
 {
-  "owner": {
-    "id": "8f9a0b1c-2d3e-4f5a-6b7c-8d9e0f1a2b3c",
-    "type": "team",
-    "name": "data-engineering",
-    "displayName": "Data Engineering Team"
-  }
+  "owners": [
+    {
+      "id": "8f9a0b1c-2d3e-4f5a-6b7c-8d9e0f1a2b3c",
+      "type": "team",
+      "name": "data-engineering",
+      "displayName": "Data Engineering Team"
+    }
+  ]
 }
 ```
 
@@ -719,7 +506,8 @@ View the complete Task schema in your preferred format:
 #### `tags[]` (TagLabel[])
 **Type**: `array`
 **Required**: No
-**Description**: Classification tags applied to the task
+**Default**: []
+**Description**: Tags for this task
 
 ```json
 {
@@ -743,169 +531,32 @@ View the complete Task schema in your preferred format:
 
 ---
 
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
-**Required**: No
-**Description**: Business glossary terms linked to this task
-
-```json
-{
-  "glossaryTerms": [
-    {
-      "fullyQualifiedName": "BusinessGlossary.DataExtraction"
-    }
-  ]
-}
-```
-
----
-
-### Lineage Properties
-
-#### `upstream` (EntityLineage)
-**Type**: `array`
-**Required**: No (system-populated)
-**Description**: Upstream data assets (tables, files, etc.) read by this task
-
-```json
-{
-  "upstream": [
-    {
-      "id": "source-table-uuid",
-      "type": "table",
-      "name": "customers",
-      "fullyQualifiedName": "mongodb_prod.crm.customers"
-    }
-  ]
-}
-```
-
----
-
-#### `downstream` (EntityLineage)
-**Type**: `array`
-**Required**: No (system-populated)
-**Description**: Downstream data assets written by this task
-
-```json
-{
-  "downstream": [
-    {
-      "id": "staging-table-uuid",
-      "type": "table",
-      "name": "stg_customers",
-      "fullyQualifiedName": "postgres_prod.staging.stg_customers"
-    }
-  ]
-}
-```
-
----
-
-### Versioning Properties
-
-#### `version` (entityVersion)
-**Type**: `number`
-**Required**: Yes (system-managed)
-**Description**: Metadata version number, incremented on changes
-
-```json
-{
-  "version": 2.5
-}
-```
-
----
-
-#### `updatedAt` (timestamp)
-**Type**: `integer` (Unix epoch milliseconds)
-**Required**: Yes (system-managed)
-**Description**: Last update timestamp
-
-```json
-{
-  "updatedAt": 1704240000000
-}
-```
-
----
-
-#### `updatedBy` (string)
-**Type**: `string`
-**Required**: Yes (system-managed)
-**Description**: User who made the update
-
-```json
-{
-  "updatedBy": "john.doe"
-}
-```
-
----
-
-#### `changeDescription` (ChangeDescription)
-**Type**: `object`
-**Required**: No
-**Description**: Details of what changed in this version
-
-```json
-{
-  "changeDescription": {
-    "fieldsAdded": [],
-    "fieldsUpdated": [
-      {
-        "name": "taskCode",
-        "oldValue": "# Old extraction logic",
-        "newValue": "# Updated extraction logic with better error handling"
-      }
-    ],
-    "fieldsDeleted": [],
-    "previousVersion": 2.4
-  }
-}
-```
-
----
-
 ## Complete Example
 
 ```json
 {
-  "id": "3a4b5c6d-7e8f-9a0b-1c2d-3e4f5a6b7c8d",
   "name": "extract_customers",
-  "fullyQualifiedName": "airflow_prod.customer_etl.extract_customers",
   "displayName": "Extract Customers from MongoDB",
+  "fullyQualifiedName": "airflow_prod.customer_etl.extract_customers",
   "description": "# Extract Customers Task\n\nExtracts customer records from MongoDB production cluster.",
-  "taskType": "Python",
-  "taskStatus": "Successful",
-  "taskUrl": "https://airflow.company.com/dags/customer_etl/tasks/extract_customers",
-  "sourceUrl": "https://github.com/company/pipelines/blob/main/tasks/extract_customers.py",
-  "taskCode": "from airflow.providers.mongo.hooks.mongo import MongoHook\n\ndef extract_customers(**context):\n    hook = MongoHook(conn_id='mongodb_prod')\n    customers = hook.find('crm', 'customers', {'status': 'active'})\n    return list(customers)",
-  "upstreamTasks": ["check_mongodb_connection"],
+  "sourceUrl": "https://airflow.company.com/dags/customer_etl/tasks/extract_customers",
+  "taskType": "PythonOperator",
+  "taskSQL": "SELECT customer_id, email, first_name, last_name FROM customers WHERE status = 'active'",
   "downstreamTasks": ["transform_customers", "data_quality_check"],
-  "startDate": "2024-01-01T00:00:00Z",
-  "pipeline": {
-    "id": "2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
-    "type": "pipeline",
-    "name": "customer_etl",
-    "fullyQualifiedName": "airflow_prod.customer_etl"
-  },
-  "owner": {
-    "id": "8f9a0b1c-2d3e-4f5a-6b7c-8d9e0f1a2b3c",
-    "type": "team",
-    "name": "data-engineering",
-    "displayName": "Data Engineering Team"
-  },
+  "startDate": "2024-01-01",
+  "endDate": "2024-12-31",
+  "owners": [
+    {
+      "id": "8f9a0b1c-2d3e-4f5a-6b7c-8d9e0f1a2b3c",
+      "type": "team",
+      "name": "data-engineering",
+      "displayName": "Data Engineering Team"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Gold"},
     {"tagFQN": "Operation.Extract"}
-  ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.DataExtraction"}
-  ],
-  "version": 2.5,
-  "updatedAt": 1704240000000,
-  "updatedBy": "john.doe"
+  ]
 }
 ```
 
@@ -918,7 +569,7 @@ View the complete Task schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 om:Task a owl:Class ;
     rdfs:subClassOf om:DataAsset ;
@@ -926,13 +577,17 @@ om:Task a owl:Class ;
     rdfs:comment "A single unit of work within a pipeline workflow" ;
     om:hasProperties [
         om:name "string" ;
-        om:taskType "TaskType" ;
-        om:taskStatus "TaskStatus" ;
-        om:pipeline "Pipeline" ;
-        om:downstreamTasks "Task[]" ;
-        om:upstreamTasks "Task[]" ;
-        om:owner "Owner" ;
-        om:tags "Tag[]" ;
+        om:displayName "string" ;
+        om:fullyQualifiedName "string" ;
+        om:description "string" ;
+        om:sourceUrl "anyURI" ;
+        om:taskType "string" ;
+        om:taskSQL "string" ;
+        om:startDate "string" ;
+        om:endDate "string" ;
+        om:downstreamTasks "string[]" ;
+        om:owners "EntityReferenceList" ;
+        om:tags "TagLabel[]" ;
     ] .
 ```
 
@@ -941,18 +596,19 @@ om:Task a owl:Class ;
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix ex: <https://example.com/pipelines/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:extract_customers a om:Task ;
     om:taskName "extract_customers" ;
     om:fullyQualifiedName "airflow_prod.customer_etl.extract_customers" ;
     om:displayName "Extract Customers from MongoDB" ;
     om:description "Extracts customer records from MongoDB" ;
-    om:taskType "Python" ;
-    om:taskStatus "Successful" ;
-    om:taskUrl "https://airflow.company.com/dags/customer_etl/tasks/extract_customers"^^xsd:anyURI ;
-    om:belongsToPipeline ex:customer_etl ;
+    om:sourceUrl "https://airflow.company.com/dags/customer_etl/tasks/extract_customers"^^xsd:anyURI ;
+    om:taskType "PythonOperator" ;
+    om:taskSQL "SELECT * FROM customers WHERE status = 'active'" ;
+    om:startDate "2024-01-01" ;
+    om:endDate "2024-12-31" ;
     om:hasDownstreamTask ex:transform_customers ;
-    om:hasUpstreamTask ex:check_mongodb_connection ;
     om:taskOwnedBy ex:data_engineering_team ;
     om:taskHasTag ex:tier_gold ;
     om:taskHasTag ex:operation_extract .
@@ -968,39 +624,29 @@ ex:extract_customers a om:Task ;
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
     "Task": "om:Task",
     "name": "om:taskName",
     "fullyQualifiedName": "om:fullyQualifiedName",
     "displayName": "om:displayName",
     "description": "om:description",
-    "taskType": {
-      "@id": "om:taskType",
-      "@type": "@vocab"
+    "sourceUrl": {
+      "@id": "om:sourceUrl",
+      "@type": "xsd:anyURI"
     },
-    "taskStatus": {
-      "@id": "om:taskStatus",
-      "@type": "@vocab"
-    },
-    "taskUrl": "om:taskUrl",
+    "taskType": "om:taskType",
     "taskSQL": "om:taskSQL",
-    "taskCode": "om:taskCode",
+    "startDate": "om:startDate",
+    "endDate": "om:endDate",
     "downstreamTasks": {
       "@id": "om:hasDownstreamTask",
       "@type": "@id",
       "@container": "@set"
     },
-    "upstreamTasks": {
-      "@id": "om:hasUpstreamTask",
+    "owners": {
+      "@id": "om:taskOwnedBy",
       "@type": "@id",
       "@container": "@set"
-    },
-    "pipeline": {
-      "@id": "om:belongsToPipeline",
-      "@type": "@id"
-    },
-    "owner": {
-      "@id": "om:taskOwnedBy",
-      "@type": "@id"
     },
     "tags": {
       "@id": "om:taskHasTag",
@@ -1021,18 +667,20 @@ ex:extract_customers a om:Task ;
   "name": "extract_customers",
   "fullyQualifiedName": "airflow_prod.customer_etl.extract_customers",
   "displayName": "Extract Customers from MongoDB",
-  "taskType": "Python",
-  "taskStatus": "Successful",
-  "taskUrl": "https://airflow.company.com/dags/customer_etl/tasks/extract_customers",
-  "pipeline": {
-    "@id": "https://example.com/pipelines/customer_etl",
-    "@type": "Pipeline"
-  },
+  "description": "Extracts customer records from MongoDB",
+  "sourceUrl": "https://airflow.company.com/dags/customer_etl/tasks/extract_customers",
+  "taskType": "PythonOperator",
+  "taskSQL": "SELECT * FROM customers WHERE status = 'active'",
+  "startDate": "2024-01-01",
+  "endDate": "2024-12-31",
   "downstreamTasks": ["transform_customers"],
-  "owner": {
-    "@id": "https://example.com/teams/data-engineering",
-    "@type": "Team"
-  },
+  "owners": [
+    {
+      "@id": "https://example.com/teams/data-engineering",
+      "@type": "Team",
+      "name": "data-engineering"
+    }
+  ],
   "tags": [
     {"@id": "https://open-metadata.org/tags/Tier/Gold"}
   ]

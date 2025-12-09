@@ -156,101 +156,167 @@ View the complete SearchService schema in your preferred format:
     {
       "$id": "https://open-metadata.org/schema/entity/services/searchService.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "SearchService",
-      "description": "A `SearchService` represents a search engine service such as Elasticsearch, OpenSearch, or Solr.",
+      "title": "Search Service",
+      "description": "This schema defines the Search Service entity, such as ElasticSearch, OpenSearch.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.services.SearchService",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface",
+        "org.openmetadata.schema.ServiceEntityInterface"
+      ],
 
       "definitions": {
         "searchServiceType": {
-          "description": "Type of search service",
+          "description": "Type of search service such as ElasticSearch or OpenSearch.",
+          "javaInterfaces": [
+            "org.openmetadata.schema.EnumInterface"
+          ],
           "type": "string",
           "enum": [
-            "Elasticsearch", "OpenSearch", "Solr",
-            "Algolia", "AmazonOpenSearch", "CustomSearch"
+            "ElasticSearch",
+            "OpenSearch",
+            "CustomSearch"
+          ],
+          "javaEnums": [
+            {
+              "name": "ElasticSearch"
+            },
+            {
+              "name": "OpenSearch"
+            },
+            {
+              "name": "CustomSearch"
+            }
           ]
         },
         "searchConnection": {
           "type": "object",
+          "javaType": "org.openmetadata.schema.type.SearchConnection",
+          "description": "search Connection.",
+          "javaInterfaces": [
+            "org.openmetadata.schema.ServiceConnectionEntityInterface"
+          ],
           "properties": {
-            "hostPort": {
-              "type": "string",
-              "description": "Host and port of the search service"
-            },
-            "scheme": {
-              "type": "string",
-              "enum": ["http", "https"],
-              "default": "https"
-            },
-            "username": {
-              "type": "string",
-              "description": "Username for authentication"
-            },
-            "password": {
-              "type": "string",
-              "description": "Password for authentication",
-              "format": "password"
-            },
-            "apiKey": {
-              "type": "string",
-              "description": "API key for authentication",
-              "format": "password"
+            "config": {
+              "mask": true,
+              "oneOf": [
+                {
+                  "$ref": "connections/search/elasticSearchConnection.json"
+                },
+                {
+                  "$ref": "connections/search/openSearchConnection.json"
+                },
+                {
+                  "$ref": "connections/search/customSearchConnection.json"
+                }
+              ]
             }
           },
-          "required": ["hostPort"]
+          "additionalProperties": false
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this search service instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Service name",
+          "description": "Name that identifies this search service.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this search service.",
           "type": "string"
         },
-        "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
-        },
         "serviceType": {
+          "description": "Type of search service such as S3, GCS, AZURE...",
           "$ref": "#/definitions/searchServiceType"
         },
+        "description": {
+          "description": "Description of a search service instance.",
+          "$ref": "../../type/basic.json#/definitions/markdown"
+        },
         "connection": {
-          "description": "Connection configuration",
           "$ref": "#/definitions/searchConnection"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "pipelines": {
+          "description": "References to pipelines deployed for this search service to extract metadata etc..",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "testConnectionResult": {
+          "description": "Last test connection results for this service",
+          "$ref": "connections/testConnectionResult.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this search Service.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
         "version": {
-          "description": "Metadata version",
+          "description": "Metadata version of the entity.",
           "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this search service.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "owners": {
+          "description": "Owners of this search service.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "domains": {
+          "description": "Domains the search service belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "ingestionRunner": {
+          "description": "The ingestion agent responsible for executing the ingestion pipeline.",
+          "$ref": "../../type/entityReference.json"
         }
       },
 
-      "required": ["id", "name", "serviceType", "connection"]
+      "required": ["id", "name", "serviceType"],
+      "additionalProperties": false
     }
     ```
 
@@ -263,14 +329,14 @@ View the complete SearchService schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # SearchService Class Definition
     om:SearchService a owl:Class ;
         rdfs:subClassOf om:Service ;
         rdfs:label "SearchService" ;
-        rdfs:comment "A search engine service providing full-text search and analytics capabilities" ;
+        rdfs:comment "This schema defines the Search Service entity, such as ElasticSearch, OpenSearch." ;
         om:hierarchyLevel 1 .
 
     # Properties
@@ -278,25 +344,37 @@ View the complete SearchService schema in your preferred format:
         rdfs:domain om:SearchService ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the search service" .
+        rdfs:comment "Name that identifies this search service" .
 
     om:fullyQualifiedName a owl:DatatypeProperty ;
         rdfs:domain om:SearchService ;
         rdfs:range xsd:string ;
         rdfs:label "fullyQualifiedName" ;
-        rdfs:comment "Fully qualified name of the service" .
+        rdfs:comment "FullyQualifiedName same as name" .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:SearchService ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this search service" .
 
     om:serviceType a owl:DatatypeProperty ;
         rdfs:domain om:SearchService ;
         rdfs:range om:SearchServiceType ;
         rdfs:label "serviceType" ;
-        rdfs:comment "Type of search service: Elasticsearch, OpenSearch, Solr, etc." .
+        rdfs:comment "Type of search service such as ElasticSearch or OpenSearch" .
 
     om:hasConnection a owl:ObjectProperty ;
         rdfs:domain om:SearchService ;
         rdfs:range om:SearchConnection ;
         rdfs:label "hasConnection" ;
         rdfs:comment "Connection configuration for the search service" .
+
+    om:hasPipeline a owl:ObjectProperty ;
+        rdfs:domain om:SearchService ;
+        rdfs:range om:Pipeline ;
+        rdfs:label "hasPipeline" ;
+        rdfs:comment "References to pipelines deployed for this search service to extract metadata" .
 
     om:hasSearchIndex a owl:ObjectProperty ;
         rdfs:domain om:SearchService ;
@@ -308,22 +386,38 @@ View the complete SearchService schema in your preferred format:
         rdfs:domain om:SearchService ;
         rdfs:range om:Owner ;
         rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this service" .
+        rdfs:comment "Owners of this search service" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:SearchService ;
         rdfs:range om:Tag ;
         rdfs:label "hasTag" ;
-        rdfs:comment "Classification tags applied to service" .
+        rdfs:comment "Tags for this search Service" .
+
+    om:inDomain a owl:ObjectProperty ;
+        rdfs:domain om:SearchService ;
+        rdfs:range om:Domain ;
+        rdfs:label "inDomain" ;
+        rdfs:comment "Domains the search service belongs to" .
+
+    om:hasFollower a owl:ObjectProperty ;
+        rdfs:domain om:SearchService ;
+        rdfs:range om:User ;
+        rdfs:label "hasFollower" ;
+        rdfs:comment "Followers of this entity" .
+
+    om:partOfDataProduct a owl:ObjectProperty ;
+        rdfs:domain om:SearchService ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "partOfDataProduct" ;
+        rdfs:comment "List of data products this entity is part of" .
 
     # Service Type Enumeration
     om:SearchServiceType a owl:Class ;
         owl:oneOf (
-            om:Elasticsearch
+            om:ElasticSearch
             om:OpenSearch
-            om:Solr
-            om:Algolia
-            om:AmazonOpenSearch
+            om:CustomSearch
         ) .
 
     # Example Instance
@@ -331,11 +425,12 @@ View the complete SearchService schema in your preferred format:
         om:serviceName "elasticsearch_prod" ;
         om:fullyQualifiedName "elasticsearch_prod" ;
         om:displayName "Production Elasticsearch" ;
-        om:serviceType om:Elasticsearch ;
+        om:serviceType om:ElasticSearch ;
         om:ownedBy ex:dataTeam ;
         om:hasTag ex:tierProduction ;
         om:hasSearchIndex ex:productsIndex ;
-        om:hasSearchIndex ex:customersIndex .
+        om:hasSearchIndex ex:customersIndex ;
+        om:inDomain ex:engineeringDomain .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -377,21 +472,38 @@ View the complete SearchService schema in your preferred format:
           "@id": "om:hasConnection",
           "@type": "@id"
         },
+        "pipelines": {
+          "@id": "om:hasPipeline",
+          "@type": "@id",
+          "@container": "@set"
+        },
         "indices": {
           "@id": "om:hasSearchIndex",
           "@type": "@id",
           "@container": "@set"
         },
-        "owner": {
+        "owners": {
           "@id": "om:ownedBy",
-          "@type": "@id"
+          "@type": "@id",
+          "@container": "@set"
         },
-        "domain": {
+        "domains": {
           "@id": "om:inDomain",
-          "@type": "@id"
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:hasFollower",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:partOfDataProduct",
           "@type": "@id",
           "@container": "@set"
         }
@@ -411,21 +523,34 @@ View the complete SearchService schema in your preferred format:
       "fullyQualifiedName": "elasticsearch_prod",
       "displayName": "Production Elasticsearch Cluster",
       "description": "Primary Elasticsearch cluster for product search and analytics",
-      "serviceType": "Elasticsearch",
+      "serviceType": "ElasticSearch",
 
       "connection": {
         "@type": "SearchConnection",
-        "hostPort": "elasticsearch.example.com:9200",
-        "scheme": "https",
-        "username": "search_user"
+        "config": {
+          "@type": "ElasticSearchConnection",
+          "hostPort": "elasticsearch.example.com:9200",
+          "scheme": "https",
+          "username": "search_user"
+        }
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/data-platform",
-        "@type": "Team",
-        "name": "data-platform",
-        "displayName": "Data Platform Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-platform",
+          "@type": "Team",
+          "name": "data-platform",
+          "displayName": "Data Platform Team"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/Engineering",
+          "@type": "Domain",
+          "name": "Engineering"
+        }
+      ],
 
       "tags": [
         {
@@ -435,6 +560,14 @@ View the complete SearchService schema in your preferred format:
         {
           "@id": "https://open-metadata.org/tags/Environment/Prod",
           "tagFQN": "Environment.Prod"
+        }
+      ],
+
+      "pipelines": [
+        {
+          "@id": "https://example.com/pipelines/elasticsearch_metadata",
+          "@type": "Pipeline",
+          "name": "elasticsearch_metadata"
         }
       ],
 
@@ -550,16 +683,13 @@ View the complete SearchService schema in your preferred format:
 **Required**: Yes
 **Allowed Values**:
 
-- `Elasticsearch` - Elastic Elasticsearch
-- `OpenSearch` - Amazon OpenSearch / OpenSearch
-- `Solr` - Apache Solr
-- `Algolia` - Algolia Search
-- `AmazonOpenSearch` - Amazon OpenSearch Service
+- `ElasticSearch` - Elastic Elasticsearch
+- `OpenSearch` - OpenSearch
 - `CustomSearch` - Custom search implementation
 
 ```json
 {
-  "serviceType": "Elasticsearch"
+  "serviceType": "ElasticSearch"
 }
 ```
 
@@ -567,61 +697,63 @@ View the complete SearchService schema in your preferred format:
 
 #### `connection` (SearchConnection)
 **Type**: `object`
-**Required**: Yes
+**Required**: No
 **Description**: Connection configuration for the search service
 
 **SearchConnection Properties**:
 
+The `searchConnection` object contains a `config` property with a `oneOf` constraint that accepts:
+- `elasticSearchConnection.json` - Configuration for ElasticSearch
+- `openSearchConnection.json` - Configuration for OpenSearch
+- `customSearchConnection.json` - Configuration for custom search implementations
+
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `hostPort` | string | Yes | Host and port (e.g., "localhost:9200") |
-| `scheme` | string enum | No | "http" or "https" (default: "https") |
-| `username` | string | No | Username for authentication |
-| `password` | string | No | Password (encrypted) |
-| `apiKey` | string | No | API key for authentication |
-| `cloudId` | string | No | Elastic Cloud ID |
-| `region` | string | No | AWS region for Amazon OpenSearch |
-| `timeout` | integer | No | Connection timeout in seconds |
-| `useSSL` | boolean | No | Enable SSL/TLS |
-| `verifyCerts` | boolean | No | Verify SSL certificates |
+| `config` | object (oneOf) | Yes | Connection configuration specific to the service type |
 
-**Example**:
+**Example for ElasticSearch**:
 
 ```json
 {
   "connection": {
-    "hostPort": "elasticsearch.example.com:9200",
-    "scheme": "https",
-    "username": "search_user",
-    "password": "encrypted_password",
-    "useSSL": true,
-    "verifyCerts": true,
-    "timeout": 30
+    "config": {
+      "type": "ElasticSearch",
+      "hostPort": "elasticsearch.example.com:9200",
+      "scheme": "https",
+      "username": "search_user",
+      "password": "encrypted_password"
+    }
   }
 }
 ```
 
-**Elasticsearch Cloud Example**:
+**Example for OpenSearch**:
 
 ```json
 {
   "connection": {
-    "cloudId": "production:dXMtZWFzdC0xLmF3cy5mb3VuZC5pbyQ...",
-    "apiKey": "VnVhQ2ZHY0JDZGJrU...",
-    "scheme": "https"
+    "config": {
+      "type": "OpenSearch",
+      "hostPort": "opensearch.example.com:9200",
+      "scheme": "https",
+      "username": "search_user",
+      "password": "encrypted_password"
+    }
   }
 }
 ```
 
-**Amazon OpenSearch Example**:
+**Example for CustomSearch**:
 
 ```json
 {
   "connection": {
-    "hostPort": "search-domain-abc123.us-east-1.es.amazonaws.com:443",
-    "scheme": "https",
-    "region": "us-east-1",
-    "useSSL": true
+    "config": {
+      "type": "CustomSearch",
+      "connectionOptions": {
+        "key": "value"
+      }
+    }
   }
 }
 ```
@@ -630,37 +762,41 @@ View the complete SearchService schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
 **Required**: No
-**Description**: User or team that owns this search service
+**Description**: Owners of this search service
 
 ```json
 {
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "team",
-    "name": "data-platform",
-    "displayName": "Data Platform Team"
-  }
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "team",
+      "name": "data-platform",
+      "displayName": "Data Platform Team"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
 **Required**: No
-**Description**: Data domain this search service belongs to
+**Description**: Domains the search service belongs to
 
 ```json
 {
-  "domain": {
-    "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
-    "type": "domain",
-    "name": "Engineering",
-    "fullyQualifiedName": "Engineering"
-  }
+  "domains": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "domain",
+      "name": "Engineering",
+      "fullyQualifiedName": "Engineering"
+    }
+  ]
 }
 ```
 
@@ -688,6 +824,176 @@ View the complete SearchService schema in your preferred format:
       "state": "Confirmed"
     }
   ]
+}
+```
+
+---
+
+#### `pipelines` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No
+**Description**: References to pipelines deployed for this search service to extract metadata
+
+```json
+{
+  "pipelines": [
+    {
+      "id": "f1e2d3c4-b5a6-4c7d-8e9f-0a1b2c3d4e5f",
+      "type": "pipeline",
+      "name": "elasticsearch_metadata",
+      "fullyQualifiedName": "elasticsearch_prod.elasticsearch_metadata"
+    }
+  ]
+}
+```
+
+---
+
+#### `testConnectionResult` (TestConnectionResult)
+**Type**: `object`
+**Required**: No
+**Description**: Last test connection results for this service
+
+```json
+{
+  "testConnectionResult": {
+    "status": "successful",
+    "lastTestAt": 1704240000000
+  }
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No
+**Description**: Followers of this entity
+
+```json
+{
+  "followers": [
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "type": "dataProduct",
+      "name": "search-analytics",
+      "fullyQualifiedName": "search-analytics"
+    }
+  ]
+}
+```
+
+---
+
+#### `ingestionRunner` (EntityReference)
+**Type**: `object`
+**Required**: No
+**Description**: The ingestion agent responsible for executing the ingestion pipeline
+
+```json
+{
+  "ingestionRunner": {
+    "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+    "type": "ingestionRunner",
+    "name": "default-runner",
+    "fullyQualifiedName": "default-runner"
+  }
+}
+```
+
+---
+
+#### `href` (URI)
+**Type**: `string` (URI format)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this search service
+
+```json
+{
+  "href": "https://api.example.com/v1/services/searchServices/a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [{"name": "description", "oldValue": "...", "newValue": "..."}],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Incremental change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [{"name": "tags", "oldValue": "...", "newValue": "..."}],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `impersonatedBy` (string)
+**Type**: `string`
+**Required**: No (system-managed)
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": "bot-user"
 }
 ```
 
@@ -743,34 +1049,71 @@ View the complete SearchService schema in your preferred format:
   "fullyQualifiedName": "elasticsearch_prod",
   "displayName": "Production Elasticsearch Cluster",
   "description": "# Production Elasticsearch Cluster\n\nPrimary search infrastructure for product catalog and analytics.",
-  "serviceType": "Elasticsearch",
+  "serviceType": "ElasticSearch",
   "connection": {
-    "hostPort": "elasticsearch.example.com:9200",
-    "scheme": "https",
-    "username": "search_user",
-    "password": "encrypted_password",
-    "useSSL": true,
-    "verifyCerts": true,
-    "timeout": 30
+    "config": {
+      "type": "ElasticSearch",
+      "hostPort": "elasticsearch.example.com:9200",
+      "scheme": "https",
+      "username": "search_user",
+      "password": "encrypted_password"
+    }
   },
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "team",
-    "name": "data-platform",
-    "displayName": "Data Platform Team"
+  "pipelines": [
+    {
+      "id": "f1e2d3c4-b5a6-4c7d-8e9f-0a1b2c3d4e5f",
+      "type": "pipeline",
+      "name": "elasticsearch_metadata",
+      "fullyQualifiedName": "elasticsearch_prod.elasticsearch_metadata"
+    }
+  ],
+  "testConnectionResult": {
+    "status": "successful",
+    "lastTestAt": 1704240000000
   },
-  "domain": {
-    "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
-    "type": "domain",
-    "name": "Engineering"
-  },
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "team",
+      "name": "data-platform",
+      "displayName": "Data Platform Team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "domain",
+      "name": "Engineering"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Production"},
     {"tagFQN": "Environment.Prod"}
   ],
+  "followers": [
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "type": "user",
+      "name": "john.doe"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "type": "dataProduct",
+      "name": "search-analytics"
+    }
+  ],
+  "ingestionRunner": {
+    "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+    "type": "ingestionRunner",
+    "name": "default-runner"
+  },
+  "href": "https://api.example.com/v1/services/searchServices/a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
   "version": 1.2,
   "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "updatedBy": "admin",
+  "deleted": false
 }
 ```
 
@@ -783,18 +1126,22 @@ View the complete SearchService schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 om:SearchService a owl:Class ;
     rdfs:subClassOf om:Service ;
     rdfs:label "SearchService" ;
-    rdfs:comment "A search engine service providing full-text search capabilities" ;
+    rdfs:comment "This schema defines the Search Service entity, such as ElasticSearch, OpenSearch." ;
     om:hasProperties [
         om:name "string" ;
         om:serviceType "SearchServiceType" ;
         om:connection "SearchConnection" ;
-        om:owner "Owner" ;
-        om:tags "Tag[]" ;
+        om:owners "EntityReferenceList" ;
+        om:domains "EntityReferenceList" ;
+        om:tags "TagLabel[]" ;
+        om:pipelines "EntityReferenceList" ;
+        om:followers "EntityReferenceList" ;
+        om:dataProducts "EntityReferenceList" ;
     ] .
 ```
 
@@ -809,11 +1156,15 @@ ex:elasticsearch_prod a om:SearchService ;
     om:fullyQualifiedName "elasticsearch_prod" ;
     om:displayName "Production Elasticsearch Cluster" ;
     om:description "Primary search infrastructure" ;
-    om:serviceType "Elasticsearch" ;
+    om:serviceType "ElasticSearch" ;
     om:ownedBy ex:data_platform_team ;
+    om:inDomain ex:engineering_domain ;
     om:hasTag ex:tier_production ;
     om:hasSearchIndex ex:products_index ;
-    om:hasSearchIndex ex:customers_index .
+    om:hasSearchIndex ex:customers_index ;
+    om:hasPipeline ex:elasticsearch_metadata_pipeline ;
+    om:hasFollower ex:john_doe ;
+    om:partOfDataProduct ex:search_analytics .
 ```
 
 ---
@@ -836,12 +1187,33 @@ ex:elasticsearch_prod a om:SearchService ;
       "@id": "om:hasConnection",
       "@type": "@id"
     },
-    "owner": {
+    "pipelines": {
+      "@id": "om:hasPipeline",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "owners": {
       "@id": "om:ownedBy",
-      "@type": "@id"
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:inDomain",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
       "@id": "om:hasTag",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:hasFollower",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:partOfDataProduct",
       "@type": "@id",
       "@container": "@set"
     }
@@ -859,18 +1231,41 @@ ex:elasticsearch_prod a om:SearchService ;
   "name": "elasticsearch_prod",
   "fullyQualifiedName": "elasticsearch_prod",
   "displayName": "Production Elasticsearch Cluster",
-  "serviceType": "Elasticsearch",
+  "serviceType": "ElasticSearch",
   "connection": {
     "@type": "SearchConnection",
-    "hostPort": "elasticsearch.example.com:9200",
-    "scheme": "https"
+    "config": {
+      "@type": "ElasticSearchConnection",
+      "hostPort": "elasticsearch.example.com:9200",
+      "scheme": "https"
+    }
   },
-  "owner": {
-    "@id": "https://example.com/teams/data-platform",
-    "@type": "Team"
-  },
+  "owners": [
+    {
+      "@id": "https://example.com/teams/data-platform",
+      "@type": "Team"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/Engineering",
+      "@type": "Domain"
+    }
+  ],
   "tags": [
     {"@id": "https://open-metadata.org/tags/Tier/Production"}
+  ],
+  "pipelines": [
+    {
+      "@id": "https://example.com/pipelines/elasticsearch_metadata",
+      "@type": "Pipeline"
+    }
+  ],
+  "followers": [
+    {
+      "@id": "https://example.com/users/john.doe",
+      "@type": "User"
+    }
   ]
 }
 ```

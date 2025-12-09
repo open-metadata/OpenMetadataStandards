@@ -117,6 +117,95 @@
       "size": {
         "@id": "dcat:byteSize",
         "@type": "xsd:double"
+      },
+      "owners": {
+        "@id": "om:hasOwners",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "domains": {
+        "@id": "om:hasDomains",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "followers": {
+        "@id": "om:hasFollowers",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "votes": {
+        "@id": "om:hasVotes",
+        "@type": "@id"
+      },
+      "lifeCycle": {
+        "@id": "om:hasLifeCycle",
+        "@type": "@id"
+      },
+      "certification": {
+        "@id": "om:hasCertification",
+        "@type": "@id"
+      },
+      "dataProducts": {
+        "@id": "om:hasDataProducts",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "tags": {
+        "@id": "om:hasTag",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "sourceUrl": {
+        "@id": "om:sourceUrl",
+        "@type": "xsd:anyURI"
+      },
+      "sourceHash": {
+        "@id": "om:sourceHash",
+        "@type": "xsd:string"
+      },
+      "entityStatus": {
+        "@id": "om:hasEntityStatus",
+        "@type": "@id"
+      },
+      "deleted": {
+        "@id": "om:deleted",
+        "@type": "xsd:boolean"
+      },
+      "updatedAt": {
+        "@id": "om:updatedAt",
+        "@type": "xsd:long"
+      },
+      "updatedBy": {
+        "@id": "om:updatedBy",
+        "@type": "xsd:string"
+      },
+      "changeDescription": {
+        "@id": "om:hasChangeDescription",
+        "@type": "@id"
+      },
+      "incrementalChangeDescription": {
+        "@id": "om:hasIncrementalChangeDescription",
+        "@type": "@id"
+      },
+      "usageSummary": {
+        "@id": "om:usageSummary",
+        "@type": "@id"
+      },
+      "retentionPeriod": {
+        "@id": "om:retentionPeriod",
+        "@type": "xsd:duration"
+      },
+      "processedLineage": {
+        "@id": "om:processedLineage",
+        "@type": "xsd:boolean"
+      },
+      "profilerConfig": {
+        "@id": "om:hasProfilerConfig",
+        "@type": "@id"
+      },
+      "profile": {
+        "@id": "om:hasProfile",
+        "@type": "@id"
       }
     }
   ]

@@ -29,7 +29,8 @@ graph TD
     USR[User/Team<br/>DataGovernance] -.->|owns| GLOSS
     REV1[User<br/>Jane Doe] -.->|reviews| GLOSS
     REV2[User<br/>John Smith] -.->|reviews| GLOSS
-    DOM[Domain<br/>Enterprise] -.->|groups| GLOSS
+    DOM1[Domain<br/>Enterprise] -.->|contains| GLOSS
+    DP1[DataProduct<br/>Customer360] -.->|includes| GLOSS
 
     %% Classification relationships
     TAG1[Tag<br/>Governance.Approved] -.->|classifies| GLOSS
@@ -48,7 +49,7 @@ graph TD
 
     class GLOSS glossary
     class GT1,GT2,GT3,GT1A,GT1B term
-    class USR,REV1,REV2,DOM,TAG1 governance
+    class USR,REV1,REV2,DOM1,TAG1,DP1 governance
     class TBL1,TBL2,COL1,DASH data
 ```
 
@@ -67,78 +68,129 @@ View the complete Glossary schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/data/glossary.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Glossary",
-      "description": "A `Glossary` is a collection of hierarchical `GlossaryTerm` entities that define business concepts and terminology.",
+      "description": "This schema defines the Glossary entity. A Glossary is collection of hierarchical GlossaryTerms.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.Glossary",
-
-      "definitions": {
-        "mutuallyExclusive": {
-          "description": "Glossary terms in this glossary are mutually exclusive",
-          "type": "boolean",
-          "default": false
-        }
-      },
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of a glossary instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Glossary name",
+          "description": "Name of the glossary",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name of the glossary",
+          "description": "FullyQualifiedName same as name.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this glossary.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description of the glossary purpose",
+          "description": "Description of the glossary.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "terms": {
-          "description": "Terms in this glossary",
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "reviewers": {
+          "description": "User references of the reviewers for this glossary.",
           "type": "array",
           "items": {
             "$ref": "../../type/entityReference.json"
           }
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "owners": {
+          "description": "Owners of this glossary.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "usageCount": {
+          "description": "Count of how many times terms from this glossary are used.",
+          "type": "integer"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this glossary.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "reviewers": {
-          "description": "Users or teams that can review and approve glossary term changes",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "termCount": {
+          "description": "Total number of terms in the glossary. This includes all the children in the hierarchy.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "provider": {
+          "$ref": "../../type/basic.json#/definitions/providerType"
+        },
+        "disabled": {
+          "description": "System glossary can't be deleted. Use this flag to disable them.",
+          "type": "boolean"
         },
         "mutuallyExclusive": {
-          "$ref": "#/definitions/mutuallyExclusive"
+          "description": "Glossary terms that are direct children in this glossary are mutually exclusive. When mutually exclusive is `true` only one term can be used to label an entity. When mutually exclusive is `false`, multiple terms from this group can be used to label an entity.",
+          "type": "boolean",
+          "default": "false"
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "domains": {
+          "description": "Domains the Glossary belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "entityStatus": {
+          "description": "Status of the Glossary.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "description"]
+      "required": ["id", "name", "description"],
+      "additionalProperties": false
     }
     ```
 
@@ -151,17 +203,17 @@ View the complete Glossary schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # Glossary Class Definition
     om:Glossary a owl:Class ;
         rdfs:subClassOf om:GovernanceAsset ;
         rdfs:label "Glossary" ;
-        rdfs:comment "A container for organizing business terminology and glossary terms" ;
+        rdfs:comment "This schema defines the Glossary entity. A Glossary is collection of hierarchical GlossaryTerms." ;
         om:hierarchyLevel 1 .
 
-    # Properties
+    # Datatype Properties
     om:glossaryName a owl:DatatypeProperty ;
         rdfs:domain om:Glossary ;
         rdfs:range xsd:string ;
@@ -172,31 +224,86 @@ View the complete Glossary schema in your preferred format:
         rdfs:domain om:Glossary ;
         rdfs:range xsd:string ;
         rdfs:label "fullyQualifiedName" ;
-        rdfs:comment "Complete name of the glossary" .
+        rdfs:comment "FullyQualifiedName same as name" .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:Glossary ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this glossary" .
+
+    om:description a owl:DatatypeProperty ;
+        rdfs:domain om:Glossary ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of the glossary" .
 
     om:mutuallyExclusive a owl:DatatypeProperty ;
         rdfs:domain om:Glossary ;
         rdfs:range xsd:boolean ;
         rdfs:label "mutuallyExclusive" ;
-        rdfs:comment "Whether terms in this glossary are mutually exclusive" .
+        rdfs:comment "Glossary terms that are direct children in this glossary are mutually exclusive" .
 
-    om:hasTerm a owl:ObjectProperty ;
+    om:usageCount a owl:DatatypeProperty ;
         rdfs:domain om:Glossary ;
-        rdfs:range om:GlossaryTerm ;
-        rdfs:label "hasTerm" ;
-        rdfs:comment "Glossary terms in this glossary" .
+        rdfs:range xsd:integer ;
+        rdfs:label "usageCount" ;
+        rdfs:comment "Count of how many times terms from this glossary are used" .
 
-    om:ownedBy a owl:ObjectProperty ;
+    om:termCount a owl:DatatypeProperty ;
+        rdfs:domain om:Glossary ;
+        rdfs:range xsd:integer ;
+        rdfs:label "termCount" ;
+        rdfs:comment "Total number of terms in the glossary" .
+
+    om:disabled a owl:DatatypeProperty ;
+        rdfs:domain om:Glossary ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "disabled" ;
+        rdfs:comment "System glossary can't be deleted. Use this flag to disable them" .
+
+    om:deleted a owl:DatatypeProperty ;
+        rdfs:domain om:Glossary ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When true indicates the entity has been soft deleted" .
+
+    # Object Properties
+    om:hasOwner a owl:ObjectProperty ;
         rdfs:domain om:Glossary ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this glossary" .
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this glossary" .
 
     om:hasReviewer a owl:ObjectProperty ;
         rdfs:domain om:Glossary ;
         rdfs:range om:User ;
-        rdfs:label "hasReviewer" ;
-        rdfs:comment "Users or teams that can review glossary terms" .
+        rdfs:label "reviewers" ;
+        rdfs:comment "User references of the reviewers for this glossary" .
+
+    om:inDomain a owl:ObjectProperty ;
+        rdfs:domain om:Glossary ;
+        rdfs:range om:Domain ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the Glossary belongs to" .
+
+    om:hasTag a owl:ObjectProperty ;
+        rdfs:domain om:Glossary ;
+        rdfs:range om:TagLabel ;
+        rdfs:label "tags" ;
+        rdfs:comment "Tags for this glossary" .
+
+    om:hasDataProduct a owl:ObjectProperty ;
+        rdfs:domain om:Glossary ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "dataProducts" ;
+        rdfs:comment "List of data products this entity is part of" .
+
+    om:hasVotes a owl:ObjectProperty ;
+        rdfs:domain om:Glossary ;
+        rdfs:range om:Votes ;
+        rdfs:label "votes" ;
+        rdfs:comment "Votes on the entity" .
 
     # Example Instance
     ex:businessGlossary a om:Glossary ;
@@ -205,10 +312,12 @@ View the complete Glossary schema in your preferred format:
         om:displayName "Business Glossary" ;
         om:description "Standard business terminology for the organization" ;
         om:mutuallyExclusive false ;
-        om:ownedBy ex:dataGovernanceTeam ;
+        om:usageCount 42 ;
+        om:termCount 15 ;
+        om:hasOwner ex:dataGovernanceTeam ;
         om:hasReviewer ex:janeDoe ;
-        om:hasTerm ex:customerTerm ;
-        om:hasTerm ex:revenueTerm .
+        om:inDomain ex:enterpriseDomain ;
+        om:hasTag ex:governanceApproved .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -246,21 +355,34 @@ View the complete Glossary schema in your preferred format:
           "@id": "om:mutuallyExclusive",
           "@type": "xsd:boolean"
         },
-        "terms": {
-          "@id": "om:hasTerm",
+        "usageCount": {
+          "@id": "om:usageCount",
+          "@type": "xsd:integer"
+        },
+        "termCount": {
+          "@id": "om:termCount",
+          "@type": "xsd:integer"
+        },
+        "disabled": {
+          "@id": "om:disabled",
+          "@type": "xsd:boolean"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
+        },
+        "owners": {
+          "@id": "om:hasOwner",
           "@type": "@id",
           "@container": "@set"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
-        },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
-        },
         "reviewers": {
           "@id": "om:hasReviewer",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:inDomain",
           "@type": "@id",
           "@container": "@set"
         },
@@ -268,6 +390,15 @@ View the complete Glossary schema in your preferred format:
           "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:hasDataProduct",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@id"
         }
       }
     }
@@ -286,13 +417,17 @@ View the complete Glossary schema in your preferred format:
       "displayName": "Business Glossary",
       "description": "# Business Glossary\n\nStandard business terminology and definitions for the organization.\n\n## Purpose\n- Ensure consistent understanding of business terms\n- Document business concepts and relationships\n- Support data governance initiatives",
       "mutuallyExclusive": false,
+      "usageCount": 42,
+      "termCount": 15,
 
-      "owner": {
-        "@id": "https://example.com/teams/data-governance",
-        "@type": "Team",
-        "name": "DataGovernance",
-        "displayName": "Data Governance Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-governance",
+          "@type": "Team",
+          "name": "DataGovernance",
+          "displayName": "Data Governance Team"
+        }
+      ],
 
       "reviewers": [
         {
@@ -309,11 +444,13 @@ View the complete Glossary schema in your preferred format:
         }
       ],
 
-      "domain": {
-        "@id": "https://example.com/domains/enterprise",
-        "@type": "Domain",
-        "name": "Enterprise"
-      },
+      "domains": [
+        {
+          "@id": "https://example.com/domains/enterprise",
+          "@type": "Domain",
+          "name": "Enterprise"
+        }
+      ],
 
       "tags": [
         {
@@ -322,18 +459,19 @@ View the complete Glossary schema in your preferred format:
         }
       ],
 
-      "terms": [
+      "dataProducts": [
         {
-          "@id": "https://example.com/glossary/business/Customer",
-          "@type": "GlossaryTerm",
-          "fullyQualifiedName": "BusinessGlossary.Customer"
-        },
-        {
-          "@id": "https://example.com/glossary/business/Revenue",
-          "@type": "GlossaryTerm",
-          "fullyQualifiedName": "BusinessGlossary.Revenue"
+          "@id": "https://example.com/dataproducts/customer-360",
+          "@type": "DataProduct",
+          "name": "Customer360"
         }
-      ]
+      ],
+
+      "votes": {
+        "@id": "https://example.com/glossary/business/votes",
+        "upVotes": 10,
+        "downVotes": 2
+      }
     }
     ```
 
@@ -416,7 +554,7 @@ View the complete Glossary schema in your preferred format:
 #### `description` (markdown)
 **Type**: `string` (Markdown format)
 **Required**: Yes
-**Description**: Rich text description of the glossary's purpose and scope
+**Description**: Description of the glossary
 
 ```json
 {
@@ -428,36 +566,10 @@ View the complete Glossary schema in your preferred format:
 
 ### Structure Properties
 
-#### `terms[]` (GlossaryTerm[])
-**Type**: `array` of GlossaryTerm references
-**Required**: No
-**Description**: List of glossary terms in this glossary
-
-```json
-{
-  "terms": [
-    {
-      "id": "term-uuid-1",
-      "type": "glossaryTerm",
-      "name": "Customer",
-      "fullyQualifiedName": "BusinessGlossary.Customer"
-    },
-    {
-      "id": "term-uuid-2",
-      "type": "glossaryTerm",
-      "name": "Revenue",
-      "fullyQualifiedName": "BusinessGlossary.Revenue"
-    }
-  ]
-}
-```
-
----
-
 #### `mutuallyExclusive` (boolean)
 **Type**: `boolean`
 **Required**: No (default: false)
-**Description**: Whether terms in this glossary are mutually exclusive (only one can apply)
+**Description**: Glossary terms that are direct children in this glossary are mutually exclusive. When mutually exclusive is `true` only one term can be used to label an entity. When mutually exclusive is `false`, multiple terms from this group can be used to label an entity.
 
 ```json
 {
@@ -467,21 +579,62 @@ View the complete Glossary schema in your preferred format:
 
 ---
 
-### Governance Properties
-
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `termCount` (integer)
+**Type**: `integer`
 **Required**: No
-**Description**: User or team that owns this glossary
+**Description**: Total number of terms in the glossary. This includes all the children in the hierarchy.
 
 ```json
 {
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "DataGovernance",
-    "displayName": "Data Governance Team"
-  }
+  "termCount": 15
+}
+```
+
+---
+
+#### `usageCount` (integer)
+**Type**: `integer`
+**Required**: No
+**Description**: Count of how many times terms from this glossary are used.
+
+```json
+{
+  "usageCount": 42
+}
+```
+
+---
+
+#### `disabled` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Description**: System glossary can't be deleted. Use this flag to disable them.
+
+```json
+{
+  "disabled": false
+}
+```
+
+---
+
+### Governance Properties
+
+#### `owners` (EntityReferenceList)
+**Type**: `object` (EntityReferenceList)
+**Required**: No
+**Description**: Owners of this glossary
+
+```json
+{
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "DataGovernance",
+      "displayName": "Data Governance Team"
+    }
+  ]
 }
 ```
 
@@ -490,7 +643,7 @@ View the complete Glossary schema in your preferred format:
 #### `reviewers[]` (EntityReference[])
 **Type**: `array` of User or Team references
 **Required**: No
-**Description**: Users or teams that can review and approve glossary term changes
+**Description**: User references of the reviewers for this glossary
 
 ```json
 {
@@ -513,19 +666,21 @@ View the complete Glossary schema in your preferred format:
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `domains` (EntityReferenceList)
+**Type**: `object` (EntityReferenceList)
 **Required**: No
-**Description**: Data domain this glossary belongs to
+**Description**: Domains the Glossary belongs to
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Enterprise",
-    "fullyQualifiedName": "Enterprise"
-  }
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Enterprise",
+      "fullyQualifiedName": "Enterprise"
+    }
+  ]
 }
 ```
 
@@ -533,8 +688,8 @@ View the complete Glossary schema in your preferred format:
 
 #### `tags[]` (TagLabel[])
 **Type**: `array`
-**Required**: No
-**Description**: Classification tags applied to the glossary
+**Required**: No (default: [])
+**Description**: Tags for this glossary
 
 ```json
 {
@@ -552,12 +707,50 @@ View the complete Glossary schema in your preferred format:
 
 ---
 
+#### `dataProducts` (EntityReferenceList)
+**Type**: `object` (EntityReferenceList)
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "Customer360",
+      "fullyQualifiedName": "Customer360"
+    }
+  ]
+}
+```
+
+---
+
+#### `votes` (Votes)
+**Type**: `object`
+**Required**: No
+**Description**: Votes on the entity
+
+```json
+{
+  "votes": {
+    "upVotes": 10,
+    "downVotes": 2,
+    "upVoters": ["user-uuid-1", "user-uuid-2"],
+    "downVoters": ["user-uuid-3"]
+  }
+}
+```
+
+---
+
 ### Versioning Properties
 
 #### `version` (entityVersion)
 **Type**: `number`
-**Required**: Yes (system-managed)
-**Description**: Metadata version number, incremented on changes
+**Required**: No (system-managed)
+**Description**: Metadata version of the entity
 
 ```json
 {
@@ -569,8 +762,8 @@ View the complete Glossary schema in your preferred format:
 
 #### `updatedAt` (timestamp)
 **Type**: `integer` (Unix epoch milliseconds)
-**Required**: Yes (system-managed)
-**Description**: Last update timestamp
+**Required**: No (system-managed)
+**Description**: Last update time corresponding to the new version of the entity in Unix epoch time milliseconds
 
 ```json
 {
@@ -582,12 +775,146 @@ View the complete Glossary schema in your preferred format:
 
 #### `updatedBy` (string)
 **Type**: `string`
-**Required**: Yes (system-managed)
+**Required**: No (system-managed)
 **Description**: User who made the update
 
 ```json
 {
   "updatedBy": "jane.doe"
+}
+```
+
+---
+
+#### `impersonatedBy` (impersonatedBy)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": {
+    "id": "bot-uuid",
+    "type": "bot",
+    "name": "ingestion-bot"
+  }
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI)
+**Required**: No (system-managed)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "https://example.com/api/v1/glossaries/1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+}
+```
+
+---
+
+#### `changeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "description",
+        "oldValue": "Old description",
+        "newValue": "Updated description"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [
+      {
+        "name": "tags",
+        "newValue": "[{\"tagFQN\":\"Governance.Approved\"}]"
+      }
+    ],
+    "fieldsUpdated": [],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `provider` (providerType)
+**Type**: `string`
+**Required**: No
+**Description**: Provider type for the glossary
+
+```json
+{
+  "provider": "system"
+}
+```
+
+---
+
+#### `entityStatus` (status)
+**Type**: `object`
+**Required**: No
+**Description**: Status of the Glossary
+
+```json
+{
+  "entityStatus": {
+    "status": "Approved",
+    "message": "Glossary has been reviewed and approved"
+  }
+}
+```
+
+---
+
+#### `extension` (entityExtension)
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity
+
+```json
+{
+  "extension": {
+    "customProperty1": "value1",
+    "customProperty2": "value2"
+  }
 }
 ```
 
@@ -603,12 +930,19 @@ View the complete Glossary schema in your preferred format:
   "displayName": "Business Glossary",
   "description": "# Business Glossary\n\nStandard business terminology and definitions for the organization.",
   "mutuallyExclusive": false,
-  "owner": {
-    "id": "owner-uuid",
-    "type": "team",
-    "name": "DataGovernance",
-    "displayName": "Data Governance Team"
-  },
+  "usageCount": 42,
+  "termCount": 15,
+  "disabled": false,
+  "deleted": false,
+  "href": "https://example.com/api/v1/glossaries/1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "team",
+      "name": "DataGovernance",
+      "displayName": "Data Governance Team"
+    }
+  ],
   "reviewers": [
     {
       "id": "reviewer-uuid-1",
@@ -617,30 +951,44 @@ View the complete Glossary schema in your preferred format:
       "displayName": "Jane Doe"
     }
   ],
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Enterprise"
-  },
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Enterprise",
+      "fullyQualifiedName": "Enterprise"
+    }
+  ],
   "tags": [
     {
-      "tagFQN": "Governance.Approved"
+      "tagFQN": "Governance.Approved",
+      "source": "Classification",
+      "labelType": "Manual",
+      "state": "Confirmed"
     }
   ],
-  "terms": [
+  "dataProducts": [
     {
-      "id": "term-uuid-1",
-      "type": "glossaryTerm",
-      "name": "Customer",
-      "fullyQualifiedName": "BusinessGlossary.Customer"
-    },
-    {
-      "id": "term-uuid-2",
-      "type": "glossaryTerm",
-      "name": "Revenue",
-      "fullyQualifiedName": "BusinessGlossary.Revenue"
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "Customer360",
+      "fullyQualifiedName": "Customer360"
     }
   ],
+  "votes": {
+    "upVotes": 10,
+    "downVotes": 2,
+    "upVoters": ["user-uuid-1", "user-uuid-2"],
+    "downVoters": ["user-uuid-3"]
+  },
+  "provider": "user",
+  "entityStatus": {
+    "status": "Approved",
+    "message": "Glossary has been reviewed and approved"
+  },
+  "extension": {
+    "customProperty1": "value1"
+  },
   "version": 1.2,
   "updatedAt": 1704240000000,
   "updatedBy": "jane.doe"
@@ -656,20 +1004,12 @@ View the complete Glossary schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 om:Glossary a owl:Class ;
     rdfs:subClassOf om:GovernanceAsset ;
     rdfs:label "Glossary" ;
-    rdfs:comment "A container for organizing business terminology" ;
-    om:hasProperties [
-        om:name "string" ;
-        om:description "string" ;
-        om:terms "GlossaryTerm[]" ;
-        om:owner "Owner" ;
-        om:reviewers "User[]" ;
-        om:mutuallyExclusive "boolean" ;
-    ] .
+    rdfs:comment "This schema defines the Glossary entity. A Glossary is collection of hierarchical GlossaryTerms." .
 ```
 
 ### Instance Example
@@ -684,12 +1024,17 @@ ex:businessGlossary a om:Glossary ;
     om:displayName "Business Glossary" ;
     om:description "Standard business terminology for the organization" ;
     om:mutuallyExclusive false ;
-    om:ownedBy ex:dataGovernanceTeam ;
+    om:usageCount 42 ;
+    om:termCount 15 ;
+    om:disabled false ;
+    om:deleted false ;
+    om:hasOwner ex:dataGovernanceTeam ;
     om:hasReviewer ex:janeDoe ;
     om:hasReviewer ex:johnSmith ;
-    om:hasTerm ex:customerTerm ;
-    om:hasTerm ex:revenueTerm ;
-    om:hasTag ex:governanceApproved .
+    om:inDomain ex:enterpriseDomain ;
+    om:hasTag ex:governanceApproved ;
+    om:hasDataProduct ex:customer360 ;
+    om:hasVotes ex:businessGlossaryVotes .
 ```
 
 ---
@@ -701,25 +1046,72 @@ ex:businessGlossary a om:Glossary ;
   "@context": {
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
     "Glossary": "om:Glossary",
-    "name": "om:name",
-    "fullyQualifiedName": "om:fullyQualifiedName",
-    "displayName": "om:displayName",
-    "description": "om:description",
-    "mutuallyExclusive": "om:mutuallyExclusive",
-    "terms": {
-      "@id": "om:hasTerm",
+    "name": {
+      "@id": "om:name",
+      "@type": "xsd:string"
+    },
+    "fullyQualifiedName": {
+      "@id": "om:fullyQualifiedName",
+      "@type": "xsd:string"
+    },
+    "displayName": {
+      "@id": "om:displayName",
+      "@type": "xsd:string"
+    },
+    "description": {
+      "@id": "om:description",
+      "@type": "xsd:string"
+    },
+    "mutuallyExclusive": {
+      "@id": "om:mutuallyExclusive",
+      "@type": "xsd:boolean"
+    },
+    "usageCount": {
+      "@id": "om:usageCount",
+      "@type": "xsd:integer"
+    },
+    "termCount": {
+      "@id": "om:termCount",
+      "@type": "xsd:integer"
+    },
+    "disabled": {
+      "@id": "om:disabled",
+      "@type": "xsd:boolean"
+    },
+    "deleted": {
+      "@id": "om:deleted",
+      "@type": "xsd:boolean"
+    },
+    "owners": {
+      "@id": "om:hasOwner",
       "@type": "@id",
       "@container": "@set"
-    },
-    "owner": {
-      "@id": "om:ownedBy",
-      "@type": "@id"
     },
     "reviewers": {
       "@id": "om:hasReviewer",
       "@type": "@id",
       "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:inDomain",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "tags": {
+      "@id": "om:hasTag",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:hasDataProduct",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "votes": {
+      "@id": "om:hasVotes",
+      "@type": "@id"
     }
   }
 }
@@ -737,20 +1129,30 @@ ex:businessGlossary a om:Glossary ;
   "displayName": "Business Glossary",
   "description": "Standard business terminology for the organization",
   "mutuallyExclusive": false,
-  "owner": {
-    "@id": "https://example.com/teams/data-governance",
-    "@type": "Team"
-  },
+  "usageCount": 42,
+  "termCount": 15,
+  "owners": [
+    {
+      "@id": "https://example.com/teams/data-governance",
+      "@type": "Team"
+    }
+  ],
   "reviewers": [
     {
       "@id": "https://example.com/users/jane.doe",
       "@type": "User"
     }
   ],
-  "terms": [
+  "domains": [
     {
-      "@id": "https://example.com/glossary/business/Customer",
-      "@type": "GlossaryTerm"
+      "@id": "https://example.com/domains/enterprise",
+      "@type": "Domain"
+    }
+  ],
+  "dataProducts": [
+    {
+      "@id": "https://example.com/dataproducts/customer-360",
+      "@type": "DataProduct"
     }
   ]
 }
@@ -760,14 +1162,13 @@ ex:businessGlossary a om:Glossary ;
 
 ## Relationships
 
-### Child Entities
-- **GlossaryTerm**: Terms defined in this glossary
-
 ### Associated Entities
-- **Owner**: User or team owning this glossary
-- **Reviewer**: Users or teams that can review terms
-- **Domain**: Business domain assignment
-- **Tag**: Classification tags
+- **Owners**: Users or teams owning this glossary
+- **Reviewers**: Users or teams that can review terms
+- **Domains**: Business domain assignments
+- **Tags**: Classification tags
+- **DataProducts**: Data products this glossary is part of
+- **Votes**: Community voting on the glossary
 
 ---
 

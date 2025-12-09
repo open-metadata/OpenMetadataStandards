@@ -147,347 +147,283 @@ graph TD
 
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/data/dataProfile.json",
+      "$id": "https://open-metadata.org/schema/entity/data/table.json#/definitions/tableProfile",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "DataProfile",
-      "description": "A Data Profile contains statistical information about a table.",
+      "title": "Table Profile Definitions",
+      "description": "This schema defines the types to capture table and column profile data.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.data.DataProfile",
-      "javaInterfaces": [
-        "org.openmetadata.schema.EntityInterface"
-      ],
+      "javaType": "org.openmetadata.schema.type.TableProfile",
       "definitions": {
         "tableProfile": {
           "type": "object",
-          "description": "Table-level profile metrics",
+          "javaType": "org.openmetadata.schema.type.TableProfile",
+          "description": "This schema defines the type to capture the table's data profile.",
           "properties": {
-            "profileDate": {
-              "description": "Date and time when the profile was generated",
-              "$ref": "../../type/basic.json#/definitions/date-time"
+            "timestamp": {
+              "description": "Timestamp on which profile is taken.",
+              "$ref": "../../type/basic.json#/definitions/timestamp"
+            },
+            "profileSample": {
+              "description": "Percentage of data or no. of rows we want to execute the profiler and tests on",
+              "type": "number",
+              "default": null
+            },
+            "profileSampleType": {
+              "description": "Type of Profile Sample (percentage or rows)",
+              "type": "string",
+              "enum": ["PERCENTAGE", "ROWS"],
+              "default": "PERCENTAGE"
+            },
+            "samplingMethodType": {
+              "description": "Type of Sampling Method (BERNOULLI or SYSTEM)",
+              "type": "string",
+              "enum": ["BERNOULLI", "SYSTEM"]
             },
             "columnCount": {
-              "description": "Number of columns in the table",
+              "description": "No.of columns in the table.",
               "type": "number"
             },
             "rowCount": {
-              "description": "Number of rows in the table",
+              "description": "No.of rows in the table. This is always executed on the whole table.",
               "type": "number"
             },
             "sizeInByte": {
-              "description": "Table size in bytes",
+              "description": "Table size in GB",
               "type": "number"
             },
             "createDateTime": {
-              "description": "Date and time when the table was created",
-              "$ref": "../../type/basic.json#/definitions/timestamp"
+              "description": "Table creation time.",
+              "type": "string",
+              "format": "date-time"
             },
-            "timestamp": {
-              "description": "Timestamp of the profile",
-              "$ref": "../../type/basic.json#/definitions/timestamp"
+            "customMetrics": {
+              "description": "Custom Metrics profile list bound to a table.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/customMetricProfile"
+              },
+              "default": null
             }
-          }
+          },
+          "required": ["timestamp"],
+          "additionalProperties": false
         },
         "columnProfile": {
           "type": "object",
-          "description": "Column-level profile statistics",
+          "javaType": "org.openmetadata.schema.type.ColumnProfile",
+          "description": "This schema defines the type to capture the table's column profile.",
           "properties": {
             "name": {
-              "description": "Column name",
+              "description": "Column Name.",
               "type": "string"
             },
             "timestamp": {
-              "description": "Timestamp of the profile",
+              "description": "Timestamp on which profile is taken.",
               "$ref": "../../type/basic.json#/definitions/timestamp"
             },
             "valuesCount": {
-              "description": "Total count of values in the column",
+              "description": "Total count of the values in this column.",
               "type": "number"
             },
             "valuesPercentage": {
-              "description": "Percentage of values in the column",
+              "description": "Percentage of values in this column with respect to row count.",
               "type": "number"
             },
             "validCount": {
-              "description": "Count of valid values",
+              "description": "Total count of valid values in this column.",
               "type": "number"
             },
             "duplicateCount": {
-              "description": "Count of duplicate values",
+              "description": "No.of Rows that contain duplicates in a column.",
               "type": "number"
             },
             "nullCount": {
-              "description": "Count of null values",
+              "description": "No.of null values in a column.",
               "type": "number"
             },
             "nullProportion": {
-              "description": "Proportion of null values (0-1)",
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1
+              "description": "No.of null value proportion in columns.",
+              "type": "number"
             },
             "missingPercentage": {
-              "description": "Percentage of missing/null values",
+              "description": "Missing Percentage is calculated by taking percentage of validCount/valuesCount.",
               "type": "number"
             },
             "missingCount": {
-              "description": "Count of missing values",
+              "description": "Missing count is calculated by subtracting valuesCount - validCount.",
               "type": "number"
             },
             "uniqueCount": {
-              "description": "Count of unique values",
+              "description": "No. of unique values in the column.",
               "type": "number"
             },
             "uniqueProportion": {
-              "description": "Proportion of unique values (0-1)",
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1
+              "description": "Proportion of number of unique values in a column.",
+              "type": "number"
             },
             "distinctCount": {
-              "description": "Count of distinct values",
+              "description": "Number of values that contain distinct values.",
               "type": "number"
             },
             "distinctProportion": {
-              "description": "Proportion of distinct values (0-1)",
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1
+              "description": "Proportion of distinct values in a column.",
+              "type": "number"
             },
             "min": {
-              "description": "Minimum value",
+              "description": "Minimum value in a column.",
               "oneOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "string"
-                }
+                {"type": "number"},
+                {"type": "integer"},
+                {"$ref": "../../type/basic.json#/definitions/dateTime"},
+                {"$ref": "../../type/basic.json#/definitions/time"},
+                {"$ref": "../../type/basic.json#/definitions/date"},
+                {"type": "string"}
               ]
             },
             "max": {
-              "description": "Maximum value",
+              "description": "Maximum value in a column.",
               "oneOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "string"
-                }
+                {"type": "number"},
+                {"type": "integer"},
+                {"$ref": "../../type/basic.json#/definitions/dateTime"},
+                {"$ref": "../../type/basic.json#/definitions/time"},
+                {"$ref": "../../type/basic.json#/definitions/date"},
+                {"type": "string"}
               ]
             },
             "minLength": {
-              "description": "Minimum string length",
+              "description": "Minimum string length in a column.",
               "type": "number"
             },
             "maxLength": {
-              "description": "Maximum string length",
+              "description": "Maximum string length in a column.",
               "type": "number"
             },
             "mean": {
-              "description": "Mean value for numeric columns",
+              "description": "Avg value in a column.",
               "type": "number"
             },
-            "median": {
-              "description": "Median value",
-              "oneOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "string"
-                }
-              ]
-            },
             "sum": {
-              "description": "Sum of values for numeric columns",
+              "description": "Sum value in a column.",
               "type": "number"
             },
             "stddev": {
-              "description": "Standard deviation",
+              "description": "Standard deviation of a column.",
               "type": "number"
             },
             "variance": {
-              "description": "Variance",
+              "description": "Variance of a column.",
+              "type": "number"
+            },
+            "median": {
+              "description": "Median of a column.",
               "type": "number"
             },
             "firstQuartile": {
-              "description": "First quartile (25th percentile)",
+              "description": "First quartile of a column.",
               "type": "number"
             },
             "thirdQuartile": {
-              "description": "Third quartile (75th percentile)",
+              "description": "Third quartile of a column.",
               "type": "number"
             },
             "interQuartileRange": {
-              "description": "Interquartile range",
+              "description": "Inter quartile range of a column.",
               "type": "number"
             },
             "nonParametricSkew": {
-              "description": "Non-parametric skew",
+              "description": "Non parametric skew of a column.",
               "type": "number"
             },
             "histogram": {
-              "description": "Histogram of value distribution",
-              "$ref": "#/definitions/histogram"
+              "description": "Histogram of a column.",
+              "properties": {
+                "boundaries": {
+                  "description": "Boundaries of Histogram.",
+                  "type": "array"
+                },
+                "frequencies": {
+                  "description": "Frequencies of Histogram.",
+                  "type": "array"
+                }
+              },
+              "additionalProperties": false
             },
             "customMetrics": {
-              "description": "Custom metrics for the column",
+              "description": "Custom Metrics profile list bound to a column.",
               "type": "array",
               "items": {
-                "$ref": "../../type/customMetric.json"
-              }
+                "$ref": "#/definitions/customMetricProfile"
+              },
+              "default": null
+            },
+            "cardinalityDistribution": {
+              "description": "Cardinality distribution showing top categories with an 'Others' bucket.",
+              "type": "object",
+              "properties": {
+                "categories": {
+                  "description": "List of category names including 'Others'.",
+                  "type": "array",
+                  "items": {"type": "string"}
+                },
+                "counts": {
+                  "description": "List of counts corresponding to each category.",
+                  "type": "array",
+                  "items": {"type": "integer"}
+                },
+                "percentages": {
+                  "description": "List of percentages corresponding to each category.",
+                  "type": "array",
+                  "items": {"type": "number"}
+                },
+                "allValuesUnique": {
+                  "description": "Flag indicating that all values in the column are unique, so no distribution is calculated.",
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
             }
           },
-          "required": [
-            "name"
-          ]
+          "required": ["name", "timestamp"],
+          "additionalProperties": false
         },
-        "histogram": {
+        "customMetricProfile": {
           "type": "object",
-          "description": "Histogram showing value distribution",
+          "javaType": "org.openmetadata.schema.type.CustomMetricProfile",
+          "description": "Profiling results of a Custom Metric.",
           "properties": {
-            "boundaries": {
-              "description": "Bin boundaries",
-              "type": "array",
-              "items": {
-                "oneOf": [
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "string"
-                  }
-                ]
-              }
+            "name": {
+              "description": "Custom metric name.",
+              "type": "string"
             },
-            "frequencies": {
-              "description": "Frequency count for each bin",
-              "type": "array",
-              "items": {
-                "type": "number"
-              }
+            "value": {
+              "description": "Profiling results for the metric.",
+              "type": "number"
             }
-          }
+          },
+          "additionalProperties": false
         },
         "systemProfile": {
+          "description": "This schema defines the System Profile object holding profile data from system tables.",
           "type": "object",
-          "description": "System metrics for the profiling operation",
+          "javaType": "org.openmetadata.schema.type.SystemProfile",
           "properties": {
             "timestamp": {
-              "description": "When the profile was generated",
+              "description": "Timestamp on which profile is taken.",
               "$ref": "../../type/basic.json#/definitions/timestamp"
             },
             "operation": {
-              "description": "Type of profiling operation",
+              "description": "Operation performed.",
               "type": "string",
-              "enum": [
-                "insert",
-                "update"
-              ]
+              "enum": ["UPDATE", "INSERT", "DELETE", "WRITE"]
             },
-            "query": {
-              "description": "Query used for profiling",
-              "type": "string"
-            },
-            "executionTime": {
-              "description": "Execution time in milliseconds",
-              "type": "number"
-            },
-            "rowsProcessed": {
-              "description": "Number of rows processed",
-              "type": "number"
+            "rowsAffected": {
+              "description": "Number of rows affected.",
+              "type": "integer"
             }
           }
         }
-      },
-      "properties": {
-        "id": {
-          "description": "Unique identifier of the data profile",
-          "$ref": "../../type/basic.json#/definitions/uuid"
-        },
-        "table": {
-          "description": "Reference to the table being profiled",
-          "$ref": "../../type/entityReference.json"
-        },
-        "profileDate": {
-          "description": "Date when the profile was generated",
-          "$ref": "../../type/basic.json#/definitions/date-time"
-        },
-        "tableProfile": {
-          "$ref": "#/definitions/tableProfile"
-        },
-        "columnProfile": {
-          "description": "Profiles for individual columns",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/columnProfile"
-          }
-        },
-        "sampleData": {
-          "description": "Sample data rows",
-          "type": "object",
-          "properties": {
-            "columns": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "rows": {
-              "type": "array",
-              "items": {
-                "type": "array",
-                "items": {
-                  "oneOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "boolean"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "systemProfile": {
-          "$ref": "#/definitions/systemProfile"
-        },
-        "version": {
-          "description": "Metadata version of the entity",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
-        },
-        "updatedAt": {
-          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds",
-          "$ref": "../../type/basic.json#/definitions/timestamp"
-        },
-        "updatedBy": {
-          "description": "User who made the update",
-          "type": "string"
-        },
-        "href": {
-          "description": "Link to this data profile resource",
-          "$ref": "../../type/basic.json#/definitions/href"
-        },
-        "deleted": {
-          "description": "When true indicates the entity has been soft deleted",
-          "type": "boolean",
-          "default": false
-        }
-      },
-      "required": [
-        "id",
-        "table",
-        "profileDate"
-      ],
-      "additionalProperties": false
+      }
     }
     ```
 
@@ -496,161 +432,251 @@ graph TD
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix om-entity: <https://open-metadata.org/schema/entity/> .
-    @prefix om-profile: <https://open-metadata.org/schema/entity/data/> .
+    @prefix om-type: <https://open-metadata.org/schema/type/> .
+    @prefix om-table: <https://open-metadata.org/schema/entity/data/table/> .
     @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
     @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
     @prefix dcterms: <http://purl.org/dc/terms/> .
-    @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
-    # Data Profile Class Definition
-    om-profile:DataProfile a owl:Class ;
-        rdfs:label "Data Profile" ;
-        rdfs:comment "Statistical profile of a database table" ;
-        rdfs:subClassOf om-entity:Entity ;
-        rdfs:isDefinedBy om: .
-
-    # Table Profile Class
-    om-profile:TableProfile a owl:Class ;
+    # Table Profile Class Definition
+    om-type:TableProfile a owl:Class ;
         rdfs:label "Table Profile" ;
-        rdfs:comment "Table-level profile metrics" ;
+        rdfs:comment "This schema defines the type to capture the table's data profile." ;
         rdfs:isDefinedBy om: .
 
-    # Column Profile Class
-    om-profile:ColumnProfile a owl:Class ;
+    # Column Profile Class Definition
+    om-type:ColumnProfile a owl:Class ;
         rdfs:label "Column Profile" ;
-        rdfs:comment "Column-level profile statistics" ;
+        rdfs:comment "This schema defines the type to capture the table's column profile." ;
         rdfs:isDefinedBy om: .
 
-    # Histogram Class
-    om-profile:Histogram a owl:Class ;
-        rdfs:label "Histogram" ;
-        rdfs:comment "Histogram showing value distribution" ;
+    # Custom Metric Profile Class Definition
+    om-type:CustomMetricProfile a owl:Class ;
+        rdfs:label "Custom Metric Profile" ;
+        rdfs:comment "Profiling results of a Custom Metric." ;
         rdfs:isDefinedBy om: .
 
-    # Properties
-    om-profile:profilesTable a owl:ObjectProperty ;
-        rdfs:label "profiles table" ;
-        rdfs:comment "Table being profiled" ;
-        rdfs:domain om-profile:DataProfile ;
-        rdfs:range om-entity:Table .
+    # System Profile Class Definition
+    om-type:SystemProfile a owl:Class ;
+        rdfs:label "System Profile" ;
+        rdfs:comment "This schema defines the System Profile object holding profile data from system tables." ;
+        rdfs:isDefinedBy om: .
 
-    om-profile:profileDate a owl:DatatypeProperty ;
-        rdfs:label "profile date" ;
-        rdfs:comment "Date when profile was generated" ;
-        rdfs:domain om-profile:DataProfile ;
+    # Table Profile Properties
+    om-type:timestamp a owl:DatatypeProperty ;
+        rdfs:label "timestamp" ;
+        rdfs:comment "Timestamp on which profile is taken." ;
+        rdfs:domain om-type:TableProfile, om-type:ColumnProfile, om-type:SystemProfile ;
+        rdfs:range xsd:long .
+
+    om-type:profileSample a owl:DatatypeProperty ;
+        rdfs:label "profile sample" ;
+        rdfs:comment "Percentage of data or no. of rows we want to execute the profiler and tests on" ;
+        rdfs:domain om-type:TableProfile ;
+        rdfs:range xsd:double .
+
+    om-type:profileSampleType a owl:DatatypeProperty ;
+        rdfs:label "profile sample type" ;
+        rdfs:comment "Type of Profile Sample (percentage or rows)" ;
+        rdfs:domain om-type:TableProfile ;
+        rdfs:range xsd:string .
+
+    om-type:samplingMethodType a owl:DatatypeProperty ;
+        rdfs:label "sampling method type" ;
+        rdfs:comment "Type of Sampling Method (BERNOULLI or SYSTEM)" ;
+        rdfs:domain om-type:TableProfile ;
+        rdfs:range xsd:string .
+
+    om-type:columnCount a owl:DatatypeProperty ;
+        rdfs:label "column count" ;
+        rdfs:comment "No.of columns in the table." ;
+        rdfs:domain om-type:TableProfile ;
+        rdfs:range xsd:double .
+
+    om-type:rowCount a owl:DatatypeProperty ;
+        rdfs:label "row count" ;
+        rdfs:comment "No.of rows in the table. This is always executed on the whole table." ;
+        rdfs:domain om-type:TableProfile ;
+        rdfs:range xsd:double .
+
+    om-type:sizeInByte a owl:DatatypeProperty ;
+        rdfs:label "size in bytes" ;
+        rdfs:comment "Table size in GB" ;
+        rdfs:domain om-type:TableProfile ;
+        rdfs:range xsd:double .
+
+    om-type:createDateTime a owl:DatatypeProperty ;
+        rdfs:label "create date time" ;
+        rdfs:comment "Table creation time." ;
+        rdfs:domain om-type:TableProfile ;
         rdfs:range xsd:dateTime .
 
-    om-profile:hasTableProfile a owl:ObjectProperty ;
-        rdfs:label "has table profile" ;
-        rdfs:comment "Table-level profile metrics" ;
-        rdfs:domain om-profile:DataProfile ;
-        rdfs:range om-profile:TableProfile .
+    # Column Profile Properties
+    om-type:name a owl:DatatypeProperty ;
+        rdfs:label "name" ;
+        rdfs:comment "Column Name or Custom Metric name." ;
+        rdfs:domain om-type:ColumnProfile, om-type:CustomMetricProfile ;
+        rdfs:range xsd:string .
 
-    om-profile:hasColumnProfile a owl:ObjectProperty ;
-        rdfs:label "has column profile" ;
-        rdfs:comment "Column-level profile statistics" ;
-        rdfs:domain om-profile:DataProfile ;
-        rdfs:range om-profile:ColumnProfile .
-
-    om-profile:profilesColumn a owl:ObjectProperty ;
-        rdfs:label "profiles column" ;
-        rdfs:comment "Column being profiled" ;
-        rdfs:domain om-profile:ColumnProfile ;
-        rdfs:range om-entity:Column .
-
-    om-profile:rowCount a owl:DatatypeProperty ;
-        rdfs:label "row count" ;
-        rdfs:comment "Number of rows in the table" ;
-        rdfs:domain om-profile:TableProfile ;
-        rdfs:range xsd:integer .
-
-    om-profile:columnCount a owl:DatatypeProperty ;
-        rdfs:label "column count" ;
-        rdfs:comment "Number of columns in the table" ;
-        rdfs:domain om-profile:TableProfile ;
-        rdfs:range xsd:integer .
-
-    om-profile:sizeInByte a owl:DatatypeProperty ;
-        rdfs:label "size in bytes" ;
-        rdfs:comment "Table size in bytes" ;
-        rdfs:domain om-profile:TableProfile ;
-        rdfs:range xsd:integer .
-
-    om-profile:valuesCount a owl:DatatypeProperty ;
+    om-type:valuesCount a owl:DatatypeProperty ;
         rdfs:label "values count" ;
-        rdfs:comment "Total count of values" ;
-        rdfs:domain om-profile:ColumnProfile ;
-        rdfs:range xsd:integer .
+        rdfs:comment "Total count of the values in this column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
 
-    om-profile:nullCount a owl:DatatypeProperty ;
+    om-type:valuesPercentage a owl:DatatypeProperty ;
+        rdfs:label "values percentage" ;
+        rdfs:comment "Percentage of values in this column with respect to row count." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:validCount a owl:DatatypeProperty ;
+        rdfs:label "valid count" ;
+        rdfs:comment "Total count of valid values in this column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:duplicateCount a owl:DatatypeProperty ;
+        rdfs:label "duplicate count" ;
+        rdfs:comment "No.of Rows that contain duplicates in a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:nullCount a owl:DatatypeProperty ;
         rdfs:label "null count" ;
-        rdfs:comment "Count of null values" ;
-        rdfs:domain om-profile:ColumnProfile ;
-        rdfs:range xsd:integer .
+        rdfs:comment "No.of null values in a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
 
-    om-profile:uniqueCount a owl:DatatypeProperty ;
+    om-type:nullProportion a owl:DatatypeProperty ;
+        rdfs:label "null proportion" ;
+        rdfs:comment "No.of null value proportion in columns." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:missingPercentage a owl:DatatypeProperty ;
+        rdfs:label "missing percentage" ;
+        rdfs:comment "Missing Percentage is calculated by taking percentage of validCount/valuesCount." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:missingCount a owl:DatatypeProperty ;
+        rdfs:label "missing count" ;
+        rdfs:comment "Missing count is calculated by subtracting valuesCount - validCount." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:uniqueCount a owl:DatatypeProperty ;
         rdfs:label "unique count" ;
-        rdfs:comment "Count of unique values" ;
-        rdfs:domain om-profile:ColumnProfile ;
-        rdfs:range xsd:integer .
+        rdfs:comment "No. of unique values in the column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
 
-    om-profile:distinctCount a owl:DatatypeProperty ;
+    om-type:uniqueProportion a owl:DatatypeProperty ;
+        rdfs:label "unique proportion" ;
+        rdfs:comment "Proportion of number of unique values in a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:distinctCount a owl:DatatypeProperty ;
         rdfs:label "distinct count" ;
-        rdfs:comment "Count of distinct values" ;
-        rdfs:domain om-profile:ColumnProfile ;
+        rdfs:comment "Number of values that contain distinct values." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:distinctProportion a owl:DatatypeProperty ;
+        rdfs:label "distinct proportion" ;
+        rdfs:comment "Proportion of distinct values in a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:minLength a owl:DatatypeProperty ;
+        rdfs:label "minimum length" ;
+        rdfs:comment "Minimum string length in a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:maxLength a owl:DatatypeProperty ;
+        rdfs:label "maximum length" ;
+        rdfs:comment "Maximum string length in a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:mean a owl:DatatypeProperty ;
+        rdfs:label "mean" ;
+        rdfs:comment "Avg value in a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:sum a owl:DatatypeProperty ;
+        rdfs:label "sum" ;
+        rdfs:comment "Sum value in a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:stddev a owl:DatatypeProperty ;
+        rdfs:label "standard deviation" ;
+        rdfs:comment "Standard deviation of a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:variance a owl:DatatypeProperty ;
+        rdfs:label "variance" ;
+        rdfs:comment "Variance of a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:median a owl:DatatypeProperty ;
+        rdfs:label "median" ;
+        rdfs:comment "Median of a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:firstQuartile a owl:DatatypeProperty ;
+        rdfs:label "first quartile" ;
+        rdfs:comment "First quartile of a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:thirdQuartile a owl:DatatypeProperty ;
+        rdfs:label "third quartile" ;
+        rdfs:comment "Third quartile of a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:interQuartileRange a owl:DatatypeProperty ;
+        rdfs:label "inter quartile range" ;
+        rdfs:comment "Inter quartile range of a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    om-type:nonParametricSkew a owl:DatatypeProperty ;
+        rdfs:label "non parametric skew" ;
+        rdfs:comment "Non parametric skew of a column." ;
+        rdfs:domain om-type:ColumnProfile ;
+        rdfs:range xsd:double .
+
+    # System Profile Properties
+    om-type:operation a owl:DatatypeProperty ;
+        rdfs:label "operation" ;
+        rdfs:comment "Operation performed." ;
+        rdfs:domain om-type:SystemProfile ;
+        rdfs:range xsd:string .
+
+    om-type:rowsAffected a owl:DatatypeProperty ;
+        rdfs:label "rows affected" ;
+        rdfs:comment "Number of rows affected." ;
+        rdfs:domain om-type:SystemProfile ;
         rdfs:range xsd:integer .
 
-    om-profile:min a owl:DatatypeProperty ;
-        rdfs:label "minimum" ;
-        rdfs:comment "Minimum value" ;
-        rdfs:domain om-profile:ColumnProfile .
-
-    om-profile:max a owl:DatatypeProperty ;
-        rdfs:label "maximum" ;
-        rdfs:comment "Maximum value" ;
-        rdfs:domain om-profile:ColumnProfile .
-
-    om-profile:mean a owl:DatatypeProperty ;
-        rdfs:label "mean" ;
-        rdfs:comment "Mean value for numeric columns" ;
-        rdfs:domain om-profile:ColumnProfile ;
+    # Custom Metric Profile Properties
+    om-type:value a owl:DatatypeProperty ;
+        rdfs:label "value" ;
+        rdfs:comment "Profiling results for the metric." ;
+        rdfs:domain om-type:CustomMetricProfile ;
         rdfs:range xsd:double .
-
-    om-profile:median a owl:DatatypeProperty ;
-        rdfs:label "median" ;
-        rdfs:comment "Median value" ;
-        rdfs:domain om-profile:ColumnProfile .
-
-    om-profile:stddev a owl:DatatypeProperty ;
-        rdfs:label "standard deviation" ;
-        rdfs:comment "Standard deviation" ;
-        rdfs:domain om-profile:ColumnProfile ;
-        rdfs:range xsd:double .
-
-    om-profile:hasHistogram a owl:ObjectProperty ;
-        rdfs:label "has histogram" ;
-        rdfs:comment "Histogram of value distribution" ;
-        rdfs:domain om-profile:ColumnProfile ;
-        rdfs:range om-profile:Histogram .
-
-    om-profile:identifiesIssue a owl:ObjectProperty ;
-        rdfs:label "identifies issue" ;
-        rdfs:comment "Data quality issue identified by profile" ;
-        rdfs:domain om-profile:DataProfile .
-
-    om-profile:baselineFor a owl:ObjectProperty ;
-        rdfs:label "baseline for" ;
-        rdfs:comment "Test case using this profile as baseline" ;
-        rdfs:domain om-profile:DataProfile ;
-        rdfs:range om-entity:TestCase .
-
-    om-profile:previousProfile a owl:ObjectProperty ;
-        rdfs:label "previous profile" ;
-        rdfs:comment "Previous profile for trend analysis" ;
-        rdfs:domain om-profile:DataProfile ;
-        rdfs:range om-profile:DataProfile .
     ```
 
 === "JSON-LD Context"
@@ -658,96 +684,173 @@ graph TD
     ```json
     {
       "@context": {
-        "@vocab": "https://open-metadata.org/schema/entity/data/",
+        "@vocab": "https://open-metadata.org/schema/type/",
         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "owl": "http://www.w3.org/2002/07/owl#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
-        "dcterms": "http://purl.org/dc/terms/",
-        "skos": "http://www.w3.org/2004/02/skos/core#",
-        "om": "https://open-metadata.org/schema/",
+        "om": "https://open-metadata.org/schema/type/",
 
-        "DataProfile": {
-          "@id": "om:DataProfile",
+        "TableProfile": {
+          "@id": "om:TableProfile",
           "@type": "@id"
         },
-        "id": {
-          "@id": "om:id",
+        "ColumnProfile": {
+          "@id": "om:ColumnProfile",
+          "@type": "@id"
+        },
+        "CustomMetricProfile": {
+          "@id": "om:CustomMetricProfile",
+          "@type": "@id"
+        },
+        "SystemProfile": {
+          "@id": "om:SystemProfile",
+          "@type": "@id"
+        },
+        "timestamp": {
+          "@id": "om:timestamp",
+          "@type": "xsd:long"
+        },
+        "profileSample": {
+          "@id": "om:profileSample",
+          "@type": "xsd:double"
+        },
+        "profileSampleType": {
+          "@id": "om:profileSampleType",
           "@type": "xsd:string"
         },
-        "table": {
-          "@id": "om:profilesTable",
-          "@type": "@id"
-        },
-        "profileDate": {
-          "@id": "om:profileDate",
-          "@type": "xsd:dateTime"
-        },
-        "tableProfile": {
-          "@id": "om:hasTableProfile",
-          "@type": "@id"
-        },
-        "columnProfile": {
-          "@id": "om:hasColumnProfile",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "rowCount": {
-          "@id": "om:rowCount",
-          "@type": "xsd:integer"
+        "samplingMethodType": {
+          "@id": "om:samplingMethodType",
+          "@type": "xsd:string"
         },
         "columnCount": {
           "@id": "om:columnCount",
-          "@type": "xsd:integer"
+          "@type": "xsd:double"
+        },
+        "rowCount": {
+          "@id": "om:rowCount",
+          "@type": "xsd:double"
         },
         "sizeInByte": {
           "@id": "om:sizeInByte",
-          "@type": "xsd:integer"
+          "@type": "xsd:double"
+        },
+        "createDateTime": {
+          "@id": "om:createDateTime",
+          "@type": "xsd:dateTime"
+        },
+        "name": {
+          "@id": "om:name",
+          "@type": "xsd:string"
         },
         "valuesCount": {
           "@id": "om:valuesCount",
-          "@type": "xsd:integer"
+          "@type": "xsd:double"
+        },
+        "valuesPercentage": {
+          "@id": "om:valuesPercentage",
+          "@type": "xsd:double"
+        },
+        "validCount": {
+          "@id": "om:validCount",
+          "@type": "xsd:double"
+        },
+        "duplicateCount": {
+          "@id": "om:duplicateCount",
+          "@type": "xsd:double"
         },
         "nullCount": {
           "@id": "om:nullCount",
-          "@type": "xsd:integer"
+          "@type": "xsd:double"
+        },
+        "nullProportion": {
+          "@id": "om:nullProportion",
+          "@type": "xsd:double"
+        },
+        "missingPercentage": {
+          "@id": "om:missingPercentage",
+          "@type": "xsd:double"
+        },
+        "missingCount": {
+          "@id": "om:missingCount",
+          "@type": "xsd:double"
         },
         "uniqueCount": {
           "@id": "om:uniqueCount",
-          "@type": "xsd:integer"
+          "@type": "xsd:double"
         },
-        "min": {
-          "@id": "om:min"
+        "uniqueProportion": {
+          "@id": "om:uniqueProportion",
+          "@type": "xsd:double"
         },
-        "max": {
-          "@id": "om:max"
+        "distinctCount": {
+          "@id": "om:distinctCount",
+          "@type": "xsd:double"
+        },
+        "distinctProportion": {
+          "@id": "om:distinctProportion",
+          "@type": "xsd:double"
+        },
+        "minLength": {
+          "@id": "om:minLength",
+          "@type": "xsd:double"
+        },
+        "maxLength": {
+          "@id": "om:maxLength",
+          "@type": "xsd:double"
         },
         "mean": {
           "@id": "om:mean",
           "@type": "xsd:double"
         },
-        "median": {
-          "@id": "om:median"
+        "sum": {
+          "@id": "om:sum",
+          "@type": "xsd:double"
         },
         "stddev": {
           "@id": "om:stddev",
           "@type": "xsd:double"
         },
-        "version": {
-          "@id": "om:version",
+        "variance": {
+          "@id": "om:variance",
+          "@type": "xsd:double"
+        },
+        "median": {
+          "@id": "om:median",
+          "@type": "xsd:double"
+        },
+        "firstQuartile": {
+          "@id": "om:firstQuartile",
+          "@type": "xsd:double"
+        },
+        "thirdQuartile": {
+          "@id": "om:thirdQuartile",
+          "@type": "xsd:double"
+        },
+        "interQuartileRange": {
+          "@id": "om:interQuartileRange",
+          "@type": "xsd:double"
+        },
+        "nonParametricSkew": {
+          "@id": "om:nonParametricSkew",
+          "@type": "xsd:double"
+        },
+        "operation": {
+          "@id": "om:operation",
           "@type": "xsd:string"
         },
-        "updatedAt": {
-          "@id": "dcterms:modified",
-          "@type": "xsd:dateTime"
+        "rowsAffected": {
+          "@id": "om:rowsAffected",
+          "@type": "xsd:integer"
         },
-        "updatedBy": {
-          "@id": "prov:wasAttributedTo",
-          "@type": "xsd:string"
+        "value": {
+          "@id": "om:value",
+          "@type": "xsd:double"
         },
-        "href": {
-          "@id": "om:href",
-          "@type": "xsd:anyURI"
+        "customMetrics": {
+          "@id": "om:customMetrics",
+          "@type": "@id",
+          "@container": "@set"
         }
       }
     }
@@ -757,75 +860,64 @@ graph TD
 
 ### Basic Table Profile
 
-Profile with table-level metrics:
+Profile with table-level metrics (attached to Table entity):
 
 ```json
 {
-  "id": "123e4567-e89b-12d3-a456-426614174000",
-  "table": {
-    "type": "table",
-    "name": "customers",
-    "fullyQualifiedName": "postgres.sales.public.customers"
-  },
-  "profileDate": "2024-01-15T02:00:00Z",
-  "tableProfile": {
-    "profileDate": "2024-01-15T02:00:00Z",
-    "columnCount": 12,
-    "rowCount": 1000000,
-    "sizeInByte": 524288000,
-    "timestamp": 1705291200000
-  }
+  "timestamp": 1705291200000,
+  "profileSample": 100,
+  "profileSampleType": "PERCENTAGE",
+  "columnCount": 12,
+  "rowCount": 1000000,
+  "sizeInByte": 524288000,
+  "createDateTime": "2024-01-15T02:00:00Z"
 }
 ```
+
+This profile would be attached to a Table entity via the `profile` property.
 
 ### Column Profile with Statistics
 
-Detailed column-level statistics:
+Detailed column-level statistics (attached to Column entity):
 
 ```json
-{
-  "id": "456e7890-e89b-12d3-a456-426614174111",
-  "table": {
-    "type": "table",
-    "name": "customers"
+[
+  {
+    "name": "age",
+    "timestamp": 1705291200000,
+    "valuesCount": 1000000,
+    "validCount": 995000,
+    "nullCount": 5000,
+    "nullProportion": 0.005,
+    "uniqueCount": 80,
+    "distinctCount": 80,
+    "duplicateCount": 915000,
+    "min": 18,
+    "max": 95,
+    "mean": 42.5,
+    "median": 41,
+    "stddev": 15.2,
+    "firstQuartile": 30,
+    "thirdQuartile": 55,
+    "interQuartileRange": 25
   },
-  "profileDate": "2024-01-15T02:00:00Z",
-  "columnProfile": [
-    {
-      "name": "age",
-      "timestamp": 1705291200000,
-      "valuesCount": 1000000,
-      "validCount": 995000,
-      "nullCount": 5000,
-      "nullProportion": 0.005,
-      "uniqueCount": 80,
-      "distinctCount": 80,
-      "duplicateCount": 915000,
-      "min": 18,
-      "max": 95,
-      "mean": 42.5,
-      "median": 41,
-      "stddev": 15.2,
-      "firstQuartile": 30,
-      "thirdQuartile": 55,
-      "interQuartileRange": 25
-    },
-    {
-      "name": "email",
-      "timestamp": 1705291200000,
-      "valuesCount": 1000000,
-      "validCount": 998000,
-      "nullCount": 2000,
-      "nullProportion": 0.002,
-      "uniqueCount": 998000,
-      "uniqueProportion": 0.998,
-      "distinctCount": 998000,
-      "minLength": 10,
-      "maxLength": 120
-    }
-  ]
-}
+  {
+    "name": "email",
+    "timestamp": 1705291200000,
+    "valuesCount": 1000000,
+    "validCount": 998000,
+    "nullCount": 2000,
+    "nullProportion": 0.002,
+    "uniqueCount": 998000,
+    "uniqueProportion": 0.998,
+    "distinctCount": 998000,
+    "minLength": 10,
+    "maxLength": 120
+  }
+]
 ```
+
+Column profiles are stored in the Column entity's `profile` property.
 
 ### Profile with Histogram
 
@@ -833,52 +925,39 @@ Column profile including value distribution:
 
 ```json
 {
-  "columnProfile": [
-    {
-      "name": "purchase_amount",
-      "valuesCount": 500000,
-      "min": 1.99,
-      "max": 9999.99,
-      "mean": 150.50,
-      "median": 89.99,
-      "stddev": 200.25,
-      "histogram": {
-        "boundaries": [0, 50, 100, 250, 500, 1000, 10000],
-        "frequencies": [125000, 200000, 100000, 50000, 20000, 5000]
-      }
-    }
-  ]
+  "name": "purchase_amount",
+  "timestamp": 1705291200000,
+  "valuesCount": 500000,
+  "min": 1.99,
+  "max": 9999.99,
+  "mean": 150.50,
+  "median": 89.99,
+  "stddev": 200.25,
+  "histogram": {
+    "boundaries": [0, 50, 100, 250, 500, 1000, 10000],
+    "frequencies": [125000, 200000, 100000, 50000, 20000, 5000]
+  }
 }
 ```
 
 ### Profile with Sample Data
 
-Profile including sample rows:
+Sample data is stored separately on the Table entity:
 
 ```json
 {
-  "id": "789e4567-e89b-12d3-a456-426614174222",
-  "table": {
-    "type": "table",
-    "name": "customers"
-  },
-  "profileDate": "2024-01-15T02:00:00Z",
-  "tableProfile": {
-    "rowCount": 1000000,
-    "columnCount": 5
-  },
-  "sampleData": {
-    "columns": ["id", "name", "email", "age", "country"],
-    "rows": [
-      [1, "John Doe", "john@example.com", 35, "USA"],
-      [2, "Jane Smith", "jane@example.com", 28, "UK"],
-      [3, "Bob Johnson", "bob@example.com", 42, "Canada"],
-      [4, "Alice Williams", "alice@example.com", 31, "Australia"],
-      [5, "Charlie Brown", "charlie@example.com", 55, "USA"]
-    ]
-  }
+  "columns": ["id", "name", "email", "age", "country"],
+  "rows": [
+    [1, "John Doe", "john@example.com", 35, "USA"],
+    [2, "Jane Smith", "jane@example.com", 28, "UK"],
+    [3, "Bob Johnson", "bob@example.com", 42, "Canada"],
+    [4, "Alice Williams", "alice@example.com", 31, "Australia"],
+    [5, "Charlie Brown", "charlie@example.com", 55, "USA"]
+  ]
 }
 ```
+
+Sample data is stored in the Table entity's `sampleData` property.
 
 ### String Column Profile
 
@@ -886,41 +965,35 @@ Profile for text columns:
 
 ```json
 {
-  "columnProfile": [
-    {
-      "name": "description",
-      "valuesCount": 100000,
-      "nullCount": 500,
-      "nullProportion": 0.005,
-      "minLength": 10,
-      "maxLength": 5000,
-      "mean": null,
-      "median": null,
-      "distinctCount": 95000,
-      "distinctProportion": 0.95
-    }
-  ]
+  "name": "description",
+  "timestamp": 1705291200000,
+  "valuesCount": 100000,
+  "nullCount": 500,
+  "nullProportion": 0.005,
+  "minLength": 10,
+  "maxLength": 5000,
+  "distinctCount": 95000,
+  "distinctProportion": 0.95
 }
 ```
 
 ### Categorical Column Profile
 
-Profile for categorical/enum columns:
+Profile for categorical/enum columns with cardinality distribution:
 
 ```json
 {
-  "columnProfile": [
-    {
-      "name": "status",
-      "valuesCount": 1000000,
-      "nullCount": 0,
-      "distinctCount": 5,
-      "histogram": {
-        "boundaries": ["active", "pending", "suspended", "closed", "deleted"],
-        "frequencies": [600000, 150000, 100000, 120000, 30000]
-      }
-    }
-  ]
+  "name": "status",
+  "timestamp": 1705291200000,
+  "valuesCount": 1000000,
+  "nullCount": 0,
+  "distinctCount": 5,
+  "cardinalityDistribution": {
+    "categories": ["active", "pending", "suspended", "closed", "deleted"],
+    "counts": [600000, 150000, 100000, 120000, 30000],
+    "percentages": [60.0, 15.0, 10.0, 12.0, 3.0],
+    "allValuesUnique": false
+  }
 }
 ```
 
@@ -930,23 +1003,48 @@ Profile for categorical/enum columns:
 
 | Metric | Description | Use Case |
 |--------|-------------|----------|
+| **timestamp** | Timestamp on which profile is taken | Profile versioning |
+| **profileSample** | Percentage of data or no. of rows used | Understanding sampling |
+| **profileSampleType** | Type of Profile Sample (PERCENTAGE or ROWS) | Sampling method |
+| **samplingMethodType** | Sampling Method (BERNOULLI or SYSTEM) | Statistical validity |
 | **rowCount** | Total number of rows | Track table growth |
 | **columnCount** | Number of columns | Detect schema changes |
-| **sizeInByte** | Table size in bytes | Monitor storage usage |
+| **sizeInByte** | Table size in GB | Monitor storage usage |
 | **createDateTime** | When table was created | Audit table age |
+| **customMetrics** | Custom metrics for the table | Business-specific metrics |
 
 ### Column-Level Metrics
 
 | Metric | Description | Use Case |
 |--------|-------------|----------|
-| **valuesCount** | Total values (including nulls) | Completeness check |
-| **nullCount** | Number of null values | Data quality assessment |
-| **uniqueCount** | Unique value count | Cardinality analysis |
-| **distinctCount** | Distinct value count | Duplicate detection |
+| **name** | Column Name | Identification |
+| **timestamp** | Timestamp on which profile is taken | Profile versioning |
+| **valuesCount** | Total count of the values | Completeness check |
+| **valuesPercentage** | Percentage of values with respect to row count | Proportion analysis |
+| **validCount** | Total count of valid values | Validity check |
+| **duplicateCount** | No.of rows that contain duplicates | Duplicate detection |
+| **nullCount** | No.of null values | Data quality assessment |
+| **nullProportion** | Proportion of null values | Null rate analysis |
+| **missingPercentage** | Percentage of missing/null values | Missing data check |
+| **missingCount** | Count of missing values | Completeness tracking |
+| **uniqueCount** | No. of unique values | Cardinality analysis |
+| **uniqueProportion** | Proportion of unique values | Uniqueness ratio |
+| **distinctCount** | Number of distinct values | Cardinality tracking |
+| **distinctProportion** | Proportion of distinct values | Distribution analysis |
 | **min/max** | Minimum and maximum values | Range validation |
-| **mean/median** | Central tendency | Outlier detection |
+| **minLength/maxLength** | String length bounds | Text field validation |
+| **mean** | Average value | Central tendency |
+| **sum** | Sum of values | Aggregate analysis |
+| **median** | Median value | Central tendency |
 | **stddev** | Standard deviation | Variability analysis |
-| **histogram** | Value distribution | Distribution analysis |
+| **variance** | Variance | Spread analysis |
+| **firstQuartile** | First quartile (25th percentile) | Distribution analysis |
+| **thirdQuartile** | Third quartile (75th percentile) | Distribution analysis |
+| **interQuartileRange** | Inter quartile range | Outlier detection |
+| **nonParametricSkew** | Non parametric skew | Distribution shape |
+| **histogram** | Histogram boundaries and frequencies | Distribution visualization |
+| **cardinalityDistribution** | Category distribution with counts | Categorical analysis |
+| **customMetrics** | Custom metrics for the column | Business-specific metrics |
 
 ## Profiling Strategies
 

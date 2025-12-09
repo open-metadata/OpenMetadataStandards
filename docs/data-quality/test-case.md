@@ -101,143 +101,191 @@ View the complete TestCase schema in your preferred format:
 
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/data/testCase.json",
+      "$id": "https://open-metadata.org/schema/tests/testCase.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "TestCase",
-      "description": "A `TestCase` is a specific instance of a test applied to a table or column with configured parameters.",
+      "description": "Test case is a test definition to capture data quality tests against tables, columns, and other data assets.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.data.TestCase",
+      "javaType": "org.openmetadata.schema.tests.TestCase",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "definitions": {
-        "testCaseStatus": {
-          "description": "Status of the test case",
-          "type": "string",
-          "enum": ["Success", "Failed", "Aborted", "Queued"]
-        },
-        "testCaseResult": {
-          "type": "object",
-          "properties": {
-            "timestamp": {
-              "description": "Test execution timestamp",
-              "type": "integer",
-              "format": "int64"
-            },
-            "testCaseStatus": {
-              "$ref": "#/definitions/testCaseStatus"
-            },
-            "result": {
-              "description": "Test result value",
-              "type": "string"
-            },
-            "sampleData": {
-              "description": "Sample failing data",
-              "type": "string"
-            },
-            "testResultValue": {
-              "description": "Array of result values",
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {"type": "string"},
-                  "value": {"type": "string"}
-                }
-              }
-            },
-            "passedRows": {
-              "type": "integer"
-            },
-            "failedRows": {
-              "type": "integer"
-            }
-          },
-          "required": ["timestamp", "testCaseStatus"]
-        },
         "testCaseParameterValue": {
           "type": "object",
+          "javaType": "org.openmetadata.schema.tests.TestCaseParameterValue",
+          "description": "This schema defines the parameter values that can be passed for a Test Case.",
           "properties": {
             "name": {
+              "description": "name of the parameter. Must match the parameter names in testCaseParameterDefinition",
               "type": "string"
             },
             "value": {
+              "description": "value to be passed for the Parameters. These are input from Users. We capture this in string and convert during the runtime.",
               "type": "string"
             }
-          },
-          "required": ["name"]
+          }
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
-          "$ref": "../../type/basic.json#/definitions/uuid"
+          "description": "Unique identifier of this table instance.",
+          "$ref": "../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Test case name",
-          "$ref": "../../type/basic.json#/definitions/entityName"
-        },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+          "description": "Name that identifies this test case.",
+          "$ref": "../type/basic.json#/definitions/testCaseEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this test.",
           "type": "string"
         },
+        "fullyQualifiedName": {
+          "description": "FullyQualifiedName same as `name`.",
+          "$ref": "../type/basic.json#/definitions/fullyQualifiedEntityName"
+        },
         "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
+          "description": "Description of the testcase.",
+          "$ref": "../type/basic.json#/definitions/markdown"
         },
         "testDefinition": {
-          "description": "Test definition reference",
-          "$ref": "../../type/entityReference.json"
+          "description": "Test definition that this test case is based on.",
+          "$ref": "../type/entityReference.json"
         },
         "entityLink": {
-          "description": "Link to table or column",
-          "type": "string",
-          "format": "uri"
+          "description": "Link to the entity that this test case is testing.",
+          "$ref": "../type/basic.json#/definitions/entityLink"
         },
         "entityFQN": {
-          "description": "FQN of the entity being tested",
           "type": "string"
         },
         "testSuite": {
-          "description": "Parent test suite",
-          "$ref": "../../type/entityReference.json"
+          "description": "Basic Test Suite that this test case belongs to.",
+          "$ref": "../type/entityReference.json"
+        },
+        "testSuites": {
+          "type": "array",
+          "description": "Basic and Logical Test Suites this test case belongs to",
+          "items": {
+            "$ref": "./testSuite.json"
+          }
         },
         "parameterValues": {
-          "description": "Parameter values for this test",
           "type": "array",
           "items": {
             "$ref": "#/definitions/testCaseParameterValue"
           }
         },
         "testCaseResult": {
-          "description": "Latest test result",
-          "$ref": "#/definitions/testCaseResult"
+          "description": "Latest test case result obtained for this test case.",
+          "$ref": "./basic.json#/definitions/testCaseResult"
         },
-        "testCaseResults": {
-          "description": "Historical test results",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/testCaseResult"
-          }
-        },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "testCaseStatus": {
+          "description": "Status of Test Case run.",
+          "$ref": "./basic.json#/definitions/testCaseStatus"
         },
         "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+          "description": "Metadata version of the entity.",
+          "$ref": "../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "owners": {
+          "description": "Owners of this Pipeline.",
+          "$ref": "../type/entityReferenceList.json",
+          "default": null
+        },
+        "createdBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../type/basic.json#/definitions/href"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "computePassedFailedRowCount": {
+          "description": "Compute the passed and failed row count for the test case.",
+          "type": "boolean",
+          "default": false
+        },
+        "incidentId": {
+          "description": "Reference to an ongoing Incident ID (stateId) for this test case.",
+          "$ref": "../type/basic.json#/definitions/uuid"
+        },
+        "failedRowsSample": {
+          "description": "Sample of failed rows for this test case.",
+          "$ref": "../entity/data/table.json#/definitions/tableData"
+        },
+        "inspectionQuery": {
+          "description": "SQL query to retrieve the failed rows for this test case.",
+          "$ref": "../type/basic.json#/definitions/sqlQuery"
+        },
+        "domains": {
+          "description": "Domains the test case belongs to. When not set, the test case inherits the domain from the table it belongs to.",
+          "$ref": "../type/entityReferenceList.json"
+        },
+        "followers": {
+          "description": "Followers of this test case. When not set, the test case inherits the followers from the table it belongs to.",
+          "$ref": "../type/entityReferenceList.json"
+        },
+        "useDynamicAssertion": {
+          "description": "If the test definition supports it, use dynamic assertion to evaluate the test case.",
+          "type": "boolean",
+          "default": false
+        },
+        "tags": {
+          "description": "Tags for this test case. This is an inherited field from the parent entity and is not set directly on the test case.",
+          "type": "array",
+          "items": {
+            "$ref": "../type/tagLabel.json"
+          },
+          "default": []
+        },
+        "dimensionColumns": {
+          "description": "List of columns to group test results by dimensions. When specified, the test will be executed both overall and grouped by these columns to provide fine-grained data quality insights.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "entityStatus": {
+          "description": "Current status of the test case.",
+          "$ref": "../type/status.json",
+          "default": "Approved"
+        },
+        "reviewers": {
+          "description": "List of reviewers for this entity.",
+          "$ref": "../type/entityReferenceList.json",
+          "default": null
         }
       },
 
-      "required": ["id", "name", "testDefinition", "entityLink"]
+      "required": ["name", "testDefinition", "entityLink", "testSuite"],
+      "additionalProperties": false
     }
     ```
 
-    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/schemas/entity/data/testCase.json)**
+    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/schemas/tests/testCase.json)**
 
 === "RDF"
 
@@ -246,44 +294,73 @@ View the complete TestCase schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # TestCase Class Definition
     om:TestCase a owl:Class ;
-        rdfs:subClassOf om:DataQualityAsset ;
         rdfs:label "TestCase" ;
-        rdfs:comment "A specific test instance applied to a table or column" ;
-        om:hierarchyLevel 2 .
+        rdfs:comment "Test case is a test definition to capture data quality tests against tables, columns, and other data assets." .
 
-    # Properties
+    # Core Properties
     om:testCaseName a owl:DatatypeProperty ;
         rdfs:domain om:TestCase ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the test case" .
+        rdfs:comment "Name that identifies this test case" .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this test" .
+
+    om:fullyQualifiedName a owl:DatatypeProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range xsd:string ;
+        rdfs:label "fullyQualifiedName" ;
+        rdfs:comment "FullyQualifiedName same as name" .
+
+    om:description a owl:DatatypeProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of the testcase" .
 
     om:entityLink a owl:DatatypeProperty ;
         rdfs:domain om:TestCase ;
         rdfs:range xsd:anyURI ;
         rdfs:label "entityLink" ;
-        rdfs:comment "Link to the entity being tested" .
+        rdfs:comment "Link to the entity that this test case is testing" .
 
+    om:entityFQN a owl:DatatypeProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range xsd:string ;
+        rdfs:label "entityFQN" ;
+        rdfs:comment "Fully qualified name of the entity being tested" .
+
+    # Relationships
     om:basedOnDefinition a owl:ObjectProperty ;
         rdfs:domain om:TestCase ;
         rdfs:range om:TestDefinition ;
         rdfs:label "testDefinition" ;
-        rdfs:comment "Test definition this case is based on" .
+        rdfs:comment "Test definition that this test case is based on" .
 
     om:belongsToTestSuite a owl:ObjectProperty ;
         rdfs:domain om:TestCase ;
         rdfs:range om:TestSuite ;
         rdfs:label "testSuite" ;
-        rdfs:comment "Parent test suite" .
+        rdfs:comment "Basic Test Suite that this test case belongs to" .
+
+    om:belongsToTestSuites a owl:ObjectProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range om:TestSuite ;
+        rdfs:label "testSuites" ;
+        rdfs:comment "Basic and Logical Test Suites this test case belongs to" .
 
     om:hasParameterValue a owl:ObjectProperty ;
         rdfs:domain om:TestCase ;
-        rdfs:range om:ParameterValue ;
+        rdfs:range om:TestCaseParameterValue ;
         rdfs:label "parameterValues" ;
         rdfs:comment "Configured parameter values" .
 
@@ -291,13 +368,56 @@ View the complete TestCase schema in your preferred format:
         rdfs:domain om:TestCase ;
         rdfs:range om:TestCaseResult ;
         rdfs:label "testCaseResult" ;
-        rdfs:comment "Latest test execution result" .
+        rdfs:comment "Latest test case result obtained for this test case" .
 
-    om:testStatus a owl:DatatypeProperty ;
-        rdfs:domain om:TestCaseResult ;
+    om:hasTestCaseStatus a owl:ObjectProperty ;
+        rdfs:domain om:TestCase ;
         rdfs:range om:TestCaseStatus ;
         rdfs:label "testCaseStatus" ;
-        rdfs:comment "Status of test execution" .
+        rdfs:comment "Status of Test Case run" .
+
+    om:hasOwners a owl:ObjectProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this test case" .
+
+    om:hasDomains a owl:ObjectProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the test case belongs to" .
+
+    om:hasFollowers a owl:ObjectProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this test case" .
+
+    om:hasReviewers a owl:ObjectProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "reviewers" ;
+        rdfs:comment "List of reviewers for this entity" .
+
+    # Additional Properties
+    om:computePassedFailedRowCount a owl:DatatypeProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "computePassedFailedRowCount" ;
+        rdfs:comment "Compute the passed and failed row count for the test case" .
+
+    om:useDynamicAssertion a owl:DatatypeProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "useDynamicAssertion" ;
+        rdfs:comment "If the test definition supports it, use dynamic assertion to evaluate the test case" .
+
+    om:deleted a owl:DatatypeProperty ;
+        rdfs:domain om:TestCase ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When true indicates the entity has been soft deleted" .
 
     # TestCaseStatus Enumeration
     om:TestCaseStatus a owl:Class ;
@@ -317,7 +437,10 @@ View the complete TestCase schema in your preferred format:
         om:belongsToTestSuite ex:customersTestSuite ;
         om:hasParameterValue ex:minValue10000 ;
         om:hasParameterValue ex:maxValue50000 ;
-        om:hasTestResult ex:latestResult .
+        om:hasTestResult ex:latestResult ;
+        om:computePassedFailedRowCount false ;
+        om:useDynamicAssertion false ;
+        om:deleted false .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -339,12 +462,12 @@ View the complete TestCase schema in your preferred format:
           "@id": "om:testCaseName",
           "@type": "xsd:string"
         },
-        "fullyQualifiedName": {
-          "@id": "om:fullyQualifiedName",
-          "@type": "xsd:string"
-        },
         "displayName": {
           "@id": "om:displayName",
+          "@type": "xsd:string"
+        },
+        "fullyQualifiedName": {
+          "@id": "om:fullyQualifiedName",
           "@type": "xsd:string"
         },
         "description": {
@@ -359,9 +482,18 @@ View the complete TestCase schema in your preferred format:
           "@id": "om:entityLink",
           "@type": "xsd:anyURI"
         },
+        "entityFQN": {
+          "@id": "om:entityFQN",
+          "@type": "xsd:string"
+        },
         "testSuite": {
           "@id": "om:belongsToTestSuite",
           "@type": "@id"
+        },
+        "testSuites": {
+          "@id": "om:belongsToTestSuites",
+          "@type": "@id",
+          "@container": "@list"
         },
         "parameterValues": {
           "@id": "om:hasParameterValue",
@@ -372,9 +504,41 @@ View the complete TestCase schema in your preferred format:
           "@id": "om:hasTestResult",
           "@type": "@id"
         },
-        "owner": {
-          "@id": "om:ownedBy",
+        "testCaseStatus": {
+          "@id": "om:hasTestCaseStatus",
           "@type": "@id"
+        },
+        "owners": {
+          "@id": "om:hasOwners",
+          "@type": "@id",
+          "@container": "@list"
+        },
+        "domains": {
+          "@id": "om:hasDomains",
+          "@type": "@id",
+          "@container": "@list"
+        },
+        "followers": {
+          "@id": "om:hasFollowers",
+          "@type": "@id",
+          "@container": "@list"
+        },
+        "reviewers": {
+          "@id": "om:hasReviewers",
+          "@type": "@id",
+          "@container": "@list"
+        },
+        "computePassedFailedRowCount": {
+          "@id": "om:computePassedFailedRowCount",
+          "@type": "xsd:boolean"
+        },
+        "useDynamicAssertion": {
+          "@id": "om:useDynamicAssertion",
+          "@type": "xsd:boolean"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
         }
       }
     }
@@ -456,8 +620,8 @@ View the complete TestCase schema in your preferred format:
 
 #### `id` (uuid)
 **Type**: `string` (UUID format)
-**Required**: Yes (system-generated)
-**Description**: Unique identifier for this test case
+**Required**: No (system-generated)
+**Description**: Unique identifier of this table instance
 
 ```json
 {
@@ -467,11 +631,10 @@ View the complete TestCase schema in your preferred format:
 
 ---
 
-#### `name` (entityName)
+#### `name` (testCaseEntityName)
 **Type**: `string`
 **Required**: Yes
-**Pattern**: `^[^.]*$` (no dots allowed)
-**Description**: Name of the test case
+**Description**: Name that identifies this test case
 
 ```json
 {
@@ -481,23 +644,10 @@ View the complete TestCase schema in your preferred format:
 
 ---
 
-#### `fullyQualifiedName` (fullyQualifiedEntityName)
-**Type**: `string`
-**Required**: Yes (system-generated)
-**Description**: Fully qualified name including test suite
-
-```json
-{
-  "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.testSuite.customers_row_count_check"
-}
-```
-
----
-
-#### `displayName`
+#### `displayName` (string)
 **Type**: `string`
 **Required**: No
-**Description**: Human-readable display name
+**Description**: Display Name that identifies this test
 
 ```json
 {
@@ -507,10 +657,23 @@ View the complete TestCase schema in your preferred format:
 
 ---
 
+#### `fullyQualifiedName` (fullyQualifiedEntityName)
+**Type**: `string`
+**Required**: No (system-generated)
+**Description**: FullyQualifiedName same as `name`
+
+```json
+{
+  "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.testSuite.customers_row_count_check"
+}
+```
+
+---
+
 #### `description` (markdown)
 **Type**: `string` (Markdown format)
 **Required**: No
-**Description**: Description of what this test validates
+**Description**: Description of the testcase
 
 ```json
 {
@@ -525,7 +688,7 @@ View the complete TestCase schema in your preferred format:
 #### `testDefinition` (EntityReference)
 **Type**: `object`
 **Required**: Yes
-**Description**: Reference to the test definition this case is based on
+**Description**: Test definition that this test case is based on
 
 ```json
 {
@@ -540,23 +703,23 @@ View the complete TestCase schema in your preferred format:
 
 ---
 
-#### `entityLink` (uri)
-**Type**: `string` (URI format)
+#### `entityLink` (entityLink)
+**Type**: `string` (entityLink format)
 **Required**: Yes
-**Description**: Link to the table or column being tested
+**Description**: Link to the entity that this test case is testing
 
-**Format**: `<entityType>://<fullyQualifiedName>`
+**Format**: `<#E::table::<fullyQualifiedName>>` or `<#E::table::<fullyQualifiedName>::columns::<columnName>>`
 
 ```json
 {
-  "entityLink": "table://postgres_prod.ecommerce.public.customers"
+  "entityLink": "<#E::table::postgres_prod.ecommerce.public.customers>"
 }
 ```
 
 **Column Example**:
 ```json
 {
-  "entityLink": "column://postgres_prod.ecommerce.public.customers.email"
+  "entityLink": "<#E::table::postgres_prod.ecommerce.public.customers::columns::email>"
 }
 ```
 
@@ -565,7 +728,7 @@ View the complete TestCase schema in your preferred format:
 #### `entityFQN` (string)
 **Type**: `string`
 **Required**: No
-**Description**: Fully qualified name of the entity being tested
+**Description**: Fully qualified name of the entity being tested (extracted from entityLink)
 
 ```json
 {
@@ -577,8 +740,8 @@ View the complete TestCase schema in your preferred format:
 
 #### `testSuite` (EntityReference)
 **Type**: `object`
-**Required**: No
-**Description**: Parent test suite this test belongs to
+**Required**: Yes
+**Description**: Basic Test Suite that this test case belongs to
 
 ```json
 {
@@ -588,6 +751,32 @@ View the complete TestCase schema in your preferred format:
     "name": "customers.testSuite",
     "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.testSuite"
   }
+}
+```
+
+---
+
+#### `testSuites[]` (TestSuite[])
+**Type**: `array` of TestSuite objects
+**Required**: No
+**Description**: Basic and Logical Test Suites this test case belongs to
+
+```json
+{
+  "testSuites": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "testSuite",
+      "name": "customers.testSuite",
+      "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.testSuite"
+    },
+    {
+      "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+      "type": "testSuite",
+      "name": "critical_quality_tests",
+      "fullyQualifiedName": "critical_quality_tests"
+    }
+  ]
 }
 ```
 
@@ -622,19 +811,29 @@ View the complete TestCase schema in your preferred format:
 #### `testCaseResult` (TestCaseResult)
 **Type**: `object`
 **Required**: No (populated after execution)
-**Description**: Latest test execution result
+**Description**: Latest test case result obtained for this test case
 
 **TestCaseResult Object Properties**:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `timestamp` | integer | Yes | Execution timestamp (epoch milliseconds) |
-| `testCaseStatus` | TestCaseStatus enum | Yes | Success, Failed, Aborted, Queued |
-| `result` | string | No | Human-readable result message |
-| `sampleData` | string | No | Sample failing data (for failed tests) |
+| `id` | uuid | No | Unique identifier of this failure instance |
+| `testCaseFQN` | string | No | Fully qualified name of the test case |
+| `timestamp` | integer | Yes | Data on which test case result is taken (epoch milliseconds) |
+| `testCaseStatus` | TestCaseStatus enum | No | Status of Test Case run (Success, Failed, Aborted, Queued) |
+| `result` | string | No | Details of test case results |
+| `sampleData` | string | No | Sample data to capture rows/columns that didn't match |
 | `testResultValue` | array | No | Array of name-value result pairs |
 | `passedRows` | integer | No | Number of rows that passed |
 | `failedRows` | integer | No | Number of rows that failed |
+| `passedRowsPercentage` | number | No | Percentage of rows that passed |
+| `failedRowsPercentage` | number | No | Percentage of rows that failed |
+| `incidentId` | uuid | No | Incident State ID associated with this result |
+| `maxBound` | number | No | Upper bound limit for the test case result |
+| `minBound` | number | No | Lower bound limit for the test case result |
+| `testCase` | EntityReference | No | Test case that this result is for |
+| `testDefinition` | EntityReference | No | Test definition that this result is for |
+| `dimensionResults` | array | No | List of dimensional test results |
 
 **Example - Success**:
 
@@ -711,30 +910,106 @@ View the complete TestCase schema in your preferred format:
 
 ---
 
-#### `testCaseResults[]` (TestCaseResult[])
-**Type**: `array`
+#### `testCaseStatus` (TestCaseStatus)
+**Type**: `string` (enum)
 **Required**: No
-**Description**: Historical test execution results
+**Description**: Status of Test Case run
+**Values**: "Success", "Failed", "Aborted", "Queued"
 
 ```json
 {
-  "testCaseResults": [
-    {
-      "timestamp": 1704240000000,
-      "testCaseStatus": "Success",
-      "result": "Row count: 32450"
-    },
-    {
-      "timestamp": 1704153600000,
-      "testCaseStatus": "Success",
-      "result": "Row count: 31890"
-    },
-    {
-      "timestamp": 1704067200000,
-      "testCaseStatus": "Failed",
-      "result": "Row count: 8234"
-    }
-  ]
+  "testCaseStatus": "Success"
+}
+```
+
+---
+
+### Additional Test Properties
+
+#### `computePassedFailedRowCount` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: false
+**Description**: Compute the passed and failed row count for the test case
+
+```json
+{
+  "computePassedFailedRowCount": true
+}
+```
+
+---
+
+#### `incidentId` (uuid)
+**Type**: `string` (UUID format)
+**Required**: No
+**Description**: Reference to an ongoing Incident ID (stateId) for this test case
+
+```json
+{
+  "incidentId": "a7b8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d"
+}
+```
+
+---
+
+#### `failedRowsSample` (TableData)
+**Type**: `object`
+**Required**: No
+**Description**: Sample of failed rows for this test case
+
+```json
+{
+  "failedRowsSample": {
+    "columns": [
+      {"name": "email", "dataType": "VARCHAR"}
+    ],
+    "rows": [
+      ["invalid@email"],
+      ["bad@domain.xyz"]
+    ]
+  }
+}
+```
+
+---
+
+#### `inspectionQuery` (sqlQuery)
+**Type**: `string` (SQL query)
+**Required**: No
+**Description**: SQL query to retrieve the failed rows for this test case
+
+```json
+{
+  "inspectionQuery": "SELECT email FROM customers WHERE email NOT LIKE '%@%.%'"
+}
+```
+
+---
+
+#### `useDynamicAssertion` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: false
+**Description**: If the test definition supports it, use dynamic assertion to evaluate the test case
+
+```json
+{
+  "useDynamicAssertion": false
+}
+```
+
+---
+
+#### `dimensionColumns[]` (string[])
+**Type**: `array` of strings
+**Required**: No
+**Default**: []
+**Description**: List of columns to group test results by dimensions. When specified, the test will be executed both overall and grouped by these columns to provide fine-grained data quality insights.
+
+```json
+{
+  "dimensionColumns": ["region", "product_category"]
 }
 ```
 
@@ -742,34 +1017,251 @@ View the complete TestCase schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
 **Required**: No
-**Description**: User or team that owns this test case
+**Default**: null
+**Description**: Owners of this test case (users or teams)
 
 ```json
 {
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "user",
-    "name": "jane.doe",
-    "displayName": "Jane Doe"
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "user",
+      "name": "jane.doe",
+      "displayName": "Jane Doe"
+    },
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "team",
+      "name": "data-quality-team",
+      "displayName": "Data Quality Team"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No
+**Description**: Domains the test case belongs to. When not set, the test case inherits the domain from the table it belongs to.
+
+```json
+{
+  "domains": [
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "type": "domain",
+      "name": "Marketing",
+      "fullyQualifiedName": "Marketing"
+    }
+  ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No
+**Description**: Followers of this test case. When not set, the test case inherits the followers from the table it belongs to.
+
+```json
+{
+  "followers": [
+    {
+      "id": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+      "type": "user",
+      "name": "alice.johnson",
+      "displayName": "Alice Johnson"
+    }
+  ]
+}
+```
+
+---
+
+#### `reviewers` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No
+**Default**: null
+**Description**: List of reviewers for this entity
+
+```json
+{
+  "reviewers": [
+    {
+      "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+      "type": "user",
+      "name": "john.smith",
+      "displayName": "John Smith"
+    }
+  ]
+}
+```
+
+---
+
+#### `tags` (TagLabel[])
+**Type**: `array` of TagLabel objects
+**Required**: No
+**Default**: []
+**Description**: Tags for this test case. This is an inherited field from the parent entity and is not set directly on the test case.
+
+```json
+{
+  "tags": [
+    {
+      "tagFQN": "DataQuality.Critical",
+      "labelType": "Manual",
+      "state": "Confirmed"
+    }
+  ]
+}
+```
+
+---
+
+#### `entityStatus` (Status)
+**Type**: `string` (Status enum)
+**Required**: No
+**Default**: "Approved"
+**Description**: Current status of the test case
+
+```json
+{
+  "entityStatus": "Approved"
+}
+```
+
+---
+
+### Versioning and System Properties
+
+#### `version` (entityVersion)
+**Type**: `number`
+**Required**: Yes (system-managed)
+**Description**: Metadata version of the entity
+
+```json
+{
+  "version": 1.5
+}
+```
+
+---
+
+#### `createdBy` (string)
+**Type**: `string`
+**Required**: No (system-managed)
+**Description**: User who created the test case
+
+```json
+{
+  "createdBy": "jane.doe"
+}
+```
+
+---
+
+#### `updatedAt` (timestamp)
+**Type**: `integer` (Unix epoch milliseconds)
+**Required**: No (system-managed)
+**Description**: Last update time corresponding to the new version of the entity
+
+```json
+{
+  "updatedAt": 1704240000000
+}
+```
+
+---
+
+#### `updatedBy` (string)
+**Type**: `string`
+**Required**: No (system-managed)
+**Description**: User who made the update
+
+```json
+{
+  "updatedBy": "john.smith"
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI)
+**Required**: No (system-managed)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "http://localhost:8585/api/v1/dataQuality/testCases/f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c"
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "parameterValues",
+        "oldValue": "[{\"name\":\"minValue\",\"value\":\"10000\"}]",
+        "newValue": "[{\"name\":\"minValue\",\"value\":\"15000\"}]"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.4
   }
 }
 ```
 
 ---
 
-### Versioning Properties
-
-#### `version` (entityVersion)
-**Type**: `number`
-**Required**: Yes (system-managed)
-**Description**: Metadata version number
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Incremental change that lead to this version of the entity
 
 ```json
 {
-  "version": 1.5
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "description",
+        "oldValue": "Old description",
+        "newValue": "Updated description"
+      }
+    ],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No (system-managed)
+**Default**: false
+**Description**: When true indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
 }
 ```
 
@@ -791,12 +1283,13 @@ View the complete TestCase schema in your preferred format:
     "type": "testDefinition",
     "name": "tableRowCountToBeBetween"
   },
-  "entityLink": "table://postgres_prod.ecommerce.public.customers",
+  "entityLink": "<#E::table::postgres_prod.ecommerce.public.customers>",
   "entityFQN": "postgres_prod.ecommerce.public.customers",
   "testSuite": {
     "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
     "type": "testSuite",
-    "name": "customers.testSuite"
+    "name": "customers.testSuite",
+    "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.testSuite"
   },
   "parameterValues": [
     {
@@ -819,11 +1312,18 @@ View the complete TestCase schema in your preferred format:
       }
     ]
   },
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "user",
-    "name": "jane.doe"
-  },
+  "testCaseStatus": "Success",
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "user",
+      "name": "jane.doe",
+      "displayName": "Jane Doe"
+    }
+  ],
+  "computePassedFailedRowCount": false,
+  "useDynamicAssertion": false,
+  "deleted": false,
   "version": 1.5
 }
 ```
@@ -840,14 +1340,16 @@ View the complete TestCase schema in your preferred format:
   "testDefinition": {
     "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
     "type": "testDefinition",
-    "name": "columnValuesToBeUnique"
+    "name": "columnValuesToBeUnique",
+    "fullyQualifiedName": "columnValuesToBeUnique"
   },
-  "entityLink": "column://postgres_prod.ecommerce.public.customers.email",
+  "entityLink": "<#E::table::postgres_prod.ecommerce.public.customers::columns::email>",
   "entityFQN": "postgres_prod.ecommerce.public.customers.email",
   "testSuite": {
     "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
     "type": "testSuite",
-    "name": "customers.testSuite"
+    "name": "customers.testSuite",
+    "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.testSuite"
   },
   "parameterValues": [],
   "testCaseResult": {
@@ -869,6 +1371,10 @@ View the complete TestCase schema in your preferred format:
       }
     ]
   },
+  "testCaseStatus": "Success",
+  "computePassedFailedRowCount": false,
+  "useDynamicAssertion": false,
+  "deleted": false,
   "version": 1.0
 }
 ```
@@ -1036,10 +1542,12 @@ Content-Type: application/json
     }
   ],
   "computePassedFailedRowCount": true,
-  "owner": {
-    "id": "user-uuid",
-    "type": "user"
-  },
+  "owners": [
+    {
+      "id": "user-uuid",
+      "type": "user"
+    }
+  ],
   "tags": [
     {"tagFQN": "DataQuality.Critical"}
   ]

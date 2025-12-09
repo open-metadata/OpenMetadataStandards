@@ -7,7 +7,7 @@
 
 ## Overview
 
-The **SearchIndex** entity represents search indices in search engines like Elasticsearch, OpenSearch, and Solr. It captures index mappings, field definitions, analyzers, settings, and the relationships between indexed data and source systems.
+The **SearchIndex** entity represents search indices in search engines like Elasticsearch and OpenSearch. It captures index mappings, field definitions, analyzers, settings, and the relationships between indexed data and source systems.
 
 **Hierarchy**:
 ```
@@ -26,154 +26,238 @@ View the complete SearchIndex schema in your preferred format:
 
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/data/searchIndex.json",
+      "$id": "https://open-metadata.org/schema/entity/data/SearchIndex.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "SearchIndex",
-      "description": "A `SearchIndex` represents an index in a search engine with its mappings, settings, and fields.",
+      "description": "A `SearchIndex` is a index mapping definition in ElasticSearch or OpenSearch",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.SearchIndex",
 
       "definitions": {
         "searchIndexField": {
           "type": "object",
+          "javaType": "org.openmetadata.schema.type.SearchIndexField",
+          "description": "This schema defines the type for a field in a searchIndex.",
           "properties": {
             "name": {
               "type": "string",
-              "description": "Field name"
+              "description": "Local name (not fully qualified name) of the field.",
+              "minLength": 1,
+              "maxLength": 256,
+              "pattern": "^((?!::).)*$"
+            },
+            "displayName": {
+              "type": "string",
+              "description": "Display Name that identifies this searchIndexField name."
             },
             "dataType": {
               "type": "string",
+              "description": "Data type of the searchIndex (int, date etc.).",
               "enum": [
-                "text", "keyword", "long", "integer", "short", "byte",
-                "double", "float", "half_float", "scaled_float",
-                "date", "boolean", "binary", "integer_range",
-                "float_range", "long_range", "double_range", "date_range",
-                "object", "nested", "geo_point", "geo_shape", "ip",
-                "completion", "token_count", "murmur3", "annotated_text"
+                "NUMBER", "TEXT", "BINARY", "TIMESTAMP", "TIMESTAMPZ",
+                "TIME", "DATE", "DATETIME", "KEYWORD", "ARRAY", "OBJECT",
+                "FLATTENED", "NESTED", "JOIN", "RANGE", "IP", "VERSION",
+                "MURMUR3", "AGGREGATE_METRIC_DOUBLE", "HISTOGRAM",
+                "ANNOTATED-TEXT", "COMPLETION", "SEARCH_AS_YOU_TYPE",
+                "DENSE_VECTOR", "RANK_FEATURE", "RANK_FEATURES",
+                "GEO_POINT", "GEO_SHAPE", "POINT", "SHAPE", "PERCOLATOR",
+                "BOOLEAN", "CONSTANT_KEYWORD", "WILDCARD", "LONG",
+                "INTEGER", "SHORT", "BYTE", "DOUBLE", "FLOAT",
+                "HALF_FLOAT", "SCALED_FLOAT", "UNSIGNED_LONG", "UNKNOWN"
               ]
             },
             "dataTypeDisplay": {
               "type": "string",
-              "description": "Formatted field type display"
+              "description": "Display name used for dataType."
             },
             "description": {
               "type": "string",
-              "description": "Field description"
+              "description": "Description of the field.",
+              "$ref": "../../type/basic.json#/definitions/markdown"
             },
-            "analyzer": {
-              "type": "string",
-              "description": "Analyzer used for the field"
+            "fullyQualifiedName": {
+              "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
             },
-            "searchAnalyzer": {
-              "type": "string",
-              "description": "Search-time analyzer"
-            },
-            "normalizer": {
-              "type": "string",
-              "description": "Normalizer for keyword fields"
-            },
-            "fields": {
+            "tags": {
+              "description": "Tags associated with the column.",
               "type": "array",
-              "description": "Sub-fields (multi-fields)",
+              "items": {
+                "$ref": "../../type/tagLabel.json"
+              }
+            },
+            "children": {
+              "description": "Child columns if dataType has properties.",
+              "type": "array",
               "items": {
                 "$ref": "#/definitions/searchIndexField"
               }
-            },
-            "properties": {
-              "type": "object",
-              "description": "Additional field properties"
             }
           },
           "required": ["name", "dataType"]
         },
-        "indexSettings": {
+        "searchIndexSettings": {
+          "javaType": "org.openmetadata.schema.type.searchindex.SearchIndexSettings",
+          "description": "Contains key/value pair of SearchIndex Settings.",
           "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "searchIndexSampleData": {
+          "type": "object",
+          "javaType": "org.openmetadata.schema.type.searchindex.SearchIndexSampleData",
+          "description": "This schema defines the type to capture sample data for a SearchIndex.",
           "properties": {
-            "numberOfShards": {
-              "type": "integer",
-              "description": "Number of primary shards"
-            },
-            "numberOfReplicas": {
-              "type": "integer",
-              "description": "Number of replica shards"
-            },
-            "refreshInterval": {
-              "type": "string",
-              "description": "Refresh interval (e.g., '1s')"
-            },
-            "maxResultWindow": {
-              "type": "integer",
-              "description": "Maximum result window size"
+            "messages": {
+              "description": "List of local sample messages for a SearchIndex.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
+        },
+        "indexType": {
+          "description": "Whether the entity is index or index template.",
+          "type": "string",
+          "enum": ["Index", "IndexTemplate"],
+          "default": "Index"
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies this SearchIndex instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Index name",
+          "description": "Name that identifies the SearchIndex.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: service.index",
+          "description": "Name that uniquely identifies a SearchIndex in the format 'searchServiceName.searchIndexName'.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this SearchIndex. It could be title or label from the source services.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the SearchIndex instance.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "service": {
+          "description": "Link to the search cluster/service where this SearchIndex is hosted in.",
+          "$ref": "../../type/entityReference.json"
+        },
+        "serviceType": {
+          "description": "Service type where this SearchIndex is hosted in.",
+          "$ref": "../services/searchService.json#/definitions/searchServiceType"
+        },
         "fields": {
-          "description": "Index fields",
+          "description": "Fields in this SearchIndex.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/searchIndexField"
           }
         },
-        "settings": {
-          "description": "Index settings",
-          "$ref": "#/definitions/indexSettings"
+        "searchIndexSettings": {
+          "description": "Contains key/value pair of searchIndex settings.",
+          "$ref": "#/definitions/searchIndexSettings"
         },
-        "service": {
-          "description": "Search service",
-          "$ref": "../../type/entityReference.json"
+        "indexType": {
+          "description": "Whether the entity is index or index template.",
+          "$ref": "#/definitions/indexType",
+          "default": "Index"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "sampleData": {
+          "description": "Sample data for a searchIndex.",
+          "$ref": "#/definitions/searchIndexSampleData"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "owners": {
+          "description": "Owners of this searchIndex.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "followers": {
+          "description": "Followers of this searchIndex.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this searchIndex.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
           }
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "domains": {
+          "description": "Domains the SearchIndex belongs to. When not set, the SearchIndex inherits the domain from the messaging service it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "entityStatus": {
+          "description": "Status of the SearchIndex.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "fields", "service"]
+      "required": ["id", "name", "service", "fields"]
     }
     ```
 
@@ -230,8 +314,8 @@ View the complete SearchIndex schema in your preferred format:
     om:ownedBy a owl:ObjectProperty ;
         rdfs:domain om:SearchIndex ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this index" .
+        rdfs:label "owners" ;
+        rdfs:comment "Users or teams that own this index" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:SearchIndex ;
@@ -319,21 +403,28 @@ View the complete SearchIndex schema in your preferred format:
           "@id": "om:belongsToService",
           "@type": "@id"
         },
-        "owner": {
+        "owners": {
           "@id": "om:ownedBy",
-          "@type": "@id"
-        },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
-        },
-        "tags": {
-          "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
         },
-        "glossaryTerms": {
-          "@id": "om:linkedToGlossaryTerm",
+        "followers": {
+          "@id": "om:followedBy",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:inDomain",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:partOfDataProduct",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "tags": {
+          "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
         }
@@ -360,19 +451,21 @@ View the complete SearchIndex schema in your preferred format:
         "name": "elasticsearch_prod"
       },
 
-      "settings": {
-        "@type": "IndexSettings",
-        "numberOfShards": 5,
-        "numberOfReplicas": 2,
+      "searchIndexSettings": {
+        "@type": "SearchIndexSettings",
+        "numberOfShards": "5",
+        "numberOfReplicas": "2",
         "refreshInterval": "1s"
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/search-team",
-        "@type": "Team",
-        "name": "search-team",
-        "displayName": "Search Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/search-team",
+          "@type": "Team",
+          "name": "search-team",
+          "displayName": "Search Team"
+        }
+      ],
 
       "tags": [
         {
@@ -385,18 +478,18 @@ View the complete SearchIndex schema in your preferred format:
         {
           "@type": "SearchIndexField",
           "name": "product_id",
-          "dataType": "keyword",
+          "dataType": "KEYWORD",
           "description": "Unique product identifier"
         },
         {
           "@type": "SearchIndexField",
           "name": "product_name",
-          "dataType": "text",
-          "analyzer": "standard",
-          "fields": [
+          "dataType": "TEXT",
+          "dataTypeDisplay": "text",
+          "children": [
             {
               "name": "keyword",
-              "dataType": "keyword"
+              "dataType": "KEYWORD"
             }
           ]
         }
@@ -410,7 +503,7 @@ View the complete SearchIndex schema in your preferred format:
 
 ## Use Cases
 
-- Catalog all search indices across Elasticsearch, OpenSearch, and Solr
+- Catalog all search indices across Elasticsearch and OpenSearch
 - Document index mappings, field definitions, and analyzers
 - Track ownership and responsibility for search indices
 - Apply governance tags to search data
@@ -505,27 +598,25 @@ View the complete SearchIndex schema in your preferred format:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `name` | string | Yes | Field name |
+| `name` | string | Yes | Field name (local name, not fully qualified) |
+| `displayName` | string | No | Display name for the field |
 | `dataType` | DataType enum | Yes | Field data type |
-| `dataTypeDisplay` | string | No | Formatted type display |
-| `description` | string | No | Field description |
-| `analyzer` | string | No | Index-time analyzer |
-| `searchAnalyzer` | string | No | Search-time analyzer |
-| `normalizer` | string | No | Normalizer for keyword fields |
-| `fields` | SearchIndexField[] | No | Multi-fields (sub-fields) |
-| `properties` | object | No | Additional field properties |
-| `tags` | TagLabel[] | No | Tags applied to field |
+| `dataTypeDisplay` | string | No | Display name used for dataType |
+| `description` | markdown | No | Field description |
+| `fullyQualifiedName` | string | No | Fully qualified field name |
+| `tags` | TagLabel[] | No | Tags associated with the column |
+| `children` | SearchIndexField[] | No | Child columns if dataType has properties |
 
 **Data Types** (Elasticsearch/OpenSearch):
-- Text types: `text`, `keyword`, `annotated_text`
-- Numeric types: `long`, `integer`, `short`, `byte`, `double`, `float`, `half_float`, `scaled_float`
-- Date type: `date`
-- Boolean type: `boolean`
-- Binary type: `binary`
-- Range types: `integer_range`, `float_range`, `long_range`, `double_range`, `date_range`
-- Complex types: `object`, `nested`, `flattened`
-- Geo types: `geo_point`, `geo_shape`
-- Specialized types: `ip`, `completion`, `token_count`, `murmur3`
+- Text types: `TEXT`, `KEYWORD`, `ANNOTATED-TEXT`, `COMPLETION`, `SEARCH_AS_YOU_TYPE`, `WILDCARD`, `CONSTANT_KEYWORD`
+- Numeric types: `NUMBER`, `LONG`, `INTEGER`, `SHORT`, `BYTE`, `DOUBLE`, `FLOAT`, `HALF_FLOAT`, `SCALED_FLOAT`, `UNSIGNED_LONG`
+- Date/Time types: `DATE`, `TIME`, `DATETIME`, `TIMESTAMP`, `TIMESTAMPZ`
+- Boolean type: `BOOLEAN`
+- Binary type: `BINARY`
+- Range types: `RANGE`
+- Complex types: `OBJECT`, `NESTED`, `FLATTENED`, `ARRAY`
+- Geo types: `GEO_POINT`, `GEO_SHAPE`, `POINT`, `SHAPE`
+- Specialized types: `IP`, `VERSION`, `MURMUR3`, `AGGREGATE_METRIC_DOUBLE`, `HISTOGRAM`, `DENSE_VECTOR`, `RANK_FEATURE`, `RANK_FEATURES`, `JOIN`, `PERCOLATOR`, `UNKNOWN`
 
 **Example**:
 
@@ -534,81 +625,68 @@ View the complete SearchIndex schema in your preferred format:
   "fields": [
     {
       "name": "product_id",
-      "dataType": "keyword",
+      "dataType": "KEYWORD",
       "dataTypeDisplay": "keyword",
-      "description": "Unique product identifier",
-      "properties": {
-        "index": true,
-        "store": true
-      }
+      "description": "Unique product identifier"
     },
     {
       "name": "product_name",
-      "dataType": "text",
+      "dataType": "TEXT",
       "dataTypeDisplay": "text",
       "description": "Product name with full-text search",
-      "analyzer": "standard",
-      "searchAnalyzer": "standard",
-      "fields": [
+      "children": [
         {
           "name": "keyword",
-          "dataType": "keyword",
+          "dataType": "KEYWORD",
           "description": "Exact match field"
         },
         {
           "name": "suggest",
-          "dataType": "completion",
+          "dataType": "COMPLETION",
           "description": "Autocomplete suggestions"
         }
       ]
     },
     {
       "name": "description",
-      "dataType": "text",
-      "analyzer": "english",
-      "searchAnalyzer": "english",
+      "dataType": "TEXT",
+      "dataTypeDisplay": "text",
       "description": "Product description with English language analysis"
     },
     {
       "name": "price",
-      "dataType": "scaled_float",
+      "dataType": "SCALED_FLOAT",
       "dataTypeDisplay": "scaled_float",
-      "description": "Product price",
-      "properties": {
-        "scaling_factor": 100
-      }
+      "description": "Product price"
     },
     {
       "name": "categories",
-      "dataType": "keyword",
+      "dataType": "KEYWORD",
       "description": "Product categories (array)"
     },
     {
       "name": "created_at",
-      "dataType": "date",
+      "dataType": "DATE",
       "dataTypeDisplay": "date",
-      "description": "Product creation timestamp",
-      "properties": {
-        "format": "strict_date_optional_time||epoch_millis"
-      }
+      "description": "Product creation timestamp"
     },
     {
       "name": "location",
-      "dataType": "geo_point",
+      "dataType": "GEO_POINT",
       "description": "Geographic location of product availability"
     },
     {
       "name": "attributes",
-      "dataType": "nested",
+      "dataType": "NESTED",
       "description": "Product attributes as nested objects",
-      "fields": [
+      "children": [
         {
           "name": "name",
-          "dataType": "keyword"
+          "dataType": "KEYWORD"
         },
         {
           "name": "value",
-          "dataType": "text"
+          "dataType": "TEXT"
         }
       ]
     }
@@ -618,59 +696,80 @@ View the complete SearchIndex schema in your preferred format:
 
 ---
 
-#### `settings` (IndexSettings)
+#### `searchIndexSettings` (SearchIndexSettings)
 **Type**: `object`
 **Required**: No
-**Description**: Index settings configuration
+**Description**: Contains key/value pair of searchIndex settings
 
-**IndexSettings Properties**:
+**SearchIndexSettings Properties**:
+
+SearchIndexSettings is an object with string key/value pairs for any index-specific settings such as:
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `numberOfShards` | integer | Number of primary shards |
-| `numberOfReplicas` | integer | Number of replica shards |
+| `numberOfShards` | string | Number of primary shards |
+| `numberOfReplicas` | string | Number of replica shards |
 | `refreshInterval` | string | How often the index is refreshed (e.g., "1s") |
-| `maxResultWindow` | integer | Maximum pagination depth |
-| `analysis` | object | Custom analyzers, tokenizers, filters |
+| `maxResultWindow` | string | Maximum pagination depth |
+| Any custom setting | string | Additional custom settings as key/value pairs |
 
 **Example**:
 
 ```json
 {
-  "settings": {
-    "numberOfShards": 5,
-    "numberOfReplicas": 2,
+  "searchIndexSettings": {
+    "numberOfShards": "5",
+    "numberOfReplicas": "2",
     "refreshInterval": "1s",
-    "maxResultWindow": 10000,
-    "analysis": {
-      "analyzer": {
-        "custom_english": {
-          "type": "custom",
-          "tokenizer": "standard",
-          "filter": ["lowercase", "english_stop", "english_stemmer"]
-        },
-        "autocomplete": {
-          "type": "custom",
-          "tokenizer": "standard",
-          "filter": ["lowercase", "autocomplete_filter"]
-        }
-      },
-      "filter": {
-        "english_stop": {
-          "type": "stop",
-          "stopwords": "_english_"
-        },
-        "english_stemmer": {
-          "type": "stemmer",
-          "language": "english"
-        },
-        "autocomplete_filter": {
-          "type": "edge_ngram",
-          "min_gram": 2,
-          "max_gram": 20
-        }
-      }
-    }
+    "maxResultWindow": "10000",
+    "analysis.analyzer.custom_english.type": "custom",
+    "analysis.analyzer.custom_english.tokenizer": "standard"
+  }
+}
+```
+
+---
+
+#### `indexType` (IndexType enum)
+**Type**: `string`
+**Required**: No
+**Default**: `Index`
+**Description**: Whether the entity is index or index template
+
+**Allowed Values**:
+- `Index`: Regular search index
+- `IndexTemplate`: Index template
+
+**Example**:
+
+```json
+{
+  "indexType": "Index"
+}
+```
+
+---
+
+#### `sampleData` (SearchIndexSampleData)
+**Type**: `object`
+**Required**: No
+**Description**: Sample data for a searchIndex
+
+**SearchIndexSampleData Properties**:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `messages` | array of strings | List of local sample messages for a SearchIndex |
+
+**Example**:
+
+```json
+{
+  "sampleData": {
+    "messages": [
+      "{\"product_id\":\"P001\",\"product_name\":\"Widget\",\"price\":29.99}",
+      "{\"product_id\":\"P002\",\"product_name\":\"Gadget\",\"price\":49.99}"
+    ]
   }
 }
 ```
@@ -682,7 +781,7 @@ View the complete SearchIndex schema in your preferred format:
 #### `service` (EntityReference)
 **Type**: `object`
 **Required**: Yes
-**Description**: Reference to parent search service
+**Description**: Link to the search cluster/service where this SearchIndex is hosted in
 
 ```json
 {
@@ -697,39 +796,97 @@ View the complete SearchIndex schema in your preferred format:
 
 ---
 
-### Governance Properties
-
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `serviceType` (SearchServiceType)
+**Type**: `string` (enum)
 **Required**: No
-**Description**: User or team that owns this search index
+**Description**: Service type where this SearchIndex is hosted in
+
+**Allowed Values**: `ElasticSearch`, `OpenSearch`, `CustomSearch`
 
 ```json
 {
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "team",
-    "name": "search-team",
-    "displayName": "Search Team"
-  }
+  "serviceType": "ElasticSearch"
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+### Governance Properties
+
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: Data domain this search index belongs to
+**Description**: Owners of this searchIndex
 
 ```json
 {
-  "domain": {
-    "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
-    "type": "domain",
-    "name": "Product",
-    "fullyQualifiedName": "Product"
-  }
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "team",
+      "name": "search-team",
+      "displayName": "Search Team"
+    }
+  ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Followers of this searchIndex
+
+```json
+{
+  "followers": [
+    {
+      "id": "user-uuid-1",
+      "type": "user",
+      "name": "john.doe"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Domains the SearchIndex belongs to. When not set, the SearchIndex inherits the domain from the messaging service it belongs to
+
+```json
+{
+  "domains": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "domain",
+      "name": "Product",
+      "fullyQualifiedName": "Product"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "ProductCatalog",
+      "fullyQualifiedName": "ProductCatalog"
+    }
+  ]
 }
 ```
 
@@ -738,7 +895,7 @@ View the complete SearchIndex schema in your preferred format:
 #### `tags[]` (TagLabel[])
 **Type**: `array`
 **Required**: No
-**Description**: Classification tags applied to the search index
+**Description**: Tags for this searchIndex
 
 ```json
 {
@@ -762,40 +919,170 @@ View the complete SearchIndex schema in your preferred format:
 
 ---
 
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
+#### `votes` (Votes)
+**Type**: `object`
 **Required**: No
-**Description**: Business glossary terms linked to this search index
+**Description**: Votes on the entity
 
 ```json
 {
-  "glossaryTerms": [
-    {
-      "fullyQualifiedName": "BusinessGlossary.Product"
-    }
-  ]
+  "votes": {
+    "upVotes": 10,
+    "downVotes": 2,
+    "upVoters": ["user1", "user2"],
+    "downVoters": ["user3"]
+  }
 }
 ```
 
 ---
 
-### Lineage Properties
-
-#### `sourceDataSets[]` (EntityReference[])
-**Type**: `array`
+#### `lifeCycle` (LifeCycle)
+**Type**: `object`
 **Required**: No
-**Description**: Source tables or datasets that feed this index
+**Description**: Life Cycle of the entity
 
 ```json
 {
-  "sourceDataSets": [
-    {
-      "id": "source-table-uuid",
-      "type": "table",
-      "name": "products",
-      "fullyQualifiedName": "postgres_prod.ecommerce.products"
+  "lifeCycle": {
+    "stage": "Production",
+    "created": {
+      "timestamp": 1704240000000,
+      "user": "admin"
     }
-  ]
+  }
+}
+```
+
+---
+
+#### `certification` (AssetCertification)
+**Type**: `object`
+**Required**: No
+**Description**: Asset certification information
+
+```json
+{
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certification.Gold"
+    },
+    "certifiedBy": "data-governance-team",
+    "certifiedAt": 1704240000000
+  }
+}
+```
+
+---
+
+### System Properties
+
+#### `href` (href)
+**Type**: `string` (URL)
+**Required**: No (system-managed)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "https://openmetadata.org/api/v1/searchIndexes/b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e"
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `extension` (EntityExtension)
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity
+
+```json
+{
+  "extension": {
+    "customField1": "value1",
+    "customField2": "value2"
+  }
+}
+```
+
+---
+
+#### `sourceHash` (string)
+**Type**: `string`
+**Required**: No
+**Min Length**: 1
+**Max Length**: 32
+**Description**: Source hash of the entity
+
+```json
+{
+  "sourceHash": "abc123def456"
+}
+```
+
+---
+
+#### `entityStatus` (Status)
+**Type**: `object`
+**Required**: No
+**Description**: Status of the SearchIndex
+
+```json
+{
+  "entityStatus": {
+    "status": "Active"
+  }
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [{"name": "newField", "newValue": "value"}],
+    "fieldsUpdated": [],
+    "fieldsDeleted": [],
+    "previousVersion": 1.0
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+---
+
+#### `impersonatedBy` (ImpersonatedBy)
+**Type**: `string`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": "bot-user"
 }
 ```
 
@@ -851,81 +1138,125 @@ View the complete SearchIndex schema in your preferred format:
   "fullyQualifiedName": "elasticsearch_prod.products",
   "displayName": "Product Catalog Search Index",
   "description": "# Product Catalog Search Index\n\nFull-text search index for the product catalog.",
+  "service": {
+    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "type": "searchService",
+    "name": "elasticsearch_prod",
+    "fullyQualifiedName": "elasticsearch_prod"
+  },
+  "serviceType": "ElasticSearch",
   "fields": [
     {
       "name": "product_id",
-      "dataType": "keyword",
+      "dataType": "KEYWORD",
+      "dataTypeDisplay": "keyword",
       "description": "Unique product identifier"
     },
     {
       "name": "product_name",
-      "dataType": "text",
-      "analyzer": "standard",
+      "dataType": "TEXT",
+      "dataTypeDisplay": "text",
       "description": "Product name with full-text search",
-      "fields": [
+      "children": [
         {
           "name": "keyword",
-          "dataType": "keyword"
+          "dataType": "KEYWORD"
         },
         {
           "name": "suggest",
-          "dataType": "completion"
+          "dataType": "COMPLETION"
         }
       ]
     },
     {
       "name": "description",
-      "dataType": "text",
-      "analyzer": "english",
+      "dataType": "TEXT",
+      "dataTypeDisplay": "text",
       "description": "Product description"
     },
     {
       "name": "price",
-      "dataType": "scaled_float",
-      "properties": {
-        "scaling_factor": 100
-      }
+      "dataType": "SCALED_FLOAT",
+      "dataTypeDisplay": "scaled_float"
     },
     {
       "name": "categories",
-      "dataType": "keyword",
+      "dataType": "KEYWORD",
       "description": "Product categories"
     },
     {
       "name": "created_at",
-      "dataType": "date"
+      "dataType": "DATE",
+      "dataTypeDisplay": "date"
     }
   ],
-  "settings": {
-    "numberOfShards": 5,
-    "numberOfReplicas": 2,
+  "searchIndexSettings": {
+    "numberOfShards": "5",
+    "numberOfReplicas": "2",
     "refreshInterval": "1s",
-    "maxResultWindow": 10000
+    "maxResultWindow": "10000"
   },
-  "service": {
-    "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
-    "type": "searchService",
-    "name": "elasticsearch_prod"
+  "indexType": "Index",
+  "sampleData": {
+    "messages": [
+      "{\"product_id\":\"P001\",\"product_name\":\"Widget\",\"price\":29.99}"
+    ]
   },
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "team",
-    "name": "search-team"
-  },
-  "domain": {
-    "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
-    "type": "domain",
-    "name": "Product"
-  },
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "team",
+      "name": "search-team",
+      "displayName": "Search Team"
+    }
+  ],
+  "followers": [
+    {
+      "id": "user-uuid-1",
+      "type": "user",
+      "name": "john.doe"
+    }
+  ],
+  "domains": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "domain",
+      "name": "Product",
+      "fullyQualifiedName": "Product"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "dataproduct-uuid",
+      "type": "dataProduct",
+      "name": "ProductCatalog",
+      "fullyQualifiedName": "ProductCatalog"
+    }
+  ],
   "tags": [
-    {"tagFQN": "Tier.Gold"}
+    {
+      "tagFQN": "Tier.Gold",
+      "labelType": "Manual",
+      "state": "Confirmed"
+    }
   ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.Product"}
-  ],
+  "votes": {
+    "upVotes": 10,
+    "downVotes": 2
+  },
+  "lifeCycle": {
+    "stage": "Production"
+  },
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certification.Gold"
+    }
+  },
   "version": 1.5,
   "updatedAt": 1704240000000,
-  "updatedBy": "search.admin"
+  "updatedBy": "search.admin",
+  "href": "https://openmetadata.org/api/v1/searchIndexes/b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+  "deleted": false
 }
 ```
 
@@ -943,14 +1274,21 @@ View the complete SearchIndex schema in your preferred format:
 om:SearchIndex a owl:Class ;
     rdfs:subClassOf om:DataAsset ;
     rdfs:label "SearchIndex" ;
-    rdfs:comment "A search index containing structured data for full-text search" ;
+    rdfs:comment "A search index mapping definition in ElasticSearch or OpenSearch" ;
     om:hasProperties [
         om:name "string" ;
         om:fields "SearchIndexField[]" ;
-        om:settings "IndexSettings" ;
+        om:searchIndexSettings "SearchIndexSettings" ;
+        om:indexType "IndexType" ;
         om:service "SearchService" ;
-        om:owner "Owner" ;
+        om:owners "Owner[]" ;
+        om:followers "User[]" ;
+        om:domains "Domain[]" ;
+        om:dataProducts "DataProduct[]" ;
         om:tags "Tag[]" ;
+        om:votes "Votes" ;
+        om:lifeCycle "LifeCycle" ;
+        om:certification "AssetCertification" ;
     ] .
 ```
 
@@ -965,10 +1303,14 @@ ex:products_index a om:SearchIndex ;
     om:fullyQualifiedName "elasticsearch_prod.products" ;
     om:displayName "Product Catalog Search Index" ;
     om:description "Full-text search index for products" ;
-    om:belongsTo ex:elasticsearch_prod ;
+    om:belongsToService ex:elasticsearch_prod ;
+    om:serviceType "ElasticSearch" ;
+    om:indexType "Index" ;
     om:ownedBy ex:search_team ;
+    om:followedBy ex:user1 ;
+    om:inDomain ex:product_domain ;
+    om:partOfDataProduct ex:product_catalog ;
     om:hasTag ex:tier_gold ;
-    om:linkedToGlossaryTerm ex:product_term ;
     om:hasField ex:product_id_field ;
     om:hasField ex:product_name_field ;
     om:hasField ex:description_field .
@@ -994,22 +1336,56 @@ ex:products_index a om:SearchIndex ;
       "@type": "@id",
       "@container": "@list"
     },
-    "settings": {
+    "searchIndexSettings": {
       "@id": "om:hasSettings",
       "@type": "@id"
     },
-    "service": {
-      "@id": "om:belongsTo",
+    "indexType": "om:indexType",
+    "sampleData": {
+      "@id": "om:hasSampleData",
       "@type": "@id"
     },
-    "owner": {
-      "@id": "om:ownedBy",
+    "service": {
+      "@id": "om:belongsToService",
       "@type": "@id"
+    },
+    "serviceType": "om:serviceType",
+    "owners": {
+      "@id": "om:ownedBy",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:followedBy",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:inDomain",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:partOfDataProduct",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
       "@id": "om:hasTag",
       "@type": "@id",
       "@container": "@set"
+    },
+    "votes": {
+      "@id": "om:hasVotes",
+      "@type": "@id"
+    },
+    "lifeCycle": {
+      "@id": "om:hasLifeCycle",
+      "@type": "@id"
+    },
+    "certification": {
+      "@id": "om:hasCertification",
+      "@type": "@id"
     }
   }
 }
@@ -1029,10 +1405,26 @@ ex:products_index a om:SearchIndex ;
     "@id": "https://example.com/services/elasticsearch_prod",
     "@type": "SearchService"
   },
-  "owner": {
-    "@id": "https://example.com/teams/search-team",
-    "@type": "Team"
-  },
+  "serviceType": "ElasticSearch",
+  "indexType": "Index",
+  "owners": [
+    {
+      "@id": "https://example.com/teams/search-team",
+      "@type": "Team"
+    }
+  ],
+  "followers": [
+    {
+      "@id": "https://example.com/users/john.doe",
+      "@type": "User"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/Product",
+      "@type": "Domain"
+    }
+  ],
   "tags": [
     {"@id": "https://open-metadata.org/tags/Tier/Gold"}
   ],
@@ -1040,13 +1432,18 @@ ex:products_index a om:SearchIndex ;
     {
       "@type": "SearchIndexField",
       "name": "product_id",
-      "dataType": "keyword"
+      "dataType": "KEYWORD"
     },
     {
       "@type": "SearchIndexField",
       "name": "product_name",
-      "dataType": "text",
-      "analyzer": "standard"
+      "dataType": "TEXT",
+      "children": [
+        {
+          "name": "keyword",
+          "dataType": "KEYWORD"
+        }
+      ]
     }
   ]
 }
@@ -1098,11 +1495,13 @@ graph TD
     end
 
     subgraph Governance
-        IDX -.->|in domain| DOM[Domain<br/>Product Catalog]
+        IDX -.->|in domains| DOM[Domain<br/>Product Catalog]
+        IDX -.->|part of| DP[DataProduct<br/>ProductCatalog]
         IDX -.->|tagged| TAG1[Tag<br/>Tier.Gold]
         IDX -.->|tagged| TAG2[Tag<br/>Production]
         IDX -.->|tagged| TAG3[Tag<br/>PII.Sensitive]
-        IDX -.->|linked to| GT[GlossaryTerm<br/>Product Search]
+        IDX -.->|has votes| VOTES[Votes<br/>10 up, 2 down]
+        IDX -.->|certified| CERT[Certification<br/>Gold]
     end
 
     subgraph Quality
@@ -1136,10 +1535,12 @@ graph TD
     style TEAM fill:#43e97b,color:#fff
     style USER fill:#43e97b,color:#fff
     style DOM fill:#fa709a,color:#fff
+    style DP fill:#fa709a,color:#fff
     style TAG1 fill:#f093fb,color:#fff
     style TAG2 fill:#f093fb,color:#fff
     style TAG3 fill:#f093fb,color:#fff
-    style GT fill:#ffd700,color:#333
+    style VOTES fill:#ffd700,color:#333
+    style CERT fill:#ffd700,color:#333
     style TC1 fill:#9b59b6,color:#fff
     style TC2 fill:#9b59b6,color:#fff
     style TC3 fill:#9b59b6,color:#fff
@@ -1159,10 +1560,14 @@ graph TD
 - **SearchIndexField**: Individual fields within the index
 
 ### Associated Entities
-- **Owner**: User or team owning this index
-- **Domain**: Business domain assignment
+- **Owner**: Users or teams owning this index (owners is plural)
+- **Follower**: Users following this index
+- **Domain**: Business domain assignments (domains is plural)
+- **DataProduct**: Data products this index is part of
 - **Tag**: Classification tags
-- **GlossaryTerm**: Business terminology
+- **Votes**: Votes on the entity
+- **Certification**: Asset certification
+- **LifeCycle**: Life cycle information
 - **Table**: Source tables that feed this index
 - **Pipeline**: ETL pipelines, real-time sync, CDC connectors loading data into this index
 - **Application**: Applications querying the search index

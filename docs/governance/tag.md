@@ -94,88 +94,149 @@ View the complete Tag schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/classification/tag.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Tag",
-      "description": "A `Tag` is a label within a `Classification` hierarchy used to categorize data assets.",
+      "$comment": "@om-entity-type",
+      "description": "A `Tag` entity is used for classification or categorization. It is a term defined under `Classification` entity. Tags are used to label the entities and entity fields, such as Tables, and Columns.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.classification.Tag",
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface"
+      ],
 
-      "definitions": {
-        "tagStyle": {
-          "type": "object",
-          "properties": {
-            "color": {
-              "type": "string",
-              "description": "Hex color code for the tag"
-            },
-            "iconURL": {
-              "type": "string",
-              "format": "uri",
-              "description": "Icon URL for the tag"
-            }
-          }
-        }
-      },
+      "definitions": {},
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this entity instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Tag name",
+          "description": "Name of the tag.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name: classification.tag or classification.parent.child",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
-        },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this tag.",
+          "type": "string"
+        },
+        "fullyQualifiedName": {
+          "description": "Unique name of the tag of format `Classification.tag1.tag2`.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description of the tag",
+          "description": "Description of the tag.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
+        "style": {
+          "$ref": "../../type/basic.json#/definitions/style"
+        },
         "classification": {
-          "description": "Parent classification",
+          "description": "Reference to the classification that this tag is part of.",
           "$ref": "../../type/entityReference.json"
         },
         "parent": {
-          "description": "Parent tag (for nested tags)",
+          "description": "Reference to the parent tag. When null, the term is at the root of the Classification.",
           "$ref": "../../type/entityReference.json"
         },
         "children": {
-          "description": "Child tags",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "style": {
-          "description": "Visual styling for the tag",
-          "$ref": "#/definitions/tagStyle"
-        },
-        "disabled": {
-          "description": "Whether this tag is disabled",
-          "type": "boolean",
-          "default": false
-        },
-        "deprecated": {
-          "description": "Whether this tag is deprecated",
-          "type": "boolean",
-          "default": false
-        },
-        "usageCount": {
-          "description": "Number of data assets using this tag",
-          "type": "integer"
+          "description": "Children tags under this tag.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "version": {
-          "description": "Metadata version",
+          "description": "Metadata version of the entity.",
           "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to the tag.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "usageCount": {
+          "description": "Count of how many times this tag and children tags are used.",
+          "type": "integer"
+        },
+        "deprecated": {
+          "description": "If the tag is deprecated.",
+          "type": "boolean",
+          "default": false
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "provider": {
+          "$ref": "../../type/basic.json#/definitions/providerType"
+        },
+        "disabled": {
+          "description": "System tags can't be deleted. Use this flag to disable them.",
+          "type": "boolean",
+          "default": false
+        },
+        "mutuallyExclusive": {
+          "description": "Children tags under this group are mutually exclusive. When mutually exclusive is `true` the tags from this group are used to **classify** an entity. An entity can only be in one class - example, it can only be either `tier1` or `tier2` and not both. When mutually exclusive is `false`, the tags from this group are used to **categorize** an entity. An entity can be in multiple categories simultaneously - example a customer can be `newCustomer` and `atRisk` simultaneously.",
+          "type": "boolean",
+          "default": "false"
+        },
+        "domains": {
+          "description": "Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "owners": {
+          "description": "Owners of this glossary term.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "reviewers": {
+          "description": "User references of the reviewers for this tag.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "entityStatus": {
+          "description": "Status of the tag.",
+          "$ref": "../../type/status.json"
+        },
+        "recognizers": {
+          "description": "List of recognizers configured for automatic detection of this tag",
+          "type": "array",
+          "items": {
+            "$ref": "../../type/recognizer.json"
+          }
+        },
+        "autoClassificationEnabled": {
+          "description": "Whether automatic classification is enabled for this tag",
+          "type": "boolean",
+          "default": false
+        },
+        "autoClassificationPriority": {
+          "description": "Priority for conflict resolution when multiple tags match (higher number = higher priority)",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 50
         }
       },
 
-      "required": ["id", "name", "classification"]
+      "required": ["id", "name", "description"]
     }
     ```
 
@@ -188,7 +249,7 @@ View the complete Tag schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
     @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
@@ -196,10 +257,10 @@ View the complete Tag schema in your preferred format:
     om:Tag a owl:Class ;
         rdfs:subClassOf om:GovernanceAsset, skos:Concept ;
         rdfs:label "Tag" ;
-        rdfs:comment "A classification label used to categorize data assets" ;
+        rdfs:comment "A Tag entity is used for classification or categorization. It is a term defined under Classification entity. Tags are used to label the entities and entity fields, such as Tables, and Columns." ;
         om:hierarchyLevel 2 .
 
-    # Properties
+    # Datatype Properties
     om:tagName a owl:DatatypeProperty ;
         rdfs:domain om:Tag ;
         rdfs:range xsd:string ;
@@ -207,11 +268,17 @@ View the complete Tag schema in your preferred format:
         rdfs:comment "Name of the tag" ;
         owl:equivalentProperty skos:prefLabel .
 
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:Tag ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this tag" .
+
     om:fullyQualifiedName a owl:DatatypeProperty ;
         rdfs:domain om:Tag ;
         rdfs:range xsd:string ;
         rdfs:label "fullyQualifiedName" ;
-        rdfs:comment "Complete hierarchical name: classification.tag.child" ;
+        rdfs:comment "Unique name of the tag of format Classification.tag1.tag2" ;
         owl:equivalentProperty skos:notation .
 
     om:tagDescription a owl:DatatypeProperty ;
@@ -221,44 +288,99 @@ View the complete Tag schema in your preferred format:
         rdfs:comment "Description of the tag" ;
         owl:equivalentProperty skos:definition .
 
-    om:tagColor a owl:DatatypeProperty ;
-        rdfs:domain om:Tag ;
-        rdfs:range xsd:string ;
-        rdfs:label "color" ;
-        rdfs:comment "Hex color code for visual representation" .
-
     om:isDisabled a owl:DatatypeProperty ;
         rdfs:domain om:Tag ;
         rdfs:range xsd:boolean ;
         rdfs:label "disabled" ;
-        rdfs:comment "Whether this tag is disabled" .
+        rdfs:comment "System tags can't be deleted. Use this flag to disable them" .
 
     om:isDeprecated a owl:DatatypeProperty ;
         rdfs:domain om:Tag ;
         rdfs:range xsd:boolean ;
         rdfs:label "deprecated" ;
-        rdfs:comment "Whether this tag is deprecated" .
+        rdfs:comment "If the tag is deprecated" .
 
+    om:isDeleted a owl:DatatypeProperty ;
+        rdfs:domain om:Tag ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "deleted" ;
+        rdfs:comment "When true indicates the entity has been soft deleted" .
+
+    om:usageCount a owl:DatatypeProperty ;
+        rdfs:domain om:Tag ;
+        rdfs:range xsd:integer ;
+        rdfs:label "usageCount" ;
+        rdfs:comment "Count of how many times this tag and children tags are used" .
+
+    om:mutuallyExclusive a owl:DatatypeProperty ;
+        rdfs:domain om:Tag ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "mutuallyExclusive" ;
+        rdfs:comment "Children tags under this group are mutually exclusive" .
+
+    om:autoClassificationEnabled a owl:DatatypeProperty ;
+        rdfs:domain om:Tag ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "autoClassificationEnabled" ;
+        rdfs:comment "Whether automatic classification is enabled for this tag" .
+
+    om:autoClassificationPriority a owl:DatatypeProperty ;
+        rdfs:domain om:Tag ;
+        rdfs:range xsd:integer ;
+        rdfs:label "autoClassificationPriority" ;
+        rdfs:comment "Priority for conflict resolution when multiple tags match (higher number = higher priority)" .
+
+    # Object Properties
     om:belongsToClassification a owl:ObjectProperty ;
         rdfs:domain om:Tag ;
         rdfs:range om:Classification ;
         rdfs:label "belongsToClassification" ;
-        rdfs:comment "Parent classification" ;
+        rdfs:comment "Reference to the classification that this tag is part of" ;
         owl:equivalentProperty skos:inScheme .
 
     om:hasParentTag a owl:ObjectProperty ;
         rdfs:domain om:Tag ;
         rdfs:range om:Tag ;
         rdfs:label "hasParentTag" ;
-        rdfs:comment "Parent tag in hierarchy" ;
+        rdfs:comment "Reference to the parent tag. When null, the term is at the root of the Classification" ;
         owl:equivalentProperty skos:broader .
 
     om:hasChildTag a owl:ObjectProperty ;
         rdfs:domain om:Tag ;
         rdfs:range om:Tag ;
         rdfs:label "hasChildTag" ;
-        rdfs:comment "Child tag in hierarchy" ;
+        rdfs:comment "Children tags under this tag" ;
         owl:equivalentProperty skos:narrower .
+
+    om:hasOwner a owl:ObjectProperty ;
+        rdfs:domain om:Tag ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "hasOwner" ;
+        rdfs:comment "Owners of this tag" .
+
+    om:hasDomain a owl:ObjectProperty ;
+        rdfs:domain om:Tag ;
+        rdfs:range om:Domain ;
+        rdfs:label "hasDomain" ;
+        rdfs:comment "Domains the asset belongs to" .
+
+    om:hasDataProduct a owl:ObjectProperty ;
+        rdfs:domain om:Tag ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "hasDataProduct" ;
+        rdfs:comment "Data products this entity is part of" .
+
+    om:hasReviewer a owl:ObjectProperty ;
+        rdfs:domain om:Tag ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "hasReviewer" ;
+        rdfs:comment "User references of the reviewers for this tag" .
+
+    om:hasRecognizer a owl:ObjectProperty ;
+        rdfs:domain om:Tag ;
+        rdfs:range om:Recognizer ;
+        rdfs:label "hasRecognizer" ;
+        rdfs:comment "List of recognizers configured for automatic detection of this tag" .
 
     om:appliedTo a owl:ObjectProperty ;
         rdfs:domain om:Tag ;
@@ -269,22 +391,25 @@ View the complete Tag schema in your preferred format:
     # Example Instances
     ex:sensitiveTag a om:Tag, skos:Concept ;
         skos:prefLabel "Sensitive" ;
+        om:displayName "Sensitive PII" ;
         om:fullyQualifiedName "PII.Sensitive" ;
-        skos:definition "Highly sensitive personal information" ;
+        skos:definition "Highly sensitive personal information requiring strict access controls and encryption" ;
         skos:inScheme ex:piiClassification ;
-        om:tagColor "#FF0000" ;
         om:isDisabled false ;
         om:isDeprecated false ;
+        om:isDeleted false ;
+        om:usageCount 342 ;
         skos:narrower ex:emailTag ;
         skos:narrower ex:ssnTag .
 
     ex:emailTag a om:Tag, skos:Concept ;
         skos:prefLabel "Email" ;
+        om:displayName "Email Address" ;
         om:fullyQualifiedName "PII.Sensitive.Email" ;
-        skos:definition "Email addresses" ;
+        skos:definition "Email addresses requiring privacy protection" ;
         skos:inScheme ex:piiClassification ;
         skos:broader ex:sensitiveTag ;
-        om:tagColor "#FF6600" ;
+        om:usageCount 127 ;
         om:appliedTo ex:emailColumn .
     ```
 
@@ -341,6 +466,51 @@ View the complete Tag schema in your preferred format:
         "deprecated": {
           "@id": "om:isDeprecated",
           "@type": "xsd:boolean"
+        },
+        "deleted": {
+          "@id": "om:isDeleted",
+          "@type": "xsd:boolean"
+        },
+        "usageCount": {
+          "@id": "om:usageCount",
+          "@type": "xsd:integer"
+        },
+        "mutuallyExclusive": {
+          "@id": "om:mutuallyExclusive",
+          "@type": "xsd:boolean"
+        },
+        "owners": {
+          "@id": "om:hasOwner",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:hasDomain",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:hasDataProduct",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "reviewers": {
+          "@id": "om:hasReviewer",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "recognizers": {
+          "@id": "om:hasRecognizer",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "autoClassificationEnabled": {
+          "@id": "om:autoClassificationEnabled",
+          "@type": "xsd:boolean"
+        },
+        "autoClassificationPriority": {
+          "@id": "om:autoClassificationPriority",
+          "@type": "xsd:integer"
         }
       }
     }
@@ -372,6 +542,8 @@ View the complete Tag schema in your preferred format:
         "fullyQualifiedName": "PII.Sensitive"
       },
 
+      "children": [],
+
       "style": {
         "color": "#FF6600",
         "iconURL": "https://example.com/icons/email.svg"
@@ -379,7 +551,33 @@ View the complete Tag schema in your preferred format:
 
       "disabled": false,
       "deprecated": false,
-      "usageCount": 127
+      "deleted": false,
+      "usageCount": 127,
+      "mutuallyExclusive": false,
+
+      "owners": [
+        {
+          "@id": "https://open-metadata.org/users/admin",
+          "@type": "User",
+          "name": "admin"
+        }
+      ],
+
+      "domains": [],
+      "dataProducts": [],
+      "reviewers": [],
+
+      "recognizers": [
+        {
+          "@type": "Recognizer",
+          "name": "email_pattern",
+          "patternType": "regex",
+          "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+        }
+      ],
+
+      "autoClassificationEnabled": true,
+      "autoClassificationPriority": 75
     }
     ```
 
@@ -409,7 +607,7 @@ View the complete Tag schema in your preferred format:
 #### `id` (uuid)
 **Type**: `string` (UUID format)
 **Required**: Yes (system-generated)
-**Description**: Unique identifier for this tag
+**Description**: Unique identifier of this entity instance.
 
 ```json
 {
@@ -425,7 +623,7 @@ View the complete Tag schema in your preferred format:
 **Pattern**: `^[^.]*$` (no dots allowed)
 **Min Length**: 1
 **Max Length**: 256
-**Description**: Name of the tag (unqualified)
+**Description**: Name of the tag.
 
 ```json
 {
@@ -435,13 +633,10 @@ View the complete Tag schema in your preferred format:
 
 ---
 
-#### `fullyQualifiedName` (fullyQualifiedEntityName)
+#### `fullyQualifiedName`
 **Type**: `string`
-**Required**: Yes (system-generated)
-**Pattern**: `^((?!::).)*$`
-**Description**: Fully qualified name showing complete hierarchy
-
-**Format**: `classification.tag` or `classification.parent.child.grandchild`
+**Required**: No (system-generated)
+**Description**: Unique name of the tag of format `Classification.tag1.tag2`.
 
 ```json
 {
@@ -454,7 +649,7 @@ View the complete Tag schema in your preferred format:
 #### `displayName`
 **Type**: `string`
 **Required**: No
-**Description**: Human-readable display name
+**Description**: Display Name that identifies this tag.
 
 ```json
 {
@@ -466,8 +661,8 @@ View the complete Tag schema in your preferred format:
 
 #### `description` (markdown)
 **Type**: `string` (Markdown format)
-**Required**: No
-**Description**: Rich text description of the tag's purpose and usage
+**Required**: Yes
+**Description**: Description of the tag.
 
 ```json
 {
@@ -481,8 +676,8 @@ View the complete Tag schema in your preferred format:
 
 #### `classification` (EntityReference)
 **Type**: `object`
-**Required**: Yes
-**Description**: Reference to parent classification
+**Required**: No
+**Description**: Reference to the classification that this tag is part of.
 
 ```json
 {
@@ -500,7 +695,7 @@ View the complete Tag schema in your preferred format:
 #### `parent` (EntityReference)
 **Type**: `object`
 **Required**: No
-**Description**: Parent tag in hierarchy (if this is a nested tag)
+**Description**: Reference to the parent tag. When null, the term is at the root of the Classification.
 
 ```json
 {
@@ -515,10 +710,10 @@ View the complete Tag schema in your preferred format:
 
 ---
 
-#### `children[]` (Tag[])
+#### `children` (EntityReferenceList)
 **Type**: `array` of Tag references
 **Required**: No
-**Description**: Child tags in the hierarchy
+**Description**: Children tags under this tag.
 
 ```json
 {
@@ -543,12 +738,13 @@ View the complete Tag schema in your preferred format:
 
 ### Visual Properties
 
-#### `style` (TagStyle)
+#### `style` (Style)
 **Type**: `object`
 **Required**: No
+**Reference**: `../../type/basic.json#/definitions/style`
 **Description**: Visual styling for displaying the tag
 
-**TagStyle Object**:
+**Style Object**:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -580,7 +776,7 @@ View the complete Tag schema in your preferred format:
 #### `disabled` (boolean)
 **Type**: `boolean`
 **Required**: No (default: false)
-**Description**: Whether this tag is disabled and hidden from users
+**Description**: System tags can't be deleted. Use this flag to disable them.
 
 ```json
 {
@@ -593,11 +789,37 @@ View the complete Tag schema in your preferred format:
 #### `deprecated` (boolean)
 **Type**: `boolean`
 **Required**: No (default: false)
-**Description**: Whether this tag is deprecated (visible but not recommended for new use)
+**Description**: If the tag is deprecated.
 
 ```json
 {
   "deprecated": false
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: When `true` indicates the entity has been soft deleted.
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `mutuallyExclusive` (boolean)
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: Children tags under this group are mutually exclusive. When mutually exclusive is `true` the tags from this group are used to **classify** an entity. An entity can only be in one class - example, it can only be either `tier1` or `tier2` and not both. When mutually exclusive is `false`, the tags from this group are used to **categorize** an entity. An entity can be in multiple categories simultaneously - example a customer can be `newCustomer` and `atRisk` simultaneously.
+
+```json
+{
+  "mutuallyExclusive": false
 }
 ```
 
@@ -608,7 +830,7 @@ View the complete Tag schema in your preferred format:
 #### `usageCount` (integer)
 **Type**: `integer`
 **Required**: No (system-generated)
-**Description**: Number of data assets tagged with this tag
+**Description**: Count of how many times this tag and children tags are used.
 
 ```json
 {
@@ -618,12 +840,153 @@ View the complete Tag schema in your preferred format:
 
 ---
 
+### Governance Properties
+
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Owners of this glossary term.
+
+```json
+{
+  "owners": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "admin"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.
+
+```json
+{
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Marketing"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: List of data products this entity is part of.
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "product-uuid",
+      "type": "dataProduct",
+      "name": "CustomerAnalytics"
+    }
+  ]
+}
+```
+
+---
+
+#### `reviewers` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: User references of the reviewers for this tag.
+
+```json
+{
+  "reviewers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "data-steward"
+    }
+  ]
+}
+```
+
+---
+
+#### `entityStatus` (Status)
+**Type**: `object`
+**Required**: No
+**Reference**: `../../type/status.json`
+**Description**: Status of the tag.
+
+```json
+{
+  "entityStatus": "Active"
+}
+```
+
+---
+
+### Auto-Classification Properties
+
+#### `recognizers` (Recognizer[])
+**Type**: `array` of Recognizer objects
+**Required**: No
+**Description**: List of recognizers configured for automatic detection of this tag
+
+```json
+{
+  "recognizers": [
+    {
+      "name": "email_pattern",
+      "patternType": "regex",
+      "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+    }
+  ]
+}
+```
+
+---
+
+#### `autoClassificationEnabled` (boolean)
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: Whether automatic classification is enabled for this tag
+
+```json
+{
+  "autoClassificationEnabled": true
+}
+```
+
+---
+
+#### `autoClassificationPriority` (integer)
+**Type**: `integer`
+**Required**: No (default: 50)
+**Min**: 0
+**Max**: 100
+**Description**: Priority for conflict resolution when multiple tags match (higher number = higher priority)
+
+```json
+{
+  "autoClassificationPriority": 75
+}
+```
+
+---
+
 ### Versioning Properties
 
 #### `version` (entityVersion)
 **Type**: `number`
-**Required**: Yes (system-managed)
-**Description**: Metadata version number, incremented on changes
+**Required**: No (system-managed)
+**Description**: Metadata version of the entity.
 
 ```json
 {
@@ -635,8 +998,8 @@ View the complete Tag schema in your preferred format:
 
 #### `updatedAt` (timestamp)
 **Type**: `integer` (Unix epoch milliseconds)
-**Required**: Yes (system-managed)
-**Description**: Last update timestamp
+**Required**: No (system-managed)
+**Description**: Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.
 
 ```json
 {
@@ -648,12 +1011,100 @@ View the complete Tag schema in your preferred format:
 
 #### `updatedBy` (string)
 **Type**: `string`
-**Required**: Yes (system-managed)
-**Description**: User who made the update
+**Required**: No (system-managed)
+**Description**: User who made the update.
 
 ```json
 {
   "updatedBy": "admin"
+}
+```
+
+---
+
+#### `impersonatedBy` (impersonatedBy)
+**Type**: `object`
+**Required**: No
+**Reference**: `../../type/basic.json#/definitions/impersonatedBy`
+**Description**: Bot user that performed the action on behalf of the actual user.
+
+```json
+{
+  "impersonatedBy": {
+    "id": "bot-uuid",
+    "type": "bot",
+    "name": "ingestion-bot"
+  }
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI)
+**Required**: No (system-generated)
+**Reference**: `../../type/basic.json#/definitions/href`
+**Description**: Link to the resource corresponding to the tag.
+
+```json
+{
+  "href": "https://open-metadata.org/api/v1/tags/PII.Sensitive.Email"
+}
+```
+
+---
+
+#### `changeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Reference**: `../../type/entityHistory.json#/definitions/changeDescription`
+**Description**: Change that lead to this version of the entity.
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "description",
+        "oldValue": "Old description",
+        "newValue": "New description"
+      }
+    ],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Reference**: `../../type/entityHistory.json#/definitions/changeDescription`
+**Description**: Change that lead to this version of the entity.
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `provider` (providerType)
+**Type**: `string` (enum)
+**Required**: No
+**Reference**: `../../type/basic.json#/definitions/providerType`
+**Description**: Provider of the entity (e.g., "system", "user").
+
+```json
+{
+  "provider": "system"
 }
 ```
 
@@ -703,14 +1154,24 @@ View the complete Tag schema in your preferred format:
   },
   "disabled": false,
   "deprecated": false,
+  "deleted": false,
+  "mutuallyExclusive": false,
   "usageCount": 342,
+  "owners": [],
+  "domains": [],
+  "dataProducts": [],
+  "reviewers": [],
+  "recognizers": [],
+  "autoClassificationEnabled": false,
+  "autoClassificationPriority": 50,
   "version": 1.3,
   "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "updatedBy": "admin",
+  "href": "https://open-metadata.org/api/v1/tags/PII.Sensitive"
 }
 ```
 
-### Nested Child Tag
+### Nested Child Tag with Auto-Classification
 
 ```json
 {
@@ -737,10 +1198,39 @@ View the complete Tag schema in your preferred format:
   },
   "disabled": false,
   "deprecated": false,
+  "deleted": false,
+  "mutuallyExclusive": false,
   "usageCount": 127,
+  "owners": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "admin"
+    }
+  ],
+  "domains": [],
+  "dataProducts": [],
+  "reviewers": [
+    {
+      "id": "steward-uuid",
+      "type": "user",
+      "name": "data-steward"
+    }
+  ],
+  "recognizers": [
+    {
+      "name": "email_pattern",
+      "patternType": "regex",
+      "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+      "confidence": 0.9
+    }
+  ],
+  "autoClassificationEnabled": true,
+  "autoClassificationPriority": 75,
   "version": 1.1,
   "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "updatedBy": "admin",
+  "href": "https://open-metadata.org/api/v1/tags/PII.Sensitive.Email"
 }
 ```
 
@@ -753,22 +1243,14 @@ View the complete Tag schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
 om:Tag a owl:Class ;
     rdfs:subClassOf om:GovernanceAsset, skos:Concept ;
     rdfs:label "Tag" ;
-    rdfs:comment "A classification label for categorizing data assets" ;
-    om:hasProperties [
-        om:name "string" ;
-        om:description "string" ;
-        om:classification "Classification" ;
-        om:parent "Tag" ;
-        om:children "Tag[]" ;
-        om:color "string" ;
-        om:disabled "boolean" ;
-    ] .
+    rdfs:comment "A Tag entity is used for classification or categorization. It is a term defined under Classification entity. Tags are used to label the entities and entity fields, such as Tables, and Columns." .
 ```
 
 ### Instance Example
@@ -780,22 +1262,33 @@ om:Tag a owl:Class ;
 
 ex:PII_Sensitive a om:Tag, skos:Concept ;
     skos:prefLabel "Sensitive" ;
+    om:displayName "Sensitive PII" ;
     skos:notation "PII.Sensitive" ;
-    skos:definition "Highly sensitive personal information" ;
+    skos:definition "Highly sensitive personal information requiring strict access controls and encryption" ;
     skos:inScheme ex:PII ;
-    om:tagColor "#FF0000" ;
     om:isDisabled false ;
     om:isDeprecated false ;
+    om:isDeleted false ;
+    om:mutuallyExclusive false ;
+    om:usageCount 342 ;
+    om:autoClassificationEnabled false ;
+    om:autoClassificationPriority 50 ;
     skos:narrower ex:PII_Sensitive_Email ;
     skos:narrower ex:PII_Sensitive_SSN .
 
 ex:PII_Sensitive_Email a om:Tag, skos:Concept ;
     skos:prefLabel "Email" ;
+    om:displayName "Email Address" ;
     skos:notation "PII.Sensitive.Email" ;
-    skos:definition "Email addresses" ;
+    skos:definition "Email addresses requiring privacy protection" ;
     skos:inScheme ex:PII ;
     skos:broader ex:PII_Sensitive ;
-    om:tagColor "#FF6600" .
+    om:isDisabled false ;
+    om:isDeprecated false ;
+    om:isDeleted false ;
+    om:usageCount 127 ;
+    om:autoClassificationEnabled true ;
+    om:autoClassificationPriority 75 .
 ```
 
 ---
@@ -808,14 +1301,91 @@ ex:PII_Sensitive_Email a om:Tag, skos:Concept ;
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
     "skos": "http://www.w3.org/2004/02/skos/core#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
     "Tag": "om:Tag",
     "Concept": "skos:Concept",
-    "name": "skos:prefLabel",
-    "fullyQualifiedName": "skos:notation",
-    "description": "skos:definition",
-    "classification": "skos:inScheme",
-    "parent": "skos:broader",
-    "children": "skos:narrower"
+    "name": {
+      "@id": "skos:prefLabel",
+      "@type": "xsd:string"
+    },
+    "displayName": {
+      "@id": "om:displayName",
+      "@type": "xsd:string"
+    },
+    "fullyQualifiedName": {
+      "@id": "skos:notation",
+      "@type": "xsd:string"
+    },
+    "description": {
+      "@id": "skos:definition",
+      "@type": "xsd:string"
+    },
+    "classification": {
+      "@id": "skos:inScheme",
+      "@type": "@id"
+    },
+    "parent": {
+      "@id": "skos:broader",
+      "@type": "@id"
+    },
+    "children": {
+      "@id": "skos:narrower",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "disabled": {
+      "@id": "om:isDisabled",
+      "@type": "xsd:boolean"
+    },
+    "deprecated": {
+      "@id": "om:isDeprecated",
+      "@type": "xsd:boolean"
+    },
+    "deleted": {
+      "@id": "om:isDeleted",
+      "@type": "xsd:boolean"
+    },
+    "usageCount": {
+      "@id": "om:usageCount",
+      "@type": "xsd:integer"
+    },
+    "mutuallyExclusive": {
+      "@id": "om:mutuallyExclusive",
+      "@type": "xsd:boolean"
+    },
+    "owners": {
+      "@id": "om:hasOwner",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:hasDomain",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:hasDataProduct",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "reviewers": {
+      "@id": "om:hasReviewer",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "recognizers": {
+      "@id": "om:hasRecognizer",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "autoClassificationEnabled": {
+      "@id": "om:autoClassificationEnabled",
+      "@type": "xsd:boolean"
+    },
+    "autoClassificationPriority": {
+      "@id": "om:autoClassificationPriority",
+      "@type": "xsd:integer"
+    }
   }
 }
 ```
@@ -828,8 +1398,9 @@ ex:PII_Sensitive_Email a om:Tag, skos:Concept ;
   "@type": ["Tag", "Concept"],
   "@id": "https://open-metadata.org/tags/PII/Sensitive/Email",
   "name": "Email",
+  "displayName": "Email Address",
   "fullyQualifiedName": "PII.Sensitive.Email",
-  "description": "Email addresses",
+  "description": "Email addresses requiring privacy protection",
   "classification": {
     "@id": "https://open-metadata.org/classifications/PII",
     "@type": "Classification"
@@ -838,9 +1409,34 @@ ex:PII_Sensitive_Email a om:Tag, skos:Concept ;
     "@id": "https://open-metadata.org/tags/PII/Sensitive",
     "@type": "Tag"
   },
+  "children": [],
   "style": {
     "color": "#FF6600"
-  }
+  },
+  "disabled": false,
+  "deprecated": false,
+  "deleted": false,
+  "mutuallyExclusive": false,
+  "usageCount": 127,
+  "owners": [
+    {
+      "@id": "https://open-metadata.org/users/admin",
+      "@type": "User"
+    }
+  ],
+  "domains": [],
+  "dataProducts": [],
+  "reviewers": [],
+  "recognizers": [
+    {
+      "@type": "Recognizer",
+      "name": "email_pattern",
+      "patternType": "regex",
+      "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+    }
+  ],
+  "autoClassificationEnabled": true,
+  "autoClassificationPriority": 75
 }
 ```
 

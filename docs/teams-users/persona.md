@@ -1,13 +1,13 @@
 
 # Persona
 
-**User archetypes for tailored experiences and workflows**
+**Job function associated with a user**
 
 ---
 
 ## Overview
 
-The **Persona** entity represents user archetypes that define tailored experiences, workflows, and UI preferences. Personas help customize the platform interface based on user roles and responsibilities, providing relevant features and information to different user types.
+The **Persona** entity defines a job function associated with a user. Examples include Data Engineer or Data Consumer as personas of users in the metadata world. Personas help categorize users based on their professional roles and responsibilities.
 
 ---
 
@@ -15,173 +15,77 @@ The **Persona** entity represents user archetypes that define tailored experienc
 
 ```mermaid
 graph TB
-    subgraph "Built-in Personas"
-        ANALYST[Persona<br/>Analyst<br/><i>Data Analysis & Reporting</i>]
-        ENGINEER[Persona<br/>Engineer<br/><i>Data Pipeline & Infrastructure</i>]
-        SCIENTIST[Persona<br/>Scientist<br/><i>ML & Advanced Analytics</i>]
-        EXECUTIVE[Persona<br/>Executive<br/><i>KPIs & Business Metrics</i>]
-        STEWARD[Persona<br/>Steward<br/><i>Data Governance & Quality</i>]
+    subgraph "Personas"
+        P1[Persona<br/>Data Engineer<br/><i>Job Function</i>]
+        P2[Persona<br/>Data Analyst<br/><i>Job Function</i>]
+        P3[Persona<br/>Data Steward<br/><i>Job Function</i>]
+        P4[Persona<br/>Data Consumer<br/><i>Default: true</i>]
     end
 
-    subgraph "Custom Personas"
-        CUSTOM1[Persona<br/>BusinessAnalyst<br/><i>Custom</i>]
-        CUSTOM2[Persona<br/>ProductManager<br/><i>Custom</i>]
+    subgraph "Assigned Users - Data Engineer"
+        USR1[User<br/>john.doe<br/><i>Senior Data Engineer</i>]
+        USR2[User<br/>jane.smith<br/><i>Data Engineer</i>]
+
+        P1 -.->|users| USR1
+        P1 -.->|users| USR2
     end
 
-    subgraph "Assigned Users - Analyst"
-        USR1[User<br/>jane.doe<br/><i>Data Analyst</i>]
-        USR2[User<br/>john.smith<br/><i>Business Analyst</i>]
-        USR3[User<br/>alice.wilson<br/><i>Senior Analyst</i>]
+    subgraph "Assigned Users - Data Analyst"
+        USR3[User<br/>alice.wilson<br/><i>Business Analyst</i>]
+        USR4[User<br/>bob.analyst<br/><i>Data Analyst</i>]
 
-        ANALYST -.->|assigned to| USR1
-        ANALYST -.->|assigned to| USR2
-        ANALYST -.->|assigned to| USR3
-        USR1 -->|default persona| ANALYST
+        P2 -.->|users| USR3
+        P2 -.->|users| USR4
     end
 
-    subgraph "Assigned Users - Engineer"
-        USR4[User<br/>bob.engineer<br/><i>Data Engineer</i>]
-        USR5[User<br/>carol.dev<br/><i>Platform Engineer</i>]
+    subgraph "Domains - Data Engineer"
+        DOM1[Domain<br/>Engineering<br/><i>Data Platform</i>]
+        DOM2[Domain<br/>Infrastructure<br/><i>Core Systems</i>]
 
-        ENGINEER -.->|assigned to| USR4
-        ENGINEER -.->|assigned to| USR5
-        USR4 -->|default persona| ENGINEER
+        P1 -.->|domains| DOM1
+        P1 -.->|domains| DOM2
     end
 
-    subgraph "UI Preferences - Analyst Persona"
-        UI1[Landing Page<br/>/dashboards<br/><i>Default View</i>]
-        UI2[Favorite Views<br/>MyDashboards<br/>PopularTables<br/>RecentQueries]
-        UI3[Default Filters<br/>Tier: Gold, Silver<br/>Domain: Analytics]
-        UI4[Widgets<br/>Activity Feed<br/>Top Tables<br/>Trending Assets]
+    subgraph "Domains - Data Analyst"
+        DOM3[Domain<br/>Analytics<br/><i>Business Intelligence</i>]
+        DOM4[Domain<br/>Sales<br/><i>Sales Analytics</i>]
 
-        ANALYST -->|configures| UI1
-        ANALYST -->|configures| UI2
-        ANALYST -->|configures| UI3
-        ANALYST -->|configures| UI4
+        P2 -.->|domains| DOM3
+        P2 -.->|domains| DOM4
     end
 
-    subgraph "Relevant Domains - Analyst"
-        DOM1[Domain<br/>Analytics<br/><i>Primary Domain</i>]
-        DOM2[Domain<br/>Sales<br/><i>Relevant Domain</i>]
-        DOM3[Domain<br/>Marketing<br/><i>Relevant Domain</i>]
+    subgraph "UI Customization"
+        UI1[UICustomization<br/>Engineer Dashboard<br/><i>Reference</i>]
+        UI2[UICustomization<br/>Analyst Dashboard<br/><i>Reference</i>]
 
-        ANALYST -.->|relevant| DOM1
-        ANALYST -.->|relevant| DOM2
-        ANALYST -.->|relevant| DOM3
-    end
-
-    subgraph "Featured Assets - Analyst"
-        DASH1[Dashboard<br/>Sales Overview<br/><i>Tableau</i>]
-        DASH2[Dashboard<br/>Customer Analytics<br/><i>Tableau</i>]
-        TBL1[Table<br/>customers<br/><i>postgres_prod.public</i>]
-        TBL2[Table<br/>orders<br/><i>postgres_prod.public</i>]
-        TBL3[Table<br/>revenue<br/><i>postgres_prod.public</i>]
-
-        ANALYST -.->|features| DASH1
-        ANALYST -.->|features| DASH2
-        ANALYST -.->|features| TBL1
-        ANALYST -.->|features| TBL2
-        ANALYST -.->|features| TBL3
-    end
-
-    subgraph "Recommended Workflows - Analyst"
-        WF1[Workflow<br/>Create Dashboard<br/><i>6 Steps</i>]
-        WF2[Workflow<br/>Explore Data<br/><i>6 Steps</i>]
-        WF3[Workflow<br/>Request Access<br/><i>6 Steps</i>]
-        WF4[Workflow<br/>Generate Report<br/><i>5 Steps</i>]
-
-        ANALYST -->|recommends| WF1
-        ANALYST -->|recommends| WF2
-        ANALYST -->|recommends| WF3
-        ANALYST -->|recommends| WF4
-    end
-
-    subgraph "Featured Assets - Engineer"
-        PIPE1[Pipeline<br/>customer_etl<br/><i>Airflow</i>]
-        PIPE2[Pipeline<br/>analytics_sync<br/><i>Airflow</i>]
-        TBL4[Table<br/>staging_data<br/><i>postgres_dev</i>]
-        CONT1[Container<br/>raw_data<br/><i>S3 Bucket</i>]
-
-        ENGINEER -.->|features| PIPE1
-        ENGINEER -.->|features| PIPE2
-        ENGINEER -.->|features| TBL4
-        ENGINEER -.->|features| CONT1
-    end
-
-    subgraph "Relevant Tags - Analyst"
-        TAG1[Tag<br/>Tier.Gold<br/><i>High Priority</i>]
-        TAG2[Tag<br/>Domain.Analytics<br/><i>Domain Tag</i>]
-        TAG3[Tag<br/>Priority.High<br/><i>Business Critical</i>]
-        TAG4[Tag<br/>Sensitive.PII<br/><i>Data Classification</i>]
-
-        ANALYST -.->|relevant| TAG1
-        ANALYST -.->|relevant| TAG2
-        ANALYST -.->|relevant| TAG3
-        ANALYST -.->|relevant| TAG4
-    end
-
-    subgraph "Featured Assets - Scientist"
-        ML1[MLModel<br/>churn_predictor<br/><i>Production</i>]
-        ML2[MLModel<br/>recommendation_engine<br/><i>Staging</i>]
-        NB1[Notebook<br/>feature_engineering<br/><i>Jupyter</i>]
-        TOPIC1[Topic<br/>model_predictions<br/><i>Kafka</i>]
-
-        SCIENTIST -.->|features| ML1
-        SCIENTIST -.->|features| ML2
-        SCIENTIST -.->|features| NB1
-        SCIENTIST -.->|features| TOPIC1
-    end
-
-    subgraph "UI Preferences - Executive"
-        UI5[Landing Page<br/>/executive-summary<br/><i>High-level View</i>]
-        UI6[Widgets<br/>Business KPIs<br/>Revenue Metrics<br/>Key Trends]
-
-        EXECUTIVE -->|configures| UI5
-        EXECUTIVE -->|configures| UI6
+        P1 -->|uiCustomization| UI1
+        P2 -->|uiCustomization| UI2
     end
 
     %% Styling
     classDef personaStyle fill:#EC4899,stroke:#DB2777,color:#fff,stroke-width:3px
-    classDef customPersonaStyle fill:#F472B6,stroke:#EC4899,color:#fff,stroke-width:2px
     classDef userStyle fill:#059669,stroke:#047857,color:#fff,stroke-width:2px
-    classDef uiStyle fill:#8B5CF6,stroke:#7C3AED,color:#fff,stroke-width:2px
     classDef domainStyle fill:#F59E0B,stroke:#D97706,color:#000,stroke-width:2px
-    classDef dashboardStyle fill:#2563EB,stroke:#1E40AF,color:#fff,stroke-width:2px
-    classDef tableStyle fill:#06B6D4,stroke:#0891B2,color:#fff,stroke-width:2px
-    classDef workflowStyle fill:#10B981,stroke:#059669,color:#fff,stroke-width:2px
-    classDef pipelineStyle fill:#6366F1,stroke:#4F46E5,color:#fff,stroke-width:2px
-    classDef tagStyle fill:#EF4444,stroke:#DC2626,color:#fff,stroke-width:2px
-    classDef mlStyle fill:#A855F7,stroke:#9333EA,color:#fff,stroke-width:2px
+    classDef uiStyle fill:#8B5CF6,stroke:#7C3AED,color:#fff,stroke-width:2px
 
-    class ANALYST,ENGINEER,SCIENTIST,EXECUTIVE,STEWARD personaStyle
-    class CUSTOM1,CUSTOM2 customPersonaStyle
-    class USR1,USR2,USR3,USR4,USR5 userStyle
-    class UI1,UI2,UI3,UI4,UI5,UI6 uiStyle
-    class DOM1,DOM2,DOM3 domainStyle
-    class DASH1,DASH2 dashboardStyle
-    class TBL1,TBL2,TBL3,TBL4 tableStyle
-    class WF1,WF2,WF3,WF4 workflowStyle
-    class PIPE1,PIPE2,CONT1 pipelineStyle
-    class TAG1,TAG2,TAG3,TAG4 tagStyle
-    class ML1,ML2,NB1,TOPIC1 mlStyle
+    class P1,P2,P3,P4 personaStyle
+    class USR1,USR2,USR3,USR4 userStyle
+    class DOM1,DOM2,DOM3,DOM4 domainStyle
+    class UI1,UI2 uiStyle
 ```
 
 **Key Relationships:**
 
-- **User Assignment**: Users can have multiple personas, with one set as default
-- **UI Preferences**: Each persona defines custom landing pages, favorite views, filters, and dashboard widgets
-- **Relevant Domains**: Personas associated with specific data domains for focused access
-- **Featured Assets**: Curated list of important assets for each persona type (dashboards, tables, pipelines, ML models)
-- **Relevant Tags**: Tags that help filter and discover assets relevant to the persona
-- **Recommended Workflows**: Step-by-step guides for common tasks specific to each persona
-- **Tailored Experience**: Personas customize the entire user experience based on role and responsibilities
+- **User Assignment**: Users are assigned to personas to represent their job functions
+- **Domains**: Personas can be associated with specific data domains (inherited when not set)
+- **UI Customization**: Personas can reference UI customization configurations
+- **Default Persona**: A system-wide default persona can be set for users without assigned personas
 
-**Common Personas:**
-- **Analyst** - Data analysts performing analysis and creating reports
-- **Engineer** - Data engineers building pipelines and infrastructure
-- **Scientist** - Data scientists developing ML models
-- **Executive** - Executives viewing dashboards and KPIs
-- **Steward** - Data stewards managing governance and quality
+**Example Personas:**
+- **Data Engineer** - Engineers building data pipelines and infrastructure
+- **Data Analyst** - Analysts performing data analysis and creating reports
+- **Data Steward** - Stewards managing data governance and quality
+- **Data Consumer** - General users consuming data products
 
 ---
 
@@ -198,134 +102,83 @@ View the complete Persona schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/teams/persona.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Persona",
-      "description": "A `Persona` represents a user archetype that defines tailored experiences and workflows.",
+      "description": "This schema defines the Persona entity. A `Persona` is a job function associated with a user. An Example, Data Engineer or Data Consumer is a Persona of a user in Metadata world.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.teams.Persona",
-
-      "definitions": {
-        "personaType": {
-          "description": "Type of persona",
-          "type": "string",
-          "enum": [
-            "Analyst",
-            "Engineer",
-            "Scientist",
-            "Executive",
-            "Steward",
-            "Custom"
-          ]
-        },
-        "uiPreferences": {
-          "type": "object",
-          "properties": {
-            "landingPage": {
-              "type": "string",
-              "description": "Default landing page"
-            },
-            "favoriteViews": {
-              "type": "array",
-              "items": {"type": "string"}
-            },
-            "defaultFilters": {
-              "type": "object",
-              "description": "Default filters for data assets"
-            },
-            "widgets": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {"type": "string"},
-                  "type": {"type": "string"},
-                  "config": {"type": "object"}
-                }
-              }
-            }
-          }
-        }
-      },
-
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
       "properties": {
         "id": {
-          "description": "Unique identifier",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Persona name",
+          "description": "A unique name of Persona. Example 'data engineer'",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified persona name",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Name used for display purposes. Example 'Data Steward'.",
           "type": "string"
         },
         "description": {
-          "description": "Persona description",
+          "description": "Description of the persona.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "personaType": {
-          "$ref": "#/definitions/personaType"
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
         },
-        "uiPreferences": {
-          "$ref": "#/definitions/uiPreferences"
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
         },
-        "domains": {
-          "description": "Relevant data domains for this persona",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
         },
-        "featuredAssets": {
-          "description": "Featured data assets for this persona",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "relevantTags": {
-          "description": "Tags relevant to this persona",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/tagLabel.json"
-          }
+        "uiCustomization": {
+          "description": "Reference to the UI customization configuration.",
+          "$ref": "../../type/entityReference.json"
         },
         "users": {
-          "description": "Users assigned to this persona",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "workflows": {
-          "description": "Recommended workflows for this persona",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {"type": "string"},
-              "description": {"type": "string"},
-              "steps": {
-                "type": "array",
-                "items": {"type": "string"}
-              }
-            }
-          }
+          "description": "Users that are assigned a persona.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
         },
         "version": {
-          "description": "Metadata version",
+          "description": "Metadata version of the entity.",
           "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "domains": {
+          "description": "Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "default": {
+          "description": "When true, this persona is the system-wide default persona that will be applied to users who don't have any persona assigned or no default persona set.",
+          "type": "boolean",
+          "default": false
         }
       },
-
-      "required": ["id", "name", "personaType"]
+      "required": ["id", "name"],
+      "additionalProperties": false
     }
     ```
 
-    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/schemas/entity/teams/persona.json)**
+    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadata/blob/main/openmetadata-spec/src/main/resources/json/schema/entity/teams/persona.json)**
 
 === "RDF"
 
@@ -334,84 +187,67 @@ View the complete Persona schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # Persona Class Definition
     om:Persona a owl:Class ;
         rdfs:subClassOf om:Entity ;
         rdfs:label "Persona" ;
-        rdfs:comment "User archetype defining tailored experiences and workflows" .
+        rdfs:comment "A job function associated with a user. Example: Data Engineer or Data Consumer is a Persona of a user in Metadata world." .
 
     # Properties
     om:personaName a owl:DatatypeProperty ;
         rdfs:domain om:Persona ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the persona" .
+        rdfs:comment "A unique name of Persona. Example 'data engineer'" .
 
-    om:personaType a owl:DatatypeProperty ;
-        rdfs:domain om:Persona ;
-        rdfs:range om:PersonaType ;
-        rdfs:label "personaType" ;
-        rdfs:comment "Type: Analyst, Engineer, Scientist, etc." .
-
-    om:landingPage a owl:DatatypeProperty ;
+    om:personaDisplayName a owl:DatatypeProperty ;
         rdfs:domain om:Persona ;
         rdfs:range xsd:string ;
-        rdfs:label "landingPage" ;
-        rdfs:comment "Default landing page for persona" .
+        rdfs:label "displayName" ;
+        rdfs:comment "Name used for display purposes. Example 'Data Steward'." .
 
-    om:relevantDomain a owl:ObjectProperty ;
+    om:personaDescription a owl:DatatypeProperty ;
+        rdfs:domain om:Persona ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of the persona" .
+
+    om:personaDefault a owl:DatatypeProperty ;
+        rdfs:domain om:Persona ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "default" ;
+        rdfs:comment "System-wide default persona applied to users without assigned personas" .
+
+    om:hasUICustomization a owl:ObjectProperty ;
+        rdfs:domain om:Persona ;
+        rdfs:range om:UICustomization ;
+        rdfs:label "uiCustomization" ;
+        rdfs:comment "Reference to the UI customization configuration" .
+
+    om:hasDomain a owl:ObjectProperty ;
         rdfs:domain om:Persona ;
         rdfs:range om:Domain ;
-        rdfs:label "relevantDomain" ;
-        rdfs:comment "Data domains relevant to this persona" .
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the persona belongs to. Inherited when not set" .
 
-    om:featuredAsset a owl:ObjectProperty ;
-        rdfs:domain om:Persona ;
-        rdfs:range om:DataAsset ;
-        rdfs:label "featuredAsset" ;
-        rdfs:comment "Featured assets for this persona" .
-
-    om:relevantTag a owl:ObjectProperty ;
-        rdfs:domain om:Persona ;
-        rdfs:range om:Tag ;
-        rdfs:label "relevantTag" ;
-        rdfs:comment "Tags relevant to this persona" .
-
-    om:assignedUser a owl:ObjectProperty ;
+    om:hasUser a owl:ObjectProperty ;
         rdfs:domain om:Persona ;
         rdfs:range om:User ;
-        rdfs:label "assignedUser" ;
-        rdfs:comment "Users assigned this persona" .
-
-    om:hasWorkflow a owl:ObjectProperty ;
-        rdfs:domain om:Persona ;
-        rdfs:range om:Workflow ;
-        rdfs:label "hasWorkflow" ;
-        rdfs:comment "Recommended workflows" .
-
-    # Persona Type Enumeration
-    om:PersonaType a owl:Class ;
-        owl:oneOf (
-            om:AnalystPersona
-            om:EngineerPersona
-            om:ScientistPersona
-            om:ExecutivePersona
-            om:StewardPersona
-            om:CustomPersona
-        ) .
+        rdfs:label "users" ;
+        rdfs:comment "Users that are assigned a persona" .
 
     # Example Instance
-    ex:analystPersona a om:Persona ;
-        om:personaName "Analyst" ;
-        om:displayName "Data Analyst" ;
-        om:personaType om:AnalystPersona ;
-        om:landingPage "/dashboards" ;
-        om:relevantDomain ex:analyticsDomain ;
-        om:featuredAsset ex:salesDashboard ;
-        om:assignedUser ex:janeDoe .
+    ex:dataEngineerPersona a om:Persona ;
+        om:personaName "data_engineer" ;
+        om:personaDisplayName "Data Engineer" ;
+        om:personaDescription "Persona for data engineers building data pipelines and infrastructure" ;
+        om:personaDefault false ;
+        om:hasUICustomization ex:engineerUIConfig ;
+        om:hasDomain ex:engineeringDomain ;
+        om:hasUser ex:johnDoe .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -438,41 +274,38 @@ View the complete Persona schema in your preferred format:
           "@type": "xsd:string"
         },
         "displayName": {
-          "@id": "om:displayName",
+          "@id": "om:personaDisplayName",
           "@type": "xsd:string"
         },
         "description": {
-          "@id": "om:description",
+          "@id": "om:personaDescription",
           "@type": "xsd:string"
         },
-        "personaType": {
-          "@id": "om:personaType",
-          "@type": "@vocab"
+        "default": {
+          "@id": "om:personaDefault",
+          "@type": "xsd:boolean"
+        },
+        "uiCustomization": {
+          "@id": "om:hasUICustomization",
+          "@type": "@id"
         },
         "domains": {
-          "@id": "om:relevantDomain",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "featuredAssets": {
-          "@id": "om:featuredAsset",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "relevantTags": {
-          "@id": "om:relevantTag",
+          "@id": "om:hasDomain",
           "@type": "@id",
           "@container": "@set"
         },
         "users": {
-          "@id": "om:assignedUser",
+          "@id": "om:hasUser",
           "@type": "@id",
           "@container": "@set"
         },
-        "workflows": {
-          "@id": "om:hasWorkflow",
-          "@type": "@id",
-          "@container": "@set"
+        "updatedAt": {
+          "@id": "om:updatedAt",
+          "@type": "xsd:long"
+        },
+        "updatedBy": {
+          "@id": "om:updatedBy",
+          "@type": "xsd:string"
         }
       }
     }
@@ -484,55 +317,47 @@ View the complete Persona schema in your preferred format:
     {
       "@context": "https://open-metadata.org/context/persona.jsonld",
       "@type": "Persona",
-      "@id": "https://example.com/personas/analyst",
+      "@id": "https://example.com/personas/data_engineer",
 
-      "name": "Analyst",
-      "fullyQualifiedName": "Analyst",
-      "displayName": "Data Analyst",
-      "description": "Persona for data analysts who create reports, perform analysis, and explore data",
-      "personaType": "Analyst",
+      "name": "data_engineer",
+      "fullyQualifiedName": "data_engineer",
+      "displayName": "Data Engineer",
+      "description": "Persona for data engineers building data pipelines and infrastructure",
+      "default": false,
 
-      "uiPreferences": {
-        "landingPage": "/dashboards",
-        "favoriteViews": ["MyDashboards", "PopularTables", "RecentQueries"],
-        "defaultFilters": {
-          "tags": ["Tier.Gold", "Domain.Analytics"]
-        }
+      "uiCustomization": {
+        "@id": "https://example.com/ui-customization/engineer-dashboard",
+        "@type": "UICustomization"
       },
 
       "domains": [
         {
-          "@id": "https://example.com/domains/analytics",
+          "@id": "https://example.com/domains/engineering",
           "@type": "Domain",
-          "name": "Analytics"
+          "name": "Engineering"
         },
         {
-          "@id": "https://example.com/domains/sales",
+          "@id": "https://example.com/domains/infrastructure",
           "@type": "Domain",
-          "name": "Sales"
-        }
-      ],
-
-      "featuredAssets": [
-        {
-          "@id": "https://example.com/dashboards/sales-overview",
-          "@type": "Dashboard",
-          "name": "Sales Overview"
-        },
-        {
-          "@id": "https://example.com/tables/customers",
-          "@type": "Table",
-          "name": "customers"
+          "name": "Infrastructure"
         }
       ],
 
       "users": [
         {
-          "@id": "https://example.com/users/jane.doe",
+          "@id": "https://example.com/users/john.doe",
           "@type": "User",
-          "name": "jane.doe"
+          "name": "john.doe"
+        },
+        {
+          "@id": "https://example.com/users/jane.smith",
+          "@type": "User",
+          "name": "jane.smith"
         }
-      ]
+      ],
+
+      "updatedAt": 1704240000000,
+      "updatedBy": "admin"
     }
     ```
 
@@ -542,14 +367,12 @@ View the complete Persona schema in your preferred format:
 
 ## Use Cases
 
-- Customize user experience based on role and responsibilities
-- Provide tailored landing pages and navigation
-- Feature relevant data assets and domains
-- Recommend workflows and best practices
-- Configure default filters and views
-- Personalize dashboard widgets and metrics
-- Guide users through common tasks
-- Improve discoverability of relevant resources
+- Categorize users by their job function (e.g., Data Engineer, Data Consumer)
+- Associate users with specific personas for role-based organization
+- Link personas to relevant data domains for domain-based access patterns
+- Reference UI customization configurations for persona-specific interfaces
+- Set system-wide default persona for users without assigned personas
+- Track and manage user job functions across the organization
 
 ---
 
@@ -561,6 +384,7 @@ View the complete Persona schema in your preferred format:
 **Type**: `string` (UUID format)
 **Required**: Yes (system-generated)
 **Description**: Unique identifier for this persona instance
+**Reference**: `../../type/basic.json#/definitions/uuid`
 
 ```json
 {
@@ -573,14 +397,12 @@ View the complete Persona schema in your preferred format:
 #### `name` (entityName)
 **Type**: `string`
 **Required**: Yes
-**Pattern**: `^[^.]*$` (no dots allowed)
-**Min Length**: 1
-**Max Length**: 128
-**Description**: Persona name (unique)
+**Description**: A unique name of Persona. Example 'data engineer'
+**Reference**: `../../type/basic.json#/definitions/entityName`
 
 ```json
 {
-  "name": "Analyst"
+  "name": "data_engineer"
 }
 ```
 
@@ -588,12 +410,13 @@ View the complete Persona schema in your preferred format:
 
 #### `fullyQualifiedName` (fullyQualifiedEntityName)
 **Type**: `string`
-**Required**: Yes (system-generated)
-**Description**: Fully qualified persona name
+**Required**: No (system-generated)
+**Description**: FullyQualifiedName same as `name`.
+**Reference**: `../../type/basic.json#/definitions/fullyQualifiedEntityName`
 
 ```json
 {
-  "fullyQualifiedName": "Analyst"
+  "fullyQualifiedName": "data_engineer"
 }
 ```
 
@@ -602,11 +425,11 @@ View the complete Persona schema in your preferred format:
 #### `displayName`
 **Type**: `string`
 **Required**: No
-**Description**: Human-readable display name
+**Description**: Name used for display purposes. Example 'Data Steward'.
 
 ```json
 {
-  "displayName": "Data Analyst"
+  "displayName": "Data Engineer"
 }
 ```
 
@@ -615,99 +438,73 @@ View the complete Persona schema in your preferred format:
 #### `description` (markdown)
 **Type**: `string` (Markdown format)
 **Required**: No
-**Description**: Persona description and purpose
+**Description**: Description of the persona.
+**Reference**: `../../type/basic.json#/definitions/markdown`
 
 ```json
 {
-  "description": "# Data Analyst Persona\n\nDesigned for users who create reports, perform analysis, and explore data to derive insights."
+  "description": "Persona for data engineers building data pipelines and infrastructure"
 }
 ```
 
 ---
 
-### Persona Type Properties
-
-#### `personaType` (PersonaType enum)
-**Type**: `string` enum
-**Required**: Yes
-**Allowed Values**:
-
-- `Analyst` - Data analysts creating reports and performing analysis
-- `Engineer` - Data engineers building pipelines and infrastructure
-- `Scientist` - Data scientists developing ML models
-- `Executive` - Executives viewing dashboards and KPIs
-- `Steward` - Data stewards managing governance and quality
-- `Custom` - Custom persona type
+#### `href`
+**Type**: `string` (URI format)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this entity.
+**Reference**: `../../type/basic.json#/definitions/href`
 
 ```json
 {
-  "personaType": "Analyst"
+  "href": "https://example.com/api/v1/personas/e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"
 }
 ```
 
 ---
 
-### UI Preferences Properties
+### Configuration Properties
 
-#### `uiPreferences`
-**Type**: `object`
+#### `default`
+**Type**: `boolean`
 **Required**: No
-**Description**: User interface customization preferences
-
-**Properties**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `landingPage` | string | No | Default landing page URL |
-| `favoriteViews` | string[] | No | Favorite views and pages |
-| `defaultFilters` | object | No | Default filters for data assets |
-| `widgets` | object[] | No | Dashboard widgets configuration |
+**Default**: `false`
+**Description**: When true, this persona is the system-wide default persona that will be applied to users who don't have any persona assigned or no default persona set.
 
 ```json
 {
-  "uiPreferences": {
-    "landingPage": "/dashboards",
-    "favoriteViews": [
-      "MyDashboards",
-      "PopularTables",
-      "RecentQueries",
-      "TrendingAssets"
-    ],
-    "defaultFilters": {
-      "tags": ["Tier.Gold", "Domain.Analytics"],
-      "tiers": ["Gold", "Silver"],
-      "domains": ["Analytics", "Sales"]
-    },
-    "widgets": [
-      {
-        "name": "MyActivity",
-        "type": "activity-feed",
-        "config": {
-          "limit": 10,
-          "showFollowing": true
-        }
-      },
-      {
-        "name": "TopTables",
-        "type": "popular-assets",
-        "config": {
-          "assetType": "table",
-          "limit": 5
-        }
-      }
-    ]
+  "default": false
+}
+```
+
+---
+
+#### `uiCustomization` (EntityReference)
+**Type**: `object` (EntityReference)
+**Required**: No
+**Description**: Reference to the UI customization configuration.
+**Reference**: `../../type/entityReference.json`
+
+```json
+{
+  "uiCustomization": {
+    "id": "ui-config-uuid",
+    "type": "uiCustomization",
+    "name": "engineer_dashboard",
+    "fullyQualifiedName": "engineer_dashboard"
   }
 }
 ```
 
 ---
 
-### Relevance Properties
+### Association Properties
 
-#### `domains[]` (EntityReference[])
+#### `domains` (EntityReferenceList)
 **Type**: `array` of Domain references
 **Required**: No
-**Description**: Data domains relevant to this persona
+**Description**: Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.
+**Reference**: `../../type/entityReferenceList.json`
 
 ```json
 {
@@ -715,14 +512,14 @@ View the complete Persona schema in your preferred format:
     {
       "id": "domain-uuid-1",
       "type": "domain",
-      "name": "Analytics",
-      "fullyQualifiedName": "Analytics"
+      "name": "Engineering",
+      "fullyQualifiedName": "Engineering"
     },
     {
       "id": "domain-uuid-2",
       "type": "domain",
-      "name": "Sales",
-      "fullyQualifiedName": "Sales"
+      "name": "Infrastructure",
+      "fullyQualifiedName": "Infrastructure"
     }
   ]
 }
@@ -730,69 +527,12 @@ View the complete Persona schema in your preferred format:
 
 ---
 
-#### `featuredAssets[]` (EntityReference[])
-**Type**: `array` of asset references
-**Required**: No
-**Description**: Featured data assets for this persona
-
-```json
-{
-  "featuredAssets": [
-    {
-      "id": "dashboard-uuid",
-      "type": "dashboard",
-      "name": "Sales Overview",
-      "fullyQualifiedName": "tableau.SalesOverview"
-    },
-    {
-      "id": "table-uuid",
-      "type": "table",
-      "name": "customers",
-      "fullyQualifiedName": "postgres_prod.ecommerce.public.customers"
-    },
-    {
-      "id": "pipeline-uuid",
-      "type": "pipeline",
-      "name": "daily_metrics_pipeline"
-    }
-  ]
-}
-```
-
----
-
-#### `relevantTags[]` (TagLabel[])
-**Type**: `array` of tag labels
-**Required**: No
-**Description**: Tags relevant to this persona
-
-```json
-{
-  "relevantTags": [
-    {
-      "tagFQN": "Tier.Gold",
-      "source": "Classification"
-    },
-    {
-      "tagFQN": "Domain.Analytics",
-      "source": "Classification"
-    },
-    {
-      "tagFQN": "Priority.High",
-      "source": "Classification"
-    }
-  ]
-}
-```
-
----
-
-### User Assignment Properties
-
-#### `users[]` (EntityReference[])
+#### `users` (EntityReferenceList)
 **Type**: `array` of User references
 **Required**: No
-**Description**: Users assigned to this persona
+**Default**: `null`
+**Description**: Users that are assigned a persona.
+**Reference**: `../../type/entityReferenceList.json`
 
 ```json
 {
@@ -800,14 +540,14 @@ View the complete Persona schema in your preferred format:
     {
       "id": "user-uuid-1",
       "type": "user",
-      "name": "jane.doe",
-      "displayName": "Jane Doe"
+      "name": "john.doe",
+      "displayName": "John Doe"
     },
     {
       "id": "user-uuid-2",
       "type": "user",
-      "name": "john.analyst",
-      "displayName": "John Analyst"
+      "name": "jane.smith",
+      "displayName": "Jane Smith"
     }
   ]
 }
@@ -815,76 +555,17 @@ View the complete Persona schema in your preferred format:
 
 ---
 
-### Workflow Properties
-
-#### `workflows[]`
-**Type**: `array` of workflow objects
-**Required**: No
-**Description**: Recommended workflows for this persona
-
-**Workflow Object Properties**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | Yes | Workflow name |
-| `description` | string | No | Workflow description |
-| `steps` | string[] | Yes | Workflow steps |
-
-```json
-{
-  "workflows": [
-    {
-      "name": "CreateDashboard",
-      "description": "Steps to create a new dashboard",
-      "steps": [
-        "Navigate to Dashboards page",
-        "Click 'Create Dashboard'",
-        "Select data source",
-        "Add visualizations",
-        "Configure filters",
-        "Save and publish"
-      ]
-    },
-    {
-      "name": "ExploreData",
-      "description": "Steps to explore and analyze data",
-      "steps": [
-        "Search for table by name or tag",
-        "Review table schema and description",
-        "Check data quality metrics",
-        "View sample data",
-        "Run SQL query",
-        "Export results"
-      ]
-    },
-    {
-      "name": "RequestAccess",
-      "description": "Steps to request data access",
-      "steps": [
-        "Find the data asset you need",
-        "Click 'Request Access'",
-        "Select access level required",
-        "Provide business justification",
-        "Submit request to owner",
-        "Wait for approval"
-      ]
-    }
-  ]
-}
-```
-
----
-
-### Versioning Properties
+### Metadata Properties
 
 #### `version` (entityVersion)
 **Type**: `number`
-**Required**: Yes (system-managed)
-**Description**: Metadata version number
+**Required**: No (system-managed)
+**Description**: Metadata version of the entity.
+**Reference**: `../../type/entityHistory.json#/definitions/entityVersion`
 
 ```json
 {
-  "version": 1.0
+  "version": 0.1
 }
 ```
 
@@ -892,8 +573,9 @@ View the complete Persona schema in your preferred format:
 
 #### `updatedAt` (timestamp)
 **Type**: `integer` (Unix epoch milliseconds)
-**Required**: Yes (system-managed)
-**Description**: Last update timestamp
+**Required**: No (system-managed)
+**Description**: Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.
+**Reference**: `../../type/basic.json#/definitions/timestamp`
 
 ```json
 {
@@ -903,14 +585,76 @@ View the complete Persona schema in your preferred format:
 
 ---
 
-#### `updatedBy` (string)
+#### `updatedBy`
 **Type**: `string`
-**Required**: Yes (system-managed)
-**Description**: User who made the update
+**Required**: No (system-managed)
+**Description**: User who made the update.
 
 ```json
 {
   "updatedBy": "admin"
+}
+```
+
+---
+
+#### `impersonatedBy`
+**Type**: `object`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user.
+**Reference**: `../../type/basic.json#/definitions/impersonatedBy`
+
+```json
+{
+  "impersonatedBy": {
+    "id": "bot-uuid",
+    "type": "bot",
+    "name": "automation_bot"
+  }
+}
+```
+
+---
+
+#### `changeDescription`
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity.
+**Reference**: `../../type/entityHistory.json#/definitions/changeDescription`
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "displayName",
+        "oldValue": "Engineer",
+        "newValue": "Data Engineer"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 0.1
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription`
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity.
+**Reference**: `../../type/entityHistory.json#/definitions/changeDescription`
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [],
+    "fieldsDeleted": [],
+    "previousVersion": 0.1
+  }
 }
 ```
 
@@ -921,89 +665,47 @@ View the complete Persona schema in your preferred format:
 ```json
 {
   "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
-  "name": "Analyst",
-  "fullyQualifiedName": "Analyst",
-  "displayName": "Data Analyst",
-  "description": "# Data Analyst Persona\n\nDesigned for users who create reports, perform analysis, and explore data to derive insights.",
-  "personaType": "Analyst",
-  "uiPreferences": {
-    "landingPage": "/dashboards",
-    "favoriteViews": [
-      "MyDashboards",
-      "PopularTables",
-      "RecentQueries"
-    ],
-    "defaultFilters": {
-      "tags": ["Tier.Gold", "Domain.Analytics"],
-      "tiers": ["Gold", "Silver"]
-    },
-    "widgets": [
-      {
-        "name": "MyActivity",
-        "type": "activity-feed",
-        "config": {
-          "limit": 10
-        }
-      },
-      {
-        "name": "TopTables",
-        "type": "popular-assets",
-        "config": {
-          "assetType": "table",
-          "limit": 5
-        }
-      }
-    ]
+  "name": "data_engineer",
+  "fullyQualifiedName": "data_engineer",
+  "displayName": "Data Engineer",
+  "description": "Persona for data engineers building data pipelines and infrastructure",
+  "href": "https://example.com/api/v1/personas/e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+  "default": false,
+  "uiCustomization": {
+    "id": "ui-config-uuid-1",
+    "type": "uiCustomization",
+    "name": "engineer_dashboard",
+    "fullyQualifiedName": "engineer_dashboard"
   },
   "domains": [
     {
       "id": "domain-uuid-1",
       "type": "domain",
-      "name": "Analytics"
+      "name": "Engineering",
+      "fullyQualifiedName": "Engineering"
     },
     {
       "id": "domain-uuid-2",
       "type": "domain",
-      "name": "Sales"
+      "name": "Infrastructure",
+      "fullyQualifiedName": "Infrastructure"
     }
-  ],
-  "featuredAssets": [
-    {
-      "type": "dashboard",
-      "name": "Sales Overview",
-      "fullyQualifiedName": "tableau.SalesOverview"
-    },
-    {
-      "type": "table",
-      "name": "customers",
-      "fullyQualifiedName": "postgres_prod.ecommerce.public.customers"
-    }
-  ],
-  "relevantTags": [
-    {"tagFQN": "Tier.Gold"},
-    {"tagFQN": "Domain.Analytics"}
   ],
   "users": [
     {
-      "id": "user-uuid",
+      "id": "user-uuid-1",
       "type": "user",
-      "name": "jane.doe"
-    }
-  ],
-  "workflows": [
+      "name": "john.doe",
+      "displayName": "John Doe"
+    },
     {
-      "name": "CreateDashboard",
-      "description": "Steps to create a new dashboard",
-      "steps": [
-        "Navigate to Dashboards page",
-        "Click 'Create Dashboard'",
-        "Select data source",
-        "Add visualizations",
-        "Save and publish"
-      ]
+      "id": "user-uuid-2",
+      "type": "user",
+      "name": "jane.smith",
+      "displayName": "Jane Smith"
     }
   ],
-  "version": 1.0,
+  "version": 0.1,
   "updatedAt": 1704240000000,
   "updatedBy": "admin"
 }
@@ -1013,67 +715,82 @@ View the complete Persona schema in your preferred format:
 
 ## Common Persona Examples
 
-### Analyst Persona
+### Data Engineer Persona
 
 ```json
 {
-  "name": "Analyst",
-  "displayName": "Data Analyst",
-  "personaType": "Analyst",
-  "uiPreferences": {
-    "landingPage": "/dashboards",
-    "favoriteViews": ["MyDashboards", "PopularTables"]
-  },
-  "domains": ["Analytics", "Sales"],
-  "workflows": [
-    {
-      "name": "CreateDashboard",
-      "steps": ["Find data", "Build visualizations", "Publish dashboard"]
-    }
-  ]
-}
-```
-
-### Engineer Persona
-
-```json
-{
-  "name": "Engineer",
+  "id": "persona-uuid-1",
+  "name": "data_engineer",
   "displayName": "Data Engineer",
-  "personaType": "Engineer",
-  "uiPreferences": {
-    "landingPage": "/pipelines",
-    "favoriteViews": ["MyPipelines", "DataQuality", "Lineage"]
-  },
-  "domains": ["DataPlatform"],
-  "workflows": [
+  "description": "Persona for data engineers building data pipelines and infrastructure",
+  "default": false,
+  "domains": [
     {
-      "name": "BuildPipeline",
-      "steps": ["Define requirements", "Create pipeline", "Add quality tests", "Deploy"]
+      "id": "domain-uuid-1",
+      "type": "domain",
+      "name": "Engineering"
+    }
+  ],
+  "uiCustomization": {
+    "id": "ui-config-1",
+    "type": "uiCustomization",
+    "name": "engineer_dashboard"
+  }
+}
+```
+
+### Data Analyst Persona
+
+```json
+{
+  "id": "persona-uuid-2",
+  "name": "data_analyst",
+  "displayName": "Data Analyst",
+  "description": "Persona for data analysts performing analysis and creating reports",
+  "default": false,
+  "domains": [
+    {
+      "id": "domain-uuid-2",
+      "type": "domain",
+      "name": "Analytics"
+    },
+    {
+      "id": "domain-uuid-3",
+      "type": "domain",
+      "name": "Sales"
     }
   ]
 }
 ```
 
-### Executive Persona
+### Data Consumer Persona (Default)
 
 ```json
 {
-  "name": "Executive",
-  "displayName": "Executive",
-  "personaType": "Executive",
-  "uiPreferences": {
-    "landingPage": "/executive-summary",
-    "favoriteViews": ["KeyMetrics", "Trends"],
-    "widgets": [
-      {
-        "name": "BusinessKPIs",
-        "type": "metrics-summary"
-      }
-    ]
-  },
-  "featuredAssets": [
-    {"type": "dashboard", "name": "Executive Dashboard"}
+  "id": "persona-uuid-3",
+  "name": "data_consumer",
+  "displayName": "Data Consumer",
+  "description": "Default persona for general data consumers",
+  "default": true,
+  "domains": []
+}
+```
+
+### Data Steward Persona
+
+```json
+{
+  "id": "persona-uuid-4",
+  "name": "data_steward",
+  "displayName": "Data Steward",
+  "description": "Persona for data stewards managing governance and quality",
+  "default": false,
+  "domains": [
+    {
+      "id": "domain-uuid-4",
+      "type": "domain",
+      "name": "Governance"
+    }
   ]
 }
 ```
@@ -1087,18 +804,20 @@ View the complete Persona schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 om:Persona a owl:Class ;
     rdfs:subClassOf om:Entity ;
     rdfs:label "Persona" ;
-    rdfs:comment "User archetype for tailored experiences" ;
+    rdfs:comment "A job function associated with a user" ;
     om:hasProperties [
-        om:name "string" ;
-        om:personaType "PersonaType" ;
-        om:domains "Domain[]" ;
-        om:featuredAssets "DataAsset[]" ;
-        om:users "User[]" ;
+        om:personaName "string" ;
+        om:personaDisplayName "string" ;
+        om:personaDescription "string" ;
+        om:personaDefault "boolean" ;
+        om:hasUICustomization "UICustomization" ;
+        om:hasDomain "Domain[]" ;
+        om:hasUser "User[]" ;
     ] .
 ```
 
@@ -1108,14 +827,14 @@ om:Persona a owl:Class ;
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix ex: <https://example.com/> .
 
-ex:analystPersona a om:Persona ;
-    om:personaName "Analyst" ;
-    om:displayName "Data Analyst" ;
-    om:personaType om:AnalystPersona ;
-    om:landingPage "/dashboards" ;
-    om:relevantDomain ex:analyticsDomain ;
-    om:featuredAsset ex:salesDashboard ;
-    om:assignedUser ex:janeDoe .
+ex:dataEngineerPersona a om:Persona ;
+    om:personaName "data_engineer" ;
+    om:personaDisplayName "Data Engineer" ;
+    om:personaDescription "Persona for data engineers building data pipelines and infrastructure" ;
+    om:personaDefault false ;
+    om:hasUICustomization ex:engineerUIConfig ;
+    om:hasDomain ex:engineeringDomain ;
+    om:hasUser ex:johnDoe .
 ```
 
 ---
@@ -1128,17 +847,23 @@ ex:analystPersona a om:Persona ;
     "@vocab": "https://open-metadata.org/schema/",
     "Persona": "om:Persona",
     "name": "om:personaName",
-    "personaType": {
-      "@id": "om:personaType",
-      "@type": "@vocab"
+    "displayName": "om:personaDisplayName",
+    "description": "om:personaDescription",
+    "default": {
+      "@id": "om:personaDefault",
+      "@type": "xsd:boolean"
+    },
+    "uiCustomization": {
+      "@id": "om:hasUICustomization",
+      "@type": "@id"
     },
     "domains": {
-      "@id": "om:relevantDomain",
+      "@id": "om:hasDomain",
       "@type": "@id",
       "@container": "@set"
     },
     "users": {
-      "@id": "om:assignedUser",
+      "@id": "om:hasUser",
       "@type": "@id",
       "@container": "@set"
     }
@@ -1152,18 +877,24 @@ ex:analystPersona a om:Persona ;
 {
   "@context": "https://open-metadata.org/context/persona.jsonld",
   "@type": "Persona",
-  "@id": "https://example.com/personas/analyst",
-  "name": "Analyst",
-  "personaType": "Analyst",
+  "@id": "https://example.com/personas/data_engineer",
+  "name": "data_engineer",
+  "displayName": "Data Engineer",
+  "description": "Persona for data engineers building data pipelines and infrastructure",
+  "default": false,
+  "uiCustomization": {
+    "@id": "https://example.com/ui-customization/engineer-dashboard",
+    "@type": "UICustomization"
+  },
   "domains": [
     {
-      "@id": "https://example.com/domains/analytics",
+      "@id": "https://example.com/domains/engineering",
       "@type": "Domain"
     }
   ],
   "users": [
     {
-      "@id": "https://example.com/users/jane.doe",
+      "@id": "https://example.com/users/john.doe",
       "@type": "User"
     }
   ]
@@ -1175,26 +906,9 @@ ex:analystPersona a om:Persona ;
 ## Relationships
 
 ### Associated Entities
-- **User**: Users assigned this persona
-- **Domain**: Relevant data domains
-- **DataAsset**: Featured assets
-- **Tag**: Relevant tags
-- **Workflow**: Recommended workflows
-
----
-
-## Custom Properties
-
-This entity supports custom properties through the `extension` field.
-Common custom properties include:
-
-- **Data Classification**: Sensitivity level
-- **Cost Center**: Billing allocation
-- **Retention Period**: Data retention requirements
-- **Application Owner**: Owning application/team
-
-See [Custom Properties](../metadata-specifications/custom-properties.md)
-for details on defining and using custom properties.
+- **User**: Users that are assigned a persona
+- **Domain**: Domains the persona belongs to (inherited when not set)
+- **UICustomization**: Reference to UI customization configuration
 
 ---
 
@@ -1207,19 +921,17 @@ POST /api/v1/personas
 Content-Type: application/json
 
 {
-  "name": "Analyst",
-  "displayName": "Data Analyst",
-  "personaType": "Analyst",
-  "uiPreferences": {
-    "landingPage": "/dashboards"
-  }
+  "name": "data_engineer",
+  "displayName": "Data Engineer",
+  "description": "Persona for data engineers building data pipelines and infrastructure",
+  "default": false
 }
 ```
 
 ### Get Persona
 
 ```http
-GET /api/v1/personas/name/Analyst?fields=users,domains,featuredAssets
+GET /api/v1/personas/name/data_engineer?fields=users,domains,uiCustomization
 ```
 
 ### Update Persona
@@ -1231,37 +943,39 @@ Content-Type: application/json-patch+json
 [
   {
     "op": "add",
-    "path": "/featuredAssets/-",
-    "value": {"id": "asset-uuid", "type": "dashboard"}
+    "path": "/domains/-",
+    "value": {"id": "domain-uuid", "type": "domain"}
   }
 ]
 ```
 
-### Assign Persona to User
+### Assign Persona to Users
 
 ```http
-PUT /api/v1/users/{userId}/personas
+PUT /api/v1/personas/{id}/users
 Content-Type: application/json
 
 {
-  "personas": [
-    {"id": "persona-uuid", "type": "persona"}
+  "users": [
+    {"id": "user-uuid-1", "type": "user"},
+    {"id": "user-uuid-2", "type": "user"}
   ]
 }
 ```
 
-### Set Default Persona
+### Set as Default Persona
 
 ```http
-PUT /api/v1/users/{userId}/defaultPersona
-Content-Type: application/json
+PATCH /api/v1/personas/{id}
+Content-Type: application/json-patch+json
 
-{
-  "defaultPersona": {
-    "id": "persona-uuid",
-    "type": "persona"
+[
+  {
+    "op": "replace",
+    "path": "/default",
+    "value": true
   }
-}
+]
 ```
 
 ---
@@ -1270,6 +984,4 @@ Content-Type: application/json
 
 - **[User](user.md)** - User entity
 - **[Domain](../governance/domain.md)** - Data domain
-- **[UI Customization](../ui/customization.md)** - Interface customization
-- **[Workflows](../workflows/overview.md)** - User workflows
-- **[User Experience](../ui/user-experience.md)** - UX design
+- **[Teams](team.md)** - Team entity

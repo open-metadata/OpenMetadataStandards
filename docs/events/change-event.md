@@ -93,137 +93,70 @@ graph LR
       "$id": "https://open-metadata.org/schema/type/changeEvent.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "ChangeEvent",
-      "description": "An event representing a change to an entity in OpenMetadata.",
+      "description": "This schema defines the change event type to capture the changes to entities. Entities change due to user activity, such as updating description of a dataset, changing ownership, or adding new tags. Entity also changes due to activities at the metadata sources, such as a new dataset was created, a datasets was deleted, or schema of a dataset is modified. When state of entity changes, an event is produced. These events can be used to build apps and bots that respond to the change from activities.",
       "type": "object",
       "javaType": "org.openmetadata.schema.type.ChangeEvent",
-      "definitions": {
-        "eventType": {
-          "description": "Type of change event",
-          "type": "string",
-          "enum": [
-            "entityCreated",
-            "entityUpdated",
-            "entitySoftDeleted",
-            "entityDeleted"
-          ],
-          "javaEnums": [
-            {
-              "name": "entityCreated"
-            },
-            {
-              "name": "entityUpdated"
-            },
-            {
-              "name": "entitySoftDeleted"
-            },
-            {
-              "name": "entityDeleted"
-            }
-          ]
-        },
-        "fieldChange": {
-          "description": "Change to a specific field",
-          "type": "object",
-          "properties": {
-            "name": {
-              "description": "Name of the field that changed",
-              "type": "string"
-            },
-            "oldValue": {
-              "description": "Previous value of the field"
-            },
-            "newValue": {
-              "description": "New value of the field"
-            }
-          },
-          "required": [
-            "name"
-          ],
-          "additionalProperties": false
-        },
-        "changeDescription": {
-          "description": "Description of the change",
-          "type": "object",
-          "properties": {
-            "fieldsAdded": {
-              "description": "Fields that were added",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/fieldChange"
-              }
-            },
-            "fieldsUpdated": {
-              "description": "Fields that were updated",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/fieldChange"
-              }
-            },
-            "fieldsDeleted": {
-              "description": "Fields that were deleted",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/fieldChange"
-              }
-            },
-            "previousVersion": {
-              "description": "Previous version number",
-              "type": "number"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
       "properties": {
+        "id": {
+          "description": "Unique identifier for the event.",
+          "$ref": "basic.json#/definitions/uuid"
+        },
         "eventType": {
-          "$ref": "#/definitions/eventType"
+          "$ref": "./changeEventType.json"
         },
         "entityType": {
-          "description": "Type of entity that changed (table, dashboard, etc.)",
+          "description": "Entity type that changed. Use the schema of this entity to process the entity attribute.",
           "type": "string"
         },
         "entityId": {
-          "description": "Unique identifier of the entity",
-          "$ref": "../type/basic.json#/definitions/uuid"
+          "description": "Identifier of entity that was modified by the operation.",
+          "$ref": "basic.json#/definitions/uuid"
+        },
+        "domains": {
+          "description": "Domain the entity belongs to.",
+          "type": "array",
+          "items": {
+            "$ref": "../type/basic.json#/definitions/uuid"
+          },
+          "default": null
         },
         "entityFullyQualifiedName": {
-          "description": "Fully qualified name of the entity",
+          "description": "Fully Qualified Name of entity that was modified by the operation.",
           "type": "string"
         },
         "previousVersion": {
-          "description": "Previous version number of the entity",
-          "type": "number"
+          "description": "Version of the entity before this change. Note that not all changes result in entity version change. When entity version is not changed, `previousVersion` is same as `currentVersion`.",
+          "$ref": "entityHistory.json#/definitions/entityVersion"
         },
         "currentVersion": {
-          "description": "Current version number of the entity",
-          "type": "number"
+          "description": "Current version of the entity after this change. Note that not all changes result in entity version change. When entity version is not changed, `previousVersion` is same as `currentVersion`.",
+          "$ref": "entityHistory.json#/definitions/entityVersion"
         },
         "userName": {
-          "description": "Name of the user who made the change",
+          "description": "Name of the user whose activity resulted in the change.",
           "type": "string"
         },
-        "userId": {
-          "description": "ID of the user who made the change",
-          "$ref": "../type/basic.json#/definitions/uuid"
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../type/basic.json#/definitions/impersonatedBy"
         },
         "timestamp": {
-          "description": "Timestamp when the change occurred",
-          "$ref": "../type/basic.json#/definitions/timestamp"
+          "description": "Timestamp when the change was made in Unix epoch time milliseconds.",
+          "$ref": "basic.json#/definitions/timestamp"
         },
         "changeDescription": {
-          "$ref": "#/definitions/changeDescription"
+          "description": "For `eventType` `entityUpdated` this field captures details about what fields were added/updated/deleted. For `eventType` `entityCreated` or `entityDeleted` this field is null.",
+          "$ref": "entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../type/entityHistory.json#/definitions/changeDescription"
         },
         "entity": {
-          "description": "Current state of the entire entity after the change",
-          "type": "object"
+          "description": "For `eventType` `entityCreated`, this field captures JSON coded string of the entity using the schema corresponding to `entityType`."
         }
       },
-      "required": [
-        "eventType",
-        "entityType",
-        "entityId",
-        "timestamp"
-      ],
+      "required": ["id", "eventType", "entityType", "entityId", "timestamp"],
       "additionalProperties": false
     }
     ```
@@ -245,7 +178,7 @@ graph LR
     # Change Event Class Definition
     om-event:ChangeEvent a owl:Class ;
         rdfs:label "Change Event" ;
-        rdfs:comment "An event representing a change to an entity" ;
+        rdfs:comment "This schema defines the change event type to capture the changes to entities" ;
         rdfs:subClassOf prov:Activity ;
         rdfs:isDefinedBy om: .
 
@@ -268,6 +201,12 @@ graph LR
         rdfs:isDefinedBy om: .
 
     # Properties
+    om-event:id a owl:DatatypeProperty ;
+        rdfs:label "id" ;
+        rdfs:comment "Unique identifier for the event" ;
+        rdfs:domain om-event:ChangeEvent ;
+        rdfs:range xsd:string .
+
     om-event:eventType a owl:ObjectProperty ;
         rdfs:label "event type" ;
         rdfs:comment "Type of the change event" ;
@@ -276,55 +215,67 @@ graph LR
 
     om-event:entityType a owl:DatatypeProperty ;
         rdfs:label "entity type" ;
-        rdfs:comment "Type of entity that changed" ;
+        rdfs:comment "Entity type that changed. Use the schema of this entity to process the entity attribute" ;
         rdfs:domain om-event:ChangeEvent ;
         rdfs:range xsd:string .
 
     om-event:entityId a owl:DatatypeProperty ;
         rdfs:label "entity ID" ;
-        rdfs:comment "Unique identifier of the changed entity" ;
+        rdfs:comment "Identifier of entity that was modified by the operation" ;
+        rdfs:domain om-event:ChangeEvent ;
+        rdfs:range xsd:string .
+
+    om-event:domains a owl:DatatypeProperty ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domain the entity belongs to" ;
         rdfs:domain om-event:ChangeEvent ;
         rdfs:range xsd:string .
 
     om-event:entityFullyQualifiedName a owl:DatatypeProperty ;
         rdfs:label "entity fully qualified name" ;
-        rdfs:comment "Fully qualified name of the changed entity" ;
+        rdfs:comment "Fully Qualified Name of entity that was modified by the operation" ;
         rdfs:domain om-event:ChangeEvent ;
         rdfs:range xsd:string .
 
     om-event:previousVersion a owl:DatatypeProperty ;
         rdfs:label "previous version" ;
-        rdfs:comment "Previous version number" ;
+        rdfs:comment "Version of the entity before this change. Note that not all changes result in entity version change" ;
         rdfs:domain om-event:ChangeEvent ;
         rdfs:range xsd:decimal .
 
     om-event:currentVersion a owl:DatatypeProperty ;
         rdfs:label "current version" ;
-        rdfs:comment "Current version number" ;
+        rdfs:comment "Current version of the entity after this change. Note that not all changes result in entity version change" ;
         rdfs:domain om-event:ChangeEvent ;
         rdfs:range xsd:decimal .
 
     om-event:timestamp a owl:DatatypeProperty ;
         rdfs:label "timestamp" ;
-        rdfs:comment "When the change occurred" ;
+        rdfs:comment "Timestamp when the change was made in Unix epoch time milliseconds" ;
         rdfs:domain om-event:ChangeEvent ;
-        rdfs:range xsd:dateTime .
+        rdfs:range xsd:integer .
 
     om-event:userName a owl:DatatypeProperty ;
         rdfs:label "user name" ;
-        rdfs:comment "Name of user who made the change" ;
+        rdfs:comment "Name of the user whose activity resulted in the change" ;
         rdfs:domain om-event:ChangeEvent ;
         rdfs:range xsd:string .
 
-    om-event:userId a owl:DatatypeProperty ;
-        rdfs:label "user ID" ;
-        rdfs:comment "ID of user who made the change" ;
+    om-event:impersonatedBy a owl:DatatypeProperty ;
+        rdfs:label "impersonated by" ;
+        rdfs:comment "Bot user that performed the action on behalf of the actual user" ;
         rdfs:domain om-event:ChangeEvent ;
         rdfs:range xsd:string .
 
     om-event:hasChangeDescription a owl:ObjectProperty ;
         rdfs:label "has change description" ;
-        rdfs:comment "Detailed description of changes" ;
+        rdfs:comment "For eventType entityUpdated this field captures details about what fields were added/updated/deleted" ;
+        rdfs:domain om-event:ChangeEvent ;
+        rdfs:range om-event:ChangeDescription .
+
+    om-event:hasIncrementalChangeDescription a owl:ObjectProperty ;
+        rdfs:label "has incremental change description" ;
+        rdfs:comment "Change that lead to this version of the entity" ;
         rdfs:domain om-event:ChangeEvent ;
         rdfs:range om-event:ChangeDescription .
 
@@ -411,6 +362,10 @@ graph LR
           "@id": "om:ChangeEvent",
           "@type": "@id"
         },
+        "id": {
+          "@id": "om:id",
+          "@type": "xsd:string"
+        },
         "eventType": {
           "@id": "om:eventType",
           "@type": "@id"
@@ -421,6 +376,10 @@ graph LR
         },
         "entityId": {
           "@id": "om:entityId",
+          "@type": "xsd:string"
+        },
+        "domains": {
+          "@id": "om:domains",
           "@type": "xsd:string"
         },
         "entityFullyQualifiedName": {
@@ -437,18 +396,22 @@ graph LR
         },
         "timestamp": {
           "@id": "om:timestamp",
-          "@type": "xsd:dateTime"
+          "@type": "xsd:integer"
         },
         "userName": {
           "@id": "om:userName",
           "@type": "xsd:string"
         },
-        "userId": {
-          "@id": "om:userId",
+        "impersonatedBy": {
+          "@id": "om:impersonatedBy",
           "@type": "xsd:string"
         },
         "changeDescription": {
           "@id": "om:hasChangeDescription",
+          "@type": "@id"
+        },
+        "incrementalChangeDescription": {
+          "@id": "om:hasIncrementalChangeDescription",
           "@type": "@id"
         },
         "affectsEntity": {
@@ -460,8 +423,7 @@ graph LR
           "@type": "@id"
         },
         "entity": {
-          "@id": "om:currentState",
-          "@type": "@id"
+          "@id": "om:entity"
         }
       }
     }
@@ -473,6 +435,7 @@ graph LR
 
 ```json
 {
+  "id": "abc12345-e89b-12d3-a456-426614174999",
   "eventType": "entityCreated",
   "entityType": "table",
   "entityId": "123e4567-e89b-12d3-a456-426614174000",
@@ -480,7 +443,6 @@ graph LR
   "previousVersion": null,
   "currentVersion": 0.1,
   "userName": "john.doe",
-  "userId": "456e7890-e89b-12d3-a456-426614174111",
   "timestamp": 1705320000000,
   "changeDescription": {
     "fieldsAdded": [
@@ -527,6 +489,7 @@ graph LR
 
 ```json
 {
+  "id": "def67890-e89b-12d3-a456-426614174998",
   "eventType": "entityUpdated",
   "entityType": "table",
   "entityId": "123e4567-e89b-12d3-a456-426614174000",
@@ -534,7 +497,6 @@ graph LR
   "previousVersion": 0.1,
   "currentVersion": 0.2,
   "userName": "jane.smith",
-  "userId": "789e0123-e89b-12d3-a456-426614174222",
   "timestamp": 1705406400000,
   "changeDescription": {
     "fieldsAdded": [],
@@ -555,6 +517,7 @@ graph LR
 
 ```json
 {
+  "id": "ghi23456-e89b-12d3-a456-426614174997",
   "eventType": "entityUpdated",
   "entityType": "table",
   "entityId": "123e4567-e89b-12d3-a456-426614174000",
@@ -562,7 +525,6 @@ graph LR
   "previousVersion": 0.2,
   "currentVersion": 0.3,
   "userName": "compliance.officer",
-  "userId": "abc12345-e89b-12d3-a456-426614174333",
   "timestamp": 1705492800000,
   "changeDescription": {
     "fieldsAdded": [
@@ -587,6 +549,7 @@ graph LR
 
 ```json
 {
+  "id": "jkl34567-e89b-12d3-a456-426614174996",
   "eventType": "entityUpdated",
   "entityType": "table",
   "entityId": "123e4567-e89b-12d3-a456-426614174000",
@@ -594,7 +557,6 @@ graph LR
   "previousVersion": 0.3,
   "currentVersion": 0.4,
   "userName": "system",
-  "userId": "system",
   "timestamp": 1705579200000,
   "changeDescription": {
     "fieldsAdded": [
@@ -618,6 +580,7 @@ graph LR
 
 ```json
 {
+  "id": "mno45678-e89b-12d3-a456-426614174995",
   "eventType": "entityUpdated",
   "entityType": "table",
   "entityId": "123e4567-e89b-12d3-a456-426614174000",
@@ -625,7 +588,6 @@ graph LR
   "previousVersion": 0.4,
   "currentVersion": 0.5,
   "userName": "admin",
-  "userId": "admin-user-id",
   "timestamp": 1705665600000,
   "changeDescription": {
     "fieldsAdded": [],
@@ -652,6 +614,7 @@ graph LR
 
 ```json
 {
+  "id": "pqr56789-e89b-12d3-a456-426614174994",
   "eventType": "entitySoftDeleted",
   "entityType": "table",
   "entityId": "123e4567-e89b-12d3-a456-426614174000",
@@ -659,7 +622,6 @@ graph LR
   "previousVersion": 0.5,
   "currentVersion": 0.6,
   "userName": "admin",
-  "userId": "admin-user-id",
   "timestamp": 1705752000000,
   "changeDescription": {
     "fieldsAdded": [],
@@ -680,6 +642,7 @@ graph LR
 
 ```json
 {
+  "id": "stu67890-e89b-12d3-a456-426614174993",
   "eventType": "entityDeleted",
   "entityType": "table",
   "entityId": "123e4567-e89b-12d3-a456-426614174000",
@@ -687,7 +650,6 @@ graph LR
   "previousVersion": 0.6,
   "currentVersion": null,
   "userName": "admin",
-  "userId": "admin-user-id",
   "timestamp": 1705838400000,
   "changeDescription": {
     "fieldsAdded": [],

@@ -21,9 +21,9 @@ graph TD
     TD -->|defines| PARAM2[Parameter<br/>maxValue: INT]
 
     %% Test type classification
-    TYPE[EntityType<br/>Table] -.->|applies to| TD
+    TYPE[EntityType<br/>TABLE] -.->|applies to| TD
     PLATFORM1[TestPlatform<br/>OpenMetadata] -.->|supports| TD
-    PLATFORM2[TestPlatform<br/>DBT] -.->|supports| TD
+    PLATFORM2[TestPlatform<br/>dbt] -.->|supports| TD
     PLATFORM3[TestPlatform<br/>GreatExpectations] -.->|supports| TD
 
     %% Instantiated test cases
@@ -45,7 +45,7 @@ graph TD
 
     %% Other test definitions
     TD2[TestDefinition<br/>columnValuesToBeUnique] -->|template for| TC4[TestCase<br/>email_unique]
-    TYPE2[EntityType<br/>Column] -.->|applies to| TD2
+    TYPE2[EntityType<br/>COLUMN] -.->|applies to| TD2
     TC4 -.->|tests| COL1[Column<br/>customer.email]
 
     TD3[TestDefinition<br/>columnValuesToBeBetween] -->|template for| TC5[TestCase<br/>age_range_check]
@@ -86,29 +86,40 @@ View the complete TestDefinition schema in your preferred format:
 
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/data/testDefinition.json",
+      "$id": "https://open-metadata.org/schema/tests/testDefinition.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "TestDefinition",
-      "description": "A `TestDefinition` is a reusable test template with parameters that can be applied to tables or columns.",
+      "description": "Test Definition is a type of test using which test cases are created to capture data quality tests against data entities.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.data.TestDefinition",
+      "javaType": "org.openmetadata.schema.tests.TestDefinition",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "definitions": {
         "testPlatform": {
-          "description": "Test platform",
+          "javaType": "org.openmetadata.schema.tests.TestPlatform",
+          "description": "This schema defines the platform where tests are defined and ran.",
           "type": "string",
           "enum": [
-            "OpenMetadata", "GreatExpectations", "Deequ",
-            "Soda", "DBT", "Custom"
+            "OpenMetadata",
+            "GreatExpectations",
+            "dbt",
+            "Deequ",
+            "Soda",
+            "Other"
           ]
         },
         "entityType": {
-          "description": "Entity type this test applies to",
+          "javaType": "org.openmetadata.schema.type.TestDefinitionEntityType",
+          "description": "This enum defines the type for which this test definition applies to.",
           "type": "string",
-          "enum": ["Table", "Column"]
+          "enum": [
+            "TABLE",
+            "COLUMN"
+          ]
         },
         "testDataType": {
-          "description": "Data types this test supports",
+          "javaType": "org.openmetadata.schema.type.TestCaseParameterDataType",
+          "description": "This enum defines the type of data stored in a column.",
           "type": "string",
           "enum": [
             "NUMBER", "INT", "FLOAT", "DOUBLE",
@@ -117,92 +128,185 @@ View the complete TestDefinition schema in your preferred format:
             "STRING", "BOOLEAN"
           ]
         },
-        "parameterDefinition": {
+        "testCaseParameterDefinition": {
           "type": "object",
+          "javaType": "org.openmetadata.schema.tests.TestCaseParameter",
+          "description": "This schema defines the parameters that can be passed for a Test Case.",
           "properties": {
             "name": {
-              "type": "string",
-              "description": "Parameter name"
+              "description": "name of the parameter.",
+              "type": "string"
             },
             "displayName": {
-              "type": "string",
-              "description": "Display name"
+              "description": "Display Name that identifies this parameter name.",
+              "type": "string"
             },
             "dataType": {
+              "description": "Data type of the parameter (int, date etc.).",
               "$ref": "#/definitions/testDataType"
             },
             "description": {
-              "type": "string"
+              "description": "Description of the parameter.",
+              "$ref": "../type/basic.json#/definitions/markdown"
             },
             "required": {
+              "description": "Is this parameter required.",
               "type": "boolean",
               "default": false
             },
             "optionValues": {
+              "description": "List of values that can be passed for this parameter.",
               "type": "array",
-              "items": {"type": "string"}
+              "default": []
+            },
+            "validationRule": {
+              "type": "object",
+              "javaType": "org.openmetadata.schema.tests.TestCaseParameterValidationRule",
+              "description": "Validation for the test parameter value.",
+              "properties": {
+                "parameterField": {
+                  "description": "Name of the parameter to validate against.",
+                  "type": "string"
+                },
+                "rule": {
+                  "javaType": "org.openmetadata.schema.type.TestCaseParameterValidationRuleType",
+                  "description": "This enum defines the type to use for a parameter validation rule.",
+                  "type": "string",
+                  "enum": [
+                    "EQUALS",
+                    "NOT_EQUALS",
+                    "GREATER_THAN_OR_EQUALS",
+                    "LESS_THAN_OR_EQUALS"
+                  ]
+                }
+              }
             }
-          },
-          "required": ["name", "dataType"]
+          }
+        },
+        "dataQualityDimensions": {
+          "javaType": "org.openmetadata.schema.type.DataQualityDimensions",
+          "description": "This enum defines the dimension a test case belongs to.",
+          "type": "string",
+          "enum": [
+            "Completeness",
+            "Accuracy",
+            "Consistency",
+            "Validity",
+            "Uniqueness",
+            "Integrity",
+            "SQL"
+          ]
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
-          "$ref": "../../type/basic.json#/definitions/uuid"
+          "description": "Unique identifier of this test case definition instance.",
+          "$ref": "../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Test definition name",
-          "$ref": "../../type/basic.json#/definitions/entityName"
-        },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+          "description": "Name that identifies this test case.",
+          "$ref": "../type/basic.json#/definitions/testCaseEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this test case.",
           "type": "string"
         },
+        "fullyQualifiedName": {
+          "description": "FullyQualifiedName same as `name`.",
+          "$ref": "../type/basic.json#/definitions/fullyQualifiedEntityName"
+        },
         "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
+          "description": "Description of the testcase.",
+          "$ref": "../type/basic.json#/definitions/markdown"
         },
         "entityType": {
           "$ref": "#/definitions/entityType"
         },
         "testPlatforms": {
-          "description": "Platforms supporting this test",
           "type": "array",
           "items": {
             "$ref": "#/definitions/testPlatform"
           }
         },
         "supportedDataTypes": {
-          "description": "Data types this test can validate",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/testDataType"
+            "$ref": "../entity/data/table.json#/definitions/dataType"
           }
         },
         "parameterDefinition": {
-          "description": "Parameters for this test",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/parameterDefinition"
+            "$ref": "#/definitions/testCaseParameterDefinition"
           }
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "dataQualityDimension": {
+          "$ref": "#/definitions/dataQualityDimensions"
+        },
+        "owners": {
+          "description": "Owners of this TestCase definition.",
+          "$ref": "../type/entityReferenceList.json",
+          "default": null
+        },
+        "provider": {
+          "$ref": "../type/basic.json#/definitions/providerType"
         },
         "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+          "description": "Metadata version of the entity.",
+          "$ref": "../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../type/basic.json#/definitions/href"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "supportsRowLevelPassedFailed": {
+          "description": "When `true` indicates the test case supports row level passed/failed.",
+          "type": "boolean",
+          "default": false
+        },
+        "domains": {
+          "description": "Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.",
+          "$ref": "../type/entityReferenceList.json"
+        },
+        "supportsDynamicAssertion": {
+          "description": "When `true` indicates the test case supports dynamic assertions.",
+          "type": "boolean",
+          "default": false
+        },
+        "supportedServices": {
+          "description": "List of services that this test definition supports. When empty, it implies all services are supported.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
         }
       },
 
-      "required": ["id", "name", "entityType", "testPlatforms"]
+      "required": ["name", "description", "testPlatforms"],
+      "additionalProperties": false
     }
     ```
 
@@ -215,14 +319,14 @@ View the complete TestDefinition schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # TestDefinition Class Definition
     om:TestDefinition a owl:Class ;
         rdfs:subClassOf om:DataQualityAsset ;
         rdfs:label "TestDefinition" ;
-        rdfs:comment "A reusable test template that can be instantiated with parameters" ;
+        rdfs:comment "Test Definition is a type of test using which test cases are created to capture data quality tests against data entities." ;
         om:hierarchyLevel 1 .
 
     # Properties
@@ -230,21 +334,39 @@ View the complete TestDefinition schema in your preferred format:
         rdfs:domain om:TestDefinition ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the test definition" .
+        rdfs:comment "Name that identifies this test case" .
 
-    om:entityType a owl:DatatypeProperty ;
+    om:displayName a owl:DatatypeProperty ;
         rdfs:domain om:TestDefinition ;
-        rdfs:range om:EntityType ;
-        rdfs:label "entityType" ;
-        rdfs:comment "Type of entity this test applies to: Table or Column" .
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display Name that identifies this test case" .
 
-    om:testPlatform a owl:DatatypeProperty ;
+    om:fullyQualifiedName a owl:DatatypeProperty ;
+        rdfs:domain om:TestDefinition ;
+        rdfs:range xsd:string ;
+        rdfs:label "fullyQualifiedName" ;
+        rdfs:comment "FullyQualifiedName same as name" .
+
+    om:description a owl:DatatypeProperty ;
+        rdfs:domain om:TestDefinition ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of the testcase" .
+
+    om:entityType a owl:ObjectProperty ;
+        rdfs:domain om:TestDefinition ;
+        rdfs:range om:TestDefinitionEntityType ;
+        rdfs:label "entityType" ;
+        rdfs:comment "Type for which this test definition applies to" .
+
+    om:testPlatform a owl:ObjectProperty ;
         rdfs:domain om:TestDefinition ;
         rdfs:range om:TestPlatform ;
-        rdfs:label "testPlatform" ;
-        rdfs:comment "Platform that executes this test" .
+        rdfs:label "testPlatforms" ;
+        rdfs:comment "Platforms where tests are defined and ran" .
 
-    om:supportsDataType a owl:DatatypeProperty ;
+    om:supportsDataType a owl:ObjectProperty ;
         rdfs:domain om:TestDefinition ;
         rdfs:range om:DataType ;
         rdfs:label "supportedDataTypes" ;
@@ -252,25 +374,68 @@ View the complete TestDefinition schema in your preferred format:
 
     om:hasParameter a owl:ObjectProperty ;
         rdfs:domain om:TestDefinition ;
-        rdfs:range om:ParameterDefinition ;
+        rdfs:range om:TestCaseParameter ;
         rdfs:label "parameterDefinition" ;
-        rdfs:comment "Parameters required for this test" .
+        rdfs:comment "Parameters that can be passed for a Test Case" .
 
-    # EntityType Enumeration
-    om:EntityType a owl:Class ;
+    om:dataQualityDimension a owl:ObjectProperty ;
+        rdfs:domain om:TestDefinition ;
+        rdfs:range om:DataQualityDimensions ;
+        rdfs:label "dataQualityDimension" ;
+        rdfs:comment "Dimension a test case belongs to" .
+
+    om:hasOwners a owl:ObjectProperty ;
+        rdfs:domain om:TestDefinition ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this TestCase definition" .
+
+    om:hasDomains a owl:ObjectProperty ;
+        rdfs:domain om:TestDefinition ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the asset belongs to" .
+
+    om:supportsRowLevelPassedFailed a owl:DatatypeProperty ;
+        rdfs:domain om:TestDefinition ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "supportsRowLevelPassedFailed" ;
+        rdfs:comment "Indicates the test case supports row level passed/failed" .
+
+    om:supportsDynamicAssertion a owl:DatatypeProperty ;
+        rdfs:domain om:TestDefinition ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "supportsDynamicAssertion" ;
+        rdfs:comment "Indicates the test case supports dynamic assertions" .
+
+    # TestDefinitionEntityType Enumeration
+    om:TestDefinitionEntityType a owl:Class ;
         owl:oneOf (
-            om:TableEntity
-            om:ColumnEntity
+            om:TABLE
+            om:COLUMN
         ) .
 
     # TestPlatform Enumeration
     om:TestPlatform a owl:Class ;
         owl:oneOf (
-            om:OpenMetadataPlatform
-            om:GreatExpectationsPlatform
-            om:DeequPlatform
-            om:SodaPlatform
-            om:DBTPlatform
+            om:OpenMetadata
+            om:GreatExpectations
+            om:dbt
+            om:Deequ
+            om:Soda
+            om:Other
+        ) .
+
+    # DataQualityDimensions Enumeration
+    om:DataQualityDimensions a owl:Class ;
+        owl:oneOf (
+            om:Completeness
+            om:Accuracy
+            om:Consistency
+            om:Validity
+            om:Uniqueness
+            om:Integrity
+            om:SQL
         ) .
 
     # Example Instance
@@ -278,8 +443,9 @@ View the complete TestDefinition schema in your preferred format:
         om:testDefinitionName "tableRowCountToBeBetween" ;
         om:displayName "Table Row Count To Be Between" ;
         om:description "Validates that the number of rows in a table is between min and max values" ;
-        om:entityType om:TableEntity ;
-        om:testPlatform om:OpenMetadataPlatform ;
+        om:entityType om:TABLE ;
+        om:testPlatform om:OpenMetadata, om:dbt ;
+        om:dataQualityDimension om:Completeness ;
         om:hasParameter ex:minValueParam ;
         om:hasParameter ex:maxValueParam .
     ```
@@ -334,9 +500,27 @@ View the complete TestDefinition schema in your preferred format:
           "@type": "@id",
           "@container": "@list"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
+        "dataQualityDimension": {
+          "@id": "om:dataQualityDimension",
+          "@type": "@vocab"
+        },
+        "owners": {
+          "@id": "om:hasOwners",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:hasDomains",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "supportsRowLevelPassedFailed": {
+          "@id": "om:supportsRowLevelPassedFailed",
+          "@type": "xsd:boolean"
+        },
+        "supportsDynamicAssertion": {
+          "@id": "om:supportsDynamicAssertion",
+          "@type": "xsd:boolean"
         }
       }
     }
@@ -353,8 +537,9 @@ View the complete TestDefinition schema in your preferred format:
       "name": "tableRowCountToBeBetween",
       "displayName": "Table Row Count To Be Between",
       "description": "Validates that the number of rows in a table is between min and max values",
-      "entityType": "Table",
-      "testPlatforms": ["OpenMetadata", "DBT"],
+      "entityType": "TABLE",
+      "testPlatforms": ["OpenMetadata", "dbt"],
+      "dataQualityDimension": "Completeness",
 
       "parameterDefinition": [
         {
@@ -373,11 +558,13 @@ View the complete TestDefinition schema in your preferred format:
         }
       ],
 
-      "owner": {
-        "@id": "https://example.com/users/system",
-        "@type": "User",
-        "name": "admin"
-      }
+      "owners": [
+        {
+          "@id": "https://example.com/users/system",
+          "@type": "User",
+          "name": "admin"
+        }
+      ]
     }
     ```
 
@@ -403,8 +590,8 @@ View the complete TestDefinition schema in your preferred format:
 
 #### `id` (uuid)
 **Type**: `string` (UUID format)
-**Required**: Yes (system-generated)
-**Description**: Unique identifier for this test definition
+**Required**: No (system-generated)
+**Description**: Unique identifier of this test case definition instance
 
 ```json
 {
@@ -414,11 +601,10 @@ View the complete TestDefinition schema in your preferred format:
 
 ---
 
-#### `name` (entityName)
+#### `name` (testCaseEntityName)
 **Type**: `string`
 **Required**: Yes
-**Pattern**: `^[a-zA-Z0-9_]+$`
-**Description**: Unique name of the test definition (camelCase convention)
+**Description**: Name that identifies this test case
 
 ```json
 {
@@ -430,8 +616,8 @@ View the complete TestDefinition schema in your preferred format:
 
 #### `fullyQualifiedName` (fullyQualifiedEntityName)
 **Type**: `string`
-**Required**: Yes (system-generated)
-**Description**: Fully qualified name
+**Required**: No (system-generated)
+**Description**: FullyQualifiedName same as `name`
 
 ```json
 {
@@ -444,7 +630,7 @@ View the complete TestDefinition schema in your preferred format:
 #### `displayName`
 **Type**: `string`
 **Required**: No
-**Description**: Human-readable display name
+**Description**: Display Name that identifies this test case
 
 ```json
 {
@@ -456,12 +642,12 @@ View the complete TestDefinition schema in your preferred format:
 
 #### `description` (markdown)
 **Type**: `string` (Markdown format)
-**Required**: No
-**Description**: Description of what this test validates
+**Required**: Yes
+**Description**: Description of the testcase
 
 ```json
 {
-  "description": "# Table Row Count Range Test\n\nValidates that the number of rows in a table falls within a specified range.\n\n## Usage\n- Set `minValue` for minimum threshold\n- Set `maxValue` for maximum threshold\n- Leave either empty for one-sided bounds"
+  "description": "Validates that the number of rows in a table is between min and max values"
 }
 ```
 
@@ -469,17 +655,17 @@ View the complete TestDefinition schema in your preferred format:
 
 ### Test Configuration Properties
 
-#### `entityType` (EntityType enum)
+#### `entityType` (TestDefinitionEntityType enum)
 **Type**: `string` enum
-**Required**: Yes
+**Required**: No
 **Allowed Values**:
 
-- `Table` - Test applies to tables
-- `Column` - Test applies to columns
+- `TABLE` - Test applies to tables
+- `COLUMN` - Test applies to columns
 
 ```json
 {
-  "entityType": "Table"
+  "entityType": "TABLE"
 }
 ```
 
@@ -488,22 +674,21 @@ View the complete TestDefinition schema in your preferred format:
 #### `testPlatforms[]` (TestPlatform[])
 **Type**: `array` of string enum
 **Required**: Yes
-**Allowed Values**: `OpenMetadata`, `GreatExpectations`, `Deequ`, `Soda`, `DBT`, `Custom`
-**Description**: Platforms that support this test
+**Allowed Values**: `OpenMetadata`, `GreatExpectations`, `dbt`, `Deequ`, `Soda`, `Other`
+**Description**: Platforms where tests are defined and ran
 
 ```json
 {
-  "testPlatforms": ["OpenMetadata", "DBT"]
+  "testPlatforms": ["OpenMetadata", "dbt"]
 }
 ```
 
 ---
 
-#### `supportedDataTypes[]` (TestDataType[])
-**Type**: `array` of string enum
+#### `supportedDataTypes[]` (DataType[])
+**Type**: `array` of DataType
 **Required**: No
-**Allowed Values**: `NUMBER`, `INT`, `FLOAT`, `DOUBLE`, `DECIMAL`, `TIMESTAMP`, `TIME`, `DATE`, `DATETIME`, `ARRAY`, `MAP`, `SET`, `STRING`, `BOOLEAN`
-**Description**: Data types this test can validate (for column tests)
+**Description**: Data types this test can validate (references table.json#/definitions/dataType)
 
 ```json
 {
@@ -513,21 +698,22 @@ View the complete TestDefinition schema in your preferred format:
 
 ---
 
-#### `parameterDefinition[]` (ParameterDefinition[])
-**Type**: `array` of ParameterDefinition objects
+#### `parameterDefinition[]` (TestCaseParameter[])
+**Type**: `array` of TestCaseParameter objects
 **Required**: No
-**Description**: Parameters that can be configured when creating test cases
+**Description**: Parameters that can be passed for a Test Case
 
-**ParameterDefinition Object Properties**:
+**TestCaseParameter Object Properties**:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `name` | string | Yes | Parameter name (camelCase) |
-| `displayName` | string | No | Display name |
-| `dataType` | TestDataType | Yes | Parameter data type |
-| `description` | string | No | Parameter description |
-| `required` | boolean | No | Whether parameter is required (default: false) |
-| `optionValues` | string[] | No | Allowed values (for enums) |
+| `name` | string | No | name of the parameter |
+| `displayName` | string | No | Display Name that identifies this parameter name |
+| `dataType` | TestDataType | No | Data type of the parameter (int, date etc.) |
+| `description` | markdown | No | Description of the parameter |
+| `required` | boolean | No | Is this parameter required (default: false) |
+| `optionValues` | array | No | List of values that can be passed for this parameter (default: []) |
+| `validationRule` | object | No | Validation for the test parameter value |
 
 **Example**:
 
@@ -554,36 +740,225 @@ View the complete TestDefinition schema in your preferred format:
 
 ---
 
-### Governance Properties
-
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `dataQualityDimension` (DataQualityDimensions enum)
+**Type**: `string` enum
 **Required**: No
-**Description**: User or team that owns this test definition
+**Allowed Values**: `Completeness`, `Accuracy`, `Consistency`, `Validity`, `Uniqueness`, `Integrity`, `SQL`
+**Description**: Dimension a test case belongs to
 
 ```json
 {
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "user",
-    "name": "admin",
-    "displayName": "Administrator"
+  "dataQualityDimension": "Completeness"
+}
+```
+
+---
+
+### Governance Properties
+
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No
+**Default**: `null`
+**Description**: Owners of this TestCase definition
+
+```json
+{
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "user",
+      "name": "admin",
+      "displayName": "Administrator"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No
+**Description**: Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.
+
+```json
+{
+  "domains": [
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "type": "domain",
+      "name": "Marketing",
+      "displayName": "Marketing Domain"
+    }
+  ]
+}
+```
+
+---
+
+### Versioning and Metadata Properties
+
+#### `provider` (providerType)
+**Type**: `string` enum
+**Required**: No
+**Description**: Provider type (e.g., user, system)
+
+```json
+{
+  "provider": "system"
+}
+```
+
+---
+
+#### `version` (entityVersion)
+**Type**: `number`
+**Required**: No (system-managed)
+**Description**: Metadata version of the entity
+
+```json
+{
+  "version": 1.0
+}
+```
+
+---
+
+#### `updatedAt` (timestamp)
+**Type**: `number` (Unix epoch time in milliseconds)
+**Required**: No (system-managed)
+**Description**: Last update time corresponding to the new version of the entity
+
+```json
+{
+  "updatedAt": 1678886400000
+}
+```
+
+---
+
+#### `updatedBy` (string)
+**Type**: `string`
+**Required**: No (system-managed)
+**Description**: User who made the update
+
+```json
+{
+  "updatedBy": "admin"
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI)
+**Required**: No (system-managed)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "https://example.com/api/v1/testDefinitions/tableRowCountToBeBetween"
+}
+```
+
+---
+
+#### `changeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "description",
+        "oldValue": "Old description",
+        "newValue": "New description"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.0
   }
 }
 ```
 
 ---
 
-### Versioning Properties
-
-#### `version` (entityVersion)
-**Type**: `number`
-**Required**: Yes (system-managed)
-**Description**: Metadata version number
+#### `incrementalChangeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
 
 ```json
 {
-  "version": 1.0
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [],
+    "fieldsDeleted": [],
+    "previousVersion": 1.0
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+### Test Execution Properties
+
+#### `supportsRowLevelPassedFailed` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the test case supports row level passed/failed
+
+```json
+{
+  "supportsRowLevelPassedFailed": true
+}
+```
+
+---
+
+#### `supportsDynamicAssertion` (boolean)
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the test case supports dynamic assertions
+
+```json
+{
+  "supportsDynamicAssertion": false
+}
+```
+
+---
+
+#### `supportedServices` (string[])
+**Type**: `array` of strings
+**Required**: No
+**Default**: `[]`
+**Description**: List of services that this test definition supports. When empty, it implies all services are supported.
+
+```json
+{
+  "supportedServices": ["BigQuery", "Snowflake", "Redshift"]
 }
 ```
 
@@ -600,8 +975,9 @@ View the complete TestDefinition schema in your preferred format:
   "fullyQualifiedName": "tableRowCountToBeBetween",
   "displayName": "Table Row Count To Be Between",
   "description": "Validates that the number of rows in a table is between min and max values",
-  "entityType": "Table",
-  "testPlatforms": ["OpenMetadata", "DBT"],
+  "entityType": "TABLE",
+  "testPlatforms": ["OpenMetadata", "dbt"],
+  "dataQualityDimension": "Completeness",
   "parameterDefinition": [
     {
       "name": "minValue",
@@ -618,12 +994,18 @@ View the complete TestDefinition schema in your preferred format:
       "required": false
     }
   ],
-  "owner": {
-    "id": "system-user-id",
-    "type": "user",
-    "name": "admin"
-  },
-  "version": 1.0
+  "owners": [
+    {
+      "id": "system-user-id",
+      "type": "user",
+      "name": "admin"
+    }
+  ],
+  "provider": "system",
+  "version": 1.0,
+  "supportsRowLevelPassedFailed": false,
+  "supportsDynamicAssertion": false,
+  "supportedServices": []
 }
 ```
 
@@ -636,9 +1018,10 @@ View the complete TestDefinition schema in your preferred format:
   "fullyQualifiedName": "columnValuesToBeBetween",
   "displayName": "Column Values To Be Between",
   "description": "Validates that all values in a column fall within a specified numeric range",
-  "entityType": "Column",
+  "entityType": "COLUMN",
   "testPlatforms": ["OpenMetadata", "GreatExpectations", "Soda"],
   "supportedDataTypes": ["NUMBER", "INT", "FLOAT", "DOUBLE", "DECIMAL"],
+  "dataQualityDimension": "Validity",
   "parameterDefinition": [
     {
       "name": "minValue",
@@ -655,7 +1038,9 @@ View the complete TestDefinition schema in your preferred format:
       "required": false
     }
   ],
-  "version": 1.2
+  "version": 1.2,
+  "supportsRowLevelPassedFailed": false,
+  "supportsDynamicAssertion": false
 }
 ```
 
@@ -668,9 +1053,10 @@ View the complete TestDefinition schema in your preferred format:
   "fullyQualifiedName": "columnValuesToBeInSet",
   "displayName": "Column Values To Be In Set",
   "description": "Validates that all column values are within an allowed set of values",
-  "entityType": "Column",
+  "entityType": "COLUMN",
   "testPlatforms": ["OpenMetadata"],
   "supportedDataTypes": ["STRING", "INT"],
+  "dataQualityDimension": "Validity",
   "parameterDefinition": [
     {
       "name": "allowedValues",
@@ -680,7 +1066,9 @@ View the complete TestDefinition schema in your preferred format:
       "required": true
     }
   ],
-  "version": 1.0
+  "version": 1.0,
+  "supportsRowLevelPassedFailed": false,
+  "supportsDynamicAssertion": false
 }
 ```
 
@@ -693,18 +1081,13 @@ View the complete TestDefinition schema in your preferred format:
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 om:TestDefinition a owl:Class ;
     rdfs:subClassOf om:DataQualityAsset ;
     rdfs:label "TestDefinition" ;
-    rdfs:comment "A reusable test template with parameters" ;
-    om:hasProperties [
-        om:name "string" ;
-        om:entityType "EntityType" ;
-        om:testPlatforms "TestPlatform[]" ;
-        om:parameterDefinition "ParameterDefinition[]" ;
-    ] .
+    rdfs:comment "Test Definition is a type of test using which test cases are created to capture data quality tests against data entities." .
 ```
 
 ### Instance Example
@@ -714,11 +1097,12 @@ om:TestDefinition a owl:Class ;
 @prefix ex: <https://example.com/tests/> .
 
 ex:tableRowCountToBeBetween a om:TestDefinition ;
-    om:name "tableRowCountToBeBetween" ;
+    om:testDefinitionName "tableRowCountToBeBetween" ;
     om:displayName "Table Row Count To Be Between" ;
-    om:description "Validates row count range" ;
-    om:entityType "Table" ;
-    om:testPlatform "OpenMetadata" ;
+    om:description "Validates that the number of rows in a table is between min and max values" ;
+    om:entityType om:TABLE ;
+    om:testPlatform om:OpenMetadata, om:dbt ;
+    om:dataQualityDimension om:Completeness ;
     om:hasParameter ex:minValueParam ;
     om:hasParameter ex:maxValueParam .
 ```
@@ -744,6 +1128,18 @@ ex:tableRowCountToBeBetween a om:TestDefinition ;
     "parameterDefinition": {
       "@id": "om:hasParameter",
       "@container": "@list"
+    },
+    "dataQualityDimension": {
+      "@id": "om:dataQualityDimension",
+      "@type": "@vocab"
+    },
+    "owners": {
+      "@id": "om:hasOwners",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:hasDomains",
+      "@container": "@set"
     }
   }
 }
@@ -757,7 +1153,8 @@ ex:tableRowCountToBeBetween a om:TestDefinition ;
 - **TestCase**: Instances created from this definition
 
 ### Associated Entities
-- **Owner**: User or team owning this definition
+- **Owners**: Users or teams owning this definition (plural, can have multiple)
+- **Domains**: Domains the test definition belongs to
 
 ---
 
@@ -798,8 +1195,9 @@ Content-Type: application/json
 
 {
   "name": "customTestDefinition",
-  "entityType": "Column",
-  "testPlatforms": ["Custom"],
+  "description": "Custom test definition for validating thresholds",
+  "entityType": "COLUMN",
+  "testPlatforms": ["Other"],
   "parameterDefinition": [
     {
       "name": "threshold",

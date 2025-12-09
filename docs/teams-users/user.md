@@ -162,145 +162,180 @@ View the complete User schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/teams/user.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
-      "description": "A `User` represents an individual person with authentication credentials, profile information, and role assignments.",
+      "description": "A `User` represents a user of OpenMetadata. A user can be part of 0 or more teams. A special type of user called Bot is used for automation. A user can be an owner of zero or more data assets. A user can also follow zero or more data assets.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.teams.User",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "definitions": {
         "authenticationMechanism": {
           "type": "object",
+          "description": "User/Bot Authentication Mechanism.",
+          "javaType": "org.openmetadata.schema.entity.teams.AuthenticationMechanism",
           "properties": {
-            "authType": {
-              "type": "string",
-              "enum": ["JWT", "SSO", "BASIC", "LDAP", "OAUTH2", "SAML"]
-            },
             "config": {
-              "type": "object"
+              "oneOf": [
+                {"$ref": "../../auth/ssoAuth.json"},
+                {"$ref": "../../auth/jwtAuth.json"},
+                {"$ref": "../../auth/basicAuth.json"}
+              ]
+            },
+            "authType": {
+              "enum": ["JWT", "SSO", "BASIC"]
             }
-          }
-        },
-        "userProfile": {
-          "type": "object",
-          "properties": {
-            "bio": {
-              "type": "string",
-              "description": "User biography"
-            },
-            "location": {
-              "type": "string",
-              "description": "User location"
-            },
-            "timezone": {
-              "type": "string",
-              "description": "User timezone"
-            },
-            "images": {
-              "type": "object",
-              "properties": {
-                "avatar": {"type": "string"},
-                "banner": {"type": "string"}
-              }
-            }
-          }
+          },
+          "additionalProperties": false
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies a user entity instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Username",
+          "description": "A unique name of the user, typically the user ID from an identity provider. Example - uid from LDAP.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: organization.username",
+          "description": "FullyQualifiedName same as `name`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
-        "displayName": {
-          "description": "Display name",
-          "type": "string"
-        },
-        "email": {
-          "description": "User email address",
-          "type": "string",
-          "format": "email"
-        },
         "description": {
-          "description": "User description",
+          "description": "Used for user biography.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "profile": {
-          "$ref": "#/definitions/userProfile"
+        "externalId": {
+          "description": "External identifier from identity provider (used for SCIM).",
+          "type": "string"
         },
-        "isAdmin": {
-          "description": "Is system administrator",
+        "scimUserName": {
+          "description": "Raw user name from SCIM.",
+          "type": "string"
+        },
+        "displayName": {
+          "description": "Name used for display purposes. Example 'FirstName LastName'.",
+          "type": "string"
+        },
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "email": {
+          "description": "Email address of the user.",
+          "$ref": "../../type/basic.json#/definitions/email"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
+        },
+        "timezone": {
+          "description": "Timezone of the user.",
+          "type": "string",
+          "format": "timezone"
+        },
+        "isBot": {
+          "description": "When true indicates a special type of user called Bot.",
           "type": "boolean",
           "default": false
         },
-        "isBot": {
-          "description": "Is bot account",
+        "isAdmin": {
+          "description": "When true indicates user is an administrator for the system with superuser privileges.",
+          "type": "boolean",
+          "default": false
+        },
+        "allowImpersonation": {
+          "description": "When true, this bot is allowed to impersonate users (subject to policy checks). Only applicable for bot users.",
           "type": "boolean",
           "default": false
         },
         "authenticationMechanism": {
           "$ref": "#/definitions/authenticationMechanism"
         },
+        "profile": {
+          "description": "Profile of the user.",
+          "$ref": "../../type/profile.json"
+        },
         "teams": {
-          "description": "Teams this user belongs to",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "roles": {
-          "description": "Roles assigned to this user",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "personas": {
-          "description": "Personas assigned to this user",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "Teams that the user belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "defaultPersona": {
-          "description": "Default persona for this user",
+          "description": "Default Persona for the user from list of personas.",
           "$ref": "../../type/entityReference.json"
         },
+        "personas": {
+          "description": "Personas that the user assigned to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
         "owns": {
-          "description": "Data assets owned by this user",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "List of entities owned by the user.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "follows": {
-          "description": "Entities this user follows",
+          "description": "List of entities followed by the user.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "roles": {
+          "description": "Roles that the user has been assigned.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "inheritedRoles": {
+          "description": "Roles that a user is inheriting through membership in teams that have set team default roles.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "isEmailVerified": {
+          "description": "If the User has verified the mail",
+          "type": "boolean"
+        },
+        "domains": {
+          "description": "Domain the User belongs to. This is inherited by the team the user belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "lastLoginTime": {
+          "description": "Last time the user logged in.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "lastActivityTime": {
+          "description": "Last time the user was active in the system.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "personaPreferences": {
+          "description": "User's personal preferences for each persona. Users can customize certain UI elements per persona while inheriting base persona configuration.",
           "type": "array",
           "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "isActive": {
-          "description": "Account is active",
-          "type": "boolean",
-          "default": true
-        },
-        "timezone": {
-          "description": "User timezone",
-          "type": "string"
-        },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+            "$ref": "../../type/personaPreferences.json"
+          },
+          "default": []
         }
       },
 
+      "additionalProperties": false,
       "required": ["id", "name", "email"]
     }
     ```
@@ -314,81 +349,136 @@ View the complete User schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # User Class Definition
     om:User a owl:Class ;
         rdfs:subClassOf om:Entity ;
         rdfs:label "User" ;
-        rdfs:comment "An individual user with authentication and profile information" .
+        rdfs:comment "A user of OpenMetadata. A user can be part of 0 or more teams. A special type of user called Bot is used for automation. A user can be an owner of zero or more data assets. A user can also follow zero or more data assets." .
 
-    # Properties
+    # Datatype Properties
     om:userName a owl:DatatypeProperty ;
         rdfs:domain om:User ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Username for the user" .
+        rdfs:comment "A unique name of the user, typically the user ID from an identity provider. Example - uid from LDAP." .
 
     om:email a owl:DatatypeProperty ;
         rdfs:domain om:User ;
         rdfs:range xsd:string ;
         rdfs:label "email" ;
-        rdfs:comment "User email address" .
+        rdfs:comment "Email address of the user." .
 
     om:displayName a owl:DatatypeProperty ;
         rdfs:domain om:User ;
         rdfs:range xsd:string ;
         rdfs:label "displayName" ;
-        rdfs:comment "Display name for the user" .
+        rdfs:comment "Name used for display purposes. Example 'FirstName LastName'." .
+
+    om:externalId a owl:DatatypeProperty ;
+        rdfs:domain om:User ;
+        rdfs:range xsd:string ;
+        rdfs:label "externalId" ;
+        rdfs:comment "External identifier from identity provider (used for SCIM)." .
+
+    om:scimUserName a owl:DatatypeProperty ;
+        rdfs:domain om:User ;
+        rdfs:range xsd:string ;
+        rdfs:label "scimUserName" ;
+        rdfs:comment "Raw user name from SCIM." .
 
     om:isAdmin a owl:DatatypeProperty ;
         rdfs:domain om:User ;
         rdfs:range xsd:boolean ;
         rdfs:label "isAdmin" ;
-        rdfs:comment "Whether user has admin privileges" .
+        rdfs:comment "When true indicates user is an administrator for the system with superuser privileges." .
 
     om:isBot a owl:DatatypeProperty ;
         rdfs:domain om:User ;
         rdfs:range xsd:boolean ;
         rdfs:label "isBot" ;
-        rdfs:comment "Whether this is a bot account" .
+        rdfs:comment "When true indicates a special type of user called Bot." .
 
-    om:isActive a owl:DatatypeProperty ;
+    om:allowImpersonation a owl:DatatypeProperty ;
         rdfs:domain om:User ;
         rdfs:range xsd:boolean ;
-        rdfs:label "isActive" ;
-        rdfs:comment "Whether the account is active" .
+        rdfs:label "allowImpersonation" ;
+        rdfs:comment "When true, this bot is allowed to impersonate users (subject to policy checks). Only applicable for bot users." .
 
+    om:isEmailVerified a owl:DatatypeProperty ;
+        rdfs:domain om:User ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "isEmailVerified" ;
+        rdfs:comment "If the User has verified the mail" .
+
+    om:timezone a owl:DatatypeProperty ;
+        rdfs:domain om:User ;
+        rdfs:range xsd:string ;
+        rdfs:label "timezone" ;
+        rdfs:comment "Timezone of the user." .
+
+    om:lastLoginTime a owl:DatatypeProperty ;
+        rdfs:domain om:User ;
+        rdfs:range xsd:long ;
+        rdfs:label "lastLoginTime" ;
+        rdfs:comment "Last time the user logged in." .
+
+    om:lastActivityTime a owl:DatatypeProperty ;
+        rdfs:domain om:User ;
+        rdfs:range xsd:long ;
+        rdfs:label "lastActivityTime" ;
+        rdfs:comment "Last time the user was active in the system." .
+
+    # Object Properties
     om:memberOf a owl:ObjectProperty ;
         rdfs:domain om:User ;
         rdfs:range om:Team ;
         rdfs:label "memberOf" ;
-        rdfs:comment "Teams this user belongs to" .
+        rdfs:comment "Teams that the user belongs to." .
 
     om:hasRole a owl:ObjectProperty ;
         rdfs:domain om:User ;
         rdfs:range om:Role ;
         rdfs:label "hasRole" ;
-        rdfs:comment "Roles assigned to this user" .
+        rdfs:comment "Roles that the user has been assigned." .
+
+    om:hasInheritedRole a owl:ObjectProperty ;
+        rdfs:domain om:User ;
+        rdfs:range om:Role ;
+        rdfs:label "hasInheritedRole" ;
+        rdfs:comment "Roles that a user is inheriting through membership in teams that have set team default roles." .
 
     om:hasPersona a owl:ObjectProperty ;
         rdfs:domain om:User ;
         rdfs:range om:Persona ;
         rdfs:label "hasPersona" ;
-        rdfs:comment "Personas assigned to this user" .
+        rdfs:comment "Personas that the user assigned to." .
+
+    om:hasDefaultPersona a owl:ObjectProperty ;
+        rdfs:domain om:User ;
+        rdfs:range om:Persona ;
+        rdfs:label "hasDefaultPersona" ;
+        rdfs:comment "Default Persona for the user from list of personas." .
+
+    om:belongsToDomain a owl:ObjectProperty ;
+        rdfs:domain om:User ;
+        rdfs:range om:Domain ;
+        rdfs:label "belongsToDomain" ;
+        rdfs:comment "Domain the User belongs to. This is inherited by the team the user belongs to." .
 
     om:owns a owl:ObjectProperty ;
         rdfs:domain om:User ;
-        rdfs:range om:DataAsset ;
+        rdfs:range om:Entity ;
         rdfs:label "owns" ;
-        rdfs:comment "Data assets owned by this user" .
+        rdfs:comment "List of entities owned by the user." .
 
     om:follows a owl:ObjectProperty ;
         rdfs:domain om:User ;
         rdfs:range om:Entity ;
         rdfs:label "follows" ;
-        rdfs:comment "Entities followed by this user" .
+        rdfs:comment "List of entities followed by the user." .
 
     # Example Instance
     ex:janeDoe a om:User ;
@@ -397,11 +487,15 @@ View the complete User schema in your preferred format:
         om:displayName "Jane Doe" ;
         om:isAdmin false ;
         om:isBot false ;
-        om:isActive true ;
+        om:isEmailVerified true ;
+        om:timezone "America/Los_Angeles" ;
         om:memberOf ex:dataEngineeringTeam ;
         om:hasRole ex:dataEngineerRole ;
         om:hasPersona ex:engineerPersona ;
-        om:owns ex:customersTable .
+        om:hasDefaultPersona ex:engineerPersona ;
+        om:belongsToDomain ex:salesDomain ;
+        om:owns ex:customersTable ;
+        om:follows ex:ordersTable .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -435,8 +529,20 @@ View the complete User schema in your preferred format:
           "@id": "om:email",
           "@type": "xsd:string"
         },
+        "externalId": {
+          "@id": "om:externalId",
+          "@type": "xsd:string"
+        },
+        "scimUserName": {
+          "@id": "om:scimUserName",
+          "@type": "xsd:string"
+        },
         "description": {
           "@id": "om:description",
+          "@type": "xsd:string"
+        },
+        "timezone": {
+          "@id": "om:timezone",
           "@type": "xsd:string"
         },
         "isAdmin": {
@@ -447,9 +553,21 @@ View the complete User schema in your preferred format:
           "@id": "om:isBot",
           "@type": "xsd:boolean"
         },
-        "isActive": {
-          "@id": "om:isActive",
+        "allowImpersonation": {
+          "@id": "om:allowImpersonation",
           "@type": "xsd:boolean"
+        },
+        "isEmailVerified": {
+          "@id": "om:isEmailVerified",
+          "@type": "xsd:boolean"
+        },
+        "lastLoginTime": {
+          "@id": "om:lastLoginTime",
+          "@type": "xsd:long"
+        },
+        "lastActivityTime": {
+          "@id": "om:lastActivityTime",
+          "@type": "xsd:long"
         },
         "teams": {
           "@id": "om:memberOf",
@@ -461,8 +579,22 @@ View the complete User schema in your preferred format:
           "@type": "@id",
           "@container": "@set"
         },
+        "inheritedRoles": {
+          "@id": "om:hasInheritedRole",
+          "@type": "@id",
+          "@container": "@set"
+        },
         "personas": {
           "@id": "om:hasPersona",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "defaultPersona": {
+          "@id": "om:hasDefaultPersona",
+          "@type": "@id"
+        },
+        "domains": {
+          "@id": "om:belongsToDomain",
           "@type": "@id",
           "@container": "@set"
         },
@@ -489,18 +621,20 @@ View the complete User schema in your preferred format:
       "@id": "https://example.com/users/jane.doe",
 
       "name": "jane.doe",
-      "fullyQualifiedName": "example_org.jane.doe",
+      "fullyQualifiedName": "jane.doe",
       "displayName": "Jane Doe",
       "email": "jane.doe@example.com",
       "description": "Senior Data Engineer specializing in data platform and analytics",
+      "timezone": "America/Los_Angeles",
       "isAdmin": false,
       "isBot": false,
-      "isActive": true,
+      "isEmailVerified": true,
 
       "profile": {
-        "bio": "Data engineer with 8+ years experience building scalable data platforms",
-        "location": "San Francisco, CA",
-        "timezone": "America/Los_Angeles"
+        "images": {
+          "image": "https://example.com/avatars/jane.doe.jpg",
+          "image192": "https://example.com/avatars/jane.doe_192.jpg"
+        }
       },
 
       "teams": [
@@ -527,11 +661,33 @@ View the complete User schema in your preferred format:
         }
       ],
 
+      "defaultPersona": {
+        "@id": "https://example.com/personas/engineer",
+        "@type": "Persona",
+        "name": "Engineer"
+      },
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/sales",
+          "@type": "Domain",
+          "name": "Sales"
+        }
+      ],
+
       "owns": [
         {
           "@id": "https://example.com/tables/customers",
           "@type": "Table",
           "fullyQualifiedName": "postgres_prod.ecommerce.public.customers"
+        }
+      ],
+
+      "follows": [
+        {
+          "@id": "https://example.com/tables/orders",
+          "@type": "Table",
+          "fullyQualifiedName": "postgres_prod.ecommerce.public.orders"
         }
       ]
     }
@@ -590,11 +746,11 @@ View the complete User schema in your preferred format:
 #### `fullyQualifiedName` (fullyQualifiedEntityName)
 **Type**: `string`
 **Required**: Yes (system-generated)
-**Description**: Fully qualified name in the format `organization.username`
+**Description**: FullyQualifiedName same as `name`
 
 ```json
 {
-  "fullyQualifiedName": "example_org.jane.doe"
+  "fullyQualifiedName": "jane.doe"
 }
 ```
 
@@ -629,11 +785,37 @@ View the complete User schema in your preferred format:
 #### `description` (markdown)
 **Type**: `string` (Markdown format)
 **Required**: No
-**Description**: User description or bio
+**Description**: Used for user biography
 
 ```json
 {
   "description": "Senior Data Engineer specializing in data platform and analytics infrastructure"
+}
+```
+
+---
+
+#### `externalId`
+**Type**: `string`
+**Required**: No
+**Description**: External identifier from identity provider (used for SCIM)
+
+```json
+{
+  "externalId": "user-12345-abcde"
+}
+```
+
+---
+
+#### `scimUserName`
+**Type**: `string`
+**Required**: No
+**Description**: Raw user name from SCIM
+
+```json
+{
+  "scimUserName": "jane.doe@company.com"
 }
 ```
 
@@ -644,14 +826,14 @@ View the complete User schema in your preferred format:
 #### `authenticationMechanism`
 **Type**: `object`
 **Required**: No
-**Description**: Authentication configuration for the user
+**Description**: User/Bot Authentication Mechanism
 
 **Properties**:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `authType` | enum | Yes | Authentication type: JWT, SSO, BASIC, LDAP, OAUTH2, SAML |
-| `config` | object | No | Auth-specific configuration |
+| `authType` | enum | Yes | Authentication type: JWT, SSO, BASIC |
+| `config` | object | No | Auth-specific configuration (oneOf: ssoAuth, jwtAuth, basicAuth) |
 
 ```json
 {
@@ -670,7 +852,7 @@ View the complete User schema in your preferred format:
 #### `isAdmin`
 **Type**: `boolean`
 **Required**: No (default: false)
-**Description**: Whether user has system administrator privileges
+**Description**: When true indicates user is an administrator for the system with superuser privileges
 
 ```json
 {
@@ -683,7 +865,7 @@ View the complete User schema in your preferred format:
 #### `isBot`
 **Type**: `boolean`
 **Required**: No (default: false)
-**Description**: Whether this is a bot/service account
+**Description**: When true indicates a special type of user called Bot
 
 ```json
 {
@@ -693,14 +875,14 @@ View the complete User schema in your preferred format:
 
 ---
 
-#### `isActive`
+#### `allowImpersonation`
 **Type**: `boolean`
-**Required**: No (default: true)
-**Description**: Whether the user account is active
+**Required**: No (default: false)
+**Description**: When true, this bot is allowed to impersonate users (subject to policy checks). Only applicable for bot users
 
 ```json
 {
-  "isActive": true
+  "allowImpersonation": false
 }
 ```
 
@@ -711,26 +893,27 @@ View the complete User schema in your preferred format:
 #### `profile`
 **Type**: `object`
 **Required**: No
-**Description**: User profile information
+**Description**: Profile of the user
 
 **Properties**:
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| `bio` | string | No | User biography |
-| `location` | string | No | User location |
-| `timezone` | string | No | User timezone |
-| `images` | object | No | Avatar and banner images |
+| `images` | object | No | Links to a list of images of varying resolutions/sizes (image, image24, image32, image48, image72, image192, image512) |
+| `subscription` | object | No | Holds the Subscription Config for different types (slack, msTeams, gChat, generic) |
 
 ```json
 {
   "profile": {
-    "bio": "Data engineer with 8+ years experience building scalable data platforms",
-    "location": "San Francisco, CA",
-    "timezone": "America/Los_Angeles",
     "images": {
-      "avatar": "https://example.com/avatars/jane.doe.jpg",
-      "banner": "https://example.com/banners/jane.doe.jpg"
+      "image": "https://example.com/avatars/jane.doe.jpg",
+      "image192": "https://example.com/avatars/jane.doe_192.jpg",
+      "image512": "https://example.com/avatars/jane.doe_512.jpg"
+    },
+    "subscription": {
+      "slack": {
+        "endpoint": "https://hooks.slack.com/services/..."
+      }
     }
   }
 }
@@ -740,10 +923,10 @@ View the complete User schema in your preferred format:
 
 ### Team and Role Properties
 
-#### `teams[]` (EntityReference[])
+#### `teams` (EntityReferenceList)
 **Type**: `array` of Team references
 **Required**: No
-**Description**: Teams this user belongs to
+**Description**: Teams that the user belongs to
 
 ```json
 {
@@ -752,13 +935,13 @@ View the complete User schema in your preferred format:
       "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
       "type": "team",
       "name": "Data Engineering",
-      "fullyQualifiedName": "example_org.DataEngineering"
+      "fullyQualifiedName": "DataEngineering"
     },
     {
       "id": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
       "type": "team",
       "name": "Analytics",
-      "fullyQualifiedName": "example_org.Analytics"
+      "fullyQualifiedName": "Analytics"
     }
   ]
 }
@@ -766,10 +949,10 @@ View the complete User schema in your preferred format:
 
 ---
 
-#### `roles[]` (EntityReference[])
+#### `roles` (EntityReferenceList)
 **Type**: `array` of Role references
 **Required**: No
-**Description**: Roles assigned to this user
+**Description**: Roles that the user has been assigned
 
 ```json
 {
@@ -792,10 +975,30 @@ View the complete User schema in your preferred format:
 
 ---
 
-#### `personas[]` (EntityReference[])
+#### `inheritedRoles` (EntityReferenceList)
+**Type**: `array` of Role references
+**Required**: No
+**Description**: Roles that a user is inheriting through membership in teams that have set team default roles
+
+```json
+{
+  "inheritedRoles": [
+    {
+      "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+      "type": "role",
+      "name": "TeamDefaultRole",
+      "fullyQualifiedName": "TeamDefaultRole"
+    }
+  ]
+}
+```
+
+---
+
+#### `personas` (EntityReferenceList)
 **Type**: `array` of Persona references
 **Required**: No
-**Description**: Personas assigned to this user
+**Description**: Personas that the user assigned to
 
 ```json
 {
@@ -812,10 +1015,10 @@ View the complete User schema in your preferred format:
 
 ---
 
-#### `defaultPersona`
+#### `defaultPersona` (EntityReference)
 **Type**: `object` (EntityReference)
 **Required**: No
-**Description**: Default persona for this user
+**Description**: Default Persona for the user from list of personas
 
 ```json
 {
@@ -829,12 +1032,32 @@ View the complete User schema in your preferred format:
 
 ---
 
+#### `domains` (EntityReferenceList)
+**Type**: `array` of Domain references
+**Required**: No
+**Description**: Domain the User belongs to. This is inherited by the team the user belongs to
+
+```json
+{
+  "domains": [
+    {
+      "id": "a9b0c1d2-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ]
+}
+```
+
+---
+
 ### Ownership and Following Properties
 
-#### `owns[]` (EntityReference[])
+#### `owns` (EntityReferenceList)
 **Type**: `array`
 **Required**: No
-**Description**: Data assets owned by this user
+**Description**: List of entities owned by the user
 
 ```json
 {
@@ -856,10 +1079,10 @@ View the complete User schema in your preferred format:
 
 ---
 
-#### `follows[]` (EntityReference[])
+#### `follows` (EntityReferenceList)
 **Type**: `array`
 **Required**: No
-**Description**: Entities this user follows
+**Description**: List of entities followed by the user
 
 ```json
 {
@@ -921,25 +1144,169 @@ View the complete User schema in your preferred format:
 
 ---
 
+#### `impersonatedBy`
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": {
+    "id": "bot-uuid",
+    "type": "bot",
+    "name": "automation-bot"
+  }
+}
+```
+
+---
+
+#### `href`
+**Type**: `string` (URI format)
+**Required**: No (system-managed)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "https://api.example.com/v1/users/jane.doe"
+}
+```
+
+---
+
+#### `isEmailVerified`
+**Type**: `boolean`
+**Required**: No
+**Description**: If the User has verified the mail
+
+```json
+{
+  "isEmailVerified": true
+}
+```
+
+---
+
+#### `lastLoginTime` (timestamp)
+**Type**: `integer` (Unix epoch milliseconds)
+**Required**: No
+**Description**: Last time the user logged in
+
+```json
+{
+  "lastLoginTime": 1704240000000
+}
+```
+
+---
+
+#### `lastActivityTime` (timestamp)
+**Type**: `integer` (Unix epoch milliseconds)
+**Required**: No
+**Description**: Last time the user was active in the system
+
+```json
+{
+  "lastActivityTime": 1704250000000
+}
+```
+
+---
+
+#### `personaPreferences`
+**Type**: `array`
+**Required**: No (default: [])
+**Description**: User's personal preferences for each persona. Users can customize certain UI elements per persona while inheriting base persona configuration
+
+```json
+{
+  "personaPreferences": [
+    {
+      "personaId": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "preferences": {
+        "theme": "dark",
+        "landingPage": "/tables"
+      }
+    }
+  ]
+}
+```
+
+---
+
+#### `changeDescription`
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "displayName",
+        "oldValue": "Jane",
+        "newValue": "Jane Doe"
+      }
+    ],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription`
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `deleted`
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
 ## Complete Example
 
 ```json
 {
   "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
   "name": "jane.doe",
-  "fullyQualifiedName": "example_org.jane.doe",
+  "fullyQualifiedName": "jane.doe",
   "displayName": "Jane Doe",
   "email": "jane.doe@example.com",
   "description": "Senior Data Engineer specializing in data platform and analytics",
+  "externalId": "user-12345-abcde",
+  "timezone": "America/Los_Angeles",
   "isAdmin": false,
   "isBot": false,
-  "isActive": true,
+  "isEmailVerified": true,
   "profile": {
-    "bio": "Data engineer with 8+ years experience building scalable data platforms",
-    "location": "San Francisco, CA",
-    "timezone": "America/Los_Angeles",
     "images": {
-      "avatar": "https://example.com/avatars/jane.doe.jpg"
+      "image": "https://example.com/avatars/jane.doe.jpg",
+      "image192": "https://example.com/avatars/jane.doe_192.jpg",
+      "image512": "https://example.com/avatars/jane.doe_512.jpg"
     }
   },
   "authenticationMechanism": {
@@ -962,6 +1329,13 @@ View the complete User schema in your preferred format:
       "name": "DataEngineer"
     }
   ],
+  "inheritedRoles": [
+    {
+      "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+      "type": "role",
+      "name": "TeamDefaultRole"
+    }
+  ],
   "personas": [
     {
       "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
@@ -974,6 +1348,13 @@ View the complete User schema in your preferred format:
     "type": "persona",
     "name": "Engineer"
   },
+  "domains": [
+    {
+      "id": "a9b0c1d2-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+      "type": "domain",
+      "name": "Sales"
+    }
+  ],
   "owns": [
     {
       "type": "table",
@@ -987,9 +1368,22 @@ View the complete User schema in your preferred format:
       "name": "orders"
     }
   ],
+  "personaPreferences": [
+    {
+      "personaId": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "preferences": {
+        "theme": "dark",
+        "landingPage": "/tables"
+      }
+    }
+  ],
+  "lastLoginTime": 1704240000000,
+  "lastActivityTime": 1704250000000,
   "version": 1.5,
   "updatedAt": 1704240000000,
-  "updatedBy": "admin"
+  "updatedBy": "admin",
+  "href": "https://api.example.com/v1/users/jane.doe",
+  "deleted": false
 }
 ```
 
@@ -999,43 +1393,33 @@ View the complete User schema in your preferred format:
 
 ### Ontology Class
 
-```turtle
-@prefix om: <https://open-metadata.org/schema/> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
-
-om:User a owl:Class ;
-    rdfs:subClassOf om:Entity ;
-    rdfs:label "User" ;
-    rdfs:comment "An individual user with authentication and profile" ;
-    om:hasProperties [
-        om:name "string" ;
-        om:email "string" ;
-        om:displayName "string" ;
-        om:isAdmin "boolean" ;
-        om:teams "Team[]" ;
-        om:roles "Role[]" ;
-        om:personas "Persona[]" ;
-        om:owns "DataAsset[]" ;
-    ] .
-```
+The User entity is defined as an OWL class with datatype and object properties as shown in the RDF section above.
 
 ### Instance Example
 
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix ex: <https://example.com/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:janeDoe a om:User ;
     om:userName "jane.doe" ;
     om:email "jane.doe@example.com" ;
     om:displayName "Jane Doe" ;
+    om:externalId "user-12345-abcde" ;
+    om:timezone "America/Los_Angeles" ;
     om:isAdmin false ;
     om:isBot false ;
-    om:isActive true ;
+    om:isEmailVerified true ;
+    om:allowImpersonation false ;
+    om:lastLoginTime "1704240000000"^^xsd:long ;
+    om:lastActivityTime "1704250000000"^^xsd:long ;
     om:memberOf ex:dataEngineeringTeam ;
     om:hasRole ex:dataEngineerRole ;
+    om:hasInheritedRole ex:teamDefaultRole ;
     om:hasPersona ex:engineerPersona ;
+    om:hasDefaultPersona ex:engineerPersona ;
+    om:belongsToDomain ex:salesDomain ;
     om:owns ex:customersTable ;
     om:follows ex:ordersTable .
 ```
@@ -1044,69 +1428,7 @@ ex:janeDoe a om:User ;
 
 ## JSON-LD Context
 
-```json
-{
-  "@context": {
-    "@vocab": "https://open-metadata.org/schema/",
-    "User": "om:User",
-    "name": "om:userName",
-    "email": "om:email",
-    "displayName": "om:displayName",
-    "teams": {
-      "@id": "om:memberOf",
-      "@type": "@id",
-      "@container": "@set"
-    },
-    "roles": {
-      "@id": "om:hasRole",
-      "@type": "@id",
-      "@container": "@set"
-    },
-    "personas": {
-      "@id": "om:hasPersona",
-      "@type": "@id",
-      "@container": "@set"
-    },
-    "owns": {
-      "@id": "om:owns",
-      "@type": "@id",
-      "@container": "@set"
-    }
-  }
-}
-```
-
-### JSON-LD Example
-
-```json
-{
-  "@context": "https://open-metadata.org/context/user.jsonld",
-  "@type": "User",
-  "@id": "https://example.com/users/jane.doe",
-  "name": "jane.doe",
-  "email": "jane.doe@example.com",
-  "displayName": "Jane Doe",
-  "isAdmin": false,
-  "teams": [
-    {
-      "@id": "https://example.com/teams/data-engineering",
-      "@type": "Team"
-    }
-  ],
-  "roles": [
-    {
-      "@id": "https://example.com/roles/data-engineer",
-      "@type": "Role"
-    }
-  ],
-  "owns": [
-    {
-      "@id": "https://example.com/tables/customers",
-      "@type": "Table"
-    }
-  ]
-}
-```
+The complete JSON-LD context and example are shown in the JSON-LD section above.
 
 ---
 

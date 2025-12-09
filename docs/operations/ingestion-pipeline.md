@@ -20,8 +20,12 @@ Ingestion types include:
 - **Usage Ingestion**: Extract query logs and access patterns
 - **Lineage Ingestion**: Extract data lineage information
 - **Profiler Ingestion**: Collect data profiles and statistics
+- **Auto Classification Ingestion**: Automatically classify data assets
 - **Test Suite Ingestion**: Execute data quality tests
+- **Data Insight Ingestion**: Generate data insights and analytics
+- **ElasticSearch Reindex**: Reindex metadata in ElasticSearch
 - **DBT Ingestion**: Ingest dbt models and lineage
+- **Application Ingestion**: Application-specific metadata ingestion
 
 ## Hierarchy
 
@@ -140,7 +144,7 @@ graph TD
       "$id": "https://open-metadata.org/schema/entity/services/ingestionPipelines/ingestionPipeline.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "IngestionPipeline",
-      "description": "An Ingestion Pipeline defines automated workflows for metadata ingestion.",
+      "description": "Ingestion Pipeline Config is used to set up a DAG and deploy. This entity is used to setup metadata/quality pipelines on Apache Airflow.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.services.ingestionPipelines.IngestionPipeline",
       "javaInterfaces": [
@@ -148,271 +152,277 @@ graph TD
       ],
       "definitions": {
         "pipelineType": {
-          "description": "Type of pipeline",
+          "description": "Type of Pipeline - metadata, usage",
           "type": "string",
+          "javaType": "org.openmetadata.schema.entity.services.ingestionPipelines.PipelineType",
           "enum": [
             "metadata",
             "usage",
             "lineage",
             "profiler",
+            "autoClassification",
             "TestSuite",
             "dataInsight",
             "elasticSearchReindex",
             "dbt",
             "application"
-          ],
-          "javaEnums": [
-            {
-              "name": "metadata"
-            },
-            {
-              "name": "usage"
-            },
-            {
-              "name": "lineage"
-            },
-            {
-              "name": "profiler"
-            },
-            {
-              "name": "TestSuite"
-            },
-            {
-              "name": "dataInsight"
-            },
-            {
-              "name": "elasticSearchReindex"
-            },
-            {
-              "name": "dbt"
-            },
-            {
-              "name": "application"
-            }
           ]
         },
         "pipelineStatus": {
           "type": "object",
-          "description": "Status of a pipeline run",
+          "javaType": "org.openmetadata.schema.entity.services.ingestionPipelines.PipelineStatus",
+          "description": "This defines runtime status of Pipeline.",
           "properties": {
             "runId": {
-              "description": "Unique identifier for the run",
+              "description": "Pipeline unique run ID.",
               "type": "string"
             },
             "pipelineState": {
-              "description": "State of the pipeline",
+              "description": "Pipeline status denotes if its failed or succeeded.",
               "type": "string",
+              "javaType": "org.openmetadata.schema.entity.services.ingestionPipelines.PipelineStatusType",
               "enum": [
                 "queued",
-                "running",
                 "success",
                 "failed",
+                "running",
                 "partialSuccess"
               ]
             },
             "startDate": {
-              "description": "Start time of the run",
-              "$ref": "../../../../type/basic.json#/definitions/timestamp"
-            },
-            "endDate": {
-              "description": "End time of the run",
-              "$ref": "../../../../type/basic.json#/definitions/timestamp"
+              "description": "startDate of the pipeline run for this particular execution.",
+              "$ref": "../../../type/basic.json#/definitions/timestamp"
             },
             "timestamp": {
-              "description": "Timestamp of the status",
-              "$ref": "../../../../type/basic.json#/definitions/timestamp"
+              "description": "executionDate of the pipeline run for this particular execution.",
+              "$ref": "../../../type/basic.json#/definitions/timestamp"
+            },
+            "endDate": {
+              "description": "endDate of the pipeline run for this particular execution.",
+              "$ref": "../../../type/basic.json#/definitions/timestamp"
+            },
+            "status": {
+              "description": "Ingestion Pipeline summary status. Informed at the end of the execution.",
+              "$ref": "status.json#/definitions/ingestionStatus"
+            },
+            "config": {
+              "description": "Pipeline configuration for this particular execution.",
+              "$ref": "../../../type/basic.json#/definitions/map"
+            },
+            "metadata": {
+              "description": "Metadata for the pipeline status.",
+              "$ref": "../../../type/basic.json#/definitions/map"
             }
           },
-          "required": [
-            "timestamp"
-          ]
+          "additionalProperties": false
         },
         "airflowConfig": {
+          "description": "Properties to configure the Airflow pipeline that will run the workflow.",
           "type": "object",
-          "description": "Airflow-specific configuration",
+          "javaType": "org.openmetadata.schema.entity.services.ingestionPipelines.AirflowConfig",
           "properties": {
             "pausePipeline": {
-              "description": "Pause the pipeline from running once the deploy is finished successfully",
+              "description": "pause the pipeline from running once the deploy is finished successfully.",
               "type": "boolean",
               "default": false
             },
             "concurrency": {
-              "description": "Concurrency of the Pipeline",
+              "description": "Concurrency of the Pipeline.",
               "type": "integer",
               "default": 1
             },
+            "startDate": {
+              "description": "Start date of the pipeline.",
+              "$ref": "../../../type/basic.json#/definitions/dateTime"
+            },
+            "endDate": {
+              "description": "End Date of the pipeline.",
+              "$ref": "../../../type/basic.json#/definitions/dateTime"
+            },
             "pipelineTimezone": {
-              "description": "Timezone in which pipeline going to be scheduled",
+              "description": "Timezone in which pipeline going to be scheduled.",
               "type": "string",
               "default": "UTC"
             },
             "retries": {
-              "description": "Retry pipeline in case of failure",
+              "description": "Retry pipeline in case of failure.",
               "type": "integer",
-              "default": 3
+              "default": 0
             },
             "retryDelay": {
-              "description": "Delay between retries in seconds",
+              "description": "Delay between retries in seconds.",
               "type": "integer",
               "default": 300
             },
             "pipelineCatchup": {
-              "description": "Run past executions if the start date is in the past",
+              "description": "Run past executions if the start date is in the past.",
               "type": "boolean",
               "default": false
             },
             "scheduleInterval": {
-              "description": "Cron expression for schedule",
+              "description": "Scheduler Interval for the pipeline in cron format.",
               "type": "string"
             },
             "maxActiveRuns": {
-              "description": "Maximum number of active pipeline runs",
+              "description": "Maximum Number of active runs.",
               "type": "integer",
               "default": 1
             },
             "workflowTimeout": {
-              "description": "Timeout for the workflow in seconds",
+              "description": "Timeout for the workflow in seconds.",
               "type": "integer",
               "default": null
             },
             "workflowDefaultView": {
-              "description": "Default view of the DAG",
+              "description": "Default view in Airflow.",
               "type": "string",
-              "enum": [
-                "tree",
-                "graph",
-                "duration",
-                "gantt",
-                "landing_times"
-              ],
               "default": "tree"
+            },
+            "workflowDefaultViewOrientation": {
+              "description": "Default view Orientation in Airflow.",
+              "type": "string",
+              "default": "LR"
+            },
+            "email": {
+              "description": "Email to notify workflow status.",
+              "$ref": "../../../type/basic.json#/definitions/email"
             }
-          }
-        },
-        "sourceConfig": {
-          "type": "object",
-          "description": "Source configuration for ingestion",
-          "properties": {
-            "config": {
-              "oneOf": [
-                {
-                  "$ref": "../../../../metadataIngestion/databaseServiceMetadataPipeline.json"
-                },
-                {
-                  "$ref": "../../../../metadataIngestion/databaseServiceProfilerPipeline.json"
-                },
-                {
-                  "$ref": "../../../../metadataIngestion/databaseServiceQueryUsagePipeline.json"
-                },
-                {
-                  "$ref": "../../../../metadataIngestion/databaseServiceQueryLineagePipeline.json"
-                }
-              ]
-            }
-          }
+          },
+          "additionalProperties": false
         }
       },
       "properties": {
         "id": {
-          "description": "Unique identifier of the ingestion pipeline",
-          "$ref": "../../../../type/basic.json#/definitions/uuid"
+          "description": "Unique identifier that identifies this pipeline.",
+          "$ref": "../../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Name that identifies this pipeline",
-          "$ref": "../../../../type/basic.json#/definitions/entityName"
-        },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name of the pipeline",
-          "$ref": "../../../../type/basic.json#/definitions/fullyQualifiedEntityName"
+          "description": "Name that identifies this pipeline instance uniquely.",
+          "$ref": "../../../type/basic.json#/definitions/entityName"
         },
         "displayName": {
-          "description": "Display name for the pipeline",
+          "description": "Display Name that identifies this Pipeline.",
           "type": "string"
         },
         "description": {
-          "description": "Description of the pipeline",
-          "$ref": "../../../../type/basic.json#/definitions/markdown"
+          "description": "Description of the Pipeline.",
+          "$ref": "../../../type/basic.json#/definitions/markdown"
         },
         "pipelineType": {
           "$ref": "#/definitions/pipelineType"
         },
+        "owners": {
+          "description": "Owners of this Pipeline.",
+          "$ref": "../../../type/entityReferenceList.json",
+          "default": null
+        },
+        "fullyQualifiedName": {
+          "description": "Name that uniquely identifies a Pipeline.",
+          "$ref": "../../../type/basic.json#/definitions/fullyQualifiedEntityName"
+        },
         "sourceConfig": {
-          "$ref": "#/definitions/sourceConfig"
+          "$ref": "../../../metadataIngestion/workflow.json#/definitions/sourceConfig"
+        },
+        "openMetadataServerConnection": {
+          "$ref": "../connections/metadata/openMetadataConnection.json"
         },
         "airflowConfig": {
           "$ref": "#/definitions/airflowConfig"
         },
         "service": {
-          "description": "Link to the service for which this pipeline applies",
-          "$ref": "../../../../type/entityReference.json"
+          "description": "Link to the service (such as database, messaging, storage services, etc. for which this ingestion pipeline ingests the metadata from.",
+          "$ref": "../../../type/entityReference.json"
         },
-        "enabled": {
-          "description": "Is the pipeline enabled",
+        "pipelineStatuses": {
+          "description": "Last of executions and status for the Pipeline.",
+          "$ref": "#/definitions/pipelineStatus"
+        },
+        "loggerLevel": {
+          "description": "Set the logging level for the workflow.",
+          "$ref": "../../../metadataIngestion/workflow.json#/definitions/logLevels"
+        },
+        "raiseOnError": {
+          "description": "Control if we want to flag the workflow as failed if we encounter any processing errors.",
           "type": "boolean",
           "default": true
         },
         "deployed": {
-          "description": "Is the pipeline deployed to Airflow",
+          "description": "Indicates if the workflow has been successfully deployed to Airflow.",
           "type": "boolean",
           "default": false
         },
-        "pipelineStatuses": {
-          "description": "Pipeline status for each execution",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/pipelineStatus"
-          }
+        "enabled": {
+          "description": "True if the pipeline is ready to be run in the next schedule. False if it is paused.",
+          "type": "boolean",
+          "default": true
         },
-        "loggerLevel": {
-          "description": "Set the logging level for the workflow",
-          "type": "string",
-          "enum": [
-            "INFO",
-            "DEBUG",
-            "WARNING",
-            "ERROR"
-          ],
-          "default": "INFO"
-        },
-        "owner": {
-          "description": "Owner of this pipeline",
-          "$ref": "../../../../type/entityReference.json"
-        },
-        "version": {
-          "description": "Metadata version of the entity",
-          "$ref": "../../../../type/entityHistory.json#/definitions/entityVersion"
-        },
-        "updatedAt": {
-          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds",
-          "$ref": "../../../../type/basic.json#/definitions/timestamp"
-        },
-        "updatedBy": {
-          "description": "User who made the update",
-          "type": "string"
+        "enableStreamableLogs": {
+          "description": "Enable real-time log streaming to the OpenMetadata server. When enabled, ingestion logs will be automatically shipped to the server's configured log storage backend (S3 or compatible).",
+          "type": "boolean",
+          "default": false
         },
         "href": {
-          "description": "Link to this ingestion pipeline resource",
-          "$ref": "../../../../type/basic.json#/definitions/href"
+          "description": "Link to this ingestion pipeline resource.",
+          "$ref": "../../../type/basic.json#/definitions/href"
+        },
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../../type/basic.json#/definitions/impersonatedBy"
         },
         "changeDescription": {
-          "description": "Change that led to this version of the entity",
-          "$ref": "../../../../type/entityHistory.json#/definitions/changeDescription"
+          "description": "Change that led to this version of the entity.",
+          "$ref": "../../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../../type/entityReferenceList.json"
         },
         "deleted": {
-          "description": "When true indicates the entity has been soft deleted",
+          "description": "When `true` indicates the entity has been soft deleted.",
           "type": "boolean",
           "default": false
         },
-        "domain": {
-          "description": "Domain the pipeline belongs to",
-          "$ref": "../../../../type/entityReference.json"
+        "provider": {
+          "$ref": "../../../type/basic.json#/definitions/providerType"
+        },
+        "domains": {
+          "description": "Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.",
+          "$ref": "../../../type/entityReferenceList.json"
+        },
+        "applicationType": {
+          "description": "Type of the application when pipelineType is 'application'.",
+          "type": "string"
+        },
+        "ingestionRunner": {
+          "description": "The ingestion agent responsible for executing the ingestion pipeline.",
+          "$ref": "../../../type/entityReference.json"
+        },
+        "processingEngine": {
+          "description": "The processing engine responsible for executing the ingestion pipeline logic.",
+          "$ref": "../../../type/entityReference.json"
         }
       },
       "required": [
-        "id",
         "name",
         "pipelineType",
-        "service"
+        "sourceConfig",
+        "airflowConfig"
       ],
       "additionalProperties": false
     }
@@ -435,29 +445,35 @@ graph TD
     # Ingestion Pipeline Class Definition
     om-ingestion:IngestionPipeline a owl:Class ;
         rdfs:label "Ingestion Pipeline" ;
-        rdfs:comment "Automated workflow for extracting and loading metadata from data sources" ;
+        rdfs:comment "Ingestion Pipeline Config is used to set up a DAG and deploy. This entity is used to setup metadata/quality pipelines on Apache Airflow." ;
         rdfs:subClassOf om-entity:Entity ;
         rdfs:isDefinedBy om: .
 
     # Pipeline Type Class
     om-ingestion:PipelineType a owl:Class ;
         rdfs:label "Pipeline Type" ;
-        rdfs:comment "Type of ingestion pipeline" ;
+        rdfs:comment "Type of Pipeline - metadata, usage" ;
         rdfs:isDefinedBy om: .
 
     # Pipeline Status Class
     om-ingestion:PipelineStatus a owl:Class ;
         rdfs:label "Pipeline Status" ;
-        rdfs:comment "Status of a pipeline execution run" ;
+        rdfs:comment "This defines runtime status of Pipeline." ;
         rdfs:isDefinedBy om: .
 
     # Pipeline State Class
     om-ingestion:PipelineState a owl:Class ;
         rdfs:label "Pipeline State" ;
-        rdfs:comment "State of pipeline execution" ;
+        rdfs:comment "Pipeline status denotes if its failed or succeeded." ;
         rdfs:isDefinedBy om: .
 
-    # Properties
+    # Airflow Config Class
+    om-ingestion:AirflowConfig a owl:Class ;
+        rdfs:label "Airflow Config" ;
+        rdfs:comment "Properties to configure the Airflow pipeline that will run the workflow." ;
+        rdfs:isDefinedBy om: .
+
+    # Core Properties
     om-ingestion:pipelineType a owl:ObjectProperty ;
         rdfs:label "pipeline type" ;
         rdfs:comment "Type of the ingestion pipeline" ;
@@ -466,49 +482,104 @@ graph TD
 
     om-ingestion:service a owl:ObjectProperty ;
         rdfs:label "service" ;
-        rdfs:comment "Service from which metadata is ingested" ;
+        rdfs:comment "Link to the service (such as database, messaging, storage services, etc.) for which this ingestion pipeline ingests the metadata from" ;
         rdfs:domain om-ingestion:IngestionPipeline ;
         rdfs:range om-entity:Service .
 
+    om-ingestion:owners a owl:ObjectProperty ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this Pipeline" ;
+        rdfs:domain om-ingestion:IngestionPipeline ;
+        rdfs:range om-entity:EntityReference .
+
+    om-ingestion:domains a owl:ObjectProperty ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to." ;
+        rdfs:domain om-ingestion:IngestionPipeline ;
+        rdfs:range om-entity:EntityReference .
+
+    om-ingestion:followers a owl:ObjectProperty ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this entity" ;
+        rdfs:domain om-ingestion:IngestionPipeline ;
+        rdfs:range om-entity:EntityReference .
+
+    # Configuration Properties
+    om-ingestion:sourceConfig a owl:ObjectProperty ;
+        rdfs:label "source config" ;
+        rdfs:comment "Source configuration for the ingestion pipeline" ;
+        rdfs:domain om-ingestion:IngestionPipeline .
+
+    om-ingestion:openMetadataServerConnection a owl:ObjectProperty ;
+        rdfs:label "OpenMetadata server connection" ;
+        rdfs:comment "Connection to OpenMetadata server" ;
+        rdfs:domain om-ingestion:IngestionPipeline .
+
+    om-ingestion:airflowConfig a owl:ObjectProperty ;
+        rdfs:label "airflow config" ;
+        rdfs:comment "Airflow configuration for the pipeline" ;
+        rdfs:domain om-ingestion:IngestionPipeline ;
+        rdfs:range om-ingestion:AirflowConfig .
+
+    # State Properties
     om-ingestion:enabled a owl:DatatypeProperty ;
         rdfs:label "enabled" ;
-        rdfs:comment "Indicates if the pipeline is enabled" ;
+        rdfs:comment "True if the pipeline is ready to be run in the next schedule. False if it is paused." ;
         rdfs:domain om-ingestion:IngestionPipeline ;
         rdfs:range xsd:boolean .
 
     om-ingestion:deployed a owl:DatatypeProperty ;
         rdfs:label "deployed" ;
-        rdfs:comment "Indicates if the pipeline is deployed to orchestration" ;
+        rdfs:comment "Indicates if the workflow has been successfully deployed to Airflow" ;
         rdfs:domain om-ingestion:IngestionPipeline ;
         rdfs:range xsd:boolean .
 
-    om-ingestion:hasStatus a owl:ObjectProperty ;
-        rdfs:label "has status" ;
-        rdfs:comment "Pipeline execution status" ;
+    om-ingestion:raiseOnError a owl:DatatypeProperty ;
+        rdfs:label "raise on error" ;
+        rdfs:comment "Control if we want to flag the workflow as failed if we encounter any processing errors" ;
+        rdfs:domain om-ingestion:IngestionPipeline ;
+        rdfs:range xsd:boolean .
+
+    om-ingestion:enableStreamableLogs a owl:DatatypeProperty ;
+        rdfs:label "enable streamable logs" ;
+        rdfs:comment "Enable real-time log streaming to the OpenMetadata server" ;
+        rdfs:domain om-ingestion:IngestionPipeline ;
+        rdfs:range xsd:boolean .
+
+    om-ingestion:pipelineStatuses a owl:ObjectProperty ;
+        rdfs:label "pipeline statuses" ;
+        rdfs:comment "Last of executions and status for the Pipeline" ;
         rdfs:domain om-ingestion:IngestionPipeline ;
         rdfs:range om-ingestion:PipelineStatus .
 
-    om-ingestion:extractsFrom a owl:ObjectProperty ;
-        rdfs:label "extracts from" ;
-        rdfs:comment "Source service from which metadata is extracted" ;
-        rdfs:domain om-ingestion:IngestionPipeline ;
-        rdfs:range om-entity:Service .
-
-    om-ingestion:createsOrUpdates a owl:ObjectProperty ;
-        rdfs:label "creates or updates" ;
-        rdfs:comment "Entities created or updated by this pipeline" ;
-        rdfs:domain om-ingestion:IngestionPipeline ;
-        rdfs:range om-entity:Entity .
-
-    om-ingestion:scheduleInterval a owl:DatatypeProperty ;
-        rdfs:label "schedule interval" ;
-        rdfs:comment "Cron expression for pipeline schedule" ;
+    om-ingestion:loggerLevel a owl:DatatypeProperty ;
+        rdfs:label "logger level" ;
+        rdfs:comment "Set the logging level for the workflow" ;
         rdfs:domain om-ingestion:IngestionPipeline ;
         rdfs:range xsd:string .
 
+    om-ingestion:applicationType a owl:DatatypeProperty ;
+        rdfs:label "application type" ;
+        rdfs:comment "Type of the application when pipelineType is 'application'" ;
+        rdfs:domain om-ingestion:IngestionPipeline ;
+        rdfs:range xsd:string .
+
+    om-ingestion:ingestionRunner a owl:ObjectProperty ;
+        rdfs:label "ingestion runner" ;
+        rdfs:comment "The ingestion agent responsible for executing the ingestion pipeline" ;
+        rdfs:domain om-ingestion:IngestionPipeline ;
+        rdfs:range om-entity:EntityReference .
+
+    om-ingestion:processingEngine a owl:ObjectProperty ;
+        rdfs:label "processing engine" ;
+        rdfs:comment "The processing engine responsible for executing the ingestion pipeline logic" ;
+        rdfs:domain om-ingestion:IngestionPipeline ;
+        rdfs:range om-entity:EntityReference .
+
+    # Pipeline Status Properties
     om-ingestion:runId a owl:DatatypeProperty ;
         rdfs:label "run ID" ;
-        rdfs:comment "Unique identifier for a pipeline run" ;
+        rdfs:comment "Pipeline unique run ID" ;
         rdfs:domain om-ingestion:PipelineStatus ;
         rdfs:range xsd:string .
 
@@ -520,15 +591,38 @@ graph TD
 
     om-ingestion:startDate a owl:DatatypeProperty ;
         rdfs:label "start date" ;
-        rdfs:comment "Start time of pipeline run" ;
+        rdfs:comment "startDate of the pipeline run for this particular execution" ;
         rdfs:domain om-ingestion:PipelineStatus ;
         rdfs:range xsd:dateTime .
 
     om-ingestion:endDate a owl:DatatypeProperty ;
         rdfs:label "end date" ;
-        rdfs:comment "End time of pipeline run" ;
+        rdfs:comment "endDate of the pipeline run for this particular execution" ;
         rdfs:domain om-ingestion:PipelineStatus ;
         rdfs:range xsd:dateTime .
+
+    om-ingestion:timestamp a owl:DatatypeProperty ;
+        rdfs:label "timestamp" ;
+        rdfs:comment "executionDate of the pipeline run for this particular execution" ;
+        rdfs:domain om-ingestion:PipelineStatus ;
+        rdfs:range xsd:dateTime .
+
+    # Metadata Properties
+    om-ingestion:impersonatedBy a owl:ObjectProperty ;
+        rdfs:label "impersonated by" ;
+        rdfs:comment "Bot user that performed the action on behalf of the actual user" ;
+        rdfs:domain om-ingestion:IngestionPipeline .
+
+    om-ingestion:incrementalChangeDescription a owl:ObjectProperty ;
+        rdfs:label "incremental change description" ;
+        rdfs:comment "Change that lead to this version of the entity" ;
+        rdfs:domain om-ingestion:IngestionPipeline .
+
+    om-ingestion:provider a owl:DatatypeProperty ;
+        rdfs:label "provider" ;
+        rdfs:comment "Provider type for the ingestion pipeline" ;
+        rdfs:domain om-ingestion:IngestionPipeline ;
+        rdfs:range xsd:string .
 
     # Pipeline Type Individuals
     om-ingestion:Metadata a om-ingestion:PipelineType ;
@@ -547,22 +641,34 @@ graph TD
         rdfs:label "Profiler" ;
         skos:definition "Pipeline for collecting data profiles and statistics" .
 
+    om-ingestion:AutoClassification a om-ingestion:PipelineType ;
+        rdfs:label "Auto Classification" ;
+        skos:definition "Pipeline for automatic classification of data assets" .
+
     om-ingestion:TestSuite a om-ingestion:PipelineType ;
         rdfs:label "Test Suite" ;
         skos:definition "Pipeline for executing data quality tests" .
+
+    om-ingestion:DataInsight a om-ingestion:PipelineType ;
+        rdfs:label "Data Insight" ;
+        skos:definition "Pipeline for generating data insights" .
+
+    om-ingestion:ElasticSearchReindex a om-ingestion:PipelineType ;
+        rdfs:label "ElasticSearch Reindex" ;
+        skos:definition "Pipeline for reindexing ElasticSearch" .
 
     om-ingestion:DBT a om-ingestion:PipelineType ;
         rdfs:label "DBT" ;
         skos:definition "Pipeline for ingesting dbt models and lineage" .
 
+    om-ingestion:Application a om-ingestion:PipelineType ;
+        rdfs:label "Application" ;
+        skos:definition "Pipeline for application-specific ingestion" .
+
     # Pipeline State Individuals
     om-ingestion:Queued a om-ingestion:PipelineState ;
         rdfs:label "Queued" ;
         skos:definition "Pipeline run is queued" .
-
-    om-ingestion:Running a om-ingestion:PipelineState ;
-        rdfs:label "Running" ;
-        skos:definition "Pipeline run is in progress" .
 
     om-ingestion:Success a om-ingestion:PipelineState ;
         rdfs:label "Success" ;
@@ -571,6 +677,10 @@ graph TD
     om-ingestion:Failed a om-ingestion:PipelineState ;
         rdfs:label "Failed" ;
         skos:definition "Pipeline run failed" .
+
+    om-ingestion:Running a om-ingestion:PipelineState ;
+        rdfs:label "Running" ;
+        skos:definition "Pipeline run is in progress" .
 
     om-ingestion:PartialSuccess a om-ingestion:PipelineState ;
         rdfs:label "Partial Success" ;
@@ -604,10 +714,6 @@ graph TD
           "@id": "om:name",
           "@type": "xsd:string"
         },
-        "fullyQualifiedName": {
-          "@id": "om:fullyQualifiedName",
-          "@type": "xsd:string"
-        },
         "displayName": {
           "@id": "om:displayName",
           "@type": "xsd:string"
@@ -620,39 +726,58 @@ graph TD
           "@id": "om:pipelineType",
           "@type": "@id"
         },
+        "owners": {
+          "@id": "om:owners",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "fullyQualifiedName": {
+          "@id": "om:fullyQualifiedName",
+          "@type": "xsd:string"
+        },
+        "sourceConfig": {
+          "@id": "om:sourceConfig",
+          "@type": "@id"
+        },
+        "openMetadataServerConnection": {
+          "@id": "om:openMetadataServerConnection",
+          "@type": "@id"
+        },
+        "airflowConfig": {
+          "@id": "om:airflowConfig",
+          "@type": "@id"
+        },
         "service": {
           "@id": "om:service",
           "@type": "@id"
         },
-        "enabled": {
-          "@id": "om:enabled",
+        "pipelineStatuses": {
+          "@id": "om:pipelineStatuses",
+          "@type": "@id"
+        },
+        "loggerLevel": {
+          "@id": "om:loggerLevel",
+          "@type": "xsd:string"
+        },
+        "raiseOnError": {
+          "@id": "om:raiseOnError",
           "@type": "xsd:boolean"
         },
         "deployed": {
           "@id": "om:deployed",
           "@type": "xsd:boolean"
         },
-        "pipelineStatuses": {
-          "@id": "om:hasStatus",
-          "@type": "@id",
-          "@container": "@set"
+        "enabled": {
+          "@id": "om:enabled",
+          "@type": "xsd:boolean"
         },
-        "extractsFrom": {
-          "@id": "om:extractsFrom",
-          "@type": "@id"
+        "enableStreamableLogs": {
+          "@id": "om:enableStreamableLogs",
+          "@type": "xsd:boolean"
         },
-        "createsOrUpdates": {
-          "@id": "om:createsOrUpdates",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "owner": {
-          "@id": "om:owner",
-          "@type": "@id"
-        },
-        "domain": {
-          "@id": "om:domain",
-          "@type": "@id"
+        "href": {
+          "@id": "om:href",
+          "@type": "xsd:anyURI"
         },
         "version": {
           "@id": "om:version",
@@ -666,9 +791,47 @@ graph TD
           "@id": "prov:wasAttributedTo",
           "@type": "xsd:string"
         },
-        "href": {
-          "@id": "om:href",
-          "@type": "xsd:anyURI"
+        "impersonatedBy": {
+          "@id": "om:impersonatedBy",
+          "@type": "@id"
+        },
+        "changeDescription": {
+          "@id": "om:changeDescription",
+          "@type": "@id"
+        },
+        "incrementalChangeDescription": {
+          "@id": "om:incrementalChangeDescription",
+          "@type": "@id"
+        },
+        "followers": {
+          "@id": "om:followers",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
+        },
+        "provider": {
+          "@id": "om:provider",
+          "@type": "xsd:string"
+        },
+        "domains": {
+          "@id": "om:domains",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "applicationType": {
+          "@id": "om:applicationType",
+          "@type": "xsd:string"
+        },
+        "ingestionRunner": {
+          "@id": "om:ingestionRunner",
+          "@type": "@id"
+        },
+        "processingEngine": {
+          "@id": "om:processingEngine",
+          "@type": "@id"
         }
       }
     }
@@ -713,10 +876,12 @@ Ingest schema metadata from a Snowflake database:
     "retryDelay": 300
   },
   "enabled": true,
-  "owner": {
-    "type": "team",
-    "name": "DataEngineering"
-  }
+  "owners": [
+    {
+      "type": "team",
+      "name": "DataEngineering"
+    }
+  ]
 }
 ```
 
@@ -747,10 +912,12 @@ Extract query logs and usage statistics:
     "retries": 2
   },
   "enabled": true,
-  "owner": {
-    "type": "user",
-    "name": "data.engineer"
-  }
+  "owners": [
+    {
+      "type": "user",
+      "name": "data.engineer"
+    }
+  ]
 }
 ```
 
@@ -819,10 +986,12 @@ Collect data profiles and statistics:
     "workflowTimeout": 7200
   },
   "enabled": true,
-  "owner": {
-    "type": "team",
-    "name": "DataQuality"
-  }
+  "owners": [
+    {
+      "type": "team",
+      "name": "DataQuality"
+    }
+  ]
 }
 ```
 
@@ -857,10 +1026,12 @@ Ingest dbt models, tests, and lineage:
     "scheduleInterval": "0 4 * * *"
   },
   "enabled": true,
-  "owner": {
-    "type": "team",
-    "name": "Analytics"
-  }
+  "owners": [
+    {
+      "type": "team",
+      "name": "Analytics"
+    }
+  ]
 }
 ```
 
@@ -888,10 +1059,12 @@ Execute data quality tests:
     "scheduleInterval": "0 */6 * * *"
   },
   "enabled": true,
-  "owner": {
-    "type": "team",
-    "name": "DataQuality"
-  }
+  "owners": [
+    {
+      "type": "team",
+      "name": "DataQuality"
+    }
+  ]
 }
 ```
 

@@ -119,104 +119,157 @@ View the complete Chart schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/data/chart.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Chart",
-      "description": "A `Chart` entity represents a single data visualization or chart component.",
+      "$comment": "@om-entity-type",
+      "description": "A `Chart` presents data visually. Charts can be part of `Dashboards`.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.Chart",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "definitions": {
         "chartType": {
-          "description": "Type of chart visualization",
+          "javaType": "org.openmetadata.schema.type.ChartType",
+          "description": "This schema defines the type used for describing different types of charts.",
           "type": "string",
           "enum": [
-            "Line", "Bar", "Area", "Pie", "Donut", "Scatter",
-            "Bubble", "Histogram", "Table", "Pivot", "BoxPlot",
-            "Text", "Metric", "Gauge", "Funnel", "Heatmap",
-            "Tree", "Treemap", "Sankey", "Waterfall", "Combo",
-            "Map", "GeoMap", "Other"
+            "Line", "Table", "Bar", "Area", "Pie", "Histogram",
+            "Scatter", "Text", "BoxPlot", "SanKey", "Gauge",
+            "Map", "Graph", "Heatmap", "Timeline", "Other"
           ]
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies a chart instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Chart name",
+          "description": "Name that identifies this Chart.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name: service.dashboard.chart",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
-        },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this Chart. It could be title or label from the source services.",
           "type": "string"
         },
+        "fullyQualifiedName": {
+          "description": "A unique name that identifies a dashboard in the format 'ServiceName.ChartName'.",
+          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+        },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the dashboard, what it is, and how to use it.",
           "$ref": "../../type/basic.json#/definitions/markdown"
+        },
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
         },
         "chartType": {
           "$ref": "#/definitions/chartType"
         },
-        "chartUrl": {
-          "description": "External URL to access chart",
-          "type": "string",
-          "format": "uri"
+        "sourceUrl": {
+          "description": "Chart URL suffix from its service.",
+          "$ref": "../../type/basic.json#/definitions/sourceUrl"
         },
-        "dashboard": {
-          "description": "Parent dashboard",
-          "$ref": "../../type/entityReference.json"
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "service": {
-          "description": "Dashboard service",
-          "$ref": "../../type/entityReference.json"
+        "owners": {
+          "description": "Owners of this chart.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "tables": {
-          "description": "Tables used as data sources",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "dataModels": {
-          "description": "Data models used by chart",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "followers": {
+          "description": "Followers of this chart.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this chart.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "service": {
+          "description": "Link to service where this dashboard is hosted in.",
+          "$ref": "../../type/entityReference.json"
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "serviceType": {
+          "description": "Service type where this chart is hosted in.",
+          "$ref": "../services/dashboardService.json#/definitions/dashboardServiceType"
+        },
+        "usageSummary": {
+          "description": "Latest usage information for this chart.",
+          "$ref": "../../type/usageDetails.json",
+          "default": null
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "domains": {
+          "description": "Domains the Chart belongs to. The Chart inherits domain from the dashboard service it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle properties of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "dashboards": {
+          "description": "All the dashboards containing this chart.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
+        },
+        "entityStatus": {
+          "description": "Status of the Chart.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "service"]
+      "required": ["id", "name", "service"],
+      "additionalProperties": false
     }
     ```
 
@@ -256,19 +309,19 @@ View the complete Chart schema in your preferred format:
         rdfs:domain om:Chart ;
         rdfs:range om:ChartType ;
         rdfs:label "chartType" ;
-        rdfs:comment "Type of visualization: Line, Bar, Pie, etc." .
+        rdfs:comment "Type of visualization: Line, Table, Bar, Area, Pie, etc." .
 
-    om:chartUrl a owl:DatatypeProperty ;
+    om:sourceUrl a owl:DatatypeProperty ;
         rdfs:domain om:Chart ;
-        rdfs:range xsd:anyURI ;
-        rdfs:label "chartUrl" ;
-        rdfs:comment "External URL to access the chart" .
+        rdfs:range xsd:string ;
+        rdfs:label "sourceUrl" ;
+        rdfs:comment "Chart URL suffix from its service" .
 
-    om:belongsToDashboard a owl:ObjectProperty ;
+    om:hasDashboard a owl:ObjectProperty ;
         rdfs:domain om:Chart ;
         rdfs:range om:Dashboard ;
-        rdfs:label "belongsToDashboard" ;
-        rdfs:comment "Parent dashboard containing this chart" .
+        rdfs:label "hasDashboard" ;
+        rdfs:comment "Dashboards containing this chart" .
 
     om:belongsToService a owl:ObjectProperty ;
         rdfs:domain om:Chart ;
@@ -276,23 +329,29 @@ View the complete Chart schema in your preferred format:
         rdfs:label "belongsToService" ;
         rdfs:comment "Dashboard service hosting this chart" .
 
-    om:usesTable a owl:ObjectProperty ;
-        rdfs:domain om:Chart ;
-        rdfs:range om:Table ;
-        rdfs:label "usesTable" ;
-        rdfs:comment "Tables used as data sources for this chart" .
-
-    om:usesDataModel a owl:ObjectProperty ;
-        rdfs:domain om:Chart ;
-        rdfs:range om:DataModel ;
-        rdfs:label "usesDataModel" ;
-        rdfs:comment "Data models used by this chart" .
-
-    om:ownedBy a owl:ObjectProperty ;
+    om:hasOwner a owl:ObjectProperty ;
         rdfs:domain om:Chart ;
         rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this chart" .
+        rdfs:label "hasOwner" ;
+        rdfs:comment "Users or teams that own this chart" .
+
+    om:hasFollower a owl:ObjectProperty ;
+        rdfs:domain om:Chart ;
+        rdfs:range om:User ;
+        rdfs:label "hasFollower" ;
+        rdfs:comment "Users following this chart" .
+
+    om:inDomain a owl:ObjectProperty ;
+        rdfs:domain om:Chart ;
+        rdfs:range om:Domain ;
+        rdfs:label "inDomain" ;
+        rdfs:comment "Domains the chart belongs to" .
+
+    om:hasDataProduct a owl:ObjectProperty ;
+        rdfs:domain om:Chart ;
+        rdfs:range om:DataProduct ;
+        rdfs:label "hasDataProduct" ;
+        rdfs:comment "Data products this chart is part of" .
 
     om:hasTag a owl:ObjectProperty ;
         rdfs:domain om:Chart ;
@@ -300,21 +359,43 @@ View the complete Chart schema in your preferred format:
         rdfs:label "hasTag" ;
         rdfs:comment "Classification tags applied to chart" .
 
-    om:linkedToGlossaryTerm a owl:ObjectProperty ;
+    om:hasVotes a owl:ObjectProperty ;
         rdfs:domain om:Chart ;
-        rdfs:range om:GlossaryTerm ;
-        rdfs:label "linkedToGlossaryTerm" ;
-        rdfs:comment "Business glossary terms" .
+        rdfs:range om:Votes ;
+        rdfs:label "hasVotes" ;
+        rdfs:comment "Votes on the chart" .
+
+    om:hasLifeCycle a owl:ObjectProperty ;
+        rdfs:domain om:Chart ;
+        rdfs:range om:LifeCycle ;
+        rdfs:label "hasLifeCycle" ;
+        rdfs:comment "Life cycle properties" .
+
+    om:hasCertification a owl:ObjectProperty ;
+        rdfs:domain om:Chart ;
+        rdfs:range om:AssetCertification ;
+        rdfs:label "hasCertification" ;
+        rdfs:comment "Asset certification information" .
 
     # Chart Type Enumeration
     om:ChartType a owl:Class ;
         owl:oneOf (
             om:LineChart
-            om:BarChart
-            om:PieChart
-            om:ScatterChart
             om:TableChart
+            om:BarChart
+            om:AreaChart
+            om:PieChart
+            om:HistogramChart
+            om:ScatterChart
+            om:TextChart
+            om:BoxPlotChart
+            om:SanKeyChart
+            om:GaugeChart
+            om:MapChart
+            om:GraphChart
             om:HeatmapChart
+            om:TimelineChart
+            om:OtherChart
         ) .
 
     # Example Instance
@@ -323,13 +404,16 @@ View the complete Chart schema in your preferred format:
         om:fullyQualifiedName "tableau_prod.sales_overview.monthly_sales" ;
         om:displayName "Monthly Sales Trend" ;
         om:chartType om:LineChart ;
-        om:chartUrl "https://tableau.example.com/views/sales_overview/monthly_sales" ;
-        om:belongsToDashboard ex:salesOverviewDashboard ;
+        om:sourceUrl "/views/sales_overview/monthly_sales" ;
+        om:hasDashboard ex:salesOverviewDashboard ;
         om:belongsToService ex:tableauProdService ;
-        om:usesTable ex:salesFactTable ;
-        om:ownedBy ex:salesTeam ;
+        om:hasOwner ex:salesTeam ;
+        om:hasFollower ex:janeSmith ;
+        om:inDomain ex:salesDomain ;
+        om:hasDataProduct ex:salesAnalytics ;
         om:hasTag ex:tierGold ;
-        om:linkedToGlossaryTerm ex:revenueTerm .
+        om:hasVotes ex:chartVotes ;
+        om:hasCertification ex:goldCertification .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -367,45 +451,59 @@ View the complete Chart schema in your preferred format:
           "@id": "om:chartType",
           "@type": "@vocab"
         },
-        "chartUrl": {
-          "@id": "om:chartUrl",
-          "@type": "xsd:anyURI"
+        "sourceUrl": {
+          "@id": "om:sourceUrl",
+          "@type": "xsd:string"
         },
-        "dashboard": {
-          "@id": "om:belongsToDashboard",
-          "@type": "@id"
+        "dashboards": {
+          "@id": "om:hasDashboard",
+          "@type": "@id",
+          "@container": "@set"
         },
         "service": {
           "@id": "om:belongsToService",
           "@type": "@id"
         },
-        "tables": {
-          "@id": "om:usesTable",
+        "serviceType": {
+          "@id": "om:serviceType",
+          "@type": "xsd:string"
+        },
+        "owners": {
+          "@id": "om:hasOwner",
           "@type": "@id",
           "@container": "@set"
         },
-        "dataModels": {
-          "@id": "om:usesDataModel",
+        "followers": {
+          "@id": "om:hasFollower",
           "@type": "@id",
           "@container": "@set"
         },
-        "owner": {
-          "@id": "om:ownedBy",
-          "@type": "@id"
-        },
-        "domain": {
+        "domains": {
           "@id": "om:inDomain",
-          "@type": "@id"
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataProducts": {
+          "@id": "om:hasDataProduct",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
         },
-        "glossaryTerms": {
-          "@id": "om:linkedToGlossaryTerm",
-          "@type": "@id",
-          "@container": "@set"
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@id"
+        },
+        "lifeCycle": {
+          "@id": "om:hasLifeCycle",
+          "@type": "@id"
+        },
+        "certification": {
+          "@id": "om:hasCertification",
+          "@type": "@id"
         }
       }
     }
@@ -424,13 +522,7 @@ View the complete Chart schema in your preferred format:
       "displayName": "Monthly Sales Trend",
       "description": "Line chart showing monthly sales trends over the past 12 months",
       "chartType": "Line",
-      "chartUrl": "https://tableau.example.com/views/sales_overview/monthly_sales",
-
-      "dashboard": {
-        "@id": "https://example.com/dashboards/sales_overview",
-        "@type": "Dashboard",
-        "name": "sales_overview"
-      },
+      "sourceUrl": "/views/sales_overview/monthly_sales",
 
       "service": {
         "@id": "https://example.com/services/tableau_prod",
@@ -438,21 +530,48 @@ View the complete Chart schema in your preferred format:
         "name": "tableau_prod"
       },
 
-      "tables": [
+      "serviceType": "Tableau",
+
+      "dashboards": [
         {
-          "@id": "https://example.com/tables/sales_fact",
-          "@type": "Table",
-          "name": "sales_fact",
-          "fullyQualifiedName": "postgres_prod.analytics.public.sales_fact"
+          "@id": "https://example.com/dashboards/sales_overview",
+          "@type": "Dashboard",
+          "name": "sales_overview"
         }
       ],
 
-      "owner": {
-        "@id": "https://example.com/teams/sales-team",
-        "@type": "Team",
-        "name": "sales-team",
-        "displayName": "Sales Team"
-      },
+      "owners": [
+        {
+          "@id": "https://example.com/teams/sales-team",
+          "@type": "Team",
+          "name": "sales-team",
+          "displayName": "Sales Team"
+        }
+      ],
+
+      "followers": [
+        {
+          "@id": "https://example.com/users/jane-smith",
+          "@type": "User",
+          "name": "jane.smith"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/sales",
+          "@type": "Domain",
+          "name": "Sales"
+        }
+      ],
+
+      "dataProducts": [
+        {
+          "@id": "https://example.com/dataProducts/sales_analytics",
+          "@type": "DataProduct",
+          "name": "sales_analytics"
+        }
+      ],
 
       "tags": [
         {
@@ -461,13 +580,16 @@ View the complete Chart schema in your preferred format:
         }
       ],
 
-      "glossaryTerms": [
-        {
-          "@id": "https://example.com/glossary/Revenue",
-          "@type": "GlossaryTerm",
-          "fullyQualifiedName": "BusinessGlossary.Revenue"
+      "votes": {
+        "upVotes": 15,
+        "downVotes": 2
+      },
+
+      "certification": {
+        "tagLabel": {
+          "tagFQN": "Certified.Gold"
         }
-      ]
+      }
     }
     ```
 
@@ -570,28 +692,20 @@ View the complete Chart schema in your preferred format:
 **Allowed Values**:
 
 - `Line` - Line chart
-- `Bar` - Bar chart (vertical)
+- `Table` - Data table
+- `Bar` - Bar chart
 - `Area` - Area chart
 - `Pie` - Pie chart
-- `Donut` - Donut chart
-- `Scatter` - Scatter plot
-- `Bubble` - Bubble chart
 - `Histogram` - Histogram
-- `Table` - Data table
-- `Pivot` - Pivot table
-- `BoxPlot` - Box and whisker plot
+- `Scatter` - Scatter plot
 - `Text` - Text/KPI card
-- `Metric` - Single metric display
+- `BoxPlot` - Box and whisker plot
+- `SanKey` - Sankey diagram
 - `Gauge` - Gauge/speedometer
-- `Funnel` - Funnel chart
-- `Heatmap` - Heat map
-- `Tree` - Tree diagram
-- `Treemap` - Treemap
-- `Sankey` - Sankey diagram
-- `Waterfall` - Waterfall chart
-- `Combo` - Combination chart
 - `Map` - Geographic map
-- `GeoMap` - Geospatial map
+- `Graph` - Graph visualization
+- `Heatmap` - Heat map
+- `Timeline` - Timeline chart
 - `Other` - Other/custom visualization
 
 ```json
@@ -602,14 +716,14 @@ View the complete Chart schema in your preferred format:
 
 ---
 
-#### `chartUrl` (uri)
-**Type**: `string` (URI format)
+#### `sourceUrl` (sourceUrl)
+**Type**: `string`
 **Required**: No
-**Description**: External URL to access the chart in the BI tool
+**Description**: Chart URL suffix from its service
 
 ```json
 {
-  "chartUrl": "https://tableau.example.com/views/sales_overview/monthly_sales"
+  "sourceUrl": "/views/sales_overview/monthly_sales"
 }
 ```
 
@@ -617,28 +731,10 @@ View the complete Chart schema in your preferred format:
 
 ### Location Properties
 
-#### `dashboard` (EntityReference)
-**Type**: `object`
-**Required**: No
-**Description**: Reference to parent dashboard (if chart belongs to a dashboard)
-
-```json
-{
-  "dashboard": {
-    "id": "dashboard-uuid",
-    "type": "dashboard",
-    "name": "sales_overview",
-    "fullyQualifiedName": "tableau_prod.sales_overview"
-  }
-}
-```
-
----
-
 #### `service` (EntityReference)
 **Type**: `object`
 **Required**: Yes
-**Description**: Reference to parent dashboard service
+**Description**: Link to service where this dashboard is hosted in
 
 ```json
 {
@@ -653,47 +749,32 @@ View the complete Chart schema in your preferred format:
 
 ---
 
-### Data Source Properties
-
-#### `tables[]` (Table[])
-**Type**: `array` of Table entity references
+#### `serviceType` (dashboardServiceType)
+**Type**: `string` enum
 **Required**: No
-**Description**: Tables used as data sources for this chart
+**Description**: Service type where this chart is hosted in
 
 ```json
 {
-  "tables": [
-    {
-      "id": "table-1-uuid",
-      "type": "table",
-      "name": "sales_fact",
-      "fullyQualifiedName": "postgres_prod.analytics.public.sales_fact"
-    },
-    {
-      "id": "table-2-uuid",
-      "type": "table",
-      "name": "product_dim",
-      "fullyQualifiedName": "postgres_prod.analytics.public.product_dim"
-    }
-  ]
+  "serviceType": "Tableau"
 }
 ```
 
 ---
 
-#### `dataModels[]` (DataModel[])
-**Type**: `array` of DataModel entity references
+#### `dashboards[]` (EntityReferenceList)
+**Type**: `array` of Dashboard entity references
 **Required**: No
-**Description**: Data models or datasets used by this chart (e.g., Looker explores)
+**Description**: All the dashboards containing this chart
 
 ```json
 {
-  "dataModels": [
+  "dashboards": [
     {
-      "id": "model-uuid",
-      "type": "dataModel",
-      "name": "sales_explore",
-      "fullyQualifiedName": "looker_prod.sales_model.sales_explore"
+      "id": "dashboard-uuid",
+      "type": "dashboard",
+      "name": "sales_overview",
+      "fullyQualifiedName": "tableau_prod.sales_overview"
     }
   ]
 }
@@ -703,37 +784,80 @@ View the complete Chart schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `owners[]` (EntityReferenceList)
+**Type**: `array` of entity references
 **Required**: No
-**Description**: User or team that owns this chart
+**Description**: Owners of this chart
 
 ```json
 {
-  "owner": {
-    "id": "owner-uuid",
-    "type": "user",
-    "name": "john.doe",
-    "displayName": "John Doe"
-  }
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+#### `followers[]` (EntityReferenceList)
+**Type**: `array` of entity references
 **Required**: No
-**Description**: Data domain this chart belongs to
+**Description**: Followers of this chart
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Sales",
-    "fullyQualifiedName": "Sales"
-  }
+  "followers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "jane.smith"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains[]` (EntityReferenceList)
+**Type**: `array` of domain references
+**Required**: No
+**Description**: Domains the Chart belongs to. The Chart inherits domain from the dashboard service it belongs to
+
+```json
+{
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataProducts[]` (EntityReferenceList)
+**Type**: `array` of data product references
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "product-uuid",
+      "type": "dataProduct",
+      "name": "sales_analytics",
+      "fullyQualifiedName": "sales_analytics"
+    }
+  ]
 }
 ```
 
@@ -742,7 +866,8 @@ View the complete Chart schema in your preferred format:
 #### `tags[]` (TagLabel[])
 **Type**: `array`
 **Required**: No
-**Description**: Classification tags applied to the chart
+**Default**: `[]`
+**Description**: Tags for this chart
 
 ```json
 {
@@ -766,21 +891,156 @@ View the complete Chart schema in your preferred format:
 
 ---
 
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
+#### `votes` (Votes)
+**Type**: `object`
 **Required**: No
-**Description**: Business glossary terms linked to this chart
+**Description**: Votes on the entity
 
 ```json
 {
-  "glossaryTerms": [
-    {
-      "fullyQualifiedName": "BusinessGlossary.Revenue"
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2,
+    "upVoters": ["user1-uuid", "user2-uuid"]
+  }
+}
+```
+
+---
+
+#### `lifeCycle` (LifeCycle)
+**Type**: `object`
+**Required**: No
+**Description**: Life Cycle properties of the entity
+
+```json
+{
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "john.doe"
     },
-    {
-      "fullyQualifiedName": "BusinessGlossary.MonthlySales"
+    "updated": {
+      "timestamp": 1704240000000,
+      "user": "jane.smith"
     }
-  ]
+  }
+}
+```
+
+---
+
+#### `certification` (AssetCertification)
+**Type**: `object`
+**Required**: No
+**Description**: Asset certification information
+
+```json
+{
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certified.Gold"
+    },
+    "certifiedBy": "data-governance-team",
+    "certifiedAt": 1704067200000
+  }
+}
+```
+
+---
+
+### System Properties
+
+#### `href` (href)
+**Type**: `string` (URI format)
+**Required**: No (system-managed)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "https://api.example.com/v1/charts/3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f"
+}
+```
+
+---
+
+#### `usageSummary` (UsageDetails)
+**Type**: `object`
+**Required**: No
+**Default**: `null`
+**Description**: Latest usage information for this chart
+
+```json
+{
+  "usageSummary": {
+    "dailyStats": {
+      "count": 125,
+      "percentileRank": 85.5
+    },
+    "weeklyStats": {
+      "count": 650,
+      "percentileRank": 82.3
+    },
+    "date": "2024-01-03"
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No (system-managed)
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+#### `entityStatus` (Status)
+**Type**: `string` enum
+**Required**: No
+**Description**: Status of the Chart
+
+```json
+{
+  "entityStatus": "Active"
+}
+```
+
+---
+
+#### `sourceHash` (string)
+**Type**: `string`
+**Required**: No
+**Min Length**: 1
+**Max Length**: 32
+**Description**: Source hash of the entity
+
+```json
+{
+  "sourceHash": "a1b2c3d4e5f6"
+}
+```
+
+---
+
+#### `extension` (EntityExtension)
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity
+
+```json
+{
+  "extension": {
+    "customField1": "value1",
+    "customField2": 123
+  }
 }
 ```
 
@@ -791,7 +1051,7 @@ View the complete Chart schema in your preferred format:
 #### `version` (entityVersion)
 **Type**: `number`
 **Required**: Yes (system-managed)
-**Description**: Metadata version number, incremented on changes
+**Description**: Metadata version of the entity
 
 ```json
 {
@@ -804,7 +1064,7 @@ View the complete Chart schema in your preferred format:
 #### `updatedAt` (timestamp)
 **Type**: `integer` (Unix epoch milliseconds)
 **Required**: Yes (system-managed)
-**Description**: Last update timestamp
+**Description**: Last update time corresponding to the new version of the entity in Unix epoch time milliseconds
 
 ```json
 {
@@ -827,6 +1087,58 @@ View the complete Chart schema in your preferred format:
 
 ---
 
+#### `impersonatedBy` (impersonatedBy)
+**Type**: `object`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": {
+    "type": "bot",
+    "name": "ingestion-bot"
+  }
+}
+```
+
+---
+
+#### `changeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [{"name": "tags", "newValue": "[{\"tagFQN\":\"Tier.Gold\"}]"}],
+    "fieldsUpdated": [],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (ChangeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [{"name": "description", "oldValue": "Old desc", "newValue": "New desc"}],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
+}
+```
+
+---
+
 ## Complete Example
 
 ```json
@@ -837,44 +1149,80 @@ View the complete Chart schema in your preferred format:
   "displayName": "Monthly Sales Trend",
   "description": "# Monthly Sales Trend\n\nLine chart showing monthly sales trends over the past 12 months.",
   "chartType": "Line",
-  "chartUrl": "https://tableau.example.com/views/sales_overview/monthly_sales",
-  "dashboard": {
-    "id": "dashboard-uuid",
-    "type": "dashboard",
-    "name": "sales_overview",
-    "fullyQualifiedName": "tableau_prod.sales_overview"
-  },
+  "sourceUrl": "/views/sales_overview/monthly_sales",
+  "href": "https://api.example.com/v1/charts/3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
   "service": {
     "id": "service-uuid",
     "type": "dashboardService",
-    "name": "tableau_prod"
+    "name": "tableau_prod",
+    "fullyQualifiedName": "tableau_prod"
   },
-  "tables": [
+  "serviceType": "Tableau",
+  "dashboards": [
     {
-      "id": "table-uuid",
-      "type": "table",
-      "name": "sales_fact",
-      "fullyQualifiedName": "postgres_prod.analytics.public.sales_fact"
+      "id": "dashboard-uuid",
+      "type": "dashboard",
+      "name": "sales_overview",
+      "fullyQualifiedName": "tableau_prod.sales_overview"
     }
   ],
-  "owner": {
-    "id": "owner-uuid",
-    "type": "user",
-    "name": "john.doe",
-    "displayName": "John Doe"
-  },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Sales"
-  },
+  "owners": [
+    {
+      "id": "owner-uuid",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ],
+  "followers": [
+    {
+      "id": "follower-uuid",
+      "type": "user",
+      "name": "jane.smith"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "product-uuid",
+      "type": "dataProduct",
+      "name": "sales_analytics"
+    }
+  ],
   "tags": [
     {"tagFQN": "Tier.Gold"},
     {"tagFQN": "Metric.Revenue"}
   ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.Revenue"}
-  ],
+  "votes": {
+    "upVotes": 15,
+    "downVotes": 2
+  },
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "john.doe"
+    }
+  },
+  "certification": {
+    "tagLabel": {
+      "tagFQN": "Certified.Gold"
+    }
+  },
+  "usageSummary": {
+    "dailyStats": {
+      "count": 125,
+      "percentileRank": 85.5
+    },
+    "date": "2024-01-03"
+  },
+  "deleted": false,
   "version": 1.2,
   "updatedAt": 1704240000000,
   "updatedBy": "john.doe"
@@ -899,12 +1247,18 @@ om:Chart a owl:Class ;
     om:hasProperties [
         om:name "string" ;
         om:chartType "ChartType" ;
-        om:chartUrl "uri" ;
-        om:dashboard "Dashboard" ;
+        om:sourceUrl "string" ;
+        om:dashboards "Dashboard[]" ;
         om:service "DashboardService" ;
-        om:tables "Table[]" ;
-        om:owner "Owner" ;
+        om:serviceType "string" ;
+        om:owners "Owner[]" ;
+        om:followers "User[]" ;
+        om:domains "Domain[]" ;
+        om:dataProducts "DataProduct[]" ;
         om:tags "Tag[]" ;
+        om:votes "Votes" ;
+        om:lifeCycle "LifeCycle" ;
+        om:certification "AssetCertification" ;
     ] .
 ```
 
@@ -920,13 +1274,16 @@ ex:monthly_sales a om:Chart ;
     om:displayName "Monthly Sales Trend" ;
     om:description "Line chart showing monthly sales" ;
     om:chartType om:LineChart ;
-    om:chartUrl "https://tableau.example.com/views/sales_overview/monthly_sales" ;
-    om:belongsToDashboard ex:sales_overview ;
+    om:sourceUrl "/views/sales_overview/monthly_sales" ;
+    om:hasDashboard ex:sales_overview ;
     om:belongsToService ex:tableau_prod ;
-    om:usesTable ex:sales_fact_table ;
-    om:ownedBy ex:john_doe ;
+    om:hasOwner ex:john_doe ;
+    om:hasFollower ex:jane_smith ;
+    om:inDomain ex:sales_domain ;
+    om:hasDataProduct ex:sales_analytics ;
     om:hasTag ex:tier_gold ;
-    om:linkedToGlossaryTerm ex:revenue_term .
+    om:hasVotes ex:chart_votes ;
+    om:hasCertification ex:gold_certification .
 ```
 
 ---
@@ -945,31 +1302,59 @@ ex:monthly_sales a om:Chart ;
       "@id": "om:chartType",
       "@type": "@vocab"
     },
-    "chartUrl": {
-      "@id": "om:chartUrl",
-      "@type": "xsd:anyURI"
+    "sourceUrl": {
+      "@id": "om:sourceUrl",
+      "@type": "xsd:string"
     },
-    "dashboard": {
-      "@id": "om:belongsToDashboard",
-      "@type": "@id"
+    "dashboards": {
+      "@id": "om:hasDashboard",
+      "@type": "@id",
+      "@container": "@set"
     },
     "service": {
       "@id": "om:belongsToService",
       "@type": "@id"
     },
-    "tables": {
-      "@id": "om:usesTable",
+    "serviceType": {
+      "@id": "om:serviceType",
+      "@type": "xsd:string"
+    },
+    "owners": {
+      "@id": "om:hasOwner",
       "@type": "@id",
       "@container": "@set"
     },
-    "owner": {
-      "@id": "om:ownedBy",
-      "@type": "@id"
+    "followers": {
+      "@id": "om:hasFollower",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:inDomain",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:hasDataProduct",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
       "@id": "om:hasTag",
       "@type": "@id",
       "@container": "@set"
+    },
+    "votes": {
+      "@id": "om:hasVotes",
+      "@type": "@id"
+    },
+    "lifeCycle": {
+      "@id": "om:hasLifeCycle",
+      "@type": "@id"
+    },
+    "certification": {
+      "@id": "om:hasCertification",
+      "@type": "@id"
     }
   }
 }

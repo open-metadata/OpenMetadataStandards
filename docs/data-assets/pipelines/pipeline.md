@@ -36,131 +36,250 @@ View the complete Pipeline schema in your preferred format:
       "$id": "https://open-metadata.org/schema/entity/data/pipeline.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Pipeline",
-      "description": "A `Pipeline` entity represents a workflow or DAG that orchestrates data processing tasks.",
+      "$comment": "@om-entity-type",
+      "description": "This schema defines the Pipeline entity. A pipeline enables the flow of data from source to destination through a series of processing steps. ETL is a type of pipeline where the series of steps Extract, Transform and Load the data.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.data.Pipeline",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
 
       "definitions": {
-        "pipelineStatus": {
-          "description": "Pipeline execution status",
+        "statusType": {
+          "javaType": "org.openmetadata.schema.type.StatusType",
+          "description": "Enum defining the possible Status.",
           "type": "string",
-          "enum": [
-            "Successful", "Failed", "Pending", "Running",
-            "Stopped", "Skipped", "UpForRetry", "Queued"
+          "enum": ["Successful", "Failed", "Pending", "Skipped"],
+          "javaEnums": [
+            {"name": "Successful"},
+            {"name": "Failed"},
+            {"name": "Pending"},
+            {"name": "Skipped"}
           ]
         },
-        "scheduleInterval": {
-          "description": "Pipeline schedule",
+        "pipelineState": {
+          "description": "Enum defining the possible Pipeline State.",
+          "type": "string",
+          "enum": ["Active", "Inactive"],
+          "javaEnums": [
+            {"name": "Active"},
+            {"name": "Inactive"}
+          ]
+        },
+        "taskStatus": {
+          "type": "object",
+          "javaType": "org.openmetadata.schema.type.Status",
+          "description": "This schema defines a time series of the status of a Pipeline or Task.",
+          "properties": {
+            "name": {"description": "Name of the Task.", "type": "string"},
+            "executionStatus": {"description": "Status at a specific execution date.", "$ref": "#/definitions/statusType"},
+            "startTime": {"description": "Task start time", "$ref": "../../type/basic.json#/definitions/timestamp"},
+            "endTime": {"description": "Task end time", "$ref": "../../type/basic.json#/definitions/timestamp"},
+            "logLink": {"description": "Task end time", "type": "string", "format": "uri"},
+            "taskId": {"description": "Task ID from orchestrator", "type": "string"},
+            "transformationType": {"description": "Type of transformation", "type": "string", "enum": ["filter", "aggregate", "join", "pivot", "custom", "extract", "load"]},
+            "transformationLogic": {"description": "SQL or code executed", "type": "string"},
+            "inputs": {"description": "Task-specific inputs", "type": "array", "items": {"$ref": "#/definitions/datasetUsage"}},
+            "outputs": {"description": "Task-specific outputs", "type": "array", "items": {"$ref": "#/definitions/datasetGeneration"}},
+            "metrics": {"$ref": "#/definitions/taskMetrics"}
+          },
+          "required": ["name", "executionStatus"]
+        },
+        "task": {
+          "type": "object",
+          "javaType": "org.openmetadata.schema.type.Task",
+          "properties": {
+            "name": {"description": "Name that identifies this task instance uniquely.", "type": "string"},
+            "displayName": {"description": "Display Name that identifies this Task.", "type": "string"},
+            "fullyQualifiedName": {"description": "A unique name that identifies a pipeline in the format 'ServiceName.PipelineName.TaskName'.", "type": "string"},
+            "description": {"description": "Description of this Task.", "$ref": "../../type/basic.json#/definitions/markdown"},
+            "sourceUrl": {"description": "Task URL to visit/manage.", "$ref": "../../type/basic.json#/definitions/sourceUrl"},
+            "downstreamTasks": {"description": "All the tasks that are downstream of this task.", "type": "array", "items": {"type": "string"}},
+            "taskType": {"description": "Type of the Task.", "type": "string"},
+            "taskSQL": {"description": "SQL used in the task.", "$ref": "../../type/basic.json#/definitions/sqlQuery"},
+            "startDate": {"description": "start date for the task.", "type": "string"},
+            "endDate": {"description": "end date for the task.", "type": "string"},
+            "tags": {"description": "Tags for this task.", "type": "array", "items": {"$ref": "../../type/tagLabel.json"}},
+            "owners": {"description": "Owners of this task.", "$ref": "../../type/entityReferenceList.json"}
+          },
+          "required": ["name"]
+        },
+        "pipelineStatus": {
+          "description": "Series of pipeline executions, its status and task status.",
           "type": "object",
           "properties": {
-            "scheduleExpression": {
-              "description": "Cron or rate expression",
-              "type": "string"
-            },
-            "startDate": {
-              "description": "Schedule start date",
-              "type": "string",
-              "format": "date-time"
-            },
-            "endDate": {
-              "description": "Schedule end date",
-              "type": "string",
-              "format": "date-time"
-            }
-          }
+            "timestamp": {"description": "Timestamp where the job was executed.", "$ref": "../../type/basic.json#/definitions/timestamp"},
+            "executionStatus": {"description": "Status at a specific execution date.", "$ref": "#/definitions/statusType"},
+            "taskStatus": {"description": "Series of task executions and its status.", "type": "array", "items": {"$ref": "#/definitions/taskStatus"}},
+            "executionId": {"description": "External execution ID from the orchestrator", "type": "string"},
+            "endTime": {"description": "Execution end time", "$ref": "../../type/basic.json#/definitions/timestamp"},
+            "version": {"description": "Pipeline version that was executed", "type": "string"},
+            "parameters": {"description": "Execution parameters/configuration", "type": "object"},
+            "executedBy": {"description": "User or service that triggered the execution", "$ref": "../../type/entityReference.json"},
+            "inputs": {"description": "Input datasets consumed by this execution", "type": "array", "items": {"$ref": "#/definitions/datasetUsage"}},
+            "outputs": {"description": "Output datasets generated by this execution", "type": "array", "items": {"$ref": "#/definitions/datasetGeneration"}},
+            "metrics": {"description": "Execution metrics", "$ref": "#/definitions/executionMetrics"},
+            "error": {"description": "Error details if execution failed", "$ref": "#/definitions/executionError"}
+          },
+          "required": ["timestamp", "executionStatus"]
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier that identifies a pipeline instance.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Pipeline name",
+          "description": "Name that identifies this pipeline instance uniquely.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name: service.pipeline",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
-        },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this Pipeline. It could be title or label from the source services.",
           "type": "string"
         },
+        "fullyQualifiedName": {
+          "description": "A unique name that identifies a pipeline in the format 'ServiceName.PipelineName'.",
+          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+        },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of this Pipeline.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "pipelineUrl": {
-          "description": "URL to pipeline in orchestration tool",
-          "type": "string",
-          "format": "uri"
+        "dataProducts": {
+          "description": "List of data products this entity is part of.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
         },
         "sourceUrl": {
-          "description": "URL to pipeline source code",
-          "type": "string",
-          "format": "uri"
-        },
-        "tasks": {
-          "description": "Pipeline tasks",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
-        },
-        "scheduleInterval": {
-          "$ref": "#/definitions/scheduleInterval"
-        },
-        "pipelineStatus": {
-          "$ref": "#/definitions/pipelineStatus"
-        },
-        "startDate": {
-          "description": "Pipeline creation/start date",
-          "type": "string",
-          "format": "date-time"
+          "description": "Pipeline URL to visit/manage. This URL points to respective pipeline service UI.",
+          "$ref": "../../type/basic.json#/definitions/sourceUrl"
         },
         "concurrency": {
-          "description": "Maximum concurrent runs",
+          "description": "Concurrency of the Pipeline.",
           "type": "integer"
         },
         "pipelineLocation": {
-          "description": "Pipeline code location",
+          "description": "Pipeline Code Location.",
           "type": "string"
         },
-        "service": {
-          "description": "Pipeline service",
-          "$ref": "../../type/entityReference.json"
+        "startDate": {
+          "description": "Start date of the workflow.",
+          "$ref": "../../type/basic.json#/definitions/dateTime"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "endDate": {
+          "description": "End date of the workflow.",
+          "$ref": "../../type/basic.json#/definitions/dateTime"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "tasks": {
+          "description": "All the tasks that are part of pipeline.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/task"
+          }
+        },
+        "pipelineStatus": {
+          "description": "Latest Pipeline Status.",
+          "$ref": "#/definitions/pipelineStatus"
+        },
+        "state": {
+          "description": "State of the Pipeline.",
+          "$ref": "#/definitions/pipelineState"
+        },
+        "followers": {
+          "description": "Followers of this Pipeline.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "tags": {
-          "description": "Classification tags",
+          "description": "Tags for this Pipeline.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
           }
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "owners": {
+          "description": "Owners of this pipeline.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "service": {
+          "description": "Link to service where this pipeline is hosted in.",
+          "$ref": "../../type/entityReference.json"
+        },
+        "serviceType": {
+          "description": "Service type where this pipeline is hosted in.",
+          "$ref": "../services/pipelineService.json#/definitions/pipelineServiceType"
+        },
+        "usageSummary": {
+          "description": "Latest usage information for this pipeline.",
+          "$ref": "../../type/usageDetails.json"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
+        },
+        "scheduleInterval": {
+          "description": "Scheduler Interval for the pipeline in cron format.",
+          "type": "string"
+        },
+        "domains": {
+          "description": "Domains the Pipeline belongs to. When not set, the pipeline inherits the domain from the Pipeline service it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "lifeCycle": {
+          "description": "Life Cycle properties of the entity",
+          "$ref": "../../type/lifeCycle.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
+        "sourceHash": {
+          "description": "Source hash of the entity",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "entityStatus": {
+          "description": "Status of the Pipeline.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "service"]
+      "required": ["id", "name", "service"],
+      "additionalProperties": false
     }
     ```
 
@@ -230,7 +349,7 @@ View the complete Pipeline schema in your preferred format:
         rdfs:domain om:Pipeline ;
         rdfs:range om:Owner ;
         rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this pipeline" .
+        rdfs:comment "Owners of this pipeline" .
 
     om:pipelineHasTag a owl:ObjectProperty ;
         rdfs:domain om:Pipeline ;
@@ -238,20 +357,44 @@ View the complete Pipeline schema in your preferred format:
         rdfs:label "hasTag" ;
         rdfs:comment "Classification tags applied to pipeline" .
 
-    om:pipelineLinkedToGlossaryTerm a owl:ObjectProperty ;
+    om:pipelineInDomain a owl:ObjectProperty ;
         rdfs:domain om:Pipeline ;
-        rdfs:range om:GlossaryTerm ;
-        rdfs:label "linkedToGlossaryTerm" ;
-        rdfs:comment "Business glossary terms" .
+        rdfs:range om:Domain ;
+        rdfs:label "inDomain" ;
+        rdfs:comment "Domains the pipeline belongs to" .
+
+    om:pipelineFollowedBy a owl:ObjectProperty ;
+        rdfs:domain om:Pipeline ;
+        rdfs:range om:User ;
+        rdfs:label "followedBy" ;
+        rdfs:comment "Users following this pipeline" .
+
+    om:pipelineState a owl:DatatypeProperty ;
+        rdfs:domain om:Pipeline ;
+        rdfs:range om:PipelineState ;
+        rdfs:label "state" ;
+        rdfs:comment "State of the pipeline (Active/Inactive)" .
+
+    om:endDate a owl:DatatypeProperty ;
+        rdfs:domain om:Pipeline ;
+        rdfs:range xsd:dateTime ;
+        rdfs:label "endDate" ;
+        rdfs:comment "End date of the workflow" .
 
     # Pipeline Status Enumeration
-    om:PipelineStatus a owl:Class ;
+    om:StatusType a owl:Class ;
         owl:oneOf (
             om:Successful
             om:Failed
             om:Pending
-            om:Running
-            om:Stopped
+            om:Skipped
+        ) .
+
+    # Pipeline State Enumeration
+    om:PipelineState a owl:Class ;
+        owl:oneOf (
+            om:Active
+            om:Inactive
         ) .
 
     # Example Instance
@@ -260,10 +403,15 @@ View the complete Pipeline schema in your preferred format:
         om:fullyQualifiedName "airflow_prod.customer_etl" ;
         om:displayName "Customer ETL Pipeline" ;
         om:scheduleInterval "0 2 * * *" ;
-        om:pipelineStatus om:Successful ;
+        om:pipelineState om:Active ;
+        om:startDate "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+        om:endDate "2024-12-31T23:59:59Z"^^xsd:dateTime ;
+        om:concurrency 1 ;
         om:belongsToPipelineService ex:airflowProdService ;
         om:pipelineOwnedBy ex:dataEngTeam ;
+        om:pipelineInDomain ex:customerDataDomain ;
         om:pipelineHasTag ex:tierGold ;
+        om:pipelineFollowedBy ex:johnDoe ;
         om:hasTask ex:extractCustomersTask ;
         om:hasTask ex:transformCustomersTask ;
         om:hasTask ex:loadCustomersTask .
@@ -305,11 +453,32 @@ View the complete Pipeline schema in your preferred format:
           "@type": "xsd:anyURI"
         },
         "scheduleInterval": {
-          "@id": "om:scheduleInterval"
+          "@id": "om:scheduleInterval",
+          "@type": "xsd:string"
+        },
+        "startDate": {
+          "@id": "om:startDate",
+          "@type": "xsd:dateTime"
+        },
+        "endDate": {
+          "@id": "om:endDate",
+          "@type": "xsd:dateTime"
+        },
+        "state": {
+          "@id": "om:pipelineState",
+          "@type": "@vocab"
+        },
+        "concurrency": {
+          "@id": "om:concurrency",
+          "@type": "xsd:integer"
+        },
+        "pipelineLocation": {
+          "@id": "om:pipelineLocation",
+          "@type": "xsd:string"
         },
         "pipelineStatus": {
           "@id": "om:pipelineStatus",
-          "@type": "@vocab"
+          "@type": "@id"
         },
         "tasks": {
           "@id": "om:hasTask",
@@ -320,23 +489,46 @@ View the complete Pipeline schema in your preferred format:
           "@id": "om:belongsToPipelineService",
           "@type": "@id"
         },
-        "owner": {
-          "@id": "om:pipelineOwnedBy",
-          "@type": "@id"
+        "serviceType": {
+          "@id": "om:serviceType",
+          "@type": "xsd:string"
         },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
+        "owners": {
+          "@id": "om:pipelineOwnedBy",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:pipelineInDomain",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:pipelineFollowedBy",
+          "@type": "@id",
+          "@container": "@set"
         },
         "tags": {
           "@id": "om:pipelineHasTag",
           "@type": "@id",
           "@container": "@set"
         },
-        "glossaryTerms": {
-          "@id": "om:pipelineLinkedToGlossaryTerm",
+        "dataProducts": {
+          "@id": "om:partOfDataProduct",
           "@type": "@id",
           "@container": "@set"
+        },
+        "votes": {
+          "@id": "om:hasVotes",
+          "@type": "@id"
+        },
+        "lifeCycle": {
+          "@id": "om:hasLifeCycle",
+          "@type": "@id"
+        },
+        "certification": {
+          "@id": "om:hasCertification",
+          "@type": "@id"
         }
       }
     }
@@ -354,16 +546,20 @@ View the complete Pipeline schema in your preferred format:
       "fullyQualifiedName": "airflow_prod.customer_etl",
       "displayName": "Customer ETL Pipeline",
       "description": "Daily ETL pipeline for customer data",
-      "pipelineUrl": "https://airflow.company.com/dags/customer_etl",
       "sourceUrl": "https://github.com/company/pipelines/blob/main/dags/customer_etl.py",
 
-      "scheduleInterval": {
-        "scheduleExpression": "0 2 * * *",
-        "startDate": "2024-01-01T00:00:00Z"
-      },
-
-      "pipelineStatus": "Successful",
+      "scheduleInterval": "0 2 * * *",
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2024-12-31T23:59:59Z",
+      "state": "Active",
       "concurrency": 1,
+      "pipelineLocation": "/opt/airflow/dags/customer_etl.py",
+
+      "pipelineStatus": {
+        "timestamp": 1704240000000,
+        "executionStatus": "Successful",
+        "executionId": "manual__2024-01-03T02:00:00+00:00"
+      },
 
       "service": {
         "@id": "https://example.com/services/airflow_prod",
@@ -371,12 +567,40 @@ View the complete Pipeline schema in your preferred format:
         "name": "airflow_prod"
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/data-engineering",
-        "@type": "Team",
-        "name": "data-engineering",
-        "displayName": "Data Engineering"
-      },
+      "serviceType": "Airflow",
+
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-engineering",
+          "@type": "Team",
+          "name": "data-engineering",
+          "displayName": "Data Engineering"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/CustomerData",
+          "@type": "Domain",
+          "name": "CustomerData"
+        }
+      ],
+
+      "followers": [
+        {
+          "@id": "https://example.com/users/john.doe",
+          "@type": "User",
+          "name": "john.doe"
+        }
+      ],
+
+      "dataProducts": [
+        {
+          "@id": "https://example.com/dataProducts/CustomerInsights",
+          "@type": "DataProduct",
+          "name": "CustomerInsights"
+        }
+      ],
 
       "tags": [
         {
@@ -389,29 +613,24 @@ View the complete Pipeline schema in your preferred format:
         }
       ],
 
-      "glossaryTerms": [
-        {
-          "@id": "https://example.com/glossary/ETL",
-          "@type": "GlossaryTerm",
-          "fullyQualifiedName": "BusinessGlossary.ETL"
-        }
-      ],
-
       "tasks": [
         {
           "@type": "Task",
           "@id": "https://example.com/pipelines/customer_etl/tasks/extract_customers",
-          "name": "extract_customers"
+          "name": "extract_customers",
+          "taskType": "PythonOperator"
         },
         {
           "@type": "Task",
           "@id": "https://example.com/pipelines/customer_etl/tasks/transform_customers",
-          "name": "transform_customers"
+          "name": "transform_customers",
+          "taskType": "SparkSubmitOperator"
         },
         {
           "@type": "Task",
           "@id": "https://example.com/pipelines/customer_etl/tasks/load_customers",
-          "name": "load_customers"
+          "name": "load_customers",
+          "taskType": "PostgresOperator"
         }
       ]
     }
@@ -535,61 +754,52 @@ View the complete Pipeline schema in your preferred format:
 
 ---
 
-#### `scheduleInterval` (ScheduleInterval)
-**Type**: `object`
+#### `scheduleInterval` (string)
+**Type**: `string`
 **Required**: No
-**Description**: Pipeline execution schedule
+**Description**: Scheduler Interval for the pipeline in cron format
 
-**ScheduleInterval Object Properties**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `scheduleExpression` | string | No | Cron expression or rate |
-| `startDate` | string (ISO 8601) | No | Schedule start date |
-| `endDate` | string (ISO 8601) | No | Schedule end date |
-
-**Example - Cron Schedule**:
+**Example**:
 
 ```json
 {
-  "scheduleInterval": {
-    "scheduleExpression": "0 2 * * *",
-    "startDate": "2024-01-01T00:00:00Z"
-  }
-}
-```
-
-**Example - Rate Expression**:
-
-```json
-{
-  "scheduleInterval": {
-    "scheduleExpression": "@hourly",
-    "startDate": "2024-01-01T00:00:00Z",
-    "endDate": "2024-12-31T23:59:59Z"
-  }
+  "scheduleInterval": "0 2 * * *"
 }
 ```
 
 ---
 
-#### `pipelineStatus` (PipelineStatus enum)
-**Type**: `string` enum
-**Required**: No (system-populated from latest run)
-**Allowed Values**:
+#### `pipelineStatus` (pipelineStatus)
+**Type**: `object`
+**Required**: No
+**Description**: Latest Pipeline Status with execution details
 
-- `Successful` - Last run completed successfully
-- `Failed` - Last run failed
-- `Pending` - Waiting to start
-- `Running` - Currently executing
-- `Stopped` - Manually stopped
-- `Skipped` - Skipped execution
-- `UpForRetry` - Failed, waiting for retry
-- `Queued` - In execution queue
+**pipelineStatus Object Properties**:
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `timestamp` | timestamp | Yes | Timestamp where the job was executed |
+| `executionStatus` | statusType | Yes | Status at a specific execution date |
+| `taskStatus` | array | No | Series of task executions and its status |
+| `executionId` | string | No | External execution ID from the orchestrator |
+| `endTime` | timestamp | No | Execution end time |
+| `version` | string | No | Pipeline version that was executed |
+| `parameters` | object | No | Execution parameters/configuration |
+| `executedBy` | entityReference | No | User or service that triggered the execution |
+| `inputs` | array | No | Input datasets consumed by this execution |
+| `outputs` | array | No | Output datasets generated by this execution |
+| `metrics` | executionMetrics | No | Execution metrics |
+| `error` | executionError | No | Error details if execution failed |
+
+**statusType Enum Values**: `Successful`, `Failed`, `Pending`, `Skipped`
 
 ```json
 {
-  "pipelineStatus": "Successful"
+  "pipelineStatus": {
+    "timestamp": 1704240000000,
+    "executionStatus": "Successful",
+    "executionId": "manual__2024-01-03T02:00:00+00:00"
+  }
 }
 ```
 
@@ -621,10 +831,10 @@ View the complete Pipeline schema in your preferred format:
 
 ---
 
-#### `startDate` (timestamp)
+#### `startDate` (dateTime)
 **Type**: `string` (ISO 8601 date-time)
 **Required**: No
-**Description**: Pipeline creation or first run date
+**Description**: Start date of the workflow
 
 ```json
 {
@@ -634,33 +844,77 @@ View the complete Pipeline schema in your preferred format:
 
 ---
 
+#### `endDate` (dateTime)
+**Type**: `string` (ISO 8601 date-time)
+**Required**: No
+**Description**: End date of the workflow
+
+```json
+{
+  "endDate": "2024-12-31T23:59:59Z"
+}
+```
+
+---
+
+#### `state` (pipelineState)
+**Type**: `string` enum
+**Required**: No
+**Description**: State of the Pipeline
+**Allowed Values**: `Active`, `Inactive`
+
+```json
+{
+  "state": "Active"
+}
+```
+
+---
+
 ### Structure Properties
 
 #### `tasks[]` (Task[])
-**Type**: `array` of EntityReference
+**Type**: `array` of task objects
 **Required**: No
-**Description**: List of tasks in the pipeline
+**Description**: All the tasks that are part of pipeline
+
+**Task Object Properties**:
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | Yes | Name that identifies this task instance uniquely |
+| `displayName` | string | No | Display Name that identifies this Task |
+| `fullyQualifiedName` | string | No | Format: ServiceName.PipelineName.TaskName |
+| `description` | markdown | No | Description of this Task |
+| `sourceUrl` | sourceUrl | No | Task URL to visit/manage |
+| `downstreamTasks` | array | No | All the tasks that are downstream of this task |
+| `taskType` | string | No | Type of the Task |
+| `taskSQL` | sqlQuery | No | SQL used in the task |
+| `startDate` | string | No | Start date for the task |
+| `endDate` | string | No | End date for the task |
+| `tags` | array | No | Tags for this task |
+| `owners` | entityReferenceList | No | Owners of this task |
 
 ```json
 {
   "tasks": [
     {
-      "id": "3b4c5d6e-7f8a-9b0c-1d2e-3f4a5b6c7d8e",
-      "type": "task",
       "name": "extract_customers",
-      "fullyQualifiedName": "airflow_prod.customer_etl.extract_customers"
+      "displayName": "Extract Customers",
+      "taskType": "PythonOperator",
+      "description": "Extract customer data from MongoDB"
     },
     {
-      "id": "4c5d6e7f-8a9b-0c1d-2e3f-4a5b6c7d8e9f",
-      "type": "task",
       "name": "transform_customers",
-      "fullyQualifiedName": "airflow_prod.customer_etl.transform_customers"
+      "displayName": "Transform Customers",
+      "taskType": "SparkSubmitOperator",
+      "downstreamTasks": ["extract_customers"]
     },
     {
-      "id": "5d6e7f8a-9b0c-1d2e-3f4a-5b6c7d8e9f0a",
-      "type": "task",
       "name": "load_customers",
-      "fullyQualifiedName": "airflow_prod.customer_etl.load_customers"
+      "displayName": "Load Customers",
+      "taskType": "PostgresOperator",
+      "downstreamTasks": ["transform_customers"]
     }
   ]
 }
@@ -673,7 +927,7 @@ View the complete Pipeline schema in your preferred format:
 #### `service` (EntityReference)
 **Type**: `object`
 **Required**: Yes
-**Description**: Reference to parent pipeline service
+**Description**: Link to service where this pipeline is hosted in
 
 ```json
 {
@@ -688,39 +942,151 @@ View the complete Pipeline schema in your preferred format:
 
 ---
 
-### Governance Properties
-
-#### `owner` (EntityReference)
-**Type**: `object`
+#### `serviceType` (pipelineServiceType)
+**Type**: `string` enum
 **Required**: No
-**Description**: User or team that owns this pipeline
+**Description**: Service type where this pipeline is hosted in
 
 ```json
 {
-  "owner": {
-    "id": "6e7f8a9b-0c1d-2e3f-4a5b-6c7d8e9f0a1b",
-    "type": "team",
-    "name": "data-engineering",
-    "displayName": "Data Engineering Team"
+  "serviceType": "Airflow"
+}
+```
+
+---
+
+### Governance Properties
+
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Owners of this pipeline
+
+```json
+{
+  "owners": [
+    {
+      "id": "6e7f8a9b-0c1d-2e3f-4a5b-6c7d8e9f0a1b",
+      "type": "team",
+      "name": "data-engineering",
+      "displayName": "Data Engineering Team"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Domains the Pipeline belongs to. When not set, the pipeline inherits the domain from the Pipeline service it belongs to
+
+```json
+{
+  "domains": [
+    {
+      "id": "7f8a9b0c-1d2e-3f4a-5b6c-7d8e9f0a1b2c",
+      "type": "domain",
+      "name": "CustomerData",
+      "fullyQualifiedName": "CustomerData"
+    }
+  ]
+}
+```
+
+---
+
+#### `followers` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Followers of this Pipeline
+
+```json
+{
+  "followers": [
+    {
+      "id": "8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d",
+      "type": "user",
+      "name": "john.doe",
+      "displayName": "John Doe"
+    }
+  ]
+}
+```
+
+---
+
+#### `votes` (Votes)
+**Type**: `object`
+**Required**: No
+**Description**: Votes on the entity
+
+```json
+{
+  "votes": {
+    "upVotes": 5,
+    "downVotes": 1,
+    "upVoters": ["user1", "user2"]
   }
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
+#### `lifeCycle` (LifeCycle)
 **Type**: `object`
 **Required**: No
-**Description**: Data domain this pipeline belongs to
+**Description**: Life Cycle properties of the entity
 
 ```json
 {
-  "domain": {
-    "id": "7f8a9b0c-1d2e-3f4a-5b6c-7d8e9f0a1b2c",
-    "type": "domain",
-    "name": "CustomerData",
-    "fullyQualifiedName": "CustomerData"
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "admin"
+    },
+    "updated": {
+      "timestamp": 1704240000000,
+      "user": "john.doe"
+    }
   }
+}
+```
+
+---
+
+#### `certification` (AssetCertification)
+**Type**: `object`
+**Required**: No
+**Description**: Asset certification details
+
+```json
+{
+  "certification": {
+    "certifiedBy": "data-governance-team",
+    "certifiedAt": 1704240000000
+  }
+}
+```
+
+---
+
+#### `dataProducts` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: List of data products this entity is part of
+
+```json
+{
+  "dataProducts": [
+    {
+      "id": "9b0c1d2e-3f4a-5b6c-7d8e-9f0a1b2c3d4e",
+      "type": "dataProduct",
+      "name": "CustomerInsights",
+      "fullyQualifiedName": "CustomerInsights"
+    }
+  ]
 }
 ```
 
@@ -746,26 +1112,6 @@ View the complete Pipeline schema in your preferred format:
       "source": "Classification",
       "labelType": "Automated",
       "state": "Confirmed"
-    }
-  ]
-}
-```
-
----
-
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
-**Required**: No
-**Description**: Business glossary terms linked to this pipeline
-
-```json
-{
-  "glossaryTerms": [
-    {
-      "fullyQualifiedName": "BusinessGlossary.ETL"
-    },
-    {
-      "fullyQualifiedName": "BusinessGlossary.CustomerData"
     }
   ]
 }
@@ -891,60 +1237,111 @@ View the complete Pipeline schema in your preferred format:
 {
   "id": "2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
   "name": "customer_etl",
-  "fullyQualifiedName": "airflow_prod.customer_etl",
   "displayName": "Customer ETL Pipeline",
+  "fullyQualifiedName": "airflow_prod.customer_etl",
   "description": "# Customer ETL Pipeline\n\nDaily pipeline that extracts customer data from MongoDB, transforms it, and loads into PostgreSQL.",
-  "pipelineUrl": "https://airflow.company.com/dags/customer_etl",
   "sourceUrl": "https://github.com/company/pipelines/blob/main/dags/customer_etl.py",
-  "scheduleInterval": {
-    "scheduleExpression": "0 2 * * *",
-    "startDate": "2024-01-01T00:00:00Z"
-  },
-  "pipelineStatus": "Successful",
   "concurrency": 1,
+  "pipelineLocation": "/opt/airflow/dags/customer_etl.py",
   "startDate": "2024-01-01T00:00:00Z",
+  "endDate": "2024-12-31T23:59:59Z",
+  "scheduleInterval": "0 2 * * *",
+  "state": "Active",
   "tasks": [
     {
-      "id": "3b4c5d6e-7f8a-9b0c-1d2e-3f4a5b6c7d8e",
-      "type": "task",
-      "name": "extract_customers"
+      "name": "extract_customers",
+      "displayName": "Extract Customers",
+      "taskType": "PythonOperator",
+      "description": "Extract customer data from MongoDB"
     },
     {
-      "id": "4c5d6e7f-8a9b-0c1d-2e3f-4a5b6c7d8e9f",
-      "type": "task",
-      "name": "transform_customers"
+      "name": "transform_customers",
+      "displayName": "Transform Customers",
+      "taskType": "SparkSubmitOperator",
+      "downstreamTasks": ["extract_customers"]
     },
     {
-      "id": "5d6e7f8a-9b0c-1d2e-3f4a-5b6c7d8e9f0a",
-      "type": "task",
-      "name": "load_customers"
+      "name": "load_customers",
+      "displayName": "Load Customers",
+      "taskType": "PostgresOperator",
+      "downstreamTasks": ["transform_customers"]
     }
   ],
+  "pipelineStatus": {
+    "timestamp": 1704240000000,
+    "executionStatus": "Successful",
+    "executionId": "manual__2024-01-03T02:00:00+00:00"
+  },
   "service": {
     "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
     "type": "pipelineService",
-    "name": "airflow_prod"
+    "name": "airflow_prod",
+    "fullyQualifiedName": "airflow_prod"
   },
-  "owner": {
-    "id": "6e7f8a9b-0c1d-2e3f-4a5b-6c7d8e9f0a1b",
-    "type": "team",
-    "name": "data-engineering"
-  },
-  "domain": {
-    "id": "7f8a9b0c-1d2e-3f4a-5b6c-7d8e9f0a1b2c",
-    "type": "domain",
-    "name": "CustomerData"
-  },
+  "serviceType": "Airflow",
+  "owners": [
+    {
+      "id": "6e7f8a9b-0c1d-2e3f-4a5b-6c7d8e9f0a1b",
+      "type": "team",
+      "name": "data-engineering",
+      "displayName": "Data Engineering Team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "7f8a9b0c-1d2e-3f4a-5b6c-7d8e9f0a1b2c",
+      "type": "domain",
+      "name": "CustomerData",
+      "fullyQualifiedName": "CustomerData"
+    }
+  ],
+  "followers": [
+    {
+      "id": "8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d",
+      "type": "user",
+      "name": "john.doe"
+    }
+  ],
+  "dataProducts": [
+    {
+      "id": "9b0c1d2e-3f4a-5b6c-7d8e-9f0a1b2c3d4e",
+      "type": "dataProduct",
+      "name": "CustomerInsights"
+    }
+  ],
   "tags": [
-    {"tagFQN": "Tier.Gold"},
-    {"tagFQN": "Schedule.Daily"}
+    {
+      "tagFQN": "Tier.Gold",
+      "source": "Classification",
+      "labelType": "Manual",
+      "state": "Confirmed"
+    },
+    {
+      "tagFQN": "Schedule.Daily",
+      "source": "Classification",
+      "labelType": "Automated",
+      "state": "Confirmed"
+    }
   ],
-  "glossaryTerms": [
-    {"fullyQualifiedName": "BusinessGlossary.ETL"}
-  ],
+  "votes": {
+    "upVotes": 5,
+    "downVotes": 1
+  },
+  "lifeCycle": {
+    "created": {
+      "timestamp": 1704067200000,
+      "user": "admin"
+    }
+  },
+  "certification": {
+    "certifiedBy": "data-governance-team",
+    "certifiedAt": 1704240000000
+  },
   "version": 3.1,
   "updatedAt": 1704240000000,
-  "updatedBy": "john.doe"
+  "updatedBy": "john.doe",
+  "href": "https://open-metadata.org/api/v1/pipelines/2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
+  "deleted": false
 }
 ```
 
@@ -978,18 +1375,25 @@ om:Pipeline a owl:Class ;
 ```turtle
 @prefix om: <https://open-metadata.org/schema/> .
 @prefix ex: <https://example.com/pipelines/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:customer_etl a om:Pipeline ;
     om:pipelineName "customer_etl" ;
     om:fullyQualifiedName "airflow_prod.customer_etl" ;
     om:displayName "Customer ETL Pipeline" ;
     om:description "Daily pipeline that extracts customer data" ;
-    om:pipelineUrl "https://airflow.company.com/dags/customer_etl"^^xsd:anyURI ;
+    om:sourceUrl "https://github.com/company/pipelines/blob/main/dags/customer_etl.py"^^xsd:anyURI ;
     om:scheduleInterval "0 2 * * *" ;
-    om:pipelineStatus "Successful" ;
+    om:startDate "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+    om:endDate "2024-12-31T23:59:59Z"^^xsd:dateTime ;
+    om:pipelineState om:Active ;
+    om:concurrency 1 ;
+    om:pipelineLocation "/opt/airflow/dags/customer_etl.py" ;
     om:belongsToPipelineService ex:airflow_prod ;
     om:pipelineOwnedBy ex:data_engineering_team ;
+    om:pipelineInDomain ex:customer_data_domain ;
     om:pipelineHasTag ex:tier_gold ;
+    om:pipelineFollowedBy ex:john_doe ;
     om:hasTask ex:extract_customers ;
     om:hasTask ex:transform_customers ;
     om:hasTask ex:load_customers .
@@ -1005,13 +1409,38 @@ ex:customer_etl a om:Pipeline ;
     "@vocab": "https://open-metadata.org/schema/",
     "om": "https://open-metadata.org/schema/",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
     "Pipeline": "om:Pipeline",
     "name": "om:pipelineName",
     "fullyQualifiedName": "om:fullyQualifiedName",
     "displayName": "om:displayName",
     "description": "om:description",
-    "pipelineUrl": "om:pipelineUrl",
-    "scheduleInterval": "om:scheduleInterval",
+    "sourceUrl": "om:sourceUrl",
+    "scheduleInterval": {
+      "@id": "om:scheduleInterval",
+      "@type": "xsd:string"
+    },
+    "startDate": {
+      "@id": "om:startDate",
+      "@type": "xsd:dateTime"
+    },
+    "endDate": {
+      "@id": "om:endDate",
+      "@type": "xsd:dateTime"
+    },
+    "state": {
+      "@id": "om:pipelineState",
+      "@type": "@vocab"
+    },
+    "concurrency": {
+      "@id": "om:concurrency",
+      "@type": "xsd:integer"
+    },
+    "pipelineLocation": "om:pipelineLocation",
+    "pipelineStatus": {
+      "@id": "om:pipelineStatus",
+      "@type": "@id"
+    },
     "tasks": {
       "@id": "om:hasTask",
       "@type": "@id",
@@ -1021,14 +1450,43 @@ ex:customer_etl a om:Pipeline ;
       "@id": "om:belongsToPipelineService",
       "@type": "@id"
     },
-    "owner": {
+    "serviceType": "om:serviceType",
+    "owners": {
       "@id": "om:pipelineOwnedBy",
-      "@type": "@id"
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "domains": {
+      "@id": "om:pipelineInDomain",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "followers": {
+      "@id": "om:pipelineFollowedBy",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "dataProducts": {
+      "@id": "om:partOfDataProduct",
+      "@type": "@id",
+      "@container": "@set"
     },
     "tags": {
       "@id": "om:pipelineHasTag",
       "@type": "@id",
       "@container": "@set"
+    },
+    "votes": {
+      "@id": "om:hasVotes",
+      "@type": "@id"
+    },
+    "lifeCycle": {
+      "@id": "om:hasLifeCycle",
+      "@type": "@id"
+    },
+    "certification": {
+      "@id": "om:hasCertification",
+      "@type": "@id"
     }
   }
 }
@@ -1044,18 +1502,36 @@ ex:customer_etl a om:Pipeline ;
   "name": "customer_etl",
   "fullyQualifiedName": "airflow_prod.customer_etl",
   "displayName": "Customer ETL Pipeline",
-  "pipelineUrl": "https://airflow.company.com/dags/customer_etl",
-  "scheduleInterval": {
-    "scheduleExpression": "0 2 * * *"
-  },
+  "sourceUrl": "https://github.com/company/pipelines/blob/main/dags/customer_etl.py",
+  "scheduleInterval": "0 2 * * *",
+  "startDate": "2024-01-01T00:00:00Z",
+  "endDate": "2024-12-31T23:59:59Z",
+  "state": "Active",
+  "concurrency": 1,
+  "pipelineLocation": "/opt/airflow/dags/customer_etl.py",
   "service": {
     "@id": "https://example.com/services/airflow_prod",
     "@type": "PipelineService"
   },
-  "owner": {
-    "@id": "https://example.com/teams/data-engineering",
-    "@type": "Team"
-  },
+  "serviceType": "Airflow",
+  "owners": [
+    {
+      "@id": "https://example.com/teams/data-engineering",
+      "@type": "Team"
+    }
+  ],
+  "domains": [
+    {
+      "@id": "https://example.com/domains/CustomerData",
+      "@type": "Domain"
+    }
+  ],
+  "followers": [
+    {
+      "@id": "https://example.com/users/john.doe",
+      "@type": "User"
+    }
+  ],
   "tags": [
     {"@id": "https://open-metadata.org/tags/Tier/Gold"}
   ]
