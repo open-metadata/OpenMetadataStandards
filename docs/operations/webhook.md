@@ -636,7 +636,5 @@ Some systems may require PUT for idempotent event delivery:
 
 ## Related Schemas
 
-- **[Event Subscription](./subscription.md)**: Subscription system that uses webhook as an action
 - **[Alert](../data-quality/alert.md)**: Alerts that can use webhook for notifications
-- **[Notification](./notification.md)**: Notification system that delivers via webhooks
-- **[SubscriptionAction](./subscription-action.md)**: Parent interface for webhook configuration
+- **[Ingestion Pipeline](./ingestion-pipeline.md)**: Ingestion pipelines that can trigger webhook notifications

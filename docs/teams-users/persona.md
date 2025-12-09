@@ -985,4 +985,3 @@ Content-Type: application/json-patch+json
 - **[User](user.md)** - User entity
 - **[Domain](../governance/domain.md)** - Data domain
 - **[Teams](team.md)** - Team entity
-- **[Entity References](../type/entity-reference.md)** - Entity reference type

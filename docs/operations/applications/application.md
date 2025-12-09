@@ -1691,9 +1691,6 @@ for details on defining and using custom properties.
 
 ## Related Documentation
 
-- **[Pipeline](../../operations/pipelines/pipeline.md)** - Pipelines deployed by apps
-- **[Bot](../../operations/bots/bot.md)** - Bot users for app authentication
+- **[Ingestion Pipeline](../ingestion-pipeline.md)** - Ingestion pipelines and external runners
 - **[Domain](../../governance/domain.md)** - Business domains
-- **[Event Subscriptions](../../operations/events/event-subscription.md)** - Event-driven app triggers
-- **[Ingestion Pipeline](../../operations/pipelines/ingestion-pipeline.md)** - External ingestion runners
 - **[Governance](../../governance/overview.md)** - Governance policies and permissions
