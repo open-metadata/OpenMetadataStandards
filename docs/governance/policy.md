@@ -134,201 +134,126 @@ graph TD
       "$id": "https://open-metadata.org/schema/entity/policies/policy.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Policy",
-      "description": "A Policy defines access control rules and governance policies for data assets.",
+      "description": "A `Policy` defines control that needs to be applied across different Data Entities.",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.policies.Policy",
       "javaInterfaces": [
         "org.openmetadata.schema.EntityInterface"
       ],
       "definitions": {
-        "policyType": {
-          "description": "Type of policy",
-          "type": "string",
-          "enum": [
-            "AccessControl",
-            "Lifecycle",
-            "Masking",
-            "Compliance",
-            "Custom"
-          ],
-          "javaEnums": [
-            {
-              "name": "AccessControl"
-            },
-            {
-              "name": "Lifecycle"
-            },
-            {
-              "name": "Masking"
-            },
-            {
-              "name": "Compliance"
-            },
-            {
-              "name": "Custom"
-            }
-          ]
-        },
-        "effect": {
-          "description": "Effect of the rule - Allow or Deny",
-          "type": "string",
-          "enum": [
-            "allow",
-            "deny"
-          ]
-        },
-        "rule": {
-          "type": "object",
-          "description": "A rule within a policy",
-          "properties": {
-            "name": {
-              "description": "Name of the rule",
-              "type": "string"
-            },
-            "description": {
-              "description": "Description of the rule",
-              "type": "string"
-            },
-            "effect": {
-              "$ref": "#/definitions/effect"
-            },
-            "operations": {
-              "description": "Operations allowed or denied by this rule",
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "ViewBasic",
-                  "ViewAll",
-                  "ViewUsage",
-                  "ViewTests",
-                  "ViewQueries",
-                  "ViewDataProfile",
-                  "ViewSampleData",
-                  "EditAll",
-                  "EditDescription",
-                  "EditTags",
-                  "EditOwner",
-                  "EditTier",
-                  "EditCustomFields",
-                  "EditLineage",
-                  "EditReviewers",
-                  "Delete",
-                  "EditPolicy",
-                  "EditRole"
-                ]
-              }
-            },
-            "resources": {
-              "description": "Resources to which this rule applies",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "condition": {
-              "description": "Condition expression for the rule",
-              "type": "string"
-            }
-          },
-          "required": [
-            "name",
-            "effect",
-            "operations"
-          ],
-          "additionalProperties": false
+        "rules": {
+          "description": "A set of rules associated with the Policy.",
+          "type": "array",
+          "items": {
+            "$ref": "accessControl/rule.json"
+          }
         }
       },
       "properties": {
         "id": {
-          "description": "Unique identifier of the policy",
+          "description": "Unique identifier that identifies this Policy.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Name that identifies this policy",
+          "description": "Name that uniquely identifies this Policy.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name of the policy",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+          "description": "Name that uniquely identifies a Policy.",
+          "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "displayName": {
-          "description": "Display name for the policy",
+          "description": "Display name for this Policy.",
           "type": "string"
         },
         "description": {
-          "description": "Description of the policy",
+          "description": "A short description of the Policy, comprehensible to regular users.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "policyType": {
-          "$ref": "#/definitions/policyType"
+        "owners": {
+          "description": "Owners of this Policy.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
         },
-        "policyUrl": {
-          "description": "Link to the policy document",
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
           "$ref": "../../type/basic.json#/definitions/href"
         },
         "enabled": {
-          "description": "Is the policy enabled",
+          "description": "Is the policy enabled.",
           "type": "boolean",
           "default": true
         },
-        "rules": {
-          "description": "Set of rules that make up the policy",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/rule"
-          }
-        },
-        "owner": {
-          "description": "Owner of this policy",
-          "$ref": "../../type/entityReference.json"
-        },
-        "location": {
-          "description": "Reference to the location/team to which this policy belongs",
-          "$ref": "../../type/entityReference.json"
-        },
-        "tags": {
-          "description": "Tags for this policy",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/tagLabel.json"
-          },
-          "default": null
-        },
         "version": {
-          "description": "Metadata version of the entity",
+          "description": "Metadata version of the Policy.",
           "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
         },
         "updatedAt": {
-          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds",
+          "description": "Last update time corresponding to the new version of the Policy in Unix epoch time milliseconds.",
           "$ref": "../../type/basic.json#/definitions/timestamp"
         },
         "updatedBy": {
-          "description": "User who made the update",
+          "description": "User who made the update.",
           "type": "string"
         },
-        "href": {
-          "description": "Link to this policy resource",
-          "$ref": "../../type/basic.json#/definitions/href"
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
         },
         "changeDescription": {
-          "description": "Change that led to this version of the entity",
+          "description": "Change that led to this version of the Policy.",
           "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
         },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "rules": {
+          "description": "Set of rules that the policy contains.",
+          "$ref": "#/definitions/rules"
+        },
+        "teams": {
+          "description": "Teams that use this policy directly and not through roles.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "roles": {
+          "description": "Roles that use this policy.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "location": {
+          "description": "Location to which a policy is applied. This field is relevant only for `lifeCycle` policies.",
+          "$ref": "../../type/entityReference.json",
+          "default": null
+        },
+        "allowDelete": {
+          "description": "Some system policies can't be deleted",
+          "type": "boolean"
+        },
+        "allowEdit": {
+          "description": "Some system roles can't be edited",
+          "type": "boolean"
+        },
         "deleted": {
-          "description": "When true indicates the entity has been soft deleted",
+          "description": "When `true` indicates the entity has been soft deleted.",
           "type": "boolean",
           "default": false
         },
-        "domain": {
-          "description": "Domain the policy belongs to",
-          "$ref": "../../type/entityReference.json"
+        "provider": {
+          "$ref": "../../type/basic.json#/definitions/providerType"
+        },
+        "disabled": {
+          "description": "System policy can't be deleted. Use this flag to disable them.",
+          "type": "boolean"
+        },
+        "domains": {
+          "description": "Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
         }
       },
       "required": [
         "id",
         "name",
-        "policyType"
+        "rules"
       ],
       "additionalProperties": false
     }
@@ -352,67 +277,99 @@ graph TD
     # Policy Class Definition
     om-policy:Policy a owl:Class ;
         rdfs:label "Policy" ;
-        rdfs:comment "A Policy defines access control rules and governance policies for data assets" ;
+        rdfs:comment "A Policy defines control that needs to be applied across different Data Entities" ;
         rdfs:subClassOf om-entity:Entity ;
-        rdfs:isDefinedBy om: .
-
-    # Policy Type Class
-    om-policy:PolicyType a owl:Class ;
-        rdfs:label "Policy Type" ;
-        rdfs:comment "Type of policy (AccessControl, Lifecycle, Masking, Compliance, Custom)" ;
         rdfs:isDefinedBy om: .
 
     # Rule Class Definition
     om-policy:Rule a owl:Class ;
         rdfs:label "Rule" ;
-        rdfs:comment "A rule within a policy that defines specific permissions" ;
+        rdfs:comment "Describes an Access Control Rule for OpenMetadata Metadata Operations" ;
         rdfs:isDefinedBy om: .
 
     # Effect Class
     om-policy:Effect a owl:Class ;
         rdfs:label "Effect" ;
-        rdfs:comment "Effect of the rule - Allow or Deny" ;
+        rdfs:comment "Effect of the rule - allow or deny" ;
         rdfs:isDefinedBy om: .
 
     # Properties
-    om-policy:policyType a owl:ObjectProperty ;
-        rdfs:label "policy type" ;
-        rdfs:comment "Type of the policy" ;
-        rdfs:domain om-policy:Policy ;
-        rdfs:range om-policy:PolicyType .
-
-    om-policy:policyUrl a owl:DatatypeProperty ;
-        rdfs:label "policy URL" ;
-        rdfs:comment "Link to the policy document" ;
-        rdfs:domain om-policy:Policy ;
-        rdfs:range xsd:anyURI .
-
     om-policy:enabled a owl:DatatypeProperty ;
         rdfs:label "enabled" ;
-        rdfs:comment "Indicates if the policy is enabled" ;
+        rdfs:comment "Is the policy enabled" ;
+        rdfs:domain om-policy:Policy ;
+        rdfs:range xsd:boolean .
+
+    om-policy:disabled a owl:DatatypeProperty ;
+        rdfs:label "disabled" ;
+        rdfs:comment "System policy can't be deleted. Use this flag to disable them" ;
+        rdfs:domain om-policy:Policy ;
+        rdfs:range xsd:boolean .
+
+    om-policy:allowDelete a owl:DatatypeProperty ;
+        rdfs:label "allow delete" ;
+        rdfs:comment "Some system policies can't be deleted" ;
+        rdfs:domain om-policy:Policy ;
+        rdfs:range xsd:boolean .
+
+    om-policy:allowEdit a owl:DatatypeProperty ;
+        rdfs:label "allow edit" ;
+        rdfs:comment "Some system roles can't be edited" ;
         rdfs:domain om-policy:Policy ;
         rdfs:range xsd:boolean .
 
     om-policy:hasRule a owl:ObjectProperty ;
         rdfs:label "has rule" ;
-        rdfs:comment "Rules that make up the policy" ;
+        rdfs:comment "Set of rules that the policy contains" ;
         rdfs:domain om-policy:Policy ;
         rdfs:range om-policy:Rule .
 
-    om-policy:appliesTo a owl:ObjectProperty ;
-        rdfs:label "applies to" ;
-        rdfs:comment "Data assets to which the policy applies" ;
+    om-policy:hasTeam a owl:ObjectProperty ;
+        rdfs:label "has team" ;
+        rdfs:comment "Teams that use this policy directly and not through roles" ;
         rdfs:domain om-policy:Policy ;
-        rdfs:range om-entity:Entity .
+        rdfs:range om-entity:Team .
 
-    om-policy:affects a owl:ObjectProperty ;
-        rdfs:label "affects" ;
-        rdfs:comment "Users, teams, or roles affected by the policy" ;
-        rdfs:domain om-policy:Policy .
+    om-policy:hasRole a owl:ObjectProperty ;
+        rdfs:label "has role" ;
+        rdfs:comment "Roles that use this policy" ;
+        rdfs:domain om-policy:Policy ;
+        rdfs:range om-entity:Role .
 
+    om-policy:location a owl:ObjectProperty ;
+        rdfs:label "location" ;
+        rdfs:comment "Location to which a policy is applied. This field is relevant only for lifeCycle policies" ;
+        rdfs:domain om-policy:Policy ;
+        rdfs:range om-entity:Location .
+
+    om-policy:hasDomain a owl:ObjectProperty ;
+        rdfs:label "has domain" ;
+        rdfs:comment "Domains the asset belongs to" ;
+        rdfs:domain om-policy:Policy ;
+        rdfs:range om-entity:Domain .
+
+    om-policy:hasOwner a owl:ObjectProperty ;
+        rdfs:label "has owner" ;
+        rdfs:comment "Owners of this Policy" ;
+        rdfs:domain om-policy:Policy ;
+        rdfs:range om-entity:EntityReference .
+
+    om-policy:impersonatedBy a owl:DatatypeProperty ;
+        rdfs:label "impersonated by" ;
+        rdfs:comment "Bot user that performed the action on behalf of the actual user" ;
+        rdfs:domain om-policy:Policy ;
+        rdfs:range xsd:string .
+
+    om-policy:provider a owl:DatatypeProperty ;
+        rdfs:label "provider" ;
+        rdfs:comment "Provider type for the policy" ;
+        rdfs:domain om-policy:Policy ;
+        rdfs:range xsd:string .
+
+    # Rule Properties
     om-policy:ruleName a owl:DatatypeProperty ;
         rdfs:label "rule name" ;
-        rdfs:comment "Name of the rule" ;
+        rdfs:comment "Name of this Rule" ;
         rdfs:domain om-policy:Rule ;
         rdfs:range xsd:string .
 
@@ -424,48 +381,21 @@ graph TD
 
     om-policy:operations a owl:DatatypeProperty ;
         rdfs:label "operations" ;
-        rdfs:comment "Operations allowed or denied by this rule" ;
+        rdfs:comment "List of operation names related to the resources" ;
         rdfs:domain om-policy:Rule ;
         rdfs:range xsd:string .
 
     om-policy:resources a owl:DatatypeProperty ;
         rdfs:label "resources" ;
-        rdfs:comment "Resources to which this rule applies" ;
+        rdfs:comment "Resources/objects related to this rule" ;
         rdfs:domain om-policy:Rule ;
         rdfs:range xsd:string .
 
     om-policy:condition a owl:DatatypeProperty ;
         rdfs:label "condition" ;
-        rdfs:comment "Condition expression for the rule" ;
+        rdfs:comment "Expression in SpEL used for matching of a Rule based on entity, resource, and environmental attributes" ;
         rdfs:domain om-policy:Rule ;
         rdfs:range xsd:string .
-
-    om-policy:triggersAlert a owl:ObjectProperty ;
-        rdfs:label "triggers alert" ;
-        rdfs:comment "Alerts triggered by policy violations" ;
-        rdfs:domain om-policy:Policy ;
-        rdfs:range om-entity:Alert .
-
-    # Policy Type Individuals
-    om-policy:AccessControl a om-policy:PolicyType ;
-        rdfs:label "Access Control" ;
-        skos:definition "Policy for controlling access to data assets" .
-
-    om-policy:Lifecycle a om-policy:PolicyType ;
-        rdfs:label "Lifecycle" ;
-        skos:definition "Policy for data lifecycle management and retention" .
-
-    om-policy:Masking a om-policy:PolicyType ;
-        rdfs:label "Masking" ;
-        skos:definition "Policy for data masking and anonymization" .
-
-    om-policy:Compliance a om-policy:PolicyType ;
-        rdfs:label "Compliance" ;
-        skos:definition "Policy for regulatory compliance" .
-
-    om-policy:Custom a om-policy:PolicyType ;
-        rdfs:label "Custom" ;
-        skos:definition "Custom policy type" .
 
     # Effect Individuals
     om-policy:Allow a om-policy:Effect ;
@@ -517,16 +447,20 @@ graph TD
           "@id": "dcterms:description",
           "@type": "xsd:string"
         },
-        "policyType": {
-          "@id": "om:policyType",
-          "@type": "@id"
-        },
-        "policyUrl": {
-          "@id": "om:policyUrl",
-          "@type": "xsd:anyURI"
-        },
         "enabled": {
           "@id": "om:enabled",
+          "@type": "xsd:boolean"
+        },
+        "disabled": {
+          "@id": "om:disabled",
+          "@type": "xsd:boolean"
+        },
+        "allowDelete": {
+          "@id": "om:allowDelete",
+          "@type": "xsd:boolean"
+        },
+        "allowEdit": {
+          "@id": "om:allowEdit",
           "@type": "xsd:boolean"
         },
         "rules": {
@@ -534,33 +468,37 @@ graph TD
           "@type": "@id",
           "@container": "@set"
         },
-        "owner": {
-          "@id": "om:owner",
+        "owners": {
+          "@id": "om:hasOwner",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "teams": {
+          "@id": "om:hasTeam",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "roles": {
+          "@id": "om:hasRole",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "location": {
+          "@id": "om:location",
           "@type": "@id"
         },
-        "tags": {
-          "@id": "om:tags",
+        "domains": {
+          "@id": "om:hasDomain",
           "@type": "@id",
           "@container": "@set"
         },
-        "domain": {
-          "@id": "om:domain",
-          "@type": "@id"
+        "provider": {
+          "@id": "om:provider",
+          "@type": "xsd:string"
         },
-        "appliesTo": {
-          "@id": "om:appliesTo",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "affects": {
-          "@id": "om:affects",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "triggersAlert": {
-          "@id": "om:triggersAlert",
-          "@type": "@id",
-          "@container": "@set"
+        "impersonatedBy": {
+          "@id": "om:impersonatedBy",
+          "@type": "xsd:string"
         },
         "version": {
           "@id": "om:version",
@@ -577,6 +515,18 @@ graph TD
         "href": {
           "@id": "om:href",
           "@type": "xsd:anyURI"
+        },
+        "changeDescription": {
+          "@id": "om:changeDescription",
+          "@type": "@id"
+        },
+        "incrementalChangeDescription": {
+          "@id": "om:incrementalChangeDescription",
+          "@type": "@id"
+        },
+        "deleted": {
+          "@id": "om:deleted",
+          "@type": "xsd:boolean"
         }
       }
     }
@@ -592,7 +542,6 @@ Define who can access specific databases and what operations they can perform:
 {
   "name": "ProductionDatabaseAccess",
   "displayName": "Production Database Access Policy",
-  "policyType": "AccessControl",
   "description": "Controls access to production databases",
   "enabled": true,
   "rules": [
@@ -613,13 +562,10 @@ Define who can access specific databases and what operations they can perform:
       "condition": "hasRole('DataAnalyst')"
     }
   ],
-  "owner": {
-    "type": "user",
-    "name": "chief.data.officer"
-  },
-  "tags": [
+  "owners": [
     {
-      "tagFQN": "Governance.AccessControl"
+      "type": "user",
+      "name": "chief.data.officer"
     }
   ]
 }
@@ -633,7 +579,6 @@ Automatically mask PII data for certain user roles:
 {
   "name": "PIIMaskingPolicy",
   "displayName": "PII Data Masking Policy",
-  "policyType": "Masking",
   "description": "Masks PII data for non-privileged users",
   "enabled": true,
   "rules": [
@@ -646,16 +591,10 @@ Automatically mask PII data for certain user roles:
       "condition": "hasTag('PII.Sensitive') AND NOT hasRole('DataSteward')"
     }
   ],
-  "owner": {
-    "type": "team",
-    "name": "DataGovernance"
-  },
-  "tags": [
+  "owners": [
     {
-      "tagFQN": "Governance.DataPrivacy"
-    },
-    {
-      "tagFQN": "Compliance.GDPR"
+      "type": "team",
+      "name": "DataGovernance"
     }
   ]
 }
@@ -669,10 +608,8 @@ Ensure compliance with GDPR data retention requirements:
 {
   "name": "GDPRRetentionPolicy",
   "displayName": "GDPR Data Retention Policy",
-  "policyType": "Compliance",
   "description": "Enforces GDPR data retention requirements",
   "enabled": true,
-  "policyUrl": "https://company.com/policies/gdpr-retention",
   "rules": [
     {
       "name": "DeleteCustomerDataAfter7Years",
@@ -691,20 +628,16 @@ Ensure compliance with GDPR data retention requirements:
       "condition": "dataAge > 2555 DAYS AND hasTag('PII')"
     }
   ],
-  "owner": {
-    "type": "user",
-    "name": "compliance.officer"
-  },
-  "domain": {
-    "type": "domain",
-    "name": "Governance"
-  },
-  "tags": [
+  "owners": [
     {
-      "tagFQN": "Compliance.GDPR"
-    },
+      "type": "user",
+      "name": "compliance.officer"
+    }
+  ],
+  "domains": [
     {
-      "tagFQN": "Governance.Retention"
+      "type": "domain",
+      "name": "Governance"
     }
   ]
 }
@@ -718,7 +651,6 @@ Control access based on data domains:
 {
   "name": "DomainBasedAccess",
   "displayName": "Domain-Based Access Policy",
-  "policyType": "AccessControl",
   "description": "Users can only access data in their domain",
   "enabled": true,
   "rules": [
@@ -739,10 +671,12 @@ Control access based on data domains:
       "condition": "NOT inUserDomain(resource.domain)"
     }
   ],
-  "owner": {
-    "type": "team",
-    "name": "DataGovernance"
-  }
+  "owners": [
+    {
+      "type": "team",
+      "name": "DataGovernance"
+    }
+  ]
 }
 ```
 
@@ -757,22 +691,62 @@ Supported operations that can be controlled by policies:
 - `ViewTests`: View test results
 - `ViewQueries`: View sample queries
 - `ViewDataProfile`: View data profile and statistics
+- `ViewProfilerGlobalConfiguration`: View profiler global configuration
 - `ViewSampleData`: View sample data
+- `ViewTestCaseFailedRowsSample`: View test case failed rows sample
+- `ViewCustomFields`: View custom fields
+- `ViewScim`: View SCIM information
+
+### Create Operations
+- `Create`: Create new entities
+- `BulkCreate`: Create multiple entities at once
+- `CreateIngestionPipelineAutomator`: Create ingestion pipeline automators
+- `CreateTests`: Create test cases
+- `CreateScim`: Create SCIM entries
 
 ### Edit Operations
 - `EditAll`: Edit all metadata
-- `EditDescription`: Edit description only
+- `EditDescription`: Edit description
+- `EditDisplayName`: Edit display name
 - `EditTags`: Edit tags
-- `EditOwner`: Edit ownership
+- `EditGlossaryTerms`: Edit glossary terms
+- `EditOwners`: Edit ownership
 - `EditTier`: Edit tier
 - `EditCustomFields`: Edit custom properties
 - `EditLineage`: Edit lineage information
+- `EditEntityRelationship`: Edit entity relationships
 - `EditReviewers`: Edit reviewers
+- `EditDataProfile`: Edit data profile
+- `EditQueries`: Edit queries
+- `EditSampleData`: Edit sample data
+- `EditTests`: Edit tests
+- `EditUsage`: Edit usage information
+- `EditUsers`: Edit users
+- `EditTeams`: Edit teams
+- `EditLifeCycle`: Edit lifecycle
+- `EditKnowledgePanel`: Edit knowledge panel
+- `EditPage`: Edit page
+- `EditCertification`: Edit certification
+- `EditStatus`: Edit status
+- `EditIngestionPipelineStatus`: Edit ingestion pipeline status
+- `EditUserNotificationTemplate`: Edit user notification templates
+
+### Bulk Operations
+- `BulkUpdate`: Update multiple entities at once
 
 ### Administrative Operations
 - `Delete`: Delete the entity
+- `DeleteTestCaseFailedRowsSample`: Delete test case failed rows sample
+- `DeleteScim`: Delete SCIM entries
 - `EditPolicy`: Edit policies
 - `EditRole`: Edit roles
+- `Deploy`: Deploy entities
+- `Trigger`: Trigger operations
+- `Kill`: Kill running operations
+- `GenerateToken`: Generate authentication tokens
+- `EditScim`: Edit SCIM information
+- `Impersonate`: Impersonate users
+- `All`: All operations
 
 ## Policy Evaluation
 
@@ -784,13 +758,16 @@ Policies are evaluated in the following order:
 
 ### Condition Expressions
 
-Rules can include condition expressions using a simple expression language:
+Rules can include condition expressions using Spring Expression Language (SpEL) based on entity, resource, and environmental attributes:
 
 - `hasRole('RoleName')`: Check if user has a specific role
 - `inTeam('TeamName')`: Check if user is in a specific team
 - `hasTag('TagName')`: Check if resource has a specific tag
 - `dataAge > N DAYS`: Check age of data
-- `inUserDomain(domain)`: Check if resource is in user's domain
+- `inUserDomain(resource.domain)`: Check if resource is in user's domain
+- Boolean operators: `AND`, `OR`, `NOT`
+- Comparison operators: `>`, `<`, `>=`, `<=`, `==`, `!=`
+- String matching and other SpEL capabilities
 
 ## Best Practices
 
@@ -843,7 +820,6 @@ Content-Type: application/json
 
 {
   "name": "SamplePolicy",
-  "policyType": "AccessControl",
   "description": "Sample access control policy",
   "enabled": true,
   "rules": [...]
@@ -884,7 +860,7 @@ DELETE /api/v1/policies/{id}
 ### List Policies
 
 ```http
-GET /api/v1/policies?limit=10&policyType=AccessControl
+GET /api/v1/policies?limit=10
 ```
 
 ### Enable/Disable Policy

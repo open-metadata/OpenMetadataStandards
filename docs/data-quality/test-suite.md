@@ -7,7 +7,7 @@
 
 ## Overview
 
-The **TestSuite** entity represents a collection of test cases organized around a specific table or a logical grouping. Test suites enable batch execution, monitoring, and management of related data quality tests.
+The **TestSuite** entity represents a set of test cases grouped together to capture data quality tests against data entities. Test suites can be basic (attached to a specific entity like a table) or logical (custom groupings across multiple entities). Test suites enable batch execution, monitoring, and management of related data quality tests.
 
 ## Relationship Diagram
 
@@ -107,37 +107,42 @@ View the complete TestSuite schema in your preferred format:
 
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/data/testSuite.json",
+      "$id": "https://open-metadata.org/schema/tests/testSuite.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "TestSuite",
-      "description": "A `TestSuite` is a collection of test cases, either for a specific table or as a logical grouping.",
+      "description": "TestSuite is a set of test cases grouped together to capture data quality tests against data entities.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.data.TestSuite",
+      "javaType": "org.openmetadata.schema.tests.TestSuite",
+      "javaInterfaces": [
+        "org.openmetadata.schema.ServiceEntityInterface"
+      ],
 
       "definitions": {
-        "testSuiteType": {
-          "description": "Type of test suite",
-          "type": "string",
-          "enum": ["executable", "logical"]
-        },
-        "testSummary": {
+        "testSuiteConnection": {
           "type": "object",
+          "javaInterfaces": [
+            "org.openmetadata.schema.ServiceConnectionEntityInterface"
+          ],
           "properties": {
-            "success": {
-              "description": "Number of successful tests",
-              "type": "integer"
-            },
-            "failed": {
-              "description": "Number of failed tests",
-              "type": "integer"
-            },
-            "aborted": {
-              "description": "Number of aborted tests",
-              "type": "integer"
-            },
-            "total": {
-              "description": "Total number of tests",
-              "type": "integer"
+            "config": {
+              "type": "null"
+            }
+          },
+          "resultSummary": {
+            "javaType": "org.openmetadata.schema.tests.ResultSummary",
+            "properties": {
+              "testCaseName": {
+                "description": "Name of the test case.",
+                "$ref": "../type/basic.json#/definitions/fullyQualifiedEntityName"
+              },
+              "status": {
+                "description": "Status of the test case.",
+                "$ref": "./basic.json#/definitions/testCaseStatus"
+              },
+              "timestamp": {
+                "description": "Timestamp of the test case execution.",
+                "$ref": "../type/basic.json#/definitions/timestamp"
+              }
             }
           }
         }
@@ -145,58 +150,157 @@ View the complete TestSuite schema in your preferred format:
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
-          "$ref": "../../type/basic.json#/definitions/uuid"
+          "description": "Unique identifier of this test suite instance.",
+          "$ref": "../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Test suite name",
-          "$ref": "../../type/basic.json#/definitions/entityName"
-        },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+          "description": "Name that identifies this test suite.",
+          "$ref": "../api/tests/createTestSuite.json#/definitions/testSuiteEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name that identifies this test suite.",
           "type": "string"
         },
+        "fullyQualifiedName": {
+          "description": "FullyQualifiedName same as `name`.",
+          "$ref": "../type/basic.json#/definitions/fullyQualifiedEntityName"
+        },
         "description": {
-          "description": "Markdown description",
-          "$ref": "../../type/basic.json#/definitions/markdown"
-        },
-        "testSuiteType": {
-          "$ref": "#/definitions/testSuiteType"
-        },
-        "executableEntityReference": {
-          "description": "Reference to table (for executable test suites)",
-          "$ref": "../../type/entityReference.json"
+          "description": "Description of the test suite.",
+          "$ref": "../type/basic.json#/definitions/markdown"
         },
         "tests": {
-          "description": "Test cases in this suite",
           "type": "array",
           "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+            "$ref": "../type/entityReference.json"
+          },
+          "default": null
         },
-        "summary": {
-          "description": "Test execution summary",
-          "$ref": "#/definitions/testSummary"
+        "connection": {
+          "description": "TestSuite mock connection, since it needs to implement a Service.",
+          "$ref": "#/definitions/testSuiteConnection"
         },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
+        "testConnectionResult": {
+          "description": "Result of the test connection.",
+          "$ref": "../entity/services/connections/testConnectionResult.json"
         },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
+        "pipelines": {
+          "description": "References to pipelines deployed for this Test Suite to execute the tests.",
+          "$ref": "../type/entityReferenceList.json",
+          "default": null
+        },
+        "serviceType": {
+          "description": "Type of database service such as MySQL, BigQuery, Snowflake, Redshift, Postgres...",
+          "javaInterfaces": [
+            "org.openmetadata.schema.EnumInterface"
+          ],
+          "type": "string",
+          "enum": [
+            "TestSuite"
+          ],
+          "default": "TestSuite"
+        },
+        "owners": {
+          "description": "Owners of this TestCase definition.",
+          "$ref": "../type/entityReferenceList.json",
+          "default": null
         },
         "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+          "description": "Metadata version of the entity.",
+          "$ref": "../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../type/basic.json#/definitions/href"
+        },
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
+        },
+        "basic": {
+          "description": "Indicates if the test suite is basic, i.e., the parent suite of a test and linked to an entity. Set on the backend.",
+          "type": "boolean",
+          "default": false
+        },
+        "executable": {
+          "description": "DEPRECATED in 1.6.2: Use 'basic'",
+          "type": "boolean",
+          "deprecated": true
+        },
+        "basicEntityReference": {
+          "description": "Entity reference the test suite needs to execute the test against. Only applicable if the test suite is basic.",
+          "$ref": "../type/entityReference.json"
+        },
+        "executableEntityReference": {
+          "description": "DEPRECATED in 1.6.2: Use 'basicEntityReference'.",
+          "$ref": "../type/entityReference.json",
+          "deprecated": true
+        },
+        "dataContract": {
+          "description": "Reference to the data contract that this test suite is associated with.",
+          "$ref": "../type/entityReference.json",
+          "default": null
+        },
+        "summary": {
+          "description": "Summary of the previous day test cases execution for this test suite.",
+          "$ref": "./basic.json#/definitions/testSummary"
+        },
+        "testCaseResultSummary": {
+          "description": "Summary of test case execution",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/testSuiteConnection/resultSummary"
+          }
+        },
+        "domains": {
+          "description": "Domains the test Suite belongs to. When not set, the test Suite inherits the domain from the table it belongs to.",
+          "$ref": "../type/entityReferenceList.json"
+        },
+        "tags": {
+          "description": "Tags for this test suite. This is an inherited field from the parent entity if the testSuite is native.",
+          "type": "array",
+          "items": {
+            "$ref": "../type/tagLabel.json"
+          },
+          "default": []
+        },
+        "inherited": {
+          "description": "Indicates if the test suite is inherited from a parent entity.",
+          "type": "boolean",
+          "default": false
+        },
+        "ingestionRunner": {
+          "description": "Link to the ingestion pipeline that ingested this entity.",
+          "$ref": "../type/entityReference.json"
+        },
+        "reviewers": {
+          "description": "List of reviewers for this entity.",
+          "$ref": "../type/entityReferenceList.json",
+          "default": null
         }
       },
 
-      "required": ["id", "name", "testSuiteType"]
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
     }
     ```
 
@@ -209,14 +313,14 @@ View the complete TestSuite schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # TestSuite Class Definition
     om:TestSuite a owl:Class ;
-        rdfs:subClassOf om:DataQualityAsset ;
+        rdfs:subClassOf om:ServiceEntity ;
         rdfs:label "TestSuite" ;
-        rdfs:comment "A collection of test cases for a table or logical grouping" ;
+        rdfs:comment "TestSuite is a set of test cases grouped together to capture data quality tests against data entities." ;
         om:hierarchyLevel 3 .
 
     # Properties
@@ -224,19 +328,25 @@ View the complete TestSuite schema in your preferred format:
         rdfs:domain om:TestSuite ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the test suite" .
+        rdfs:comment "Name that identifies this test suite" .
 
-    om:testSuiteType a owl:DatatypeProperty ;
+    om:testSuiteDisplayName a owl:DatatypeProperty ;
         rdfs:domain om:TestSuite ;
-        rdfs:range om:TestSuiteType ;
-        rdfs:label "testSuiteType" ;
-        rdfs:comment "Type: executable (table-specific) or logical (custom grouping)" .
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display name that identifies this test suite" .
 
-    om:appliedToTable a owl:ObjectProperty ;
+    om:isBasicTestSuite a owl:DatatypeProperty ;
         rdfs:domain om:TestSuite ;
-        rdfs:range om:Table ;
-        rdfs:label "executableEntityReference" ;
-        rdfs:comment "Table this executable test suite applies to" .
+        rdfs:range xsd:boolean ;
+        rdfs:label "basic" ;
+        rdfs:comment "Indicates if the test suite is basic, i.e., the parent suite of a test and linked to an entity" .
+
+    om:appliedToEntity a owl:ObjectProperty ;
+        rdfs:domain om:TestSuite ;
+        rdfs:range om:Entity ;
+        rdfs:label "basicEntityReference" ;
+        rdfs:comment "Entity reference the test suite needs to execute the test against. Only applicable if the test suite is basic" .
 
     om:containsTestCase a owl:ObjectProperty ;
         rdfs:domain om:TestSuite ;
@@ -248,29 +358,56 @@ View the complete TestSuite schema in your preferred format:
         rdfs:domain om:TestSuite ;
         rdfs:range om:TestSummary ;
         rdfs:label "summary" ;
-        rdfs:comment "Execution summary statistics" .
+        rdfs:comment "Summary of the previous day test cases execution for this test suite" .
 
-    # TestSuiteType Enumeration
-    om:TestSuiteType a owl:Class ;
-        owl:oneOf (
-            om:ExecutableTestSuite
-            om:LogicalTestSuite
-        ) .
+    om:hasOwners a owl:ObjectProperty ;
+        rdfs:domain om:TestSuite ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this TestSuite definition" .
+
+    om:belongsToDomains a owl:ObjectProperty ;
+        rdfs:domain om:TestSuite ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the test Suite belongs to. When not set, the test Suite inherits the domain from the table it belongs to" .
+
+    om:hasDataContract a owl:ObjectProperty ;
+        rdfs:domain om:TestSuite ;
+        rdfs:range om:DataContract ;
+        rdfs:label "dataContract" ;
+        rdfs:comment "Reference to the data contract that this test suite is associated with" .
+
+    om:hasReviewers a owl:ObjectProperty ;
+        rdfs:domain om:TestSuite ;
+        rdfs:range om:EntityReferenceList ;
+        rdfs:label "reviewers" ;
+        rdfs:comment "List of reviewers for this entity" .
+
+    om:isInherited a owl:DatatypeProperty ;
+        rdfs:domain om:TestSuite ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "inherited" ;
+        rdfs:comment "Indicates if the test suite is inherited from a parent entity" .
 
     # Example Instance
     ex:customersTestSuite a om:TestSuite ;
         om:testSuiteName "customers.testSuite" ;
-        om:displayName "Customers Table Test Suite" ;
-        om:testSuiteType om:ExecutableTestSuite ;
-        om:appliedToTable ex:customersTable ;
+        om:testSuiteDisplayName "Customers Table Test Suite" ;
+        om:isBasicTestSuite true ;
+        om:appliedToEntity ex:customersTable ;
         om:containsTestCase ex:rowCountTest ;
         om:containsTestCase ex:emailUniqueTest ;
         om:containsTestCase ex:createdAtNotNullTest ;
-        om:hasTestSummary ex:latestSummary .
+        om:hasTestSummary ex:latestSummary ;
+        om:hasOwners ex:dataQualityTeamList ;
+        om:belongsToDomains ex:salesDomainList .
 
     ex:latestSummary a om:TestSummary ;
         om:success 8 ;
         om:failed 1 ;
+        om:aborted 0 ;
+        om:queued 0 ;
         om:total 9 .
     ```
 
@@ -298,19 +435,19 @@ View the complete TestSuite schema in your preferred format:
           "@type": "xsd:string"
         },
         "displayName": {
-          "@id": "om:displayName",
+          "@id": "om:testSuiteDisplayName",
           "@type": "xsd:string"
         },
         "description": {
           "@id": "om:description",
           "@type": "xsd:string"
         },
-        "testSuiteType": {
-          "@id": "om:testSuiteType",
-          "@type": "@vocab"
+        "basic": {
+          "@id": "om:isBasicTestSuite",
+          "@type": "xsd:boolean"
         },
-        "executableEntityReference": {
-          "@id": "om:appliedToTable",
+        "basicEntityReference": {
+          "@id": "om:appliedToEntity",
           "@type": "@id"
         },
         "tests": {
@@ -322,13 +459,28 @@ View the complete TestSuite schema in your preferred format:
           "@id": "om:hasTestSummary",
           "@type": "@id"
         },
-        "owner": {
-          "@id": "om:ownedBy",
+        "owners": {
+          "@id": "om:hasOwners",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "domains": {
+          "@id": "om:belongsToDomains",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "dataContract": {
+          "@id": "om:hasDataContract",
           "@type": "@id"
         },
-        "domain": {
-          "@id": "om:inDomain",
-          "@type": "@id"
+        "reviewers": {
+          "@id": "om:hasReviewers",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "inherited": {
+          "@id": "om:isInherited",
+          "@type": "xsd:boolean"
         }
       }
     }
@@ -346,9 +498,9 @@ View the complete TestSuite schema in your preferred format:
       "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.testSuite",
       "displayName": "Customers Table Test Suite",
       "description": "Data quality tests for the customers master table",
-      "testSuiteType": "executable",
+      "basic": true,
 
-      "executableEntityReference": {
+      "basicEntityReference": {
         "@id": "https://example.com/data/tables/customers",
         "@type": "Table",
         "name": "customers",
@@ -372,14 +524,25 @@ View the complete TestSuite schema in your preferred format:
         "success": 8,
         "failed": 1,
         "aborted": 0,
+        "queued": 0,
         "total": 9
       },
 
-      "owner": {
-        "@id": "https://example.com/teams/data-quality",
-        "@type": "Team",
-        "name": "data-quality"
-      }
+      "owners": [
+        {
+          "@id": "https://example.com/teams/data-quality",
+          "@type": "Team",
+          "name": "data-quality"
+        }
+      ],
+
+      "domains": [
+        {
+          "@id": "https://example.com/domains/sales",
+          "@type": "Domain",
+          "name": "Sales"
+        }
+      ]
     }
     ```
 
@@ -472,30 +635,29 @@ View the complete TestSuite schema in your preferred format:
 
 ### Test Suite Configuration Properties
 
-#### `testSuiteType` (TestSuiteType enum)
-**Type**: `string` enum
-**Required**: Yes
-**Allowed Values**:
-
-- `executable` - Attached to a specific table, auto-created
-- `logical` - Custom grouping of tests across tables
+#### `basic` (boolean)
+**Type**: `boolean`
+**Required**: No (system-managed, default: false)
+**Description**: Indicates if the test suite is basic, i.e., the parent suite of a test and linked to an entity. Set on the backend.
 
 ```json
 {
-  "testSuiteType": "executable"
+  "basic": true
 }
 ```
 
+**Note**: The `executable` property is deprecated in version 1.6.2. Use `basic` instead.
+
 ---
 
-#### `executableEntityReference` (EntityReference)
+#### `basicEntityReference` (EntityReference)
 **Type**: `object`
-**Required**: Yes (for executable test suites)
-**Description**: Reference to the table this test suite is attached to
+**Required**: No (for basic test suites)
+**Description**: Entity reference the test suite needs to execute the test against. Only applicable if the test suite is basic.
 
 ```json
 {
-  "executableEntityReference": {
+  "basicEntityReference": {
     "id": "8f6a9c7e-3b2d-4a1f-9e5c-6d8b4f2a1e9c",
     "type": "table",
     "name": "customers",
@@ -504,7 +666,7 @@ View the complete TestSuite schema in your preferred format:
 }
 ```
 
-**Note**: Only applicable for executable test suites. Logical test suites do not have this property.
+**Note**: The `executableEntityReference` property is deprecated in version 1.6.2. Use `basicEntityReference` instead.
 
 ---
 
@@ -545,16 +707,17 @@ View the complete TestSuite schema in your preferred format:
 #### `summary` (TestSummary)
 **Type**: `object`
 **Required**: No (populated after execution)
-**Description**: Summary of test execution results
+**Description**: Summary of the previous day test cases execution for this test suite
 
 **TestSummary Object Properties**:
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `success` | integer | Number of successful tests |
-| `failed` | integer | Number of failed tests |
-| `aborted` | integer | Number of aborted tests |
-| `total` | integer | Total number of tests |
+| `success` | integer | Number of test cases that passed |
+| `failed` | integer | Number of test cases that failed |
+| `aborted` | integer | Number of test cases that aborted |
+| `queued` | integer | Number of test cases that are queued for execution |
+| `total` | integer | Total number of test cases |
 
 ```json
 {
@@ -562,6 +725,7 @@ View the complete TestSuite schema in your preferred format:
     "success": 8,
     "failed": 1,
     "aborted": 0,
+    "queued": 0,
     "total": 9
   }
 }
@@ -571,48 +735,127 @@ View the complete TestSuite schema in your preferred format:
 
 ### Governance Properties
 
-#### `owner` (EntityReference)
-**Type**: `object`
-**Required**: No
-**Description**: User or team that owns this test suite
+#### `owners` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No (default: null)
+**Description**: Owners of this TestSuite definition
 
 ```json
 {
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "team",
-    "name": "data-quality",
-    "displayName": "Data Quality Team"
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "team",
+      "name": "data-quality",
+      "displayName": "Data Quality Team"
+    },
+    {
+      "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      "type": "user",
+      "name": "john.doe"
+    }
+  ]
+}
+```
+
+---
+
+#### `domains` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No
+**Description**: Domains the test Suite belongs to. When not set, the test Suite inherits the domain from the table it belongs to.
+
+```json
+{
+  "domains": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ]
+}
+```
+
+---
+
+#### `dataContract` (EntityReference)
+**Type**: `object`
+**Required**: No (default: null)
+**Description**: Reference to the data contract that this test suite is associated with
+
+```json
+{
+  "dataContract": {
+    "id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+    "type": "dataContract",
+    "name": "customer_data_contract",
+    "fullyQualifiedName": "customer_data_contract"
   }
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
-**Required**: No
-**Description**: Data domain this test suite belongs to
+#### `reviewers` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No (default: null)
+**Description**: List of reviewers for this entity
 
 ```json
 {
-  "domain": {
-    "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
-    "type": "domain",
-    "name": "Sales",
-    "fullyQualifiedName": "Sales"
-  }
+  "reviewers": [
+    {
+      "id": "a7b8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d",
+      "type": "user",
+      "name": "jane.smith",
+      "displayName": "Jane Smith"
+    }
+  ]
 }
 ```
 
 ---
 
-### Versioning Properties
+#### `tags` (array)
+**Type**: `array` of TagLabel objects
+**Required**: No (default: [])
+**Description**: Tags for this test suite. This is an inherited field from the parent entity if the testSuite is native.
+
+```json
+{
+  "tags": [
+    {
+      "tagFQN": "PII.Sensitive",
+      "labelType": "Manual",
+      "state": "Confirmed"
+    }
+  ]
+}
+```
+
+---
+
+#### `inherited` (boolean)
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: Indicates if the test suite is inherited from a parent entity
+
+```json
+{
+  "inherited": false
+}
+```
+
+---
+
+### Versioning and System Properties
 
 #### `version` (entityVersion)
 **Type**: `number`
-**Required**: Yes (system-managed)
-**Description**: Metadata version number
+**Required**: No (system-managed)
+**Description**: Metadata version of the entity
 
 ```json
 {
@@ -622,9 +865,172 @@ View the complete TestSuite schema in your preferred format:
 
 ---
 
+#### `updatedAt` (timestamp)
+**Type**: `number` (Unix epoch time milliseconds)
+**Required**: No (system-managed)
+**Description**: Last update time corresponding to the new version of the entity
+
+```json
+{
+  "updatedAt": 1704240000000
+}
+```
+
+---
+
+#### `updatedBy` (string)
+**Type**: `string`
+**Required**: No (system-managed)
+**Description**: User who made the update
+
+```json
+{
+  "updatedBy": "john.doe"
+}
+```
+
+---
+
+#### `href` (href)
+**Type**: `string` (URI)
+**Required**: No (system-generated)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "https://example.com/api/v1/testSuites/e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"
+}
+```
+
+---
+
+#### `changeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "description",
+        "oldValue": "Old description",
+        "newValue": "New description"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.1
+  }
+}
+```
+
+---
+
+#### `deleted` (boolean)
+**Type**: `boolean`
+**Required**: No (default: false)
+**Description**: When `true` indicates the entity has been soft deleted
+
+```json
+{
+  "deleted": false
+}
+```
+
+---
+
+### Service Properties
+
+#### `serviceType` (enum)
+**Type**: `string` enum
+**Required**: No (default: "TestSuite")
+**Allowed Values**: `TestSuite`
+**Description**: Type of database service such as MySQL, BigQuery, Snowflake, Redshift, Postgres...
+
+```json
+{
+  "serviceType": "TestSuite"
+}
+```
+
+---
+
+#### `connection` (testSuiteConnection)
+**Type**: `object`
+**Required**: No
+**Description**: TestSuite mock connection, since it needs to implement a Service
+
+```json
+{
+  "connection": {
+    "config": null
+  }
+}
+```
+
+---
+
+#### `pipelines` (EntityReferenceList)
+**Type**: `array` of EntityReference objects
+**Required**: No (default: null)
+**Description**: References to pipelines deployed for this Test Suite to execute the tests
+
+```json
+{
+  "pipelines": [
+    {
+      "id": "b8c9d0e1-f2a3-4b4c-5d6e-7f8a9b0c1d2e",
+      "type": "pipeline",
+      "name": "test_suite_pipeline",
+      "fullyQualifiedName": "test_suite_pipeline"
+    }
+  ]
+}
+```
+
+---
+
+#### `testCaseResultSummary` (array)
+**Type**: `array` of ResultSummary objects
+**Required**: No
+**Description**: Summary of test case execution
+
+```json
+{
+  "testCaseResultSummary": [
+    {
+      "testCaseName": "customers_row_count_check",
+      "status": "Success",
+      "timestamp": 1704240000000
+    }
+  ]
+}
+```
+
+---
+
+#### `ingestionRunner` (EntityReference)
+**Type**: `object`
+**Required**: No
+**Description**: Link to the ingestion pipeline that ingested this entity
+
+```json
+{
+  "ingestionRunner": {
+    "id": "c9d0e1f2-a3b4-4c5d-6e7f-8a9b0c1d2e3f",
+    "type": "ingestionPipeline",
+    "name": "test_ingestion_pipeline"
+  }
+}
+```
+
+---
+
 ## Complete Examples
 
-### Executable Test Suite (Table-Specific)
+### Basic Test Suite (Table-Specific)
 
 ```json
 {
@@ -633,8 +1039,8 @@ View the complete TestSuite schema in your preferred format:
   "fullyQualifiedName": "postgres_prod.ecommerce.public.customers.testSuite",
   "displayName": "Customers Table Test Suite",
   "description": "Data quality tests for the customers master table",
-  "testSuiteType": "executable",
-  "executableEntityReference": {
+  "basic": true,
+  "basicEntityReference": {
     "id": "8f6a9c7e-3b2d-4a1f-9e5c-6d8b4f2a1e9c",
     "type": "table",
     "name": "customers",
@@ -661,18 +1067,24 @@ View the complete TestSuite schema in your preferred format:
     "success": 8,
     "failed": 1,
     "aborted": 0,
+    "queued": 0,
     "total": 9
   },
-  "owner": {
-    "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
-    "type": "team",
-    "name": "data-quality"
-  },
-  "domain": {
-    "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
-    "type": "domain",
-    "name": "Sales"
-  },
+  "owners": [
+    {
+      "id": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+      "type": "team",
+      "name": "data-quality"
+    }
+  ],
+  "domains": [
+    {
+      "id": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+      "type": "domain",
+      "name": "Sales"
+    }
+  ],
+  "serviceType": "TestSuite",
   "version": 1.2
 }
 ```
@@ -686,7 +1098,7 @@ View the complete TestSuite schema in your preferred format:
   "fullyQualifiedName": "critical_customer_pii_tests",
   "displayName": "Critical Customer PII Tests",
   "description": "# Critical PII Validation Suite\n\nHigh-priority tests for customer personally identifiable information across all customer-related tables.\n\n## Scope\n- Email validation\n- Phone number format\n- Address completeness\n- SSN encryption\n\n## SLA\n- Must pass 100% daily\n- Failures trigger immediate alerts",
-  "testSuiteType": "logical",
+  "basic": false,
   "tests": [
     {
       "id": "test-1-uuid",
@@ -718,19 +1130,32 @@ View the complete TestSuite schema in your preferred format:
     "success": 5,
     "failed": 0,
     "aborted": 0,
+    "queued": 0,
     "total": 5
   },
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "compliance-team",
-    "displayName": "Compliance Team"
-  },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "CustomerData"
-  },
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team",
+      "name": "compliance-team",
+      "displayName": "Compliance Team"
+    }
+  ],
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "CustomerData"
+    }
+  ],
+  "tags": [
+    {
+      "tagFQN": "PII.Sensitive",
+      "labelType": "Manual",
+      "state": "Confirmed"
+    }
+  ],
+  "serviceType": "TestSuite",
   "version": 1.0
 }
 ```
@@ -744,8 +1169,8 @@ View the complete TestSuite schema in your preferred format:
   "fullyQualifiedName": "postgres_prod.ecommerce.public.orders.testSuite",
   "displayName": "Orders Table Test Suite",
   "description": "Comprehensive data quality tests for the orders table",
-  "testSuiteType": "executable",
-  "executableEntityReference": {
+  "basic": true,
+  "basicEntityReference": {
     "id": "orders-table-uuid",
     "type": "table",
     "name": "orders",
@@ -753,22 +1178,27 @@ View the complete TestSuite schema in your preferred format:
   },
   "tests": [
     {
+      "id": "test-uuid-1",
       "type": "testCase",
       "name": "order_id_unique"
     },
     {
+      "id": "test-uuid-2",
       "type": "testCase",
       "name": "order_total_positive"
     },
     {
+      "id": "test-uuid-3",
       "type": "testCase",
       "name": "order_date_not_future"
     },
     {
+      "id": "test-uuid-4",
       "type": "testCase",
       "name": "customer_id_foreign_key_valid"
     },
     {
+      "id": "test-uuid-5",
       "type": "testCase",
       "name": "order_status_valid_values"
     }
@@ -777,8 +1207,11 @@ View the complete TestSuite schema in your preferred format:
     "success": 4,
     "failed": 1,
     "aborted": 0,
+    "queued": 0,
     "total": 5
   },
+  "serviceType": "TestSuite",
+  "inherited": false,
   "version": 1.0
 }
 ```
@@ -796,18 +1229,22 @@ View the complete TestSuite schema in your preferred format:
 ex:customersTestSuite a om:TestSuite ;
     om:testSuiteName "customers.testSuite" ;
     om:fullyQualifiedName "postgres_prod.ecommerce.public.customers.testSuite" ;
-    om:displayName "Customers Table Test Suite" ;
-    om:testSuiteType om:ExecutableTestSuite ;
-    om:appliedToTable ex:customersTable ;
+    om:testSuiteDisplayName "Customers Table Test Suite" ;
+    om:isBasicTestSuite true ;
+    om:appliedToEntity ex:customersTable ;
     om:containsTestCase ex:rowCountTest ;
     om:containsTestCase ex:emailUniqueTest ;
     om:containsTestCase ex:createdAtNotNullTest ;
     om:hasTestSummary [
         om:success 8 ;
         om:failed 1 ;
+        om:aborted 0 ;
+        om:queued 0 ;
         om:total 9
     ] ;
-    om:ownedBy ex:dataQualityTeam .
+    om:hasOwners ex:dataQualityTeamList ;
+    om:belongsToDomains ex:salesDomainList ;
+    om:isInherited false .
 ```
 
 ---
@@ -815,14 +1252,18 @@ ex:customersTestSuite a om:TestSuite ;
 ## Relationships
 
 ### Parent Entities
-- **Table**: The table this executable test suite is attached to
+- **Table** (or other entities): The entity this basic test suite is attached to (via `basicEntityReference`)
 
 ### Child Entities
 - **TestCase**: Test cases in this suite
 
 ### Associated Entities
-- **Owner**: User or team owning this suite
-- **Domain**: Business domain assignment
+- **Owners**: Users or teams owning this suite
+- **Domains**: Business domain assignments
+- **DataContract**: Data contract association
+- **Reviewers**: Users reviewing this suite
+- **Pipelines**: Pipeline references for test execution
+- **IngestionRunner**: Ingestion pipeline that created this entity
 
 ---
 
@@ -845,15 +1286,14 @@ for details on defining and using custom properties.
 
 ### Create Test Suite
 
-**Executable Test Suite** (auto-created with table):
+**Basic Test Suite** (auto-created with table):
 ```http
 POST /api/v1/testSuites
 Content-Type: application/json
 
 {
   "name": "customers.testSuite",
-  "testSuiteType": "executable",
-  "executableEntityReference": "postgres_prod.ecommerce.public.customers"
+  "basicEntityReference": "postgres_prod.ecommerce.public.customers"
 }
 ```
 
@@ -865,7 +1305,6 @@ Content-Type: application/json
 {
   "name": "critical_pii_tests",
   "displayName": "Critical PII Tests",
-  "testSuiteType": "logical",
   "description": "High-priority PII validation tests"
 }
 ```
@@ -873,7 +1312,7 @@ Content-Type: application/json
 ### Get Test Suite
 
 ```http
-GET /api/v1/testSuites/name/postgres_prod.ecommerce.public.customers.testSuite?fields=tests,summary,owner
+GET /api/v1/testSuites/name/postgres_prod.ecommerce.public.customers.testSuite?fields=tests,summary,owners,domains
 ```
 
 ### Add Test Case to Suite

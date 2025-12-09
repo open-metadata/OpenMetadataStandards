@@ -128,144 +128,175 @@ graph LR
     {
       "$id": "https://open-metadata.org/schema/type/entityLineage.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "EntityLineage",
-      "description": "Lineage information for an entity showing upstream and downstream dependencies.",
+      "title": "Entity Lineage",
+      "description": "The `Lineage` for a given data asset, has information of the input datasets used and the ETL pipeline that created it.",
       "type": "object",
       "javaType": "org.openmetadata.schema.type.EntityLineage",
       "definitions": {
-        "lineageEdge": {
-          "type": "object",
-          "description": "Edge in the lineage graph",
-          "properties": {
-            "fromEntity": {
-              "description": "Source entity reference",
-              "$ref": "../type/entityReference.json"
-            },
-            "toEntity": {
-              "description": "Target entity reference",
-              "$ref": "../type/entityReference.json"
-            },
-            "description": {
-              "description": "Description of the relationship",
-              "type": "string"
-            },
-            "sqlQuery": {
-              "description": "SQL query that defines the transformation",
-              "type": "string"
-            },
-            "pipeline": {
-              "description": "Pipeline that performs the transformation",
-              "$ref": "../type/entityReference.json"
-            },
-            "columns": {
-              "description": "Column-level lineage mappings",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/columnLineage"
-              }
-            },
-            "function": {
-              "description": "Transformation function applied",
-              "type": "string"
-            }
-          },
-          "required": [
-            "fromEntity",
-            "toEntity"
-          ]
-        },
         "columnLineage": {
           "type": "object",
-          "description": "Column-level lineage mapping",
           "properties": {
             "fromColumns": {
-              "description": "Source column names",
+              "description": "One or more source columns identified by fully qualified column name used by transformation function to create destination column.",
               "type": "array",
               "items": {
-                "type": "string"
+                "$ref": "../type/basic.json#/definitions/fullyQualifiedEntityName"
               }
             },
             "toColumn": {
-              "description": "Target column name",
-              "type": "string"
+              "description": "Destination column identified by fully qualified column name created by the transformation of source columns.",
+              "$ref": "../type/basic.json#/definitions/fullyQualifiedEntityName"
             },
             "function": {
-              "description": "Transformation function (CONCAT, SUM, etc.)",
-              "type": "string"
+              "description": "Transformation function applied to source columns to create destination column. That is `function(fromColumns) -> toColumn`.",
+              "$ref": "../type/basic.json#/definitions/sqlFunction"
             }
-          },
-          "required": [
-            "toColumn"
-          ]
+          }
         },
         "lineageDetails": {
+          "description": "Lineage details including sqlQuery + pipeline + columnLineage.",
           "type": "object",
-          "description": "Additional lineage metadata",
           "properties": {
-            "pipeline": {
-              "description": "Pipeline performing the transformation",
-              "$ref": "../type/entityReference.json"
-            },
-            "source": {
-              "description": "How lineage was captured",
-              "type": "string",
-              "enum": [
-                "Manual",
-                "QueryLineage",
-                "PipelineLineage",
-                "DbtLineage",
-                "ViewLineage"
-              ]
-            },
             "sqlQuery": {
-              "description": "SQL query defining the transformation",
-              "type": "string"
+              "description": "SQL used for transformation.",
+              "$ref": "../type/basic.json#/definitions/sqlQuery"
             },
             "columnsLineage": {
-              "description": "Column-level lineage",
+              "description": "Lineage information of how upstream columns were combined to get downstream column.",
               "type": "array",
               "items": {
                 "$ref": "#/definitions/columnLineage"
               }
+            },
+            "pipeline": {
+              "description": "Pipeline where the sqlQuery is periodically run.",
+              "$ref": "../type/entityReference.json"
+            },
+            "description": {
+              "description": "description of lineage",
+              "type": "string"
+            },
+            "source": {
+              "description": "Lineage type describes how a lineage was created.",
+              "type": "string",
+              "enum": [
+                "Manual",
+                "ViewLineage",
+                "QueryLineage",
+                "PipelineLineage",
+                "DashboardLineage",
+                "DbtLineage",
+                "SparkLineage",
+                "OpenLineage",
+                "ExternalTableLineage",
+                "CrossDatabaseLineage",
+                "ChildAssets"
+              ],
+              "default": "Manual"
+            },
+            "createdAt": {
+              "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+              "$ref": "../type/basic.json#/definitions/timestamp"
+            },
+            "createdBy": {
+              "description": "User who created the node.",
+              "type": "string"
+            },
+            "updatedAt": {
+              "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+              "$ref": "../type/basic.json#/definitions/timestamp"
+            },
+            "updatedBy": {
+              "description": "User who made the update.",
+              "type": "string"
+            },
+            "assetEdges": {
+              "description": "Asset count in case of child assets lineage.",
+              "type": "integer",
+              "default": null
             }
           }
+        },
+        "edge": {
+          "description": "Edge in the lineage graph from one entity to another by entity IDs.",
+          "type": "object",
+          "javaType": "org.openmetadata.schema.type.Edge",
+          "properties": {
+            "fromEntity": {
+              "description": "From entity that is upstream of lineage edge.",
+              "$ref": "basic.json#/definitions/uuid"
+            },
+            "toEntity": {
+              "description": "To entity that is downstream of lineage edge.",
+              "$ref": "basic.json#/definitions/uuid"
+            },
+            "description": {
+              "$ref": "basic.json#/definitions/markdown"
+            },
+            "lineageDetails": {
+              "description": "Optional lineageDetails provided only for table to table lineage edge.",
+              "$ref": "#/definitions/lineageDetails"
+            }
+          },
+          "required": ["fromEntity", "toEntity"],
+          "additionalProperties": false
+        },
+        "entitiesEdge": {
+          "description": "Edge in the lineage graph from one entity to another using entity references.",
+          "type": "object",
+          "javaType": "org.openmetadata.schema.type.EntitiesEdge",
+          "properties": {
+            "fromEntity": {
+              "description": "From entity that is upstream of lineage edge.",
+              "$ref": "entityReference.json"
+            },
+            "toEntity": {
+              "description": "To entity that is downstream of lineage edge.",
+              "$ref": "entityReference.json"
+            },
+            "description": {
+              "$ref": "basic.json#/definitions/markdown"
+            },
+            "lineageDetails": {
+              "description": "Optional lineageDetails provided only for table to table lineage edge.",
+              "$ref": "#/definitions/lineageDetails"
+            }
+          },
+          "required": ["fromEntity", "toEntity"],
+          "additionalProperties": false
         }
       },
       "properties": {
         "entity": {
-          "description": "Entity for which lineage is being captured",
-          "$ref": "../type/entityReference.json"
+          "description": "Primary entity for which this lineage graph is created.",
+          "$ref": "entityReference.json"
         },
         "nodes": {
-          "description": "All nodes in the lineage graph",
+          "description": "All the entities that are the nodes in the lineage graph excluding the primary entity.",
           "type": "array",
           "items": {
-            "$ref": "../type/entityReference.json"
-          }
+            "$ref": "entityReference.json"
+          },
+          "default": null
         },
         "upstreamEdges": {
-          "description": "Edges from upstream sources to this entity",
+          "description": "All the edges in the lineage graph that are upstream from the primary entity.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/lineageEdge"
-          }
+            "$ref": "#/definitions/edge"
+          },
+          "default": null
         },
         "downstreamEdges": {
-          "description": "Edges from this entity to downstream targets",
+          "description": "All the edges in the lineage graph that are downstream from the primary entity.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/lineageEdge"
-          }
-        },
-        "depth": {
-          "description": "Depth of lineage traversal",
-          "type": "integer",
-          "default": 1
+            "$ref": "#/definitions/edge"
+          },
+          "default": null
         }
       },
-      "required": [
-        "entity"
-      ],
+      "required": ["entity"],
       "additionalProperties": false
     }
     ```
@@ -281,10 +312,23 @@ graph LR
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
     @prefix prov: <http://www.w3.org/ns/prov#> .
 
-    # Lineage Edge Class Definition
-    om-lineage:LineageEdge a owl:Class ;
-        rdfs:label "Lineage Edge" ;
-        rdfs:comment "Edge in the lineage graph showing data flow" ;
+    # Entity Lineage Class
+    om-lineage:EntityLineage a owl:Class ;
+        rdfs:label "Entity Lineage" ;
+        rdfs:comment "The Lineage for a given data asset, has information of the input datasets used and the ETL pipeline that created it." ;
+        rdfs:isDefinedBy om: .
+
+    # Edge Class Definition
+    om-lineage:Edge a owl:Class ;
+        rdfs:label "Edge" ;
+        rdfs:comment "Edge in the lineage graph from one entity to another by entity IDs" ;
+        rdfs:subClassOf prov:Entity ;
+        rdfs:isDefinedBy om: .
+
+    # Entities Edge Class
+    om-lineage:EntitiesEdge a owl:Class ;
+        rdfs:label "Entities Edge" ;
+        rdfs:comment "Edge in the lineage graph from one entity to another using entity references" ;
         rdfs:subClassOf prov:Entity ;
         rdfs:isDefinedBy om: .
 
@@ -294,78 +338,129 @@ graph LR
         rdfs:comment "Column-level lineage mapping" ;
         rdfs:isDefinedBy om: .
 
-    # Entity Lineage Class
-    om-lineage:EntityLineage a owl:Class ;
-        rdfs:label "Entity Lineage" ;
-        rdfs:comment "Complete lineage graph for an entity" ;
+    # Lineage Details Class
+    om-lineage:LineageDetails a owl:Class ;
+        rdfs:label "Lineage Details" ;
+        rdfs:comment "Lineage details including sqlQuery + pipeline + columnLineage" ;
         rdfs:isDefinedBy om: .
 
-    # Properties
-    om-lineage:fromEntity a owl:ObjectProperty ;
+    # Properties for EntityLineage
+    om-lineage:entity a owl:ObjectProperty ;
+        rdfs:label "entity" ;
+        rdfs:comment "Primary entity for which this lineage graph is created" ;
+        rdfs:domain om-lineage:EntityLineage .
+
+    om-lineage:nodes a owl:ObjectProperty ;
+        rdfs:label "nodes" ;
+        rdfs:comment "All the entities that are the nodes in the lineage graph excluding the primary entity" ;
+        rdfs:domain om-lineage:EntityLineage .
+
+    om-lineage:upstreamEdges a owl:ObjectProperty ;
+        rdfs:label "upstream edges" ;
+        rdfs:comment "All the edges in the lineage graph that are upstream from the primary entity" ;
+        rdfs:domain om-lineage:EntityLineage ;
+        rdfs:range om-lineage:Edge .
+
+    om-lineage:downstreamEdges a owl:ObjectProperty ;
+        rdfs:label "downstream edges" ;
+        rdfs:comment "All the edges in the lineage graph that are downstream from the primary entity" ;
+        rdfs:domain om-lineage:EntityLineage ;
+        rdfs:range om-lineage:Edge .
+
+    # Properties for Edge
+    om-lineage:fromEntity a owl:DatatypeProperty ;
         rdfs:label "from entity" ;
-        rdfs:comment "Source entity in lineage" ;
-        rdfs:domain om-lineage:LineageEdge ;
+        rdfs:comment "From entity that is upstream of lineage edge" ;
+        rdfs:domain om-lineage:Edge ;
+        rdfs:range xsd:string ;
         rdfs:subPropertyOf prov:used .
 
-    om-lineage:toEntity a owl:ObjectProperty ;
+    om-lineage:toEntity a owl:DatatypeProperty ;
         rdfs:label "to entity" ;
-        rdfs:comment "Target entity in lineage" ;
-        rdfs:domain om-lineage:LineageEdge ;
+        rdfs:comment "To entity that is downstream of lineage edge" ;
+        rdfs:domain om-lineage:Edge ;
+        rdfs:range xsd:string ;
         rdfs:subPropertyOf prov:wasGeneratedBy .
 
+    om-lineage:lineageDetails a owl:ObjectProperty ;
+        rdfs:label "lineage details" ;
+        rdfs:comment "Optional lineageDetails provided only for table to table lineage edge" ;
+        rdfs:domain om-lineage:Edge ;
+        rdfs:range om-lineage:LineageDetails .
+
+    # Properties for LineageDetails
     om-lineage:sqlQuery a owl:DatatypeProperty ;
         rdfs:label "SQL query" ;
-        rdfs:comment "SQL transformation query" ;
-        rdfs:domain om-lineage:LineageEdge ;
+        rdfs:comment "SQL used for transformation" ;
+        rdfs:domain om-lineage:LineageDetails ;
         rdfs:range xsd:string .
+
+    om-lineage:columnsLineage a owl:ObjectProperty ;
+        rdfs:label "columns lineage" ;
+        rdfs:comment "Lineage information of how upstream columns were combined to get downstream column" ;
+        rdfs:domain om-lineage:LineageDetails ;
+        rdfs:range om-lineage:ColumnLineage .
 
     om-lineage:pipeline a owl:ObjectProperty ;
         rdfs:label "pipeline" ;
-        rdfs:comment "Pipeline performing transformation" ;
-        rdfs:domain om-lineage:LineageEdge ;
+        rdfs:comment "Pipeline where the sqlQuery is periodically run" ;
+        rdfs:domain om-lineage:LineageDetails ;
         rdfs:subPropertyOf prov:wasGeneratedBy .
 
-    om-lineage:hasColumnLineage a owl:ObjectProperty ;
-        rdfs:label "has column lineage" ;
-        rdfs:comment "Column-level lineage mappings" ;
-        rdfs:domain om-lineage:LineageEdge ;
-        rdfs:range om-lineage:ColumnLineage .
+    om-lineage:source a owl:DatatypeProperty ;
+        rdfs:label "source" ;
+        rdfs:comment "Lineage type describes how a lineage was created" ;
+        rdfs:domain om-lineage:LineageDetails ;
+        rdfs:range xsd:string .
 
-    om-lineage:fromColumn a owl:DatatypeProperty ;
-        rdfs:label "from column" ;
-        rdfs:comment "Source column" ;
+    om-lineage:createdAt a owl:DatatypeProperty ;
+        rdfs:label "created at" ;
+        rdfs:comment "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds" ;
+        rdfs:domain om-lineage:LineageDetails ;
+        rdfs:range xsd:long .
+
+    om-lineage:createdBy a owl:DatatypeProperty ;
+        rdfs:label "created by" ;
+        rdfs:comment "User who created the node" ;
+        rdfs:domain om-lineage:LineageDetails ;
+        rdfs:range xsd:string .
+
+    om-lineage:updatedAt a owl:DatatypeProperty ;
+        rdfs:label "updated at" ;
+        rdfs:comment "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds" ;
+        rdfs:domain om-lineage:LineageDetails ;
+        rdfs:range xsd:long .
+
+    om-lineage:updatedBy a owl:DatatypeProperty ;
+        rdfs:label "updated by" ;
+        rdfs:comment "User who made the update" ;
+        rdfs:domain om-lineage:LineageDetails ;
+        rdfs:range xsd:string .
+
+    om-lineage:assetEdges a owl:DatatypeProperty ;
+        rdfs:label "asset edges" ;
+        rdfs:comment "Asset count in case of child assets lineage" ;
+        rdfs:domain om-lineage:LineageDetails ;
+        rdfs:range xsd:integer .
+
+    # Properties for ColumnLineage
+    om-lineage:fromColumns a owl:DatatypeProperty ;
+        rdfs:label "from columns" ;
+        rdfs:comment "One or more source columns identified by fully qualified column name" ;
         rdfs:domain om-lineage:ColumnLineage ;
         rdfs:range xsd:string .
 
     om-lineage:toColumn a owl:DatatypeProperty ;
         rdfs:label "to column" ;
-        rdfs:comment "Target column" ;
+        rdfs:comment "Destination column identified by fully qualified column name" ;
         rdfs:domain om-lineage:ColumnLineage ;
         rdfs:range xsd:string .
 
-    om-lineage:transformationFunction a owl:DatatypeProperty ;
-        rdfs:label "transformation function" ;
-        rdfs:comment "Function applied in transformation" ;
+    om-lineage:function a owl:DatatypeProperty ;
+        rdfs:label "function" ;
+        rdfs:comment "Transformation function applied to source columns to create destination column" ;
         rdfs:domain om-lineage:ColumnLineage ;
         rdfs:range xsd:string .
-
-    om-lineage:upstreamEdge a owl:ObjectProperty ;
-        rdfs:label "upstream edge" ;
-        rdfs:comment "Edge from upstream source" ;
-        rdfs:domain om-lineage:EntityLineage ;
-        rdfs:range om-lineage:LineageEdge .
-
-    om-lineage:downstreamEdge a owl:ObjectProperty ;
-        rdfs:label "downstream edge" ;
-        rdfs:comment "Edge to downstream target" ;
-        rdfs:domain om-lineage:EntityLineage ;
-        rdfs:range om-lineage:LineageEdge .
-
-    om-lineage:lineageDepth a owl:DatatypeProperty ;
-        rdfs:label "lineage depth" ;
-        rdfs:comment "Depth of lineage traversal" ;
-        rdfs:domain om-lineage:EntityLineage ;
-        rdfs:range xsd:integer .
     ```
 
 === "JSON-LD Context"
@@ -385,47 +480,96 @@ graph LR
           "@id": "om:EntityLineage",
           "@type": "@id"
         },
-        "LineageEdge": {
-          "@id": "om:LineageEdge",
+        "Edge": {
+          "@id": "om:Edge",
+          "@type": "@id"
+        },
+        "EntitiesEdge": {
+          "@id": "om:EntitiesEdge",
+          "@type": "@id"
+        },
+        "ColumnLineage": {
+          "@id": "om:ColumnLineage",
+          "@type": "@id"
+        },
+        "LineageDetails": {
+          "@id": "om:LineageDetails",
           "@type": "@id"
         },
         "entity": {
           "@id": "om:entity",
           "@type": "@id"
         },
+        "nodes": {
+          "@id": "om:nodes",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "upstreamEdges": {
+          "@id": "om:upstreamEdges",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "downstreamEdges": {
+          "@id": "om:downstreamEdges",
+          "@type": "@id",
+          "@container": "@set"
+        },
         "fromEntity": {
           "@id": "prov:used",
-          "@type": "@id"
+          "@type": "xsd:string"
         },
         "toEntity": {
           "@id": "prov:wasGeneratedBy",
+          "@type": "xsd:string"
+        },
+        "lineageDetails": {
+          "@id": "om:lineageDetails",
           "@type": "@id"
         },
         "sqlQuery": {
           "@id": "om:sqlQuery",
           "@type": "xsd:string"
         },
+        "columnsLineage": {
+          "@id": "om:columnsLineage",
+          "@type": "@id",
+          "@container": "@set"
+        },
         "pipeline": {
           "@id": "om:pipeline",
           "@type": "@id"
         },
-        "upstreamEdges": {
-          "@id": "om:upstreamEdge",
-          "@type": "@id",
-          "@container": "@set"
+        "description": {
+          "@id": "om:description",
+          "@type": "xsd:string"
         },
-        "downstreamEdges": {
-          "@id": "om:downstreamEdge",
-          "@type": "@id",
-          "@container": "@set"
+        "source": {
+          "@id": "om:source",
+          "@type": "xsd:string"
         },
-        "columns": {
-          "@id": "om:hasColumnLineage",
-          "@type": "@id",
-          "@container": "@set"
+        "createdAt": {
+          "@id": "om:createdAt",
+          "@type": "xsd:long"
+        },
+        "createdBy": {
+          "@id": "om:createdBy",
+          "@type": "xsd:string"
+        },
+        "updatedAt": {
+          "@id": "om:updatedAt",
+          "@type": "xsd:long"
+        },
+        "updatedBy": {
+          "@id": "om:updatedBy",
+          "@type": "xsd:string"
+        },
+        "assetEdges": {
+          "@id": "om:assetEdges",
+          "@type": "xsd:integer"
         },
         "fromColumns": {
-          "@id": "om:fromColumn",
+          "@id": "om:fromColumns",
           "@type": "xsd:string",
           "@container": "@set"
         },
@@ -434,12 +578,8 @@ graph LR
           "@type": "xsd:string"
         },
         "function": {
-          "@id": "om:transformationFunction",
+          "@id": "om:function",
           "@type": "xsd:string"
-        },
-        "depth": {
-          "@id": "om:lineageDepth",
-          "@type": "xsd:integer"
         }
       }
     }
@@ -457,29 +597,23 @@ graph LR
   },
   "upstreamEdges": [
     {
-      "fromEntity": {
-        "type": "table",
-        "name": "staging.customers"
-      },
-      "toEntity": {
-        "type": "table",
-        "name": "analytics.customer_summary"
-      },
-      "pipeline": {
-        "type": "pipeline",
-        "name": "CustomerAggregationPipeline"
+      "fromEntity": "2fa85f64-5717-4562-b3fc-2c963f66afa5",
+      "toEntity": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "lineageDetails": {
+        "pipeline": {
+          "type": "pipeline",
+          "name": "CustomerAggregationPipeline"
+        },
+        "source": "PipelineLineage"
       }
     }
   ],
   "downstreamEdges": [
     {
-      "fromEntity": {
-        "type": "table",
-        "name": "analytics.customer_summary"
-      },
-      "toEntity": {
-        "type": "dashboard",
-        "name": "CustomerDashboard"
+      "fromEntity": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "toEntity": "4fa85f64-5717-4562-b3fc-2c963f66afa7",
+      "lineageDetails": {
+        "source": "DashboardLineage"
       }
     }
   ]
@@ -496,27 +630,24 @@ graph LR
   },
   "upstreamEdges": [
     {
-      "fromEntity": {
-        "type": "table",
-        "name": "raw.users"
-      },
-      "toEntity": {
-        "type": "table",
-        "name": "staging.users"
-      },
-      "sqlQuery": "SELECT CONCAT(first_name, ' ', last_name) as full_name, LOWER(email) as email FROM raw.users",
-      "columns": [
-        {
-          "fromColumns": ["first_name", "last_name"],
-          "toColumn": "full_name",
-          "function": "CONCAT"
-        },
-        {
-          "fromColumns": ["email"],
-          "toColumn": "email",
-          "function": "LOWER"
-        }
-      ]
+      "fromEntity": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "toEntity": "7fa85f64-5717-4562-b3fc-2c963f66afa8",
+      "lineageDetails": {
+        "sqlQuery": "SELECT CONCAT(first_name, ' ', last_name) as full_name, LOWER(email) as email FROM raw.users",
+        "source": "QueryLineage",
+        "columnsLineage": [
+          {
+            "fromColumns": ["raw.users.first_name", "raw.users.last_name"],
+            "toColumn": "staging.users.full_name",
+            "function": "CONCAT"
+          },
+          {
+            "fromColumns": ["raw.users.email"],
+            "toColumn": "staging.users.email",
+            "function": "LOWER"
+          }
+        ]
+      }
     }
   ]
 }
@@ -528,31 +659,43 @@ graph LR
 {
   "entity": {
     "type": "dashboard",
-    "name": "SalesDashboard"
+    "name": "SalesDashboard",
+    "id": "8fa85f64-5717-4562-b3fc-2c963f66afab"
   },
   "nodes": [
-    {"type": "table", "name": "raw.orders"},
-    {"type": "table", "name": "staging.orders"},
-    {"type": "table", "name": "analytics.daily_sales"},
-    {"type": "dashboard", "name": "SalesDashboard"}
+    {"type": "table", "name": "raw.orders", "id": "5fa85f64-5717-4562-b3fc-2c963f66afa8"},
+    {"type": "table", "name": "staging.orders", "id": "6fa85f64-5717-4562-b3fc-2c963f66afa9"},
+    {"type": "table", "name": "analytics.daily_sales", "id": "7fa85f64-5717-4562-b3fc-2c963f66afaa"}
   ],
   "upstreamEdges": [
     {
-      "fromEntity": {"type": "table", "name": "raw.orders"},
-      "toEntity": {"type": "table", "name": "staging.orders"},
-      "pipeline": {"type": "pipeline", "name": "ETLPipeline"}
+      "fromEntity": "5fa85f64-5717-4562-b3fc-2c963f66afa8",
+      "toEntity": "6fa85f64-5717-4562-b3fc-2c963f66afa9",
+      "lineageDetails": {
+        "pipeline": {
+          "type": "pipeline",
+          "name": "ETLPipeline",
+          "id": "9fa85f64-5717-4562-b3fc-2c963f66afac"
+        },
+        "source": "PipelineLineage"
+      }
     },
     {
-      "fromEntity": {"type": "table", "name": "staging.orders"},
-      "toEntity": {"type": "table", "name": "analytics.daily_sales"},
-      "sqlQuery": "SELECT DATE(order_date) as date, SUM(amount) as total FROM staging.orders GROUP BY DATE(order_date)"
+      "fromEntity": "6fa85f64-5717-4562-b3fc-2c963f66afa9",
+      "toEntity": "7fa85f64-5717-4562-b3fc-2c963f66afaa",
+      "lineageDetails": {
+        "sqlQuery": "SELECT DATE(order_date) as date, SUM(amount) as total FROM staging.orders GROUP BY DATE(order_date)",
+        "source": "QueryLineage"
+      }
     },
     {
-      "fromEntity": {"type": "table", "name": "analytics.daily_sales"},
-      "toEntity": {"type": "dashboard", "name": "SalesDashboard"}
+      "fromEntity": "7fa85f64-5717-4562-b3fc-2c963f66afaa",
+      "toEntity": "8fa85f64-5717-4562-b3fc-2c963f66afab",
+      "lineageDetails": {
+        "source": "DashboardLineage"
+      }
     }
-  ],
-  "depth": 3
+  ]
 }
 ```
 
@@ -560,39 +703,74 @@ graph LR
 
 Lineage can be captured from multiple sources:
 
-### Query-Based Lineage
+### Manual
+User-defined relationships:
+- Custom mappings
+- External processes
+- Spreadsheet derivations
+- Manual documentation
+
+### ViewLineage
+Automatically from view definitions:
+- Database views
+- Materialized views
+- Temporary views
+
+### QueryLineage
 Automatically extracted from SQL queries:
 - `CREATE VIEW` statements
 - `INSERT INTO ... SELECT` queries
 - ETL SQL transformations
 - Query logs and history
 
-### Pipeline Lineage
+### PipelineLineage
 Extracted from pipeline metadata:
 - Apache Airflow DAGs
-- dbt models and dependencies
-- Spark job lineage
 - Custom pipeline definitions
+- ETL pipeline workflows
 
-### dbt Lineage
+### DashboardLineage
+Extracted from dashboard metadata:
+- Dashboard to table relationships
+- Chart data sources
+- Dashboard dependencies
+
+### DbtLineage
 Comprehensive lineage from dbt:
 - Model dependencies
 - Source references
 - Test relationships
 - Macro transformations
 
-### View Lineage
-Automatically from view definitions:
-- Database views
-- Materialized views
-- Temporary views
+### SparkLineage
+Extracted from Spark jobs:
+- Spark dataframe transformations
+- RDD operations
+- Dataset lineage
 
-### Manual Lineage
-User-defined relationships:
-- Custom mappings
-- External processes
-- Spreadsheet derivations
-- Manual documentation
+### OpenLineage
+Integration with OpenLineage standard:
+- Cross-platform lineage
+- Standardized lineage events
+- Integration with OpenLineage-compatible tools
+
+### ExternalTableLineage
+Lineage for external tables:
+- External table references
+- Cloud storage sources
+- External data sources
+
+### CrossDatabaseLineage
+Lineage across different databases:
+- Cross-database queries
+- Multi-database transformations
+- Federated queries
+
+### ChildAssets
+Lineage for child assets:
+- Parent-child relationships
+- Nested structures
+- Aggregated asset lineage
 
 ## Use Cases
 
@@ -714,10 +892,20 @@ Content-Type: application/json
 
 {
   "edge": {
-    "fromEntity": {"type": "table", "id": "source-id"},
-    "toEntity": {"type": "table", "id": "target-id"},
-    "description": "Manual mapping",
-    "columns": [...]
+    "fromEntity": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "toEntity": "7fa85f64-5717-4562-b3fc-2c963f66afa8",
+    "description": "Manual mapping between source and target tables",
+    "lineageDetails": {
+      "source": "Manual",
+      "description": "Custom lineage relationship",
+      "columnsLineage": [
+        {
+          "fromColumns": ["source.table.column1"],
+          "toColumn": "target.table.column1",
+          "function": "DIRECT"
+        }
+      ]
+    }
   }
 }
 ```

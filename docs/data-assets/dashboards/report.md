@@ -965,7 +965,6 @@ GET /api/v1/reports?service=tableau_prod&limit=10
 - **[Dashboard Service](dashboard-service.md)** - Service configuration
 - **[Dashboard](dashboard.md)** - Dashboard entity specification
 - **[Chart](chart.md)** - Chart entity specification
-- **[Owners](../../governance/ownership.md)** - Ownership management
-- **[Domains](../../governance/domains.md)** - Domain management
-- **[Entity References](../../types/entity-reference.md)** - Entity reference specification
+- **[Ownership](../../governance/ownership.md)** - Ownership management
+- **[Domain](../../governance/domain.md)** - Domain entity specification
 - **[Governance](../../governance/overview.md)** - Governance policies

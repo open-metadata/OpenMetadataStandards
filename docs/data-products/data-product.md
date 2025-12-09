@@ -229,59 +229,132 @@ View the complete Data Product schema in your preferred format:
 
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/data/dataProduct.json",
+      "$id": "https://open-metadata.org/schema/entity/domains/dataProduct.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Data Product",
-      "description": "A `Data Product` is a logical unit that contains all components to process and store data for analytical or data-intensive use cases.",
+      "title": "DataProduct",
+      "description": "A `Data Product` or `Data as a Product` is a logical unit that contains all components to process and store data for analytical or data-intensive use cases made available to data consumers.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.data.DataProduct",
+      "javaType": "org.openmetadata.schema.entity.domains.DataProduct",
 
       "definitions": {
-        "dataProductType": {
-          "description": "Type of data product",
+        "lifecycleStage": {
+          "description": "Lifecycle stage of the data product",
           "type": "string",
           "enum": [
-            "Data",
-            "Insights",
-            "Models",
-            "APIs"
-          ]
+            "IDEATION",
+            "DESIGN",
+            "DEVELOPMENT",
+            "TESTING",
+            "PRODUCTION",
+            "DEPRECATED",
+            "RETIRED"
+          ],
+          "default": "DEVELOPMENT"
         },
-        "assetCollection": {
-          "description": "Collection of data assets",
+        "portType": {
+          "description": "Type of the data product port",
+          "type": "string",
+          "enum": ["INPUT", "OUTPUT"]
+        },
+        "portProtocol": {
+          "description": "Protocol used by the port for data access",
+          "type": "string",
+          "enum": [
+            "REST",
+            "GRPC",
+            "GRAPHQL",
+            "JDBC",
+            "KAFKA",
+            "FILE",
+            "S3",
+            "AZURE_BLOB",
+            "GCS",
+            "WEBHOOK",
+            "CUSTOM"
+          ],
+          "default": "REST"
+        },
+        "portFormat": {
+          "description": "Data format supported by the port",
+          "type": "string",
+          "enum": [
+            "JSON",
+            "CSV",
+            "PARQUET",
+            "AVRO",
+            "ORC",
+            "XML",
+            "PROTOBUF",
+            "DELTA",
+            "ICEBERG",
+            "CUSTOM"
+          ],
+          "default": "JSON"
+        },
+        "dataProductPort": {
+          "description": "Port definition for data product input/output",
           "type": "object",
           "properties": {
-            "tables": {
-              "type": "array",
-              "items": {"$ref": "../../type/entityReference.json"}
+            "name": {
+              "description": "Name of the port",
+              "type": "string"
             },
-            "dashboards": {
-              "type": "array",
-              "items": {"$ref": "../../type/entityReference.json"}
+            "displayName": {
+              "description": "Display name of the port",
+              "type": "string"
             },
-            "mlmodels": {
-              "type": "array",
-              "items": {"$ref": "../../type/entityReference.json"}
+            "description": {
+              "description": "Description of the port",
+              "type": "string"
             },
-            "pipelines": {
-              "type": "array",
-              "items": {"$ref": "../../type/entityReference.json"}
+            "portType": {
+              "$ref": "#/definitions/portType"
             },
-            "topics": {
-              "type": "array",
-              "items": {"$ref": "../../type/entityReference.json"}
+            "protocol": {
+              "$ref": "#/definitions/portProtocol"
             },
-            "containers": {
-              "type": "array",
-              "items": {"$ref": "../../type/entityReference.json"}
+            "format": {
+              "$ref": "#/definitions/portFormat"
             },
-            "apiEndpoints": {
-              "type": "array",
-              "items": {"$ref": "../../type/entityReference.json"}
+            "endpoint": {
+              "description": "Endpoint URL or connection string",
+              "type": "string"
             },
-            "apiCollections": {
-              "type": "array",
-              "items": {"$ref": "../../type/entityReference.json"}
+            "dataAsset": {
+              "description": "Reference to the data asset exposed through this port",
+              "$ref": "../../type/entityReference.json"
+            }
+          },
+          "required": ["name", "portType"]
+        },
+        "slaDefinition": {
+          "description": "Service Level Agreement definition",
+          "type": "object",
+          "properties": {
+            "tier": {
+              "description": "SLA tier (e.g., GOLD, SILVER, BRONZE)",
+              "type": "string",
+              "enum": ["GOLD", "SILVER", "BRONZE", "CUSTOM"]
+            },
+            "availability": {
+              "description": "Expected availability percentage (e.g., 99.9)",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "responseTime": {
+              "description": "Expected response time in milliseconds",
+              "type": "integer"
+            },
+            "dataFreshness": {
+              "description": "Maximum data staleness in minutes",
+              "type": "integer"
+            },
+            "dataQuality": {
+              "description": "Minimum data quality score",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
             }
           }
         }
@@ -289,156 +362,139 @@ View the complete Data Product schema in your preferred format:
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique ID of the Data Product",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Name of the data product",
+          "description": "A unique name of the Data Product",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name: domain.dataProduct",
+          "description": "FullyQualifiedName is `domain.dataProductName` or `sub-domain.dataProductName`.",
           "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name",
+          "description": "Name used for display purposes. Example 'Marketing', 'Payments', etc.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the Data Product.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "dataProductType": {
-          "$ref": "#/definitions/dataProductType"
-        },
         "style": {
-          "description": "UI style (color, icon)",
           "$ref": "../../type/basic.json#/definitions/style"
         },
-        "domain": {
-          "description": "Parent domain",
-          "$ref": "../../type/entityReference.json"
+        "version": {
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
         "owners": {
-          "description": "Product owners (teams or users)",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "Owners of this Data Product.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "experts": {
-          "description": "Product experts (users)",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+          "description": "List of users who are experts for this Data Product.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
+        },
+        "reviewers": {
+          "description": "User references of the reviewers for this Data Product.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "domains": {
+          "description": "Domains or sub-domains to which this Data Product belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
         },
         "assets": {
-          "description": "Data assets included in product",
-          "$ref": "#/definitions/assetCollection"
+          "description": "Data assets collection that is part of this data product.",
+          "$ref": "../../type/entityReferenceList.json",
+          "deprecated": true
         },
-        "consumers": {
-          "description": "Teams and users consuming this product",
+        "inputPorts": {
+          "description": "Input ports for consuming data into this data product",
           "type": "array",
           "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+            "$ref": "#/definitions/dataProductPort"
+          },
+          "default": []
         },
-        "inputDataProducts": {
-          "description": "Upstream data products this depends on",
+        "outputPorts": {
+          "description": "Output ports for exposing data from this data product",
           "type": "array",
           "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+            "$ref": "#/definitions/dataProductPort"
+          },
+          "default": []
         },
-        "outputDataProducts": {
-          "description": "Downstream data products that consume this",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "lifecycleStage": {
+          "description": "Current lifecycle stage of the data product",
+          "$ref": "#/definitions/lifecycleStage"
         },
-        "testSuites": {
-          "description": "Test suites validating product quality",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "sla": {
+          "description": "Service Level Agreement for this data product",
+          "$ref": "#/definitions/slaDefinition"
         },
-        "glossaryTerms": {
-          "description": "Glossary terms used in this product",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "consumesFrom": {
+          "description": "Other data products that this product consumes data from",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": []
+        },
+        "providesTo": {
+          "description": "Other data products that consume data from this product",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": []
         },
         "tags": {
-          "description": "Tags for classification",
+          "description": "Tags associated with the Data Product.",
           "type": "array",
           "items": {
             "$ref": "../../type/tagLabel.json"
-          }
+          },
+          "default": []
         },
-        "version": {
-          "description": "Metadata version",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
         },
-        "productVersion": {
-          "description": "Product semantic version (e.g., 2.1.0)",
-          "type": "string",
-          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
         },
-        "status": {
-          "description": "Product lifecycle status",
-          "type": "string",
-          "enum": [
-            "Draft",
-            "Development",
-            "Published",
-            "Deprecated"
-          ]
+        "extension": {
+          "description": "Entity extension data with custom attributes added to the entity.",
+          "$ref": "../../type/basic.json#/definitions/entityExtension"
         },
-        "sla": {
-          "description": "Service level agreement",
-          "type": "object",
-          "properties": {
-            "freshnessThreshold": {
-              "description": "Maximum data age (in seconds)",
-              "type": "integer"
-            },
-            "qualityThreshold": {
-              "description": "Minimum quality score (0-100)",
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "availabilityTarget": {
-              "description": "Availability percentage (e.g., 99.9)",
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
-            },
-            "supportResponseTime": {
-              "description": "Support response time (in hours)",
-              "type": "number"
-            }
-          }
+        "followers": {
+          "description": "Followers of this entity.",
+          "$ref": "../../type/entityReferenceList.json"
         },
-        "accessMethods": {
-          "description": "Ways to access this product",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": ["API", "SQL", "Dashboard", "Export", "Streaming"]
-          }
+        "entityStatus": {
+          "description": "Status of the Data Product.",
+          "$ref": "../../type/status.json"
         }
       },
 
-      "required": ["id", "name", "description", "domain"]
+      "required": ["id", "name", "description"]
     }
     ```
 
-    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/schemas/entity/data/dataProduct.json)**
+    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/schemas/entity/domains/dataProduct.json)**
 
 === "RDF"
 
@@ -447,14 +503,14 @@ View the complete Data Product schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
     # Data Product Class Definition
     om:DataProduct a owl:Class ;
-        rdfs:subClassOf om:DataEntity ;
+        rdfs:subClassOf om:Entity ;
         rdfs:label "Data Product" ;
-        rdfs:comment "A packaged collection of data assets designed for specific use cases" ;
+        rdfs:comment "A logical unit that contains all components to process and store data for analytical or data-intensive use cases made available to data consumers" ;
         om:hasProductCharacteristics [
             om:discoverable true ;
             om:addressable true ;
@@ -465,214 +521,239 @@ View the complete Data Product schema in your preferred format:
         ] .
 
     # Properties - Identity
-    om:productName a owl:DatatypeProperty ;
+    om:dataProductName a owl:DatatypeProperty ;
         rdfs:domain om:DataProduct ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the data product" .
+        rdfs:comment "A unique name of the Data Product" .
 
-    om:productType a owl:DatatypeProperty ;
-        rdfs:domain om:DataProduct ;
-        rdfs:range om:DataProductType ;
-        rdfs:label "dataProductType" ;
-        rdfs:comment "Type: Data, Insights, Models, or APIs" .
-
-    om:productVersion a owl:DatatypeProperty ;
+    om:dataProductFullyQualifiedName a owl:DatatypeProperty ;
         rdfs:domain om:DataProduct ;
         rdfs:range xsd:string ;
-        rdfs:label "productVersion" ;
-        rdfs:comment "Semantic version (e.g., 2.1.0)" .
+        rdfs:label "fullyQualifiedName" ;
+        rdfs:comment "FullyQualifiedName is `domain.dataProductName` or `sub-domain.dataProductName`" .
 
-    om:productStatus a owl:DatatypeProperty ;
+    om:lifecycleStage a owl:DatatypeProperty ;
         rdfs:domain om:DataProduct ;
-        rdfs:range om:ProductStatus ;
-        rdfs:label "status" ;
-        rdfs:comment "Lifecycle status: Draft, Development, Published, Deprecated" .
+        rdfs:range om:LifecycleStage ;
+        rdfs:label "lifecycleStage" ;
+        rdfs:comment "Lifecycle stage: IDEATION, DESIGN, DEVELOPMENT, TESTING, PRODUCTION, DEPRECATED, RETIRED" .
 
     # Properties - Domain Context
-    om:belongsToDomain a owl:ObjectProperty ;
+    om:belongsToDomains a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
         rdfs:range om:Domain ;
-        rdfs:label "domain" ;
-        rdfs:comment "Parent domain of this product" .
+        rdfs:label "domains" ;
+        rdfs:comment "Domains or sub-domains to which this Data Product belongs to" .
 
     # Properties - Ownership
-    om:productOwnedBy a owl:ObjectProperty ;
+    om:dataProductOwnedBy a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
         rdfs:range [
             a owl:Class ;
             owl:unionOf (om:Team om:User)
         ] ;
-        rdfs:label "productOwnedBy" ;
-        rdfs:comment "Product owner teams or users" .
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this Data Product" .
 
-    om:hasProductExpert a owl:ObjectProperty ;
+    om:hasExpert a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
         rdfs:range om:User ;
-        rdfs:label "hasProductExpert" ;
-        rdfs:comment "Product experts and specialists" .
+        rdfs:label "experts" ;
+        rdfs:comment "List of users who are experts for this Data Product" .
+
+    om:hasReviewer a owl:ObjectProperty ;
+        rdfs:domain om:DataProduct ;
+        rdfs:range om:User ;
+        rdfs:label "reviewers" ;
+        rdfs:comment "User references of the reviewers for this Data Product" .
 
     # Properties - Assets
-    om:includesTable a owl:ObjectProperty ;
+    om:hasAsset a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
-        rdfs:range om:Table ;
-        rdfs:label "includesTable" ;
-        rdfs:comment "Tables included in product" .
+        rdfs:range om:DataAsset ;
+        rdfs:label "assets" ;
+        rdfs:comment "Data assets collection that is part of this data product (deprecated)" .
 
-    om:includesDashboard a owl:ObjectProperty ;
+    # Properties - Ports
+    om:hasInputPort a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
-        rdfs:range om:Dashboard ;
-        rdfs:label "includesDashboard" ;
-        rdfs:comment "Dashboards included in product" .
+        rdfs:range om:DataProductPort ;
+        rdfs:label "inputPorts" ;
+        rdfs:comment "Input ports for consuming data into this data product" .
 
-    om:includesMLModel a owl:ObjectProperty ;
+    om:hasOutputPort a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
-        rdfs:range om:MlModel ;
-        rdfs:label "includesMLModel" ;
-        rdfs:comment "ML models included in product" .
+        rdfs:range om:DataProductPort ;
+        rdfs:label "outputPorts" ;
+        rdfs:comment "Output ports for exposing data from this data product" .
 
-    om:includesPipeline a owl:ObjectProperty ;
-        rdfs:domain om:DataProduct ;
-        rdfs:range om:Pipeline ;
-        rdfs:label "includesPipeline" ;
-        rdfs:comment "Pipelines included in product" .
+    # Data Product Port Class
+    om:DataProductPort a owl:Class ;
+        rdfs:label "Data Product Port" ;
+        rdfs:comment "Port definition for data product input/output" .
 
-    om:includesTopic a owl:ObjectProperty ;
-        rdfs:domain om:DataProduct ;
-        rdfs:range om:Topic ;
-        rdfs:label "includesTopic" ;
-        rdfs:comment "Topics included in product" .
+    om:portName a owl:DatatypeProperty ;
+        rdfs:domain om:DataProductPort ;
+        rdfs:range xsd:string ;
+        rdfs:label "name" ;
+        rdfs:comment "Name of the port" .
 
-    om:includesContainer a owl:ObjectProperty ;
-        rdfs:domain om:DataProduct ;
-        rdfs:range om:Container ;
-        rdfs:label "includesContainer" ;
-        rdfs:comment "Containers included in product" .
+    om:portType a owl:DatatypeProperty ;
+        rdfs:domain om:DataProductPort ;
+        rdfs:range om:PortType ;
+        rdfs:label "portType" ;
+        rdfs:comment "Type of the data product port: INPUT or OUTPUT" .
 
-    om:includesAPIEndpoint a owl:ObjectProperty ;
-        rdfs:domain om:DataProduct ;
-        rdfs:range om:APIEndpoint ;
-        rdfs:label "includesAPIEndpoint" ;
-        rdfs:comment "API endpoints included in product" .
+    om:portProtocol a owl:DatatypeProperty ;
+        rdfs:domain om:DataProductPort ;
+        rdfs:range om:PortProtocol ;
+        rdfs:label "protocol" ;
+        rdfs:comment "Protocol used by the port: REST, GRPC, GRAPHQL, JDBC, KAFKA, FILE, S3, AZURE_BLOB, GCS, WEBHOOK, CUSTOM" .
 
-    om:includesAPICollection a owl:ObjectProperty ;
-        rdfs:domain om:DataProduct ;
-        rdfs:range om:APICollection ;
-        rdfs:label "includesAPICollection" ;
-        rdfs:comment "API collections included in product" .
+    om:portFormat a owl:DatatypeProperty ;
+        rdfs:domain om:DataProductPort ;
+        rdfs:range om:PortFormat ;
+        rdfs:label "format" ;
+        rdfs:comment "Data format: JSON, CSV, PARQUET, AVRO, ORC, XML, PROTOBUF, DELTA, ICEBERG, CUSTOM" .
 
-    # Properties - Consumers
-    om:consumedBy a owl:ObjectProperty ;
-        rdfs:domain om:DataProduct ;
-        rdfs:range [
-            a owl:Class ;
-            owl:unionOf (om:Team om:User)
-        ] ;
-        rdfs:label "consumedBy" ;
-        rdfs:comment "Teams and users consuming this product" .
+    om:portEndpoint a owl:DatatypeProperty ;
+        rdfs:domain om:DataProductPort ;
+        rdfs:range xsd:string ;
+        rdfs:label "endpoint" ;
+        rdfs:comment "Endpoint URL or connection string" .
 
     # Properties - Dependencies
-    om:dependsOnDataProduct a owl:ObjectProperty ;
+    om:consumesFrom a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
         rdfs:range om:DataProduct ;
-        rdfs:label "inputDataProducts" ;
-        rdfs:comment "Upstream data products" .
+        rdfs:label "consumesFrom" ;
+        rdfs:comment "Other data products that this product consumes data from" .
 
-    om:feedsDataProduct a owl:ObjectProperty ;
+    om:providesTo a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
         rdfs:range om:DataProduct ;
-        rdfs:label "outputDataProducts" ;
-        rdfs:comment "Downstream data products" ;
-        owl:inverseOf om:dependsOnDataProduct .
+        rdfs:label "providesTo" ;
+        rdfs:comment "Other data products that consume data from this product" ;
+        owl:inverseOf om:consumesFrom .
 
     # Properties - Quality
-    om:hasTestSuite a owl:ObjectProperty ;
-        rdfs:domain om:DataProduct ;
-        rdfs:range om:TestSuite ;
-        rdfs:label "hasTestSuite" ;
-        rdfs:comment "Test suites validating product" .
-
     om:hasSLA a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
-        rdfs:range om:ServiceLevelAgreement ;
-        rdfs:label "hasSLA" ;
-        rdfs:comment "Service level agreement" .
+        rdfs:range om:SLADefinition ;
+        rdfs:label "sla" ;
+        rdfs:comment "Service Level Agreement for this data product" .
 
-    # Properties - Governance
-    om:usesGlossaryTerm a owl:ObjectProperty ;
+    # Properties - Social
+    om:hasFollower a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
-        rdfs:range om:GlossaryTerm ;
-        rdfs:label "usesGlossaryTerm" ;
-        rdfs:comment "Glossary terms used in product" .
+        rdfs:range om:User ;
+        rdfs:label "followers" ;
+        rdfs:comment "Followers of this entity" .
 
-    # SLA Class
-    om:ServiceLevelAgreement a owl:Class ;
-        rdfs:label "Service Level Agreement" ;
-        rdfs:comment "SLA defining quality and performance guarantees" .
+    # SLA Definition Class
+    om:SLADefinition a owl:Class ;
+        rdfs:label "SLA Definition" ;
+        rdfs:comment "Service Level Agreement definition" .
 
-    om:freshnessThreshold a owl:DatatypeProperty ;
-        rdfs:domain om:ServiceLevelAgreement ;
+    om:slaTier a owl:DatatypeProperty ;
+        rdfs:domain om:SLADefinition ;
+        rdfs:range om:SLATier ;
+        rdfs:label "tier" ;
+        rdfs:comment "SLA tier: GOLD, SILVER, BRONZE, CUSTOM" .
+
+    om:slaAvailability a owl:DatatypeProperty ;
+        rdfs:domain om:SLADefinition ;
+        rdfs:range xsd:decimal ;
+        rdfs:label "availability" ;
+        rdfs:comment "Expected availability percentage (e.g., 99.9)" .
+
+    om:slaResponseTime a owl:DatatypeProperty ;
+        rdfs:domain om:SLADefinition ;
         rdfs:range xsd:integer ;
-        rdfs:label "freshnessThreshold" ;
-        rdfs:comment "Maximum data age in seconds" .
+        rdfs:label "responseTime" ;
+        rdfs:comment "Expected response time in milliseconds" .
 
-    om:qualityThreshold a owl:DatatypeProperty ;
-        rdfs:domain om:ServiceLevelAgreement ;
+    om:slaDataFreshness a owl:DatatypeProperty ;
+        rdfs:domain om:SLADefinition ;
+        rdfs:range xsd:integer ;
+        rdfs:label "dataFreshness" ;
+        rdfs:comment "Maximum data staleness in minutes" .
+
+    om:slaDataQuality a owl:DatatypeProperty ;
+        rdfs:domain om:SLADefinition ;
         rdfs:range xsd:decimal ;
-        rdfs:label "qualityThreshold" ;
-        rdfs:comment "Minimum quality score (0-100)" .
+        rdfs:label "dataQuality" ;
+        rdfs:comment "Minimum data quality score (0-100)" .
 
-    om:availabilityTarget a owl:DatatypeProperty ;
-        rdfs:domain om:ServiceLevelAgreement ;
-        rdfs:range xsd:decimal ;
-        rdfs:label "availabilityTarget" ;
-        rdfs:comment "Availability percentage" .
-
-    # Product Type Enumeration
-    om:DataProductType a owl:Class ;
+    # Lifecycle Stage Enumeration
+    om:LifecycleStage a owl:Class ;
         owl:oneOf (
-            om:DataProduct_Data
-            om:DataProduct_Insights
-            om:DataProduct_Models
-            om:DataProduct_APIs
+            om:LifecycleStage_IDEATION
+            om:LifecycleStage_DESIGN
+            om:LifecycleStage_DEVELOPMENT
+            om:LifecycleStage_TESTING
+            om:LifecycleStage_PRODUCTION
+            om:LifecycleStage_DEPRECATED
+            om:LifecycleStage_RETIRED
         ) .
 
-    # Product Status Enumeration
-    om:ProductStatus a owl:Class ;
+    # Port Type Enumeration
+    om:PortType a owl:Class ;
         owl:oneOf (
-            om:ProductStatus_Draft
-            om:ProductStatus_Development
-            om:ProductStatus_Published
-            om:ProductStatus_Deprecated
+            om:PortType_INPUT
+            om:PortType_OUTPUT
+        ) .
+
+    # SLA Tier Enumeration
+    om:SLATier a owl:Class ;
+        owl:oneOf (
+            om:SLATier_GOLD
+            om:SLATier_SILVER
+            om:SLATier_BRONZE
+            om:SLATier_CUSTOM
         ) .
 
     # Example Instance
     ex:customer360Product a om:DataProduct ;
-        om:productName "Customer360" ;
-        om:fullyQualifiedName "Sales.Customer360" ;
+        om:dataProductName "Customer360" ;
+        om:dataProductFullyQualifiedName "Sales.Customer360" ;
         om:displayName "Customer 360 Data Product" ;
         om:description "Unified customer view for analytics" ;
-        om:productType om:DataProduct_Data ;
-        om:productVersion "2.1.0" ;
-        om:productStatus om:ProductStatus_Published ;
-        om:belongsToDomain ex:salesDomain ;
-        om:productOwnedBy ex:customerAnalyticsTeam ;
-        om:hasProductExpert ex:aliceSmith ;
-        om:includesTable ex:customerUnifiedTable ;
-        om:includesTable ex:customerInteractionsTable ;
-        om:includesDashboard ex:customerInsightsDashboard ;
-        om:includesMLModel ex:churnPredictorModel ;
-        om:includesAPIEndpoint ex:customerAPI ;
-        om:consumedBy ex:marketingTeam ;
-        om:consumedBy ex:salesOpsTeam ;
-        om:dependsOnDataProduct ex:crmMasterDataProduct ;
-        om:hasTestSuite ex:customer360TestSuite ;
+        om:lifecycleStage om:LifecycleStage_PRODUCTION ;
+        om:belongsToDomains ex:salesDomain ;
+        om:dataProductOwnedBy ex:customerAnalyticsTeam ;
+        om:hasExpert ex:aliceSmith ;
+        om:hasExpert ex:bobJones ;
+        om:hasReviewer ex:dataGovernanceTeam ;
+        om:hasInputPort ex:crmInputPort ;
+        om:hasOutputPort ex:apiOutputPort ;
+        om:hasOutputPort ex:tableOutputPort ;
+        om:consumesFrom ex:crmMasterDataProduct ;
+        om:providesTo ex:marketingAnalyticsProduct ;
+        om:hasFollower ex:janeDoe ;
         om:hasSLA ex:customer360SLA .
 
-    ex:customer360SLA a om:ServiceLevelAgreement ;
-        om:freshnessThreshold 3600 ;
-        om:qualityThreshold 99.5 ;
-        om:availabilityTarget 99.9 .
+    ex:crmInputPort a om:DataProductPort ;
+        om:portName "crm_input" ;
+        om:portType om:PortType_INPUT ;
+        om:portProtocol om:PortProtocol_JDBC ;
+        om:portFormat om:PortFormat_JSON ;
+        om:portEndpoint "jdbc:postgresql://crm-db.example.com:5432/crm" .
+
+    ex:apiOutputPort a om:DataProductPort ;
+        om:portName "customer_api" ;
+        om:portType om:PortType_OUTPUT ;
+        om:portProtocol om:PortProtocol_REST ;
+        om:portFormat om:PortFormat_JSON ;
+        om:portEndpoint "https://api.example.com/v2/customers" .
+
+    ex:customer360SLA a om:SLADefinition ;
+        om:slaTier om:SLATier_GOLD ;
+        om:slaAvailability 99.9 ;
+        om:slaResponseTime 100 ;
+        om:slaDataFreshness 60 ;
+        om:slaDataQuality 99.5 .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -691,11 +772,11 @@ View the complete Data Product schema in your preferred format:
 
         "DataProduct": "om:DataProduct",
         "name": {
-          "@id": "om:productName",
+          "@id": "om:dataProductName",
           "@type": "xsd:string"
         },
         "fullyQualifiedName": {
-          "@id": "om:fullyQualifiedName",
+          "@id": "om:dataProductFullyQualifiedName",
           "@type": "xsd:string"
         },
         "displayName": {
@@ -706,54 +787,57 @@ View the complete Data Product schema in your preferred format:
           "@id": "om:description",
           "@type": "xsd:string"
         },
-        "dataProductType": {
-          "@id": "om:productType",
+        "lifecycleStage": {
+          "@id": "om:lifecycleStage",
           "@type": "@vocab"
         },
-        "productVersion": {
-          "@id": "om:productVersion",
-          "@type": "xsd:string"
-        },
-        "status": {
-          "@id": "om:productStatus",
-          "@type": "@vocab"
-        },
-        "domain": {
-          "@id": "om:belongsToDomain",
-          "@type": "@id"
+        "domains": {
+          "@id": "om:belongsToDomains",
+          "@type": "@id",
+          "@container": "@set"
         },
         "owners": {
-          "@id": "om:productOwnedBy",
+          "@id": "om:dataProductOwnedBy",
           "@type": "@id",
           "@container": "@set"
         },
         "experts": {
-          "@id": "om:hasProductExpert",
+          "@id": "om:hasExpert",
           "@type": "@id",
           "@container": "@set"
         },
-        "consumers": {
-          "@id": "om:consumedBy",
+        "reviewers": {
+          "@id": "om:hasReviewer",
           "@type": "@id",
           "@container": "@set"
         },
-        "inputDataProducts": {
-          "@id": "om:dependsOnDataProduct",
+        "assets": {
+          "@id": "om:hasAsset",
           "@type": "@id",
           "@container": "@set"
         },
-        "outputDataProducts": {
-          "@id": "om:feedsDataProduct",
+        "inputPorts": {
+          "@id": "om:hasInputPort",
           "@type": "@id",
           "@container": "@set"
         },
-        "testSuites": {
-          "@id": "om:hasTestSuite",
+        "outputPorts": {
+          "@id": "om:hasOutputPort",
           "@type": "@id",
           "@container": "@set"
         },
-        "glossaryTerms": {
-          "@id": "om:usesGlossaryTerm",
+        "consumesFrom": {
+          "@id": "om:consumesFrom",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "providesTo": {
+          "@id": "om:providesTo",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "followers": {
+          "@id": "om:hasFollower",
           "@type": "@id",
           "@container": "@set"
         },
@@ -761,6 +845,10 @@ View the complete Data Product schema in your preferred format:
           "@id": "om:hasTag",
           "@type": "@id",
           "@container": "@set"
+        },
+        "sla": {
+          "@id": "om:hasSLA",
+          "@type": "@id"
         }
       }
     }
@@ -778,15 +866,15 @@ View the complete Data Product schema in your preferred format:
       "fullyQualifiedName": "Sales.Customer360",
       "displayName": "Customer 360 Data Product",
       "description": "# Customer 360\n\nUnified customer view combining CRM, behavioral, and transactional data.\n\n## Purpose\nProvide comprehensive customer insights for marketing, sales, and support.\n\n## Key Features\n- Real-time customer profiles\n- ML-based segmentation\n- Churn prediction\n- Lifetime value estimates",
-      "dataProductType": "Data",
-      "productVersion": "2.1.0",
-      "status": "Published",
+      "lifecycleStage": "PRODUCTION",
 
-      "domain": {
-        "@id": "https://example.com/domains/sales",
-        "@type": "Domain",
-        "name": "Sales"
-      },
+      "domains": [
+        {
+          "@id": "https://example.com/domains/sales",
+          "@type": "Domain",
+          "name": "Sales"
+        }
+      ],
 
       "owners": [
         {
@@ -802,88 +890,116 @@ View the complete Data Product schema in your preferred format:
           "@id": "https://example.com/users/alice.smith",
           "@type": "User",
           "name": "alice.smith",
-          "displayName": "Alice Smith",
-          "role": "Product Manager"
+          "displayName": "Alice Smith"
         },
         {
           "@id": "https://example.com/users/bob.jones",
           "@type": "User",
           "name": "bob.jones",
-          "displayName": "Bob Jones",
-          "role": "Technical Lead"
+          "displayName": "Bob Jones"
         }
       ],
 
-      "assets": {
-        "tables": [
-          {
-            "@id": "https://example.com/tables/customer_unified",
-            "@type": "Table",
-            "name": "customer_unified",
-            "description": "Unified customer master table"
-          },
-          {
-            "@id": "https://example.com/tables/customer_interactions",
-            "@type": "Table",
-            "name": "customer_interactions",
-            "description": "Customer interaction event history"
-          }
-        ],
-        "dashboards": [
-          {
-            "@id": "https://example.com/dashboards/customer-insights",
-            "@type": "Dashboard",
-            "name": "CustomerInsights",
-            "displayName": "Customer Insights Dashboard"
-          }
-        ],
-        "mlmodels": [
-          {
-            "@id": "https://example.com/mlmodels/churn-predictor",
-            "@type": "MlModel",
-            "name": "churn_predictor",
-            "displayName": "Churn Prediction Model"
-          }
-        ],
-        "apiEndpoints": [
-          {
-            "@id": "https://example.com/apis/customer-api",
-            "@type": "APIEndpoint",
-            "name": "customer_api",
-            "endpointURL": "https://api.example.com/v2/customers"
-          }
-        ]
-      },
-
-      "consumers": [
+      "reviewers": [
         {
-          "@id": "https://example.com/teams/marketing",
+          "@id": "https://example.com/teams/data-governance",
           "@type": "Team",
-          "name": "Marketing"
+          "name": "DataGovernance",
+          "displayName": "Data Governance Team"
+        }
+      ],
+
+      "inputPorts": [
+        {
+          "@type": "DataProductPort",
+          "name": "crm_input",
+          "displayName": "CRM Data Input",
+          "portType": "INPUT",
+          "protocol": "JDBC",
+          "format": "JSON",
+          "endpoint": "jdbc:postgresql://crm-db.example.com:5432/crm"
         },
         {
-          "@id": "https://example.com/teams/sales-ops",
-          "@type": "Team",
-          "name": "SalesOps"
+          "@type": "DataProductPort",
+          "name": "events_input",
+          "displayName": "Event Stream Input",
+          "portType": "INPUT",
+          "protocol": "KAFKA",
+          "format": "AVRO",
+          "endpoint": "kafka://events.example.com:9092/customer-events"
         }
       ],
 
-      "inputDataProducts": [
+      "outputPorts": [
+        {
+          "@type": "DataProductPort",
+          "name": "customer_api",
+          "displayName": "Customer API",
+          "portType": "OUTPUT",
+          "protocol": "REST",
+          "format": "JSON",
+          "endpoint": "https://api.example.com/v2/customers"
+        },
+        {
+          "@type": "DataProductPort",
+          "name": "customer_table",
+          "displayName": "Customer Table",
+          "portType": "OUTPUT",
+          "protocol": "JDBC",
+          "format": "PARQUET",
+          "endpoint": "jdbc:postgresql://analytics.example.com:5432/customer360"
+        }
+      ],
+
+      "consumesFrom": [
         {
           "@id": "https://example.com/dataproducts/crm-master",
           "@type": "DataProduct",
           "name": "CRMMasterData"
+        },
+        {
+          "@id": "https://example.com/dataproducts/web-analytics",
+          "@type": "DataProduct",
+          "name": "WebAnalytics"
+        }
+      ],
+
+      "providesTo": [
+        {
+          "@id": "https://example.com/dataproducts/marketing-analytics",
+          "@type": "DataProduct",
+          "name": "MarketingAnalytics"
+        }
+      ],
+
+      "followers": [
+        {
+          "@id": "https://example.com/users/jane.doe",
+          "@type": "User",
+          "name": "jane.doe",
+          "displayName": "Jane Doe"
         }
       ],
 
       "sla": {
-        "freshnessThreshold": 3600,
-        "qualityThreshold": 99.5,
-        "availabilityTarget": 99.9,
-        "supportResponseTime": 4
+        "@type": "SLADefinition",
+        "tier": "GOLD",
+        "availability": 99.9,
+        "responseTime": 100,
+        "dataFreshness": 60,
+        "dataQuality": 99.5
       },
 
-      "accessMethods": ["API", "SQL", "Dashboard"]
+      "tags": [
+        {
+          "tagFQN": "PII.Sensitive",
+          "description": "Contains sensitive PII data"
+        },
+        {
+          "tagFQN": "Tier.Tier1",
+          "description": "Critical business data"
+        }
+      ]
     }
     ```
 
@@ -976,54 +1092,25 @@ View the complete Data Product schema in your preferred format:
 
 ---
 
-### Product Type Properties
+### Lifecycle Properties
 
-#### `dataProductType` (DataProductType enum)
+#### `lifecycleStage` (LifecycleStage enum)
 **Type**: `string` enum
 **Required**: No
+**Default**: `DEVELOPMENT`
 **Allowed Values**:
 
-- `Data` - Core data tables and datasets
-- `Insights` - Analytics dashboards and reports
-- `Models` - ML models and predictions
-- `APIs` - API-first data products
+- `IDEATION` - Initial concept and planning phase
+- `DESIGN` - Design and architecture phase
+- `DEVELOPMENT` - Active development phase
+- `TESTING` - Testing and validation phase
+- `PRODUCTION` - Live and available for consumption
+- `DEPRECATED` - Marked for retirement
+- `RETIRED` - No longer available
 
 ```json
 {
-  "dataProductType": "Data"
-}
-```
-
----
-
-#### `productVersion` (semantic version)
-**Type**: `string`
-**Required**: No
-**Pattern**: `^\d+\.\d+\.\d+$`
-**Description**: Product semantic version (e.g., 2.1.0)
-
-```json
-{
-  "productVersion": "2.1.0"
-}
-```
-
----
-
-#### `status` (ProductStatus enum)
-**Type**: `string` enum
-**Required**: No
-**Default**: `Draft`
-**Allowed Values**:
-
-- `Draft` - Product design in progress
-- `Development` - Product being built
-- `Published` - Product available for consumption
-- `Deprecated` - Product scheduled for retirement
-
-```json
-{
-  "status": "Published"
+  "lifecycleStage": "PRODUCTION"
 }
 ```
 
@@ -1047,19 +1134,21 @@ View the complete Data Product schema in your preferred format:
 
 ### Domain Properties
 
-#### `domain` (EntityReference)
-**Type**: `object`
-**Required**: Yes
-**Description**: Parent domain of this product
+#### `domains[]` (EntityReferenceList)
+**Type**: `array` of Domain references
+**Required**: No
+**Description**: Domains or sub-domains to which this Data Product belongs to
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Sales",
-    "fullyQualifiedName": "Sales"
-  }
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ]
 }
 ```
 
@@ -1067,10 +1156,10 @@ View the complete Data Product schema in your preferred format:
 
 ### Ownership Properties
 
-#### `owners[]` (EntityReference[])
+#### `owners[]` (EntityReferenceList)
 **Type**: `array` of Team or User references
 **Required**: No
-**Description**: Product owner teams or users
+**Description**: Owners of this Data Product
 
 ```json
 {
@@ -1087,10 +1176,11 @@ View the complete Data Product schema in your preferred format:
 
 ---
 
-#### `experts[]` (EntityReference[])
+#### `experts[]` (EntityReferenceList)
 **Type**: `array` of User references
 **Required**: No
-**Description**: Product experts (product managers, technical leads)
+**Default**: `null`
+**Description**: List of users who are experts for this Data Product
 
 ```json
 {
@@ -1113,111 +1203,122 @@ View the complete Data Product schema in your preferred format:
 
 ---
 
-### Asset Properties
-
-#### `assets` (AssetCollection)
-**Type**: `object`
+#### `reviewers[]` (EntityReferenceList)
+**Type**: `array` of User references
 **Required**: No
-**Description**: Data assets included in this product
+**Description**: User references of the reviewers for this Data Product
 
 ```json
 {
-  "assets": {
-    "tables": [
-      {
-        "id": "table-uuid-1",
-        "type": "table",
-        "name": "customer_unified",
-        "fullyQualifiedName": "postgres.sales.public.customer_unified"
-      },
-      {
-        "id": "table-uuid-2",
-        "type": "table",
-        "name": "customer_interactions",
-        "fullyQualifiedName": "postgres.sales.public.customer_interactions"
-      }
-    ],
-    "dashboards": [
-      {
-        "id": "dashboard-uuid",
-        "type": "dashboard",
-        "name": "CustomerInsights",
-        "fullyQualifiedName": "tableau.sales.customer_insights"
-      }
-    ],
-    "mlmodels": [
-      {
-        "id": "mlmodel-uuid",
-        "type": "mlmodel",
-        "name": "churn_predictor",
-        "fullyQualifiedName": "mlflow.customer.churn_predictor"
-      }
-    ],
-    "pipelines": [
-      {
-        "id": "pipeline-uuid",
-        "type": "pipeline",
-        "name": "customer_etl",
-        "fullyQualifiedName": "airflow.customer_etl"
-      }
-    ],
-    "topics": [
-      {
-        "id": "topic-uuid",
-        "type": "topic",
-        "name": "customer_events",
-        "fullyQualifiedName": "kafka.customer_events"
-      }
-    ],
-    "containers": [
-      {
-        "id": "container-uuid",
-        "type": "container",
-        "name": "customer_exports",
-        "fullyQualifiedName": "s3.sales.customer_exports"
-      }
-    ],
-    "apiEndpoints": [
-      {
-        "id": "api-uuid",
-        "type": "apiEndpoint",
-        "name": "customer_api",
-        "fullyQualifiedName": "rest.v2.customers"
-      }
-    ]
-  }
+  "reviewers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "jane.reviewer",
+      "displayName": "Jane Reviewer"
+    }
+  ]
 }
 ```
 
 ---
 
-### Consumer Properties
+### Asset Properties
 
-#### `consumers[]` (EntityReference[])
-**Type**: `array` of Team or User references
+#### `assets[]` (EntityReferenceList)
+**Type**: `array` of asset references
 **Required**: No
-**Description**: Teams and users consuming this product
+**Deprecated**: Yes
+**Description**: Data assets collection that is part of this data product. Use GET /v1/dataProducts/{id}/assets API endpoint for paginated access to data product assets.
 
 ```json
 {
-  "consumers": [
+  "assets": [
     {
-      "id": "team-uuid-1",
-      "type": "team",
-      "name": "Marketing",
-      "displayName": "Marketing Team"
+      "id": "table-uuid",
+      "type": "table",
+      "name": "customer_unified",
+      "fullyQualifiedName": "postgres.sales.public.customer_unified"
+    }
+  ]
+}
+```
+
+**Note**: This property is deprecated. Use the `/v1/dataProducts/{id}/assets` API endpoint instead.
+
+---
+
+### Port Properties
+
+#### `inputPorts[]` (DataProductPort[])
+**Type**: `array` of DataProductPort objects
+**Required**: No
+**Default**: `[]`
+**Description**: Input ports for consuming data into this data product
+
+```json
+{
+  "inputPorts": [
+    {
+      "name": "crm_input",
+      "displayName": "CRM Data Input",
+      "description": "Input port for CRM data",
+      "portType": "INPUT",
+      "protocol": "JDBC",
+      "format": "JSON",
+      "endpoint": "jdbc:postgresql://crm-db.example.com:5432/crm",
+      "dataAsset": {
+        "id": "table-uuid",
+        "type": "table",
+        "name": "crm_customers"
+      }
+    }
+  ]
+}
+```
+
+**Port Properties**:
+- `name` (string, required): Name of the port
+- `displayName` (string): Display name of the port
+- `description` (string): Description of the port
+- `portType` (enum, required): Type of port - `INPUT` or `OUTPUT`
+- `protocol` (enum): Protocol - `REST`, `GRPC`, `GRAPHQL`, `JDBC`, `KAFKA`, `FILE`, `S3`, `AZURE_BLOB`, `GCS`, `WEBHOOK`, `CUSTOM`
+- `format` (enum): Data format - `JSON`, `CSV`, `PARQUET`, `AVRO`, `ORC`, `XML`, `PROTOBUF`, `DELTA`, `ICEBERG`, `CUSTOM`
+- `endpoint` (string): Endpoint URL or connection string
+- `dataAsset` (EntityReference): Reference to the data asset exposed through this port
+
+---
+
+#### `outputPorts[]` (DataProductPort[])
+**Type**: `array` of DataProductPort objects
+**Required**: No
+**Default**: `[]`
+**Description**: Output ports for exposing data from this data product
+
+```json
+{
+  "outputPorts": [
+    {
+      "name": "customer_api",
+      "displayName": "Customer API",
+      "description": "REST API for customer data access",
+      "portType": "OUTPUT",
+      "protocol": "REST",
+      "format": "JSON",
+      "endpoint": "https://api.example.com/v2/customers"
     },
     {
-      "id": "team-uuid-2",
-      "type": "team",
-      "name": "SalesOps",
-      "displayName": "Sales Operations"
-    },
-    {
-      "id": "user-uuid",
-      "type": "user",
-      "name": "jane.doe",
-      "displayName": "Jane Doe"
+      "name": "customer_table",
+      "displayName": "Customer Data Table",
+      "portType": "OUTPUT",
+      "protocol": "JDBC",
+      "format": "PARQUET",
+      "endpoint": "jdbc:postgresql://analytics.example.com:5432/customer360",
+      "dataAsset": {
+        "id": "table-uuid",
+        "type": "table",
+        "name": "customer_unified"
+      }
     }
   ]
 }
@@ -1227,14 +1328,15 @@ View the complete Data Product schema in your preferred format:
 
 ### Dependency Properties
 
-#### `inputDataProducts[]` (EntityReference[])
+#### `consumesFrom[]` (EntityReferenceList)
 **Type**: `array` of DataProduct references
 **Required**: No
-**Description**: Upstream data products this product depends on
+**Default**: `[]`
+**Description**: Other data products that this product consumes data from
 
 ```json
 {
-  "inputDataProducts": [
+  "consumesFrom": [
     {
       "id": "product-uuid-1",
       "type": "dataProduct",
@@ -1253,14 +1355,15 @@ View the complete Data Product schema in your preferred format:
 
 ---
 
-#### `outputDataProducts[]` (EntityReference[])
+#### `providesTo[]` (EntityReferenceList)
 **Type**: `array` of DataProduct references
 **Required**: No
-**Description**: Downstream products that consume this product
+**Default**: `[]`
+**Description**: Other data products that consume data from this product
 
 ```json
 {
-  "outputDataProducts": [
+  "providesTo": [
     {
       "id": "product-uuid-3",
       "type": "dataProduct",
@@ -1275,99 +1378,40 @@ View the complete Data Product schema in your preferred format:
 
 ### Quality Properties
 
-#### `testSuites[]` (EntityReference[])
-**Type**: `array` of TestSuite references
-**Required**: No
-**Description**: Test suites validating product quality
-
-```json
-{
-  "testSuites": [
-    {
-      "id": "testsuite-uuid",
-      "type": "testSuite",
-      "name": "Customer360Quality",
-      "displayName": "Customer360 Quality Validation"
-    }
-  ]
-}
-```
-
----
-
-#### `sla` (ServiceLevelAgreement)
+#### `sla` (SLADefinition)
 **Type**: `object`
 **Required**: No
-**Description**: Service level agreement for this product
+**Description**: Service Level Agreement for this data product
 
 ```json
 {
   "sla": {
-    "freshnessThreshold": 3600,
-    "qualityThreshold": 99.5,
-    "availabilityTarget": 99.9,
-    "supportResponseTime": 4
+    "tier": "GOLD",
+    "availability": 99.9,
+    "responseTime": 100,
+    "dataFreshness": 60,
+    "dataQuality": 99.5
   }
 }
 ```
 
 **SLA Properties**:
 
-- `freshnessThreshold` (integer): Maximum data age in seconds
-- `qualityThreshold` (number): Minimum quality score (0-100)
-- `availabilityTarget` (number): Availability percentage (e.g., 99.9)
-- `supportResponseTime` (number): Support response time in hours
-
----
-
-### Access Properties
-
-#### `accessMethods[]` (AccessMethod[])
-**Type**: `array` of strings
-**Required**: No
-**Allowed Values**: `API`, `SQL`, `Dashboard`, `Export`, `Streaming`
-**Description**: Ways consumers can access this product
-
-```json
-{
-  "accessMethods": ["API", "SQL", "Dashboard"]
-}
-```
+- `tier` (enum): SLA tier - `GOLD`, `SILVER`, `BRONZE`, `CUSTOM`
+- `availability` (number): Expected availability percentage (e.g., 99.9), range 0-100
+- `responseTime` (integer): Expected response time in milliseconds
+- `dataFreshness` (integer): Maximum data staleness in minutes
+- `dataQuality` (number): Minimum data quality score, range 0-100
 
 ---
 
 ### Governance Properties
 
-#### `glossaryTerms[]` (EntityReference[])
-**Type**: `array` of GlossaryTerm references
-**Required**: No
-**Description**: Glossary terms used in this product
-
-```json
-{
-  "glossaryTerms": [
-    {
-      "id": "term-uuid-1",
-      "type": "glossaryTerm",
-      "name": "Customer",
-      "fullyQualifiedName": "BusinessGlossary.Customer"
-    },
-    {
-      "id": "term-uuid-2",
-      "type": "glossaryTerm",
-      "name": "Churn",
-      "fullyQualifiedName": "BusinessGlossary.Churn"
-    }
-  ]
-}
-```
-
----
-
 #### `tags[]` (TagLabel[])
 **Type**: `array`
 **Required**: No
-**Description**: Tags for classification
+**Default**: `[]`
+**Description**: Tags associated with the Data Product
 
 ```json
 {
@@ -1387,6 +1431,77 @@ View the complete Data Product schema in your preferred format:
       "state": "Confirmed"
     }
   ]
+}
+```
+
+---
+
+### Social Properties
+
+#### `followers[]` (EntityReferenceList)
+**Type**: `array` of User references
+**Required**: No
+**Description**: Followers of this entity
+
+```json
+{
+  "followers": [
+    {
+      "id": "user-uuid",
+      "type": "user",
+      "name": "jane.doe",
+      "displayName": "Jane Doe"
+    }
+  ]
+}
+```
+
+---
+
+### Status Properties
+
+#### `entityStatus` (Status)
+**Type**: `object`
+**Required**: No
+**Description**: Status of the Data Product
+
+```json
+{
+  "entityStatus": {
+    "state": "ACTIVE"
+  }
+}
+```
+
+---
+
+### System Properties
+
+#### `href` (href)
+**Type**: `string`
+**Required**: No (system-managed)
+**Description**: Link to the resource corresponding to this entity
+
+```json
+{
+  "href": "https://example.com/api/v1/dataProducts/a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"
+}
+```
+
+---
+
+#### `impersonatedBy` (impersonatedBy)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Bot user that performed the action on behalf of the actual user
+
+```json
+{
+  "impersonatedBy": {
+    "id": "bot-uuid",
+    "type": "bot",
+    "name": "ingestion-bot"
+  }
 }
 ```
 
@@ -1433,6 +1548,68 @@ View the complete Data Product schema in your preferred format:
 
 ---
 
+#### `changeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "changeDescription": {
+    "fieldsAdded": [],
+    "fieldsUpdated": [
+      {
+        "name": "lifecycleStage",
+        "oldValue": "DEVELOPMENT",
+        "newValue": "PRODUCTION"
+      }
+    ],
+    "fieldsDeleted": [],
+    "previousVersion": 1.0
+  }
+}
+```
+
+---
+
+#### `incrementalChangeDescription` (changeDescription)
+**Type**: `object`
+**Required**: No (system-managed)
+**Description**: Change that lead to this version of the entity
+
+```json
+{
+  "incrementalChangeDescription": {
+    "fieldsAdded": [
+      {
+        "name": "outputPorts[0]",
+        "newValue": "{\"name\":\"customer_api\",\"portType\":\"OUTPUT\"}"
+      }
+    ],
+    "fieldsUpdated": [],
+    "fieldsDeleted": []
+  }
+}
+```
+
+---
+
+#### `extension` (entityExtension)
+**Type**: `object`
+**Required**: No
+**Description**: Entity extension data with custom attributes added to the entity
+
+```json
+{
+  "extension": {
+    "customProperty1": "value1",
+    "customProperty2": 123
+  }
+}
+```
+
+---
+
 ## Complete Examples
 
 ### Example 1: Customer360 Data Product
@@ -1444,19 +1621,19 @@ View the complete Data Product schema in your preferred format:
   "fullyQualifiedName": "Sales.Customer360",
   "displayName": "Customer 360 Data Product",
   "description": "# Customer 360\n\nUnified customer view combining CRM, behavioral, and transactional data for comprehensive customer analytics.\n\n## Purpose\nProvide 360-degree customer insights for marketing segmentation, sales prioritization, and support personalization.\n\n## Key Features\n- Real-time customer profiles updated hourly\n- ML-based customer segmentation (10 segments)\n- Churn prediction with 85% accuracy\n- Lifetime value estimates\n- Interaction history across all channels\n\n## Data Sources\n- Salesforce CRM (customer master)\n- Google Analytics (web behavior)\n- Zendesk (support tickets)\n- Stripe (transaction history)\n\n## Access Methods\n- **REST API**: `https://api.example.com/v2/customers`\n- **SQL**: `SELECT * FROM data_products.customer360.customer_unified`\n- **Dashboard**: Customer Insights Dashboard in Tableau\n\n## Support\n- **Slack**: #customer360-support\n- **Email**: customer-analytics@example.com\n- **SLA**: 4-hour response time during business hours",
-  "dataProductType": "Data",
-  "productVersion": "2.1.0",
-  "status": "Published",
+  "lifecycleStage": "PRODUCTION",
   "style": {
     "color": "#F59E0B",
     "iconURL": "https://example.com/icons/customer360.svg"
   },
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Sales",
-    "fullyQualifiedName": "Sales"
-  },
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "Sales",
+      "fullyQualifiedName": "Sales"
+    }
+  ],
   "owners": [
     {
       "id": "team-uuid",
@@ -1479,87 +1656,55 @@ View the complete Data Product schema in your preferred format:
       "displayName": "Bob Jones"
     }
   ],
-  "assets": {
-    "tables": [
-      {
-        "id": "table-uuid-1",
-        "type": "table",
-        "name": "customer_unified",
-        "fullyQualifiedName": "postgres.sales.public.customer_unified"
-      },
-      {
-        "id": "table-uuid-2",
-        "type": "table",
-        "name": "customer_interactions",
-        "fullyQualifiedName": "postgres.sales.public.customer_interactions"
-      },
-      {
-        "id": "table-uuid-3",
-        "type": "table",
-        "name": "customer_segments",
-        "fullyQualifiedName": "postgres.sales.public.customer_segments"
-      }
-    ],
-    "dashboards": [
-      {
-        "id": "dashboard-uuid",
-        "type": "dashboard",
-        "name": "CustomerInsights",
-        "fullyQualifiedName": "tableau.sales.customer_insights"
-      }
-    ],
-    "mlmodels": [
-      {
-        "id": "mlmodel-uuid-1",
-        "type": "mlmodel",
-        "name": "churn_predictor",
-        "fullyQualifiedName": "mlflow.customer.churn_predictor"
-      },
-      {
-        "id": "mlmodel-uuid-2",
-        "type": "mlmodel",
-        "name": "segment_classifier",
-        "fullyQualifiedName": "mlflow.customer.segment_classifier"
-      }
-    ],
-    "pipelines": [
-      {
-        "id": "pipeline-uuid",
-        "type": "pipeline",
-        "name": "customer_etl",
-        "fullyQualifiedName": "airflow.customer_etl"
-      }
-    ],
-    "apiEndpoints": [
-      {
-        "id": "api-uuid",
-        "type": "apiEndpoint",
-        "name": "customer_api",
-        "fullyQualifiedName": "rest.v2.customers"
-      }
-    ]
-  },
-  "consumers": [
+  "reviewers": [
     {
-      "id": "team-uuid-1",
-      "type": "team",
-      "name": "Marketing",
-      "displayName": "Marketing Team"
-    },
-    {
-      "id": "team-uuid-2",
-      "type": "team",
-      "name": "SalesOps",
-      "displayName": "Sales Operations"
-    },
-    {
-      "id": "team-uuid-3",
-      "type": "team",
-      "name": "CustomerSupport",
-      "displayName": "Customer Support"
+      "id": "user-uuid-3",
+      "type": "user",
+      "name": "review.lead",
+      "displayName": "Review Lead"
     }
   ],
-  "inputDataProducts": [
+  "inputPorts": [
+    {
+      "name": "crm_input",
+      "displayName": "CRM Data Input",
+      "description": "Input port for CRM customer data",
+      "portType": "INPUT",
+      "protocol": "JDBC",
+      "format": "JSON",
+      "endpoint": "jdbc:postgresql://crm-db.example.com:5432/crm"
+    },
+    {
+      "name": "events_input",
+      "displayName": "Event Stream Input",
+      "description": "Real-time customer events from Kafka",
+      "portType": "INPUT",
+      "protocol": "KAFKA",
+      "format": "AVRO",
+      "endpoint": "kafka://events.example.com:9092/customer-events"
+    }
+  ],
+  "outputPorts": [
+    {
+      "name": "customer_api",
+      "displayName": "Customer REST API",
+      "description": "REST API for customer data access",
+      "portType": "OUTPUT",
+      "protocol": "REST",
+      "format": "JSON",
+      "endpoint": "https://api.example.com/v2/customers"
+    },
+    {
+      "name": "customer_table",
+      "displayName": "Customer Unified Table",
+      "description": "Unified customer table in data warehouse",
+      "portType": "OUTPUT",
+      "protocol": "JDBC",
+      "format": "PARQUET",
+      "endpoint": "jdbc:postgresql://analytics.example.com:5432/customer360"
+    }
+  ],
+  "consumesFrom": [
     {
       "id": "product-uuid-1",
       "type": "dataProduct",
@@ -1573,40 +1718,12 @@ View the complete Data Product schema in your preferred format:
       "displayName": "Web Analytics"
     }
   ],
-  "outputDataProducts": [
+  "providesTo": [
     {
       "id": "product-uuid-3",
       "type": "dataProduct",
       "name": "MarketingAnalytics",
       "displayName": "Marketing Analytics"
-    }
-  ],
-  "testSuites": [
-    {
-      "id": "testsuite-uuid",
-      "type": "testSuite",
-      "name": "Customer360Quality",
-      "displayName": "Customer360 Quality Validation"
-    }
-  ],
-  "glossaryTerms": [
-    {
-      "id": "term-uuid-1",
-      "type": "glossaryTerm",
-      "name": "Customer",
-      "fullyQualifiedName": "BusinessGlossary.Customer"
-    },
-    {
-      "id": "term-uuid-2",
-      "type": "glossaryTerm",
-      "name": "Churn",
-      "fullyQualifiedName": "BusinessGlossary.Churn"
-    },
-    {
-      "id": "term-uuid-3",
-      "type": "glossaryTerm",
-      "name": "LifetimeValue",
-      "fullyQualifiedName": "BusinessGlossary.LifetimeValue"
     }
   ],
   "tags": [
@@ -1624,230 +1741,23 @@ View the complete Data Product schema in your preferred format:
     }
   ],
   "sla": {
-    "freshnessThreshold": 3600,
-    "qualityThreshold": 99.5,
-    "availabilityTarget": 99.9,
-    "supportResponseTime": 4
+    "tier": "GOLD",
+    "availability": 99.9,
+    "responseTime": 100,
+    "dataFreshness": 60,
+    "dataQuality": 99.5
   },
-  "accessMethods": ["API", "SQL", "Dashboard"],
+  "followers": [
+    {
+      "id": "user-uuid-4",
+      "type": "user",
+      "name": "jane.follower",
+      "displayName": "Jane Follower"
+    }
+  ],
   "version": 2.1,
   "updatedAt": 1704240000000,
   "updatedBy": "alice.smith"
-}
-```
-
----
-
-### Example 2: Sales Analytics Data Product
-
-```json
-{
-  "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
-  "name": "SalesAnalytics",
-  "fullyQualifiedName": "Sales.SalesAnalytics",
-  "displayName": "Sales Analytics Data Product",
-  "description": "# Sales Analytics\n\nComprehensive sales performance analytics and forecasting.\n\n## Purpose\nProvide real-time and historical sales metrics for leadership, operations, and individual reps.\n\n## Key Features\n- Real-time sales transactions\n- Daily aggregated metrics\n- Territory and rep performance\n- ML-based sales forecasting\n- Pipeline health monitoring\n\n## Dashboards\n- Executive Sales Performance\n- Territory Analysis\n- Individual Rep Scorecard",
-  "dataProductType": "Insights",
-  "productVersion": "1.5.2",
-  "status": "Published",
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Sales",
-    "fullyQualifiedName": "Sales"
-  },
-  "owners": [
-    {
-      "id": "team-uuid",
-      "type": "team",
-      "name": "SalesOperations",
-      "displayName": "Sales Operations Team"
-    }
-  ],
-  "experts": [
-    {
-      "id": "expert-uuid",
-      "type": "user",
-      "name": "charlie.brown",
-      "displayName": "Charlie Brown"
-    }
-  ],
-  "assets": {
-    "tables": [
-      {
-        "id": "table-uuid-1",
-        "type": "table",
-        "name": "sales_metrics",
-        "fullyQualifiedName": "postgres.sales.public.sales_metrics"
-      },
-      {
-        "id": "table-uuid-2",
-        "type": "table",
-        "name": "sales_transactions",
-        "fullyQualifiedName": "postgres.sales.public.sales_transactions"
-      },
-      {
-        "id": "table-uuid-3",
-        "type": "table",
-        "name": "sales_forecast",
-        "fullyQualifiedName": "postgres.sales.public.sales_forecast"
-      }
-    ],
-    "dashboards": [
-      {
-        "id": "dashboard-uuid-1",
-        "type": "dashboard",
-        "name": "SalesPerformance",
-        "fullyQualifiedName": "tableau.sales.performance"
-      },
-      {
-        "id": "dashboard-uuid-2",
-        "type": "dashboard",
-        "name": "TerritoryAnalysis",
-        "fullyQualifiedName": "looker.sales.territory"
-      }
-    ],
-    "pipelines": [
-      {
-        "id": "pipeline-uuid-1",
-        "type": "pipeline",
-        "name": "sales_etl",
-        "fullyQualifiedName": "airflow.sales_etl"
-      },
-      {
-        "id": "pipeline-uuid-2",
-        "type": "pipeline",
-        "name": "real_time_sync",
-        "fullyQualifiedName": "airflow.sales_stream"
-      }
-    ]
-  },
-  "consumers": [
-    {
-      "id": "team-uuid-1",
-      "type": "team",
-      "name": "SalesLeadership",
-      "displayName": "Sales Leadership"
-    },
-    {
-      "id": "team-uuid-2",
-      "type": "team",
-      "name": "SalesReps",
-      "displayName": "Sales Representatives"
-    }
-  ],
-  "sla": {
-    "freshnessThreshold": 300,
-    "qualityThreshold": 99.9,
-    "availabilityTarget": 99.95
-  },
-  "accessMethods": ["Dashboard", "SQL"],
-  "version": 1.5,
-  "updatedAt": 1704150000000,
-  "updatedBy": "charlie.brown"
-}
-```
-
----
-
-### Example 3: Real-time Pricing Data Product
-
-```json
-{
-  "id": "c3d4e5f6-a7b8-9c0d-1e2f-3a4b5c6d7e8f",
-  "name": "RealtimePricing",
-  "fullyQualifiedName": "Product.RealtimePricing",
-  "displayName": "Real-time Pricing Data Product",
-  "description": "# Real-time Pricing\n\nDynamic product pricing engine with real-time updates.\n\n## Purpose\nProvide real-time product prices across all sales channels with ML-based dynamic pricing.\n\n## Key Features\n- Sub-second price updates\n- Competitor price monitoring\n- Dynamic pricing algorithms\n- Multi-currency support\n- Channel-specific pricing\n\n## Performance\n- Latency: < 100ms API response\n- Throughput: 10,000+ requests/second\n- Uptime: 99.99%",
-  "dataProductType": "APIs",
-  "productVersion": "3.2.1",
-  "status": "Published",
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "Product",
-    "fullyQualifiedName": "Product"
-  },
-  "owners": [
-    {
-      "id": "team-uuid",
-      "type": "team",
-      "name": "PricingTeam",
-      "displayName": "Pricing Team"
-    }
-  ],
-  "assets": {
-    "topics": [
-      {
-        "id": "topic-uuid-1",
-        "type": "topic",
-        "name": "pricing_events",
-        "fullyQualifiedName": "kafka.pricing_events"
-      },
-      {
-        "id": "topic-uuid-2",
-        "type": "topic",
-        "name": "competitor_prices",
-        "fullyQualifiedName": "kafka.competitor_prices"
-      }
-    ],
-    "pipelines": [
-      {
-        "id": "pipeline-uuid",
-        "type": "pipeline",
-        "name": "price_aggregator",
-        "fullyQualifiedName": "flink.price_aggregator"
-      }
-    ],
-    "mlmodels": [
-      {
-        "id": "mlmodel-uuid",
-        "type": "mlmodel",
-        "name": "dynamic_pricing",
-        "fullyQualifiedName": "mlflow.pricing.dynamic_pricing"
-      }
-    ],
-    "tables": [
-      {
-        "id": "table-uuid",
-        "type": "table",
-        "name": "current_prices",
-        "fullyQualifiedName": "postgres.product.public.current_prices"
-      }
-    ],
-    "apiEndpoints": [
-      {
-        "id": "api-uuid",
-        "type": "apiEndpoint",
-        "name": "pricing_api",
-        "fullyQualifiedName": "rest.v3.pricing"
-      }
-    ]
-  },
-  "consumers": [
-    {
-      "id": "team-uuid-1",
-      "type": "team",
-      "name": "Ecommerce",
-      "displayName": "E-commerce Platform"
-    },
-    {
-      "id": "team-uuid-2",
-      "type": "team",
-      "name": "MobileApp",
-      "displayName": "Mobile App Team"
-    }
-  ],
-  "sla": {
-    "freshnessThreshold": 1,
-    "qualityThreshold": 100.0,
-    "availabilityTarget": 99.99,
-    "supportResponseTime": 0.5
-  },
-  "accessMethods": ["API", "Streaming"],
-  "version": 3.2,
-  "updatedAt": 1704200000000,
-  "updatedBy": "pricing-service"
 }
 ```
 

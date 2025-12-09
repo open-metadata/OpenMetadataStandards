@@ -1,25 +1,28 @@
 
 # Alert
 
-An **Alert** is a notification mechanism in OpenMetadata that triggers when specific conditions are met, such as data quality test failures, schema changes, policy violations, or unusual activity. Alerts enable proactive monitoring and help data teams respond quickly to issues.
+An **Alert** in OpenMetadata is implemented through **Event Subscriptions**, which are notification mechanisms that trigger when specific conditions are met. Event Subscriptions enable proactive monitoring by sending alerts for data quality test failures, schema changes, policy violations, or unusual activity, helping data teams respond quickly to issues.
 
 ## Overview
 
-Alerts in OpenMetadata provide real-time notifications for:
+Event Subscriptions in OpenMetadata provide notifications for:
 
-- **Data Quality Issues**: Test failures, data anomalies, and quality degradation
-- **Schema Changes**: Unexpected changes to table schemas or column definitions
-- **Policy Violations**: Breaches of access control or compliance policies
-- **Operational Events**: Pipeline failures, ingestion errors, or service disruptions
-- **Usage Anomalies**: Unusual query patterns or access attempts
-- **Metadata Changes**: Modifications to critical metadata elements
+- **Data Quality Issues**: Test failures, data anomalies, and quality degradation (Observability alerts)
+- **Schema Changes**: Unexpected changes to table schemas or column definitions (Notification alerts)
+- **Policy Violations**: Breaches of access control or compliance policies (Notification alerts)
+- **Operational Events**: Pipeline failures, ingestion errors, or service disruptions (Observability alerts)
+- **Activity Feed**: User activity and collaboration events (ActivityFeed alerts)
+- **Governance Workflows**: Policy changes and approval workflows (GovernanceWorkflowChangeEvent alerts)
+- **Metadata Changes**: Modifications to critical metadata elements (Notification alerts)
 
-Alerts can be configured with:
-- Trigger conditions (when to fire)
-- Severity levels (Critical, High, Medium, Low)
-- Notification channels (Email, Slack, Webhook, MS Teams)
-- Recipients (Users, Teams, or external systems)
-- Throttling rules (to prevent alert fatigue)
+Event Subscriptions can be configured with:
+- **Alert Types**: Notification, Observability, ActivityFeed, GovernanceWorkflowChangeEvent, or Custom
+- **Triggers**: Real-time or scheduled (daily, weekly, monthly, custom cron)
+- **Filtering Rules**: Conditional rules to filter events based on resources and event properties
+- **Destinations**: Multiple notification channels (Email, Slack, Webhook, MS Teams, Google Chat)
+- **Subscription Categories**: Target specific recipients (Users, Teams, Owners, Followers, Admins, External)
+- **Batch Processing**: Configurable batch size and retry logic
+- **Downstream Notifications**: Notify stakeholders of dependent downstream entities
 
 ## Hierarchy
 
@@ -133,301 +136,298 @@ graph TD
 
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/alerts/alert.json",
+      "$id": "https://open-metadata.org/schema/events/eventSubscription.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Alert",
-      "description": "An Alert is a notification mechanism that triggers when specific conditions are met.",
+      "title": "EventSubscription",
+      "description": "This schema defines the EventSubscription entity. An Event Subscription has trigger, filters and Subscription",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.alerts.Alert",
-      "javaInterfaces": [
-        "org.openmetadata.schema.EntityInterface"
-      ],
+      "javaType": "org.openmetadata.schema.entity.events.EventSubscription",
+      "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
       "definitions": {
         "alertType": {
-          "description": "Type of alert",
+          "description": "Type of Alerts supported.",
+          "type": "string",
+          "enum": ["Notification", "Observability", "ActivityFeed", "GovernanceWorkflowChangeEvent", "Custom"],
+          "default": "Notification"
+        },
+        "triggerType": {
+          "description": "Trigger Configuration for Alerts.",
+          "type": "string",
+          "enum": ["RealTime", "Scheduled"],
+          "default": "RealTime"
+        },
+        "subscriptionCategory": {
+          "description": "Subscription Endpoint Type.",
           "type": "string",
           "enum": [
-            "DataQuality",
-            "SchemaChange",
-            "PolicyViolation",
-            "PipelineFailure",
-            "UsageAnomaly",
-            "MetadataChange",
-            "Custom"
-          ],
-          "javaEnums": [
-            {
-              "name": "DataQuality"
-            },
-            {
-              "name": "SchemaChange"
-            },
-            {
-              "name": "PolicyViolation"
-            },
-            {
-              "name": "PipelineFailure"
-            },
-            {
-              "name": "UsageAnomaly"
-            },
-            {
-              "name": "MetadataChange"
-            },
-            {
-              "name": "Custom"
-            }
+            "Users",
+            "Teams",
+            "Admins",
+            "Assignees",
+            "Owners",
+            "Mentions",
+            "Followers",
+            "External"
           ]
         },
-        "severity": {
-          "description": "Severity level of the alert",
+        "subscriptionType": {
+          "description": "Subscription Endpoint Type.",
           "type": "string",
           "enum": [
-            "Critical",
-            "High",
-            "Medium",
-            "Low",
-            "Info"
+            "Webhook",
+            "Slack",
+            "MsTeams",
+            "GChat",
+            "Email",
+            "ActivityFeed",
+            "GovernanceWorkflowChangeEvent"
           ]
         },
-        "triggerConfig": {
+        "trigger": {
+          "description": "Trigger Configuration for Alerts.",
           "type": "object",
-          "description": "Configuration for alert trigger conditions",
+          "javaType": "org.openmetadata.schema.entity.events.TriggerConfig",
           "properties": {
-            "type": {
-              "description": "Type of trigger",
+            "triggerType": {
+              "$ref": "#/definitions/triggerType"
+            },
+            "scheduleInfo": {
+              "description": "Schedule Info",
               "type": "string",
-              "enum": [
-                "TestResult",
-                "SchemaChange",
-                "PolicyViolation",
-                "PipelineStatus",
-                "MetricThreshold",
-                "Custom"
-              ]
+              "enum": ["Daily", "Weekly", "Monthly", "Custom"],
+              "default": "Weekly"
             },
-            "condition": {
-              "description": "Condition expression to evaluate",
+            "cronExpression": {
+              "description": "Cron Expression in case of Custom scheduled Trigger",
               "type": "string"
-            },
-            "entities": {
-              "description": "Entities being monitored",
-              "type": "array",
-              "items": {
-                "$ref": "../../type/entityReference.json"
-              }
-            },
-            "metrics": {
-              "description": "Metrics to monitor",
-              "type": "object",
-              "additionalProperties": {
-                "type": "number"
-              }
             }
           },
-          "required": [
-            "type"
-          ],
+          "required": ["triggerType"],
           "additionalProperties": false
         },
-        "notificationConfig": {
+        "filteringRules": {
+          "description": "Filtering Rules for Event Subscription.",
           "type": "object",
-          "description": "Configuration for alert notifications",
+          "javaType": "org.openmetadata.schema.entity.events.FilteringRules",
           "properties": {
-            "channels": {
-              "description": "Notification channels",
+            "resources": {
+              "description": "Defines a list of resources that triggers the Event Subscription, Eg All, User, Teams etc.",
               "type": "array",
               "items": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "Email",
-                      "Slack",
-                      "MSTeams",
-                      "Webhook",
-                      "PagerDuty",
-                      "Custom"
-                    ]
-                  },
-                  "config": {
-                    "description": "Channel-specific configuration",
-                    "type": "object"
-                  }
-                },
-                "required": [
-                  "type"
-                ]
+                "type": "string"
               }
             },
-            "recipients": {
-              "description": "Users or teams to notify",
+            "rules": {
+              "description": "A set of filter rules associated with the Alert.",
               "type": "array",
               "items": {
-                "$ref": "../../type/entityReference.json"
+                "$ref": "./eventFilterRule.json"
               }
             },
-            "throttle": {
-              "description": "Throttle configuration to prevent alert fatigue",
-              "type": "object",
-              "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "default": false
-                },
-                "duration": {
-                  "description": "Throttle duration in seconds",
-                  "type": "integer"
-                }
+            "actions": {
+              "description": "A set of filter rules associated with the Alert.",
+              "type": "array",
+              "items": {
+                "$ref": "./eventFilterRule.json"
               }
             }
           },
-          "required": [
-            "channels"
-          ],
+          "required": ["resources"],
           "additionalProperties": false
         },
-        "alertEvent": {
+        "destination": {
+          "description": "Subscription which has a type and the config.",
           "type": "object",
-          "description": "A single alert event/occurrence",
+          "javaType": "org.openmetadata.schema.entity.events.SubscriptionDestination",
           "properties": {
             "id": {
-              "description": "Unique identifier for the event",
-              "$ref": "../../type/basic.json#/definitions/uuid"
+              "description": "Unique identifier that identifies this Event Subscription.",
+              "$ref": "../type/basic.json#/definitions/uuid"
             },
-            "timestamp": {
-              "description": "When the alert was triggered",
-              "$ref": "../../type/basic.json#/definitions/timestamp"
+            "category": {
+              "$ref": "#/definitions/subscriptionCategory"
             },
-            "status": {
-              "description": "Status of the alert event",
-              "type": "string",
-              "enum": [
-                "New",
-                "Acknowledged",
-                "Resolved",
-                "Ignored"
+            "type": {
+              "$ref": "#/definitions/subscriptionType"
+            },
+            "statusDetails": {
+              "oneOf": [
+                {
+                  "$ref": "../events/subscriptionStatus.json"
+                },
+                {
+                  "$ref": "../events/testDestinationStatus.json"
+                }
               ]
             },
-            "message": {
-              "description": "Alert message",
-              "type": "string"
+            "timeout": {
+              "description": "Connection timeout in seconds. (Default 10s).",
+              "type": "integer",
+              "default": 10
             },
-            "details": {
-              "description": "Additional details about the event",
-              "type": "object"
+            "readTimeout": {
+              "description": "Read timeout in seconds. (Default 12s).",
+              "type": "integer",
+              "default": 12
             },
-            "resolvedBy": {
-              "description": "User who resolved the alert",
-              "$ref": "../../type/entityReference.json"
+            "enabled": {
+              "description": "Is the subscription enabled.",
+              "type": "boolean",
+              "default": true
             },
-            "resolvedAt": {
-              "description": "When the alert was resolved",
-              "$ref": "../../type/basic.json#/definitions/timestamp"
+            "config": {
+              "oneOf": [
+                {
+                  "$ref": "../entity/events/webhook.json"
+                },
+                {
+                  "$ref": "./emailAlertConfig.json"
+                },
+                {
+                  "$ref": "../type/basic.json#/definitions/map"
+                }
+              ]
+            },
+            "notifyDownstream": {
+              "description": "Enable notification of downstream entity stakeholders. When true, notifications will traverse lineage to include stakeholders of entities that consume data from the affected entity.",
+              "type": "boolean",
+              "default": false
+            },
+            "downstreamDepth": {
+              "description": "Maximum depth for downstream stakeholder notification traversal. If null, traverses without depth limit (with cycle protection).",
+              "type": ["integer", "null"],
+              "minimum": 1,
+              "default": null
             }
           },
-          "required": [
-            "id",
-            "timestamp",
-            "status"
+          "required": ["category", "type"],
+          "additionalProperties": false
+        },
+        "status": {
+          "description": "Status is `disabled`, when eventSubscription was created with `enabled` set to false and it never started publishing events. Status is `active` when eventSubscription is normally functioning and 200 OK response was received for callback notification. Status is `failed` on bad callback URL, connection failures, `1xx`, and `3xx` response was received for callback notification. Status is `awaitingRetry` when previous attempt at callback timed out or received `4xx`, `5xx` response. Status is `retryLimitReached` after all retries fail.",
+          "type": "string",
+          "enum": [
+            "disabled",
+            "failed",
+            "retryLimitReached",
+            "awaitingRetry",
+            "active"
           ]
         }
       },
       "properties": {
         "id": {
-          "description": "Unique identifier of the alert",
-          "$ref": "../../type/basic.json#/definitions/uuid"
+          "description": "Unique identifier that identifies this Event Subscription.",
+          "$ref": "../type/basic.json#/definitions/uuid"
+        },
+        "className": {
+          "description": "Java class for the Event Subscription.",
+          "type": "string"
         },
         "name": {
-          "description": "Name that identifies this alert",
-          "$ref": "../../type/basic.json#/definitions/entityName"
+          "description": "Name that uniquely identifies this Event Subscription.",
+          "$ref": "../type/basic.json#/definitions/entityName"
         },
         "fullyQualifiedName": {
-          "description": "Fully qualified name of the alert",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+          "description": "FullyQualifiedName that uniquely identifies a Event Subscription.",
+          "$ref": "../type/basic.json#/definitions/fullyQualifiedEntityName"
         },
         "displayName": {
-          "description": "Display name for the alert",
+          "description": "Display name for this Event Subscription.",
           "type": "string"
         },
         "description": {
-          "description": "Description of the alert",
-          "$ref": "../../type/basic.json#/definitions/markdown"
+          "description": "A short description of the Event Subscription, comprehensible to regular users.",
+          "$ref": "../type/basic.json#/definitions/markdown"
+        },
+        "owners": {
+          "description": "Owners of this Event Subscription.",
+          "$ref": "../type/entityReferenceList.json",
+          "default": null
+        },
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../type/basic.json#/definitions/href"
+        },
+        "version": {
+          "description": "Metadata version of the Event Subscription.",
+          "$ref": "../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the Event Subscription in Unix epoch time milliseconds.",
+          "$ref": "../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
+          "type": "string"
+        },
+        "changeDescription": {
+          "description": "Change that led to this version of the Event Subscription.",
+          "$ref": "../type/entityHistory.json#/definitions/changeDescription"
+        },
+        "incrementalChangeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../type/entityHistory.json#/definitions/changeDescription"
         },
         "alertType": {
+          "description": "Type of Alert",
           "$ref": "#/definitions/alertType"
         },
-        "severity": {
-          "$ref": "#/definitions/severity"
+        "trigger": {
+          "description": "Trigger information for Alert.",
+          "$ref": "#/definitions/trigger"
+        },
+        "filteringRules": {
+          "description": "Set of rules that the Event Subscription Contains to allow conditional control for alerting.",
+          "$ref": "#/definitions/filteringRules"
+        },
+        "destinations": {
+          "description": "Destination Config.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/destination"
+          }
+        },
+        "notificationTemplate": {
+          "description": "Optional custom notification template for this subscription. When not set, system default template will be used. Only USER templates can be assigned.",
+          "$ref": "../type/entityReference.json"
         },
         "enabled": {
-          "description": "Is the alert enabled",
+          "description": "Is the event Subscription enabled.",
           "type": "boolean",
           "default": true
         },
-        "triggerConfig": {
-          "$ref": "#/definitions/triggerConfig"
+        "batchSize": {
+          "description": "Maximum number of events sent in a batch (Default 100).",
+          "type": "integer",
+          "default": 100
         },
-        "notificationConfig": {
-          "$ref": "#/definitions/notificationConfig"
+        "provider": {
+          "$ref": "../type/basic.json#/definitions/providerType"
         },
-        "events": {
-          "description": "History of alert events",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/alertEvent"
-          }
+        "retries": {
+          "description": "Number of times to retry callback on failure. (Default 3).",
+          "type": "integer",
+          "default": 3
         },
-        "owner": {
-          "description": "Owner of this alert",
-          "$ref": "../../type/entityReference.json"
+        "pollInterval": {
+          "description": "Poll Interval in seconds.",
+          "type": "integer",
+          "default": 60
         },
-        "tags": {
-          "description": "Tags for this alert",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/tagLabel.json"
-          },
-          "default": null
+        "input": {
+          "description": "Input for the Filters.",
+          "$ref": "#/definitions/alertFilteringInput"
         },
-        "version": {
-          "description": "Metadata version of the entity",
-          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        "domains": {
+          "description": "Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.",
+          "$ref": "../type/entityReferenceList.json"
         },
-        "updatedAt": {
-          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds",
-          "$ref": "../../type/basic.json#/definitions/timestamp"
-        },
-        "updatedBy": {
-          "description": "User who made the update",
-          "type": "string"
-        },
-        "href": {
-          "description": "Link to this alert resource",
-          "$ref": "../../type/basic.json#/definitions/href"
-        },
-        "changeDescription": {
-          "description": "Change that led to this version of the entity",
-          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
-        },
-        "deleted": {
-          "description": "When true indicates the entity has been soft deleted",
-          "type": "boolean",
-          "default": false
-        },
-        "domain": {
-          "description": "Domain the alert belongs to",
-          "$ref": "../../type/entityReference.json"
+        "config": {
+          "$ref": "../type/basic.json#/definitions/map"
         }
       },
-      "required": [
-        "id",
-        "name",
-        "alertType",
-        "triggerConfig",
-        "notificationConfig"
-      ],
+      "required": ["id", "name", "alertType", "destinations"],
       "additionalProperties": false
     }
     ```
@@ -437,7 +437,7 @@ graph TD
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix om-entity: <https://open-metadata.org/schema/entity/> .
-    @prefix om-alert: <https://open-metadata.org/schema/entity/alerts/> .
+    @prefix om-events: <https://open-metadata.org/schema/events/> .
     @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
     @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -446,153 +446,172 @@ graph TD
     @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
     @prefix prov: <http://www.w3.org/ns/prov#> .
 
-    # Alert Class Definition
-    om-alert:Alert a owl:Class ;
-        rdfs:label "Alert" ;
-        rdfs:comment "A notification mechanism that triggers when specific conditions are met" ;
+    # EventSubscription Class Definition
+    om-events:EventSubscription a owl:Class ;
+        rdfs:label "Event Subscription" ;
+        rdfs:comment "An Event Subscription has trigger, filters and subscription destinations for alerts and notifications" ;
         rdfs:subClassOf om-entity:Entity ;
         rdfs:isDefinedBy om: .
 
     # Alert Type Class
-    om-alert:AlertType a owl:Class ;
+    om-events:AlertType a owl:Class ;
         rdfs:label "Alert Type" ;
-        rdfs:comment "Type of alert (DataQuality, SchemaChange, PolicyViolation, etc.)" ;
+        rdfs:comment "Type of alerts supported (Notification, Observability, ActivityFeed, etc.)" ;
         rdfs:isDefinedBy om: .
 
-    # Severity Class
-    om-alert:Severity a owl:Class ;
-        rdfs:label "Severity" ;
-        rdfs:comment "Severity level of the alert" ;
+    # Trigger Type Class
+    om-events:TriggerType a owl:Class ;
+        rdfs:label "Trigger Type" ;
+        rdfs:comment "Type of trigger (RealTime or Scheduled)" ;
+        rdfs:isDefinedBy om: .
+
+    # Subscription Category Class
+    om-events:SubscriptionCategory a owl:Class ;
+        rdfs:label "Subscription Category" ;
+        rdfs:comment "Category of subscription recipients" ;
+        rdfs:isDefinedBy om: .
+
+    # Subscription Type Class
+    om-events:SubscriptionType a owl:Class ;
+        rdfs:label "Subscription Type" ;
+        rdfs:comment "Type of subscription channel" ;
         rdfs:isDefinedBy om: .
 
     # Trigger Config Class
-    om-alert:TriggerConfig a owl:Class ;
+    om-events:TriggerConfig a owl:Class ;
         rdfs:label "Trigger Config" ;
         rdfs:comment "Configuration for alert trigger conditions" ;
         rdfs:isDefinedBy om: .
 
-    # Notification Config Class
-    om-alert:NotificationConfig a owl:Class ;
-        rdfs:label "Notification Config" ;
-        rdfs:comment "Configuration for alert notifications" ;
+    # Filtering Rules Class
+    om-events:FilteringRules a owl:Class ;
+        rdfs:label "Filtering Rules" ;
+        rdfs:comment "Filtering rules for event subscription" ;
         rdfs:isDefinedBy om: .
 
-    # Alert Event Class
-    om-alert:AlertEvent a owl:Class ;
-        rdfs:label "Alert Event" ;
-        rdfs:comment "A single occurrence of an alert being triggered" ;
+    # Subscription Destination Class
+    om-events:SubscriptionDestination a owl:Class ;
+        rdfs:label "Subscription Destination" ;
+        rdfs:comment "Destination configuration for notifications" ;
+        rdfs:isDefinedBy om: .
+
+    # Status Class
+    om-events:Status a owl:Class ;
+        rdfs:label "Status" ;
+        rdfs:comment "Status of the event subscription" ;
         rdfs:isDefinedBy om: .
 
     # Properties
-    om-alert:alertType a owl:ObjectProperty ;
+    om-events:alertType a owl:ObjectProperty ;
         rdfs:label "alert type" ;
         rdfs:comment "Type of the alert" ;
-        rdfs:domain om-alert:Alert ;
-        rdfs:range om-alert:AlertType .
+        rdfs:domain om-events:EventSubscription ;
+        rdfs:range om-events:AlertType .
 
-    om-alert:severity a owl:ObjectProperty ;
-        rdfs:label "severity" ;
-        rdfs:comment "Severity level of the alert" ;
-        rdfs:domain om-alert:Alert ;
-        rdfs:range om-alert:Severity .
-
-    om-alert:enabled a owl:DatatypeProperty ;
+    om-events:enabled a owl:DatatypeProperty ;
         rdfs:label "enabled" ;
-        rdfs:comment "Indicates if the alert is enabled" ;
-        rdfs:domain om-alert:Alert ;
+        rdfs:comment "Indicates if the event subscription is enabled" ;
+        rdfs:domain om-events:EventSubscription ;
         rdfs:range xsd:boolean .
 
-    om-alert:triggerConfig a owl:ObjectProperty ;
-        rdfs:label "trigger config" ;
-        rdfs:comment "Configuration for when the alert should trigger" ;
-        rdfs:domain om-alert:Alert ;
-        rdfs:range om-alert:TriggerConfig .
+    om-events:trigger a owl:ObjectProperty ;
+        rdfs:label "trigger" ;
+        rdfs:comment "Trigger configuration for the alert" ;
+        rdfs:domain om-events:EventSubscription ;
+        rdfs:range om-events:TriggerConfig .
 
-    om-alert:notificationConfig a owl:ObjectProperty ;
-        rdfs:label "notification config" ;
-        rdfs:comment "Configuration for how notifications are sent" ;
-        rdfs:domain om-alert:Alert ;
-        rdfs:range om-alert:NotificationConfig .
+    om-events:filteringRules a owl:ObjectProperty ;
+        rdfs:label "filtering rules" ;
+        rdfs:comment "Set of rules for conditional control" ;
+        rdfs:domain om-events:EventSubscription ;
+        rdfs:range om-events:FilteringRules .
 
-    om-alert:monitors a owl:ObjectProperty ;
-        rdfs:label "monitors" ;
-        rdfs:comment "Entities being monitored by the alert" ;
-        rdfs:domain om-alert:Alert ;
-        rdfs:range om-entity:Entity .
+    om-events:destinations a owl:ObjectProperty ;
+        rdfs:label "destinations" ;
+        rdfs:comment "Destination configurations for notifications" ;
+        rdfs:domain om-events:EventSubscription ;
+        rdfs:range om-events:SubscriptionDestination .
 
-    om-alert:notifies a owl:ObjectProperty ;
-        rdfs:label "notifies" ;
-        rdfs:comment "Users or teams to notify when alert triggers" ;
-        rdfs:domain om-alert:Alert .
+    om-events:batchSize a owl:DatatypeProperty ;
+        rdfs:label "batch size" ;
+        rdfs:comment "Maximum number of events sent in a batch" ;
+        rdfs:domain om-events:EventSubscription ;
+        rdfs:range xsd:integer .
 
-    om-alert:generatesEvent a owl:ObjectProperty ;
-        rdfs:label "generates event" ;
-        rdfs:comment "Alert events generated when triggered" ;
-        rdfs:domain om-alert:Alert ;
-        rdfs:range om-alert:AlertEvent .
+    om-events:retries a owl:DatatypeProperty ;
+        rdfs:label "retries" ;
+        rdfs:comment "Number of times to retry callback on failure" ;
+        rdfs:domain om-events:EventSubscription ;
+        rdfs:range xsd:integer .
 
-    om-alert:eventTimestamp a owl:DatatypeProperty ;
-        rdfs:label "event timestamp" ;
-        rdfs:comment "When the alert event occurred" ;
-        rdfs:domain om-alert:AlertEvent ;
-        rdfs:range xsd:dateTime .
+    om-events:pollInterval a owl:DatatypeProperty ;
+        rdfs:label "poll interval" ;
+        rdfs:comment "Poll interval in seconds" ;
+        rdfs:domain om-events:EventSubscription ;
+        rdfs:range xsd:integer .
 
-    om-alert:eventStatus a owl:DatatypeProperty ;
-        rdfs:label "event status" ;
-        rdfs:comment "Status of the alert event" ;
-        rdfs:domain om-alert:AlertEvent ;
-        rdfs:range xsd:string .
+    om-events:notifyDownstream a owl:DatatypeProperty ;
+        rdfs:label "notify downstream" ;
+        rdfs:comment "Enable notification of downstream entity stakeholders" ;
+        rdfs:domain om-events:SubscriptionDestination ;
+        rdfs:range xsd:boolean .
 
-    om-alert:resolvedBy a owl:ObjectProperty ;
-        rdfs:label "resolved by" ;
-        rdfs:comment "User who resolved the alert event" ;
-        rdfs:domain om-alert:AlertEvent .
+    om-events:downstreamDepth a owl:DatatypeProperty ;
+        rdfs:label "downstream depth" ;
+        rdfs:comment "Maximum depth for downstream stakeholder notification traversal" ;
+        rdfs:domain om-events:SubscriptionDestination ;
+        rdfs:range xsd:integer .
 
     # Alert Type Individuals
-    om-alert:DataQuality a om-alert:AlertType ;
-        rdfs:label "Data Quality" ;
-        skos:definition "Alert for data quality test failures or anomalies" .
+    om-events:Notification a om-events:AlertType ;
+        rdfs:label "Notification" ;
+        skos:definition "General notification alert" .
 
-    om-alert:SchemaChange a om-alert:AlertType ;
-        rdfs:label "Schema Change" ;
-        skos:definition "Alert for unexpected schema changes" .
+    om-events:Observability a om-events:AlertType ;
+        rdfs:label "Observability" ;
+        skos:definition "Observability and monitoring alert" .
 
-    om-alert:PolicyViolation a om-alert:AlertType ;
-        rdfs:label "Policy Violation" ;
-        skos:definition "Alert for policy or compliance violations" .
+    om-events:ActivityFeed a om-events:AlertType ;
+        rdfs:label "Activity Feed" ;
+        skos:definition "Activity feed notification" .
 
-    om-alert:PipelineFailure a om-alert:AlertType ;
-        rdfs:label "Pipeline Failure" ;
-        skos:definition "Alert for pipeline or ingestion failures" .
+    om-events:GovernanceWorkflowChangeEvent a om-events:AlertType ;
+        rdfs:label "Governance Workflow Change Event" ;
+        skos:definition "Governance workflow change notification" .
 
-    om-alert:UsageAnomaly a om-alert:AlertType ;
-        rdfs:label "Usage Anomaly" ;
-        skos:definition "Alert for unusual usage patterns" .
+    om-events:Custom a om-events:AlertType ;
+        rdfs:label "Custom" ;
+        skos:definition "Custom alert type" .
 
-    om-alert:MetadataChange a om-alert:AlertType ;
-        rdfs:label "Metadata Change" ;
-        skos:definition "Alert for metadata modifications" .
+    # Trigger Type Individuals
+    om-events:RealTime a om-events:TriggerType ;
+        rdfs:label "Real Time" ;
+        skos:definition "Real-time trigger" .
 
-    # Severity Individuals
-    om-alert:Critical a om-alert:Severity ;
-        rdfs:label "Critical" ;
-        skos:definition "Critical severity - immediate action required" .
+    om-events:Scheduled a om-events:TriggerType ;
+        rdfs:label "Scheduled" ;
+        skos:definition "Scheduled trigger" .
 
-    om-alert:High a om-alert:Severity ;
-        rdfs:label "High" ;
-        skos:definition "High severity - prompt action needed" .
+    # Subscription Type Individuals
+    om-events:Webhook a om-events:SubscriptionType ;
+        rdfs:label "Webhook" ;
+        skos:definition "Webhook notification channel" .
 
-    om-alert:Medium a om-alert:Severity ;
-        rdfs:label "Medium" ;
-        skos:definition "Medium severity - should be addressed soon" .
+    om-events:Slack a om-events:SubscriptionType ;
+        rdfs:label "Slack" ;
+        skos:definition "Slack notification channel" .
 
-    om-alert:Low a om-alert:Severity ;
-        rdfs:label "Low" ;
-        skos:definition "Low severity - minor issue" .
+    om-events:MsTeams a om-events:SubscriptionType ;
+        rdfs:label "MS Teams" ;
+        skos:definition "Microsoft Teams notification channel" .
 
-    om-alert:Info a om-alert:Severity ;
-        rdfs:label "Info" ;
-        skos:definition "Informational - no action required" .
+    om-events:GChat a om-events:SubscriptionType ;
+        rdfs:label "Google Chat" ;
+        skos:definition "Google Chat notification channel" .
+
+    om-events:Email a om-events:SubscriptionType ;
+        rdfs:label "Email" ;
+        skos:definition "Email notification channel" .
     ```
 
 === "JSON-LD Context"
@@ -600,7 +619,7 @@ graph TD
     ```json
     {
       "@context": {
-        "@vocab": "https://open-metadata.org/schema/entity/alerts/",
+        "@vocab": "https://open-metadata.org/schema/events/",
         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "owl": "http://www.w3.org/2002/07/owl#",
@@ -610,12 +629,16 @@ graph TD
         "prov": "http://www.w3.org/ns/prov#",
         "om": "https://open-metadata.org/schema/",
 
-        "Alert": {
-          "@id": "om:Alert",
+        "EventSubscription": {
+          "@id": "om:EventSubscription",
           "@type": "@id"
         },
         "id": {
           "@id": "om:id",
+          "@type": "xsd:string"
+        },
+        "className": {
+          "@id": "om:className",
           "@type": "xsd:string"
         },
         "name": {
@@ -634,52 +657,63 @@ graph TD
           "@id": "dcterms:description",
           "@type": "xsd:string"
         },
+        "owners": {
+          "@id": "om:owners",
+          "@type": "@id",
+          "@container": "@set"
+        },
         "alertType": {
           "@id": "om:alertType",
-          "@type": "@id"
-        },
-        "severity": {
-          "@id": "om:severity",
           "@type": "@id"
         },
         "enabled": {
           "@id": "om:enabled",
           "@type": "xsd:boolean"
         },
-        "triggerConfig": {
-          "@id": "om:triggerConfig",
+        "trigger": {
+          "@id": "om:trigger",
           "@type": "@id"
         },
-        "notificationConfig": {
-          "@id": "om:notificationConfig",
+        "filteringRules": {
+          "@id": "om:filteringRules",
           "@type": "@id"
         },
-        "monitors": {
-          "@id": "om:monitors",
+        "destinations": {
+          "@id": "om:destinations",
           "@type": "@id",
           "@container": "@set"
         },
-        "notifies": {
-          "@id": "om:notifies",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "events": {
-          "@id": "om:generatesEvent",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "owner": {
-          "@id": "om:owner",
+        "notificationTemplate": {
+          "@id": "om:notificationTemplate",
           "@type": "@id"
         },
-        "tags": {
-          "@id": "om:tags",
+        "batchSize": {
+          "@id": "om:batchSize",
+          "@type": "xsd:integer"
+        },
+        "provider": {
+          "@id": "om:provider",
+          "@type": "xsd:string"
+        },
+        "retries": {
+          "@id": "om:retries",
+          "@type": "xsd:integer"
+        },
+        "pollInterval": {
+          "@id": "om:pollInterval",
+          "@type": "xsd:integer"
+        },
+        "input": {
+          "@id": "om:input",
+          "@type": "@id"
+        },
+        "domains": {
+          "@id": "om:domains",
           "@type": "@id",
           "@container": "@set"
         },
-        "domain": {
-          "@id": "om:domain",
+        "config": {
+          "@id": "om:config",
           "@type": "@id"
         },
         "version": {
@@ -697,6 +731,14 @@ graph TD
         "href": {
           "@id": "om:href",
           "@type": "xsd:anyURI"
+        },
+        "changeDescription": {
+          "@id": "om:changeDescription",
+          "@type": "@id"
+        },
+        "incrementalChangeDescription": {
+          "@id": "om:incrementalChangeDescription",
+          "@type": "@id"
         }
       }
     }
@@ -712,65 +754,56 @@ Alert when data quality tests fail:
 {
   "name": "CustomerDataQualityAlert",
   "displayName": "Customer Data Quality Alert",
-  "alertType": "DataQuality",
-  "severity": "High",
+  "alertType": "Observability",
   "description": "Alerts when customer data quality tests fail",
   "enabled": true,
-  "triggerConfig": {
-    "type": "TestResult",
-    "condition": "testStatus == 'Failed'",
-    "entities": [
+  "trigger": {
+    "triggerType": "RealTime"
+  },
+  "filteringRules": {
+    "resources": ["testCase"],
+    "rules": [
       {
-        "type": "testCase",
-        "name": "customer_data.null_check"
-      },
-      {
-        "type": "testCase",
-        "name": "customer_data.uniqueness_check"
+        "name": "testFailureFilter",
+        "effect": "include",
+        "condition": "testStatus == 'Failed'"
       }
     ]
   },
-  "notificationConfig": {
-    "channels": [
-      {
-        "type": "Slack",
-        "config": {
-          "webhook": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
-          "channel": "#data-quality"
-        }
-      },
-      {
-        "type": "Email",
-        "config": {
-          "subject": "Data Quality Alert: Customer Data",
-          "template": "quality_failure_template"
-        }
-      }
-    ],
-    "recipients": [
-      {
-        "type": "team",
-        "name": "DataQuality"
-      }
-    ],
-    "throttle": {
-      "enabled": true,
-      "duration": 3600
-    }
-  },
-  "owner": {
-    "type": "user",
-    "name": "quality.lead"
-  },
-  "domain": {
-    "type": "domain",
-    "name": "DataQuality"
-  },
-  "tags": [
+  "destinations": [
     {
-      "tagFQN": "Alert.Critical"
+      "category": "External",
+      "type": "Slack",
+      "enabled": true,
+      "config": {
+        "endpoint": "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+      }
+    },
+    {
+      "category": "Teams",
+      "type": "Email",
+      "enabled": true,
+      "config": {
+        "receivers": ["dataquality@company.com"],
+        "sendToOwners": true,
+        "sendToFollowers": false
+      }
     }
-  ]
+  ],
+  "owners": [
+    {
+      "type": "user",
+      "name": "quality.lead"
+    }
+  ],
+  "domains": [
+    {
+      "type": "domain",
+      "name": "DataQuality"
+    }
+  ],
+  "batchSize": 100,
+  "retries": 3
 }
 ```
 
@@ -782,63 +815,49 @@ Alert when table schemas change unexpectedly:
 {
   "name": "ProductionSchemaChangeAlert",
   "displayName": "Production Schema Change Alert",
-  "alertType": "SchemaChange",
-  "severity": "Critical",
+  "alertType": "Notification",
   "description": "Alerts on unexpected schema changes in production tables",
   "enabled": true,
-  "triggerConfig": {
-    "type": "SchemaChange",
-    "condition": "columnAdded OR columnRemoved OR columnTypeChanged",
-    "entities": [
+  "trigger": {
+    "triggerType": "RealTime"
+  },
+  "filteringRules": {
+    "resources": ["table"],
+    "rules": [
       {
-        "type": "table",
-        "name": "production.sales.orders"
-      },
-      {
-        "type": "table",
-        "name": "production.sales.customers"
+        "name": "schemaChangeFilter",
+        "effect": "include",
+        "condition": "eventType == 'entityUpdated' && fieldChanged == 'columns'"
       }
     ]
   },
-  "notificationConfig": {
-    "channels": [
-      {
-        "type": "PagerDuty",
-        "config": {
-          "integrationKey": "XXX",
-          "severity": "critical"
-        }
-      },
-      {
-        "type": "MSTeams",
-        "config": {
-          "webhook": "https://outlook.office.com/webhook/XXX"
-        }
-      }
-    ],
-    "recipients": [
-      {
-        "type": "user",
-        "name": "data.engineer"
-      },
-      {
-        "type": "team",
-        "name": "DataEngineering"
-      }
-    ]
-  },
-  "owner": {
-    "type": "user",
-    "name": "chief.data.officer"
-  },
-  "tags": [
+  "destinations": [
     {
-      "tagFQN": "Alert.SchemaChange"
+      "category": "External",
+      "type": "MsTeams",
+      "enabled": true,
+      "config": {
+        "endpoint": "https://outlook.office.com/webhook/XXX"
+      }
     },
     {
-      "tagFQN": "Production"
+      "category": "Owners",
+      "type": "Email",
+      "enabled": true,
+      "config": {
+        "sendToOwners": true,
+        "sendToFollowers": true
+      }
     }
-  ]
+  ],
+  "owners": [
+    {
+      "type": "user",
+      "name": "chief.data.officer"
+    }
+  ],
+  "batchSize": 50,
+  "retries": 3
 }
 ```
 
@@ -850,66 +869,58 @@ Alert when access policies are violated:
 {
   "name": "PIIAccessViolationAlert",
   "displayName": "PII Access Violation Alert",
-  "alertType": "PolicyViolation",
-  "severity": "Critical",
+  "alertType": "Notification",
   "description": "Alerts when unauthorized access to PII data is attempted",
   "enabled": true,
-  "triggerConfig": {
-    "type": "PolicyViolation",
-    "condition": "policyViolated AND hasTag('PII.Sensitive')",
-    "entities": [
+  "trigger": {
+    "triggerType": "RealTime"
+  },
+  "filteringRules": {
+    "resources": ["policy"],
+    "rules": [
       {
-        "type": "policy",
-        "name": "PIIMaskingPolicy"
+        "name": "piiViolationFilter",
+        "effect": "include",
+        "condition": "eventType == 'policyViolation' && tags.contains('PII.Sensitive')"
       }
     ]
   },
-  "notificationConfig": {
-    "channels": [
-      {
-        "type": "Webhook",
-        "config": {
-          "endpoint": "https://api.company.com/security/alerts",
-          "headers": {
-            "Authorization": "Bearer XXX"
-          }
-        }
-      },
-      {
-        "type": "Email",
-        "config": {
-          "to": "security@company.com",
-          "subject": "URGENT: PII Access Violation Detected"
-        }
-      }
-    ],
-    "recipients": [
-      {
-        "type": "user",
-        "name": "security.officer"
-      },
-      {
-        "type": "team",
-        "name": "SecurityTeam"
-      }
-    ]
-  },
-  "owner": {
-    "type": "user",
-    "name": "compliance.officer"
-  },
-  "domain": {
-    "type": "domain",
-    "name": "Governance"
-  },
-  "tags": [
+  "destinations": [
     {
-      "tagFQN": "Compliance.GDPR"
+      "category": "External",
+      "type": "Webhook",
+      "enabled": true,
+      "config": {
+        "endpoint": "https://api.company.com/security/alerts",
+        "headers": {
+          "Authorization": "Bearer XXX"
+        }
+      }
     },
     {
-      "tagFQN": "Security.Critical"
+      "category": "Admins",
+      "type": "Email",
+      "enabled": true,
+      "config": {
+        "receivers": ["security@company.com"],
+        "sendToAdmins": true
+      }
     }
-  ]
+  ],
+  "owners": [
+    {
+      "type": "user",
+      "name": "compliance.officer"
+    }
+  ],
+  "domains": [
+    {
+      "type": "domain",
+      "name": "Governance"
+    }
+  ],
+  "batchSize": 10,
+  "retries": 5
 }
 ```
 
@@ -921,127 +932,149 @@ Alert when critical pipelines fail:
 {
   "name": "ETLPipelineFailureAlert",
   "displayName": "ETL Pipeline Failure Alert",
-  "alertType": "PipelineFailure",
-  "severity": "High",
+  "alertType": "Observability",
   "description": "Alerts when daily ETL pipelines fail",
   "enabled": true,
-  "triggerConfig": {
-    "type": "PipelineStatus",
-    "condition": "status == 'Failed' OR status == 'Timeout'",
-    "entities": [
+  "trigger": {
+    "triggerType": "RealTime"
+  },
+  "filteringRules": {
+    "resources": ["pipeline"],
+    "rules": [
       {
-        "type": "pipeline",
-        "name": "DailySalesETL"
-      },
-      {
-        "type": "pipeline",
-        "name": "DailyCustomerETL"
+        "name": "pipelineFailureFilter",
+        "effect": "include",
+        "condition": "pipelineStatus == 'Failed' || pipelineStatus == 'PartialSuccess'"
       }
     ]
   },
-  "notificationConfig": {
-    "channels": [
-      {
-        "type": "Slack",
-        "config": {
-          "webhook": "https://hooks.slack.com/services/XXX",
-          "channel": "#data-ops",
-          "mentionUsers": ["@oncall"]
-        }
-      }
-    ],
-    "recipients": [
-      {
-        "type": "team",
-        "name": "DataOps"
-      }
-    ],
-    "throttle": {
+  "destinations": [
+    {
+      "category": "External",
+      "type": "Slack",
       "enabled": true,
-      "duration": 1800
+      "config": {
+        "endpoint": "https://hooks.slack.com/services/XXX"
+      }
+    },
+    {
+      "category": "Owners",
+      "type": "Email",
+      "enabled": true,
+      "config": {
+        "sendToOwners": true,
+        "sendToFollowers": true
+      }
     }
-  },
-  "owner": {
-    "type": "team",
-    "name": "DataEngineering"
-  }
+  ],
+  "owners": [
+    {
+      "type": "team",
+      "name": "DataEngineering"
+    }
+  ],
+  "batchSize": 25,
+  "retries": 3,
+  "pollInterval": 60
 }
 ```
 
-### Metric Threshold Alert
+### Scheduled Metric Alert
 
-Alert when business metrics exceed thresholds:
+Alert when business metrics exceed thresholds (scheduled check):
 
 ```json
 {
   "name": "RevenueAnomalyAlert",
   "displayName": "Revenue Anomaly Alert",
-  "alertType": "UsageAnomaly",
-  "severity": "Medium",
+  "alertType": "Observability",
   "description": "Alerts when daily revenue drops below threshold",
   "enabled": true,
-  "triggerConfig": {
-    "type": "MetricThreshold",
-    "condition": "value < threshold",
-    "metrics": {
-      "daily_revenue": 100000,
-      "transaction_count": 1000
-    }
+  "trigger": {
+    "triggerType": "Scheduled",
+    "scheduleInfo": "Daily",
+    "cronExpression": "0 0 8 * * ?"
   },
-  "notificationConfig": {
-    "channels": [
+  "filteringRules": {
+    "resources": ["table"],
+    "rules": [
       {
-        "type": "Email",
-        "config": {
-          "to": "finance@company.com",
-          "subject": "Revenue Anomaly Detected"
-        }
-      }
-    ],
-    "recipients": [
-      {
-        "type": "team",
-        "name": "Finance"
-      },
-      {
-        "type": "team",
-        "name": "BusinessIntelligence"
+        "name": "revenueThresholdFilter",
+        "effect": "include",
+        "condition": "testCase.testCaseResult.testCaseStatus == 'Failed' && testCase.name == 'revenue_threshold_check'"
       }
     ]
   },
-  "owner": {
-    "type": "user",
-    "name": "finance.director"
-  },
-  "domain": {
-    "type": "domain",
-    "name": "Finance"
-  }
+  "destinations": [
+    {
+      "category": "Teams",
+      "type": "Email",
+      "enabled": true,
+      "config": {
+        "receivers": ["finance@company.com"],
+        "sendToOwners": true
+      }
+    }
+  ],
+  "owners": [
+    {
+      "type": "user",
+      "name": "finance.director"
+    }
+  ],
+  "domains": [
+    {
+      "type": "domain",
+      "name": "Finance"
+    }
+  ],
+  "batchSize": 50,
+  "retries": 2
 }
 ```
 
-## Alert Severity Levels
+## Alert Types
 
-| Severity | Description | Response Time | Notification |
-|----------|-------------|---------------|--------------|
-| **Critical** | System-wide impact, immediate action required | < 15 minutes | PagerDuty, Phone, Email |
-| **High** | Significant impact, prompt action needed | < 1 hour | Slack, Email |
-| **Medium** | Moderate impact, should be addressed soon | < 4 hours | Slack, Email |
-| **Low** | Minor impact, can be scheduled | < 1 day | Email |
-| **Info** | Informational only, no action required | N/A | Email (optional) |
+OpenMetadata supports the following alert types:
+
+| Alert Type | Description | Use Case |
+|----------|-------------|----------|
+| **Notification** | General notifications for entity changes | Schema changes, metadata updates, ownership changes |
+| **Observability** | Monitoring and quality alerts | Data quality test failures, pipeline failures, metric thresholds |
+| **ActivityFeed** | Activity feed notifications | User activity, collaboration events |
+| **GovernanceWorkflowChangeEvent** | Governance workflow notifications | Policy changes, approval workflows |
+| **Custom** | Custom alert types | Organization-specific requirements |
+
+## Subscription Categories
+
+Event subscriptions can target different categories of recipients:
+
+| Category | Description |
+|----------|-------------|
+| **Users** | Specific individual users |
+| **Teams** | Entire teams |
+| **Admins** | System administrators |
+| **Assignees** | Users assigned to tasks or workflows |
+| **Owners** | Entity owners |
+| **Mentions** | Users mentioned in discussions |
+| **Followers** | Users following specific entities |
+| **External** | External systems via webhooks |
 
 ## Notification Channels
 
 ### Email
 ```json
 {
+  "category": "Teams",
   "type": "Email",
+  "enabled": true,
+  "timeout": 10,
+  "readTimeout": 12,
   "config": {
-    "to": "team@company.com",
-    "cc": "manager@company.com",
-    "subject": "Alert: ${alertName}",
-    "template": "alert_template",
-    "includeDetails": true
+    "receivers": ["team@company.com", "manager@company.com"],
+    "sendToAdmins": false,
+    "sendToOwners": true,
+    "sendToFollowers": false
   }
 }
 ```
@@ -1049,12 +1082,13 @@ Alert when business metrics exceed thresholds:
 ### Slack
 ```json
 {
+  "category": "External",
   "type": "Slack",
+  "enabled": true,
+  "timeout": 10,
+  "readTimeout": 12,
   "config": {
-    "webhook": "https://hooks.slack.com/services/XXX/YYY/ZZZ",
-    "channel": "#data-alerts",
-    "mentionUsers": ["@oncall"],
-    "mentionChannel": false
+    "endpoint": "https://hooks.slack.com/services/XXX/YYY/ZZZ"
   }
 }
 ```
@@ -1062,11 +1096,27 @@ Alert when business metrics exceed thresholds:
 ### Microsoft Teams
 ```json
 {
-  "type": "MSTeams",
+  "category": "External",
+  "type": "MsTeams",
+  "enabled": true,
+  "timeout": 10,
+  "readTimeout": 12,
   "config": {
-    "webhook": "https://outlook.office.com/webhook/XXX",
-    "title": "${alertName}",
-    "themeColor": "FF0000"
+    "endpoint": "https://outlook.office.com/webhook/XXX"
+  }
+}
+```
+
+### Google Chat
+```json
+{
+  "category": "External",
+  "type": "GChat",
+  "enabled": true,
+  "timeout": 10,
+  "readTimeout": 12,
+  "config": {
+    "endpoint": "https://chat.googleapis.com/v1/spaces/XXX/messages"
   }
 }
 ```
@@ -1074,75 +1124,77 @@ Alert when business metrics exceed thresholds:
 ### Webhook
 ```json
 {
+  "category": "External",
   "type": "Webhook",
+  "enabled": true,
+  "timeout": 10,
+  "readTimeout": 12,
   "config": {
     "endpoint": "https://api.company.com/alerts",
-    "method": "POST",
+    "secretKey": "your-secret-key",
     "headers": {
-      "Authorization": "Bearer ${token}",
+      "Authorization": "Bearer XXX",
       "Content-Type": "application/json"
     },
-    "body": "${alertPayload}"
+    "httpMethod": "POST"
   }
 }
 ```
 
-### PagerDuty
+## Downstream Notifications
+
+Event subscriptions support notifying stakeholders of downstream entities that depend on the affected entity:
+
 ```json
 {
-  "type": "PagerDuty",
+  "category": "Owners",
+  "type": "Email",
+  "enabled": true,
+  "notifyDownstream": true,
+  "downstreamDepth": 3,
   "config": {
-    "integrationKey": "XXX",
-    "severity": "critical",
-    "component": "data-platform"
+    "sendToOwners": true,
+    "sendToFollowers": true
   }
 }
 ```
 
-## Alert Throttling
+- **notifyDownstream**: Enable notification of downstream entity stakeholders
+- **downstreamDepth**: Maximum depth for downstream traversal (null = unlimited with cycle protection)
 
-To prevent alert fatigue, configure throttling:
+## Batch Processing and Retries
 
-```json
-{
-  "throttle": {
-    "enabled": true,
-    "duration": 3600,
-    "maxAlerts": 5,
-    "aggregation": "count"
-  }
-}
-```
+Event subscriptions support configurable batch processing and retry logic:
 
-- **duration**: Throttle window in seconds
-- **maxAlerts**: Maximum alerts to send in the window
-- **aggregation**: How to aggregate (count, first, last)
+- **batchSize**: Maximum number of events sent in a batch (default: 100)
+- **retries**: Number of times to retry callback on failure (default: 3)
+- **pollInterval**: Poll interval in seconds (default: 60)
 
 ## Best Practices
 
-### 1. Set Appropriate Severity
-Use severity levels that match the actual business impact.
+### 1. Choose the Right Alert Type
+Use `Notification` for general entity changes, `Observability` for data quality and monitoring, and `Custom` for specialized use cases.
 
-### 2. Avoid Alert Fatigue
-Use throttling and aggregation to prevent overwhelming teams with notifications.
+### 2. Use Filtering Rules Effectively
+Create specific filtering rules to reduce noise and target relevant events. Use the `effect` field to include or exclude events based on conditions.
 
-### 3. Clear Alert Messages
-Include context and actionable information in alert messages.
+### 3. Configure Appropriate Destinations
+Route alerts to the right teams using subscription categories (Owners, Followers, Teams) and channels (Email, Slack, Webhook).
 
-### 4. Route to Right Team
-Send alerts to teams who can actually respond and fix issues.
+### 4. Enable Downstream Notifications
+For critical entities, enable downstream notifications to alert stakeholders of dependent systems.
 
-### 5. Monitor Alert Effectiveness
-Track alert resolution times and false positive rates.
+### 5. Optimize Batch Size and Retries
+Adjust `batchSize` and `retries` based on the volume of events and criticality of notifications.
 
-### 6. Use Alert Dependencies
-Configure alert dependencies to avoid cascading alerts.
+### 6. Use Real-Time vs Scheduled Triggers
+Use `RealTime` triggers for immediate notifications and `Scheduled` triggers for periodic reports or batch checks.
 
-### 7. Test Alerts
-Test alert configurations before enabling in production.
+### 7. Test Event Subscriptions
+Test subscription configurations before enabling in production to ensure notifications are working correctly.
 
-### 8. Document Runbooks
-Link alerts to runbooks with resolution procedures.
+### 8. Monitor Subscription Status
+Track subscription status (active, failed, retryLimitReached) to identify and fix delivery issues.
 
 ## Custom Properties
 
@@ -1161,31 +1213,49 @@ for details on defining and using custom properties.
 
 ## API Operations
 
-### Create Alert
+### Create Event Subscription
 
 ```http
-POST /api/v1/alerts
+POST /api/v1/events/subscriptions
 Content-Type: application/json
 
 {
-  "name": "SampleAlert",
-  "alertType": "DataQuality",
-  "severity": "High",
-  "triggerConfig": {...},
-  "notificationConfig": {...}
+  "name": "SampleSubscription",
+  "alertType": "Observability",
+  "trigger": {
+    "triggerType": "RealTime"
+  },
+  "filteringRules": {
+    "resources": ["table"]
+  },
+  "destinations": [
+    {
+      "category": "Owners",
+      "type": "Email",
+      "config": {
+        "sendToOwners": true
+      }
+    }
+  ]
 }
 ```
 
-### Get Alert by ID
+### Get Event Subscription by ID
 
 ```http
-GET /api/v1/alerts/{id}
+GET /api/v1/events/subscriptions/{id}
 ```
 
-### Update Alert
+### Get Event Subscription by Name
 
 ```http
-PATCH /api/v1/alerts/{id}
+GET /api/v1/events/subscriptions/name/{name}
+```
+
+### Update Event Subscription
+
+```http
+PATCH /api/v1/events/subscriptions/{id}
 Content-Type: application/json-patch+json
 
 [
@@ -1197,39 +1267,45 @@ Content-Type: application/json-patch+json
 ]
 ```
 
-### Delete Alert
+### Delete Event Subscription
 
 ```http
-DELETE /api/v1/alerts/{id}
+DELETE /api/v1/events/subscriptions/{id}
 ```
 
-### List Alerts
+### List Event Subscriptions
 
 ```http
-GET /api/v1/alerts?alertType=DataQuality&severity=Critical
+GET /api/v1/events/subscriptions?alertType=Observability&limit=10
 ```
 
-### Get Alert Events
+### Test Destination
 
 ```http
-GET /api/v1/alerts/{id}/events?status=New
-```
-
-### Acknowledge Alert Event
-
-```http
-POST /api/v1/alerts/{id}/events/{eventId}/acknowledge
-```
-
-### Resolve Alert Event
-
-```http
-POST /api/v1/alerts/{id}/events/{eventId}/resolve
+POST /api/v1/events/subscriptions/validation/destination
 Content-Type: application/json
 
 {
-  "resolution": "Fixed data quality issue in source system"
+  "destination": {
+    "category": "External",
+    "type": "Slack",
+    "config": {
+      "endpoint": "https://hooks.slack.com/services/XXX"
+    }
+  }
 }
+```
+
+### Get Subscription Status
+
+```http
+GET /api/v1/events/subscriptions/{id}/status
+```
+
+### Get Subscription Logs
+
+```http
+GET /api/v1/events/subscriptions/{id}/logs?startDate=2024-01-01&endDate=2024-01-31
 ```
 
 ## Related Entities

@@ -1,211 +1,112 @@
 
-# Application
+# App
 
-**Applications that interact with OpenMetadata - metadata consumers, governance automation, integrations, and extensions**
+**OpenMetadata Applications - metadata consumers, governance automation, integrations, and platform extensions**
 
 ---
 
 ## Overview
 
-The **Application** entity represents software systems and tools that interact with the OpenMetadata platform. This includes:
+The **App** entity represents applications that extend and integrate with the OpenMetadata platform. These are installable applications that can be:
 
-1. **Metadata-Driven Applications**: Systems that consume metadata via OpenMetadata APIs
-2. **Governance Automation**: Tools that automate tagging, classification, and policy enforcement
-3. **Integration Applications**: Systems that sync metadata with external platforms (CMDB, ITSM, catalogs)
-4. **Custom Extensions**: Applications built on top of OpenMetadata to extend capabilities
-5. **Data Applications**: While primarily operational, this also tracks data-consuming applications (web apps, mobile apps, microservices) that use both data and metadata to understand their dependencies and contracts
+1. **Internal Applications**: Built-in OpenMetadata applications that run within the platform
+2. **External Applications**: Custom applications that integrate with OpenMetadata via external runners
+3. **Scheduled Applications**: Applications that run on a schedule (hourly, daily, weekly, etc.)
+4. **Live Applications**: Applications with custom trigger mechanisms
+5. **Manual Applications**: Applications that are triggered manually by users
+6. **Agent Applications**: AI-powered agents like CollateAI for automated metadata management
 
 **Hierarchy**:
 ```
-Domain → Application → Components/Services
+Domain → App → Pipelines/EventSubscriptions
 ```
 
 ---
 
 ## Relationships
 
-Application has comprehensive relationships with entities across the metadata platform:
+App has relationships with entities across the OpenMetadata platform:
 
 ```mermaid
 graph TD
-    subgraph Application Layer
-        APP[Application<br/>ecommerce_web_app]
+    subgraph App Layer
+        APP[App<br/>DataQualityApp]
     end
 
-    subgraph Components
-        APP --> COMP1[Component<br/>User Service]
-        APP --> COMP2[Component<br/>Order Service]
-        APP --> COMP3[Component<br/>Payment Service]
-        APP --> COMP4[Component<br/>Recommendation Engine]
+    subgraph Execution
+        APP --> PIPE1[Pipeline<br/>quality_checks_pipeline]
+        APP --> PIPE2[Pipeline<br/>profiling_pipeline]
+        APP --> RUNTIME[Runtime<br/>Execution Context]
     end
 
-    subgraph Data Sources - Tables
-        APP -.->|reads| TBL1[Table<br/>customers]
-        APP -.->|reads| TBL2[Table<br/>products]
-        APP -.->|reads| TBL3[Table<br/>orders]
-        APP -.->|writes| TBL4[Table<br/>user_sessions]
-        APP -.->|writes| TBL5[Table<br/>order_events]
+    subgraph Events
+        APP -.->|subscribes to| EVT1[EventSubscription<br/>entityCreated]
+        APP -.->|subscribes to| EVT2[EventSubscription<br/>entityUpdated]
     end
 
-    subgraph Data Sources - APIs
-        APP -.->|calls| API1[APIEndpoint<br/>GET /users]
-        APP -.->|calls| API2[APIEndpoint<br/>POST /orders]
-        APP -.->|exposes| API3[APIEndpoint<br/>GET /products]
-        APP -.->|exposes| API4[APIEndpoint<br/>POST /cart]
+    subgraph Configuration
+        APP -.->|configured by| CONFIG[AppConfiguration<br/>quality_config]
+        APP -.->|private config| PCONFIG[PrivateConfiguration<br/>credentials]
+        APP -.->|schedule| SCHED[AppSchedule<br/>Daily 2AM]
     end
 
-    subgraph Databases
-        APP -.->|connects to| DB1[Database<br/>postgres_prod]
-        APP -.->|connects to| DB2[Database<br/>redis_cache]
-        APP -.->|connects to| DB3[Database<br/>mongodb_sessions]
-    end
-
-    subgraph Messaging
-        APP -.->|publishes to| TOPIC1[Topic<br/>order_created]
-        APP -.->|subscribes to| TOPIC2[Topic<br/>payment_processed]
-        APP -.->|subscribes to| TOPIC3[Topic<br/>inventory_updated]
-    end
-
-    subgraph Analytics & Dashboards
-        APP -.->|embeds| DASH1[Dashboard<br/>Sales Overview]
-        APP -.->|embeds| DASH2[Dashboard<br/>User Metrics]
-        APP -.->|tracked by| DASH3[Dashboard<br/>App Performance]
-    end
-
-    subgraph ML Models
-        APP -.->|uses| ML1[MLModel<br/>product_recommender]
-        APP -.->|uses| ML2[MLModel<br/>fraud_detector]
-        APP -.->|uses| ML3[MLModel<br/>search_ranker]
-    end
-
-    subgraph Storage
-        APP -.->|reads from| CONT1[Container<br/>product_images]
-        APP -.->|writes to| CONT2[Container<br/>user_uploads]
-        APP -.->|writes to| CONT3[Container<br/>application_logs]
+    subgraph Bot & Permissions
+        APP -.->|uses| BOT[Bot<br/>quality_bot]
+        APP -.->|permissions| PERM[Permission<br/>All]
     end
 
     subgraph Ownership
-        APP -.->|owned by| TEAM1[Team<br/>E-commerce Platform]
-        APP -.->|developed by| TEAM2[Team<br/>Frontend Team]
-        APP -.->|supported by| TEAM3[Team<br/>DevOps]
+        APP -.->|owned by| OWNER[Owner<br/>DataGovernanceTeam]
     end
 
-    subgraph Users
-        USER1[User<br/>customer1] -.->|uses| APP
-        USER2[User<br/>customer2] -.->|uses| APP
-        USER3[User<br/>admin] -.->|administers| APP
+    subgraph Domains
+        APP -.->|belongs to| DOM[Domain<br/>DataQuality]
     end
 
-    subgraph Dependencies
-        APP -.->|depends on| APP2[Application<br/>auth_service]
-        APP -.->|depends on| APP3[Application<br/>payment_gateway]
-        APP -.->|depends on| APP4[Application<br/>notification_service]
-    end
-
-    subgraph Governance
-        APP -.->|in domain| DOM[Domain<br/>E-commerce]
-        APP -.->|tagged| TAG1[Tag<br/>Tier.Production]
-        APP -.->|tagged| TAG2[Tag<br/>PII.Sensitive]
-        APP -.->|tagged| TAG3[Tag<br/>Compliance.SOC2]
-        APP -.->|linked to| GT[GlossaryTerm<br/>Customer Facing Application]
-    end
-
-    subgraph Data Contracts
-        APP -.->|enforces| DC1[DataContract<br/>Order Schema]
-        APP -.->|enforces| DC2[DataContract<br/>User Event Schema]
-    end
-
-    subgraph Quality & Monitoring
-        TC1[TestCase<br/>data_quality_check] -.->|validates| TBL4
-        TC2[TestCase<br/>api_response_time] -.->|monitors| APP
-        TC3[TestCase<br/>uptime_sla] -.->|monitors| APP
-    end
-
-    subgraph Pipelines
-        PIPE1[Pipeline<br/>data_sync] -.->|feeds| APP
-        APP -.->|triggers| PIPE2[Pipeline<br/>analytics_export]
+    subgraph Ingestion
+        APP -.->|uses| RUNNER[IngestionRunner<br/>ExternalRunner]
+        APP -.->|connects via| CONN[OpenMetadataConnection<br/>server_connection]
     end
 
     style APP fill:#4facfe,color:#fff,stroke:#4c51bf,stroke-width:3px
-    style COMP1 fill:#00f2fe,color:#333
-    style COMP2 fill:#00f2fe,color:#333
-    style COMP3 fill:#00f2fe,color:#333
-    style COMP4 fill:#00f2fe,color:#333
-    style TBL1 fill:#764ba2,color:#fff
-    style TBL2 fill:#764ba2,color:#fff
-    style TBL3 fill:#764ba2,color:#fff
-    style TBL4 fill:#764ba2,color:#fff
-    style TBL5 fill:#764ba2,color:#fff
-    style API1 fill:#43e97b,color:#fff
-    style API2 fill:#43e97b,color:#fff
-    style API3 fill:#43e97b,color:#fff
-    style API4 fill:#43e97b,color:#fff
-    style DB1 fill:#667eea,color:#fff
-    style DB2 fill:#667eea,color:#fff
-    style DB3 fill:#667eea,color:#fff
-    style TOPIC1 fill:#fa709a,color:#fff
-    style TOPIC2 fill:#fa709a,color:#fff
-    style TOPIC3 fill:#fa709a,color:#fff
-    style DASH1 fill:#ff6b6b,color:#fff
-    style DASH2 fill:#ff6b6b,color:#fff
-    style DASH3 fill:#ff6b6b,color:#fff
-    style ML1 fill:#f093fb,color:#fff
-    style ML2 fill:#f093fb,color:#fff
-    style ML3 fill:#f093fb,color:#fff
-    style CONT1 fill:#ffd700,color:#333
-    style CONT2 fill:#ffd700,color:#333
-    style CONT3 fill:#ffd700,color:#333
-    style TEAM1 fill:#43e97b,color:#fff
-    style TEAM2 fill:#43e97b,color:#fff
-    style TEAM3 fill:#43e97b,color:#fff
-    style USER1 fill:#43e97b,color:#fff
-    style USER2 fill:#43e97b,color:#fff
-    style USER3 fill:#43e97b,color:#fff
-    style APP2 fill:#4facfe,color:#fff
-    style APP3 fill:#4facfe,color:#fff
-    style APP4 fill:#4facfe,color:#fff
-    style DOM fill:#fa709a,color:#fff
-    style TAG1 fill:#f093fb,color:#fff
-    style TAG2 fill:#f093fb,color:#fff
-    style TAG3 fill:#f093fb,color:#fff
-    style GT fill:#ffd700,color:#333
-    style DC1 fill:#9b59b6,color:#fff
-    style DC2 fill:#9b59b6,color:#fff
-    style TC1 fill:#9b59b6,color:#fff
-    style TC2 fill:#9b59b6,color:#fff
-    style TC3 fill:#9b59b6,color:#fff
     style PIPE1 fill:#f5576c,color:#fff
     style PIPE2 fill:#f5576c,color:#fff
+    style RUNTIME fill:#00f2fe,color:#333
+    style EVT1 fill:#fa709a,color:#fff
+    style EVT2 fill:#fa709a,color:#fff
+    style CONFIG fill:#43e97b,color:#333
+    style PCONFIG fill:#43e97b,color:#333
+    style SCHED fill:#ffd700,color:#333
+    style BOT fill:#667eea,color:#fff
+    style PERM fill:#9b59b6,color:#fff
+    style OWNER fill:#43e97b,color:#fff
+    style DOM fill:#fa709a,color:#fff
+    style RUNNER fill:#764ba2,color:#fff
+    style CONN fill:#667eea,color:#fff
 ```
 
 **Relationship Types**:
 
-- **Solid lines (→)**: Hierarchical containment (Application contains Components)
-- **Dashed lines (-.->)**: References and associations (ownership, governance, data access, dependencies)
+- **Solid lines (→)**: Direct containment (App contains Pipelines and Runtime)
+- **Dashed lines (-.->)**: References and associations (ownership, configuration, events)
 
 ### Parent Entities
-- **Domain**: Business domain grouping
+- **Domain**: Business domain grouping (optional, inherited if not set)
 
 ### Child Entities
-- **Component**: Microservices, modules, or sub-components of the application
+- **Pipeline**: Pipelines deployed for this app to execute metadata operations
+- **Runtime**: Execution context (Live or Scheduled)
 
 ### Associated Entities
-- **Owner**: Team or user owning this application
-- **Domain**: Business domain assignment
-- **Tag**: Classification tags
-- **GlossaryTerm**: Business terminology
-- **Table**: Database tables read/written by the application
-- **Database**: Databases connected to by the application
-- **APIEndpoint**: APIs called or exposed by the application
-- **Topic**: Message topics published to or subscribed from
-- **Dashboard**: Dashboards embedded in or monitoring the application
-- **MLModel**: ML models used by the application
-- **Container**: Storage containers for files, logs, uploads
-- **User**: Users of the application
-- **Application**: Other applications this app depends on or integrates with
-- **DataContract**: Data schemas and contracts enforced
-- **Pipeline**: Data pipelines feeding or triggered by the application
-- **TestCase**: Quality and monitoring tests
+- **Owners**: Teams or users owning this app (plural)
+- **Domains**: Business domains this app belongs to (plural)
+- **Bot**: Bot user associated with this app for authentication
+- **EventSubscriptions**: Event subscriptions for the app
+- **IngestionRunner**: External runner executing the app (if supported)
+- **AppConfiguration**: Public configuration settings
+- **PrivateConfiguration**: Private configuration (credentials, secrets)
+- **AppSchedule**: Schedule configuration for scheduled apps
+- **OpenMetadataConnection**: Connection to OpenMetadata server
 
 ---
 
@@ -219,216 +120,254 @@ View the complete Application schema in your preferred format:
 
     ```json
     {
-      "$id": "https://open-metadata.org/schema/entity/data/application.json",
+      "$id": "https://open-metadata.org/schema/entity/applications/app.json",
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Application",
-      "description": "An `Application` represents a software application or service that consumes or produces data.",
+      "title": "App",
+      "description": "This schema defines the applications for Open-Metadata.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.data.Application",
+      "javaType": "org.openmetadata.schema.entity.app.App",
 
       "definitions": {
-        "applicationType": {
+        "scheduleType": {
+          "description": "This schema defines the type of application.",
           "type": "string",
-          "enum": [
-            "WebApplication", "MobileApp", "DesktopApp",
-            "Microservice", "API", "BatchJob",
-            "StreamingApp", "DataPipeline", "Other"
-          ],
-          "description": "Type of application"
+          "enum": ["Live", "Scheduled", "ScheduledOrManual", "NoSchedule", "OnlyManual"]
         },
-        "deploymentType": {
+        "scheduleTimeline": {
+          "description": "This schema defines the Application ScheduleTimeline Options",
           "type": "string",
-          "enum": ["Cloud", "OnPremise", "Hybrid", "Edge"],
-          "description": "Deployment type"
+          "enum": ["Hourly", "Daily", "Weekly", "Monthly", "Custom", "None"],
+          "default": "Weekly"
         },
-        "component": {
-          "type": "object",
+        "appSchedule": {
+          "description": "This schema defines the type of application.",
           "properties": {
-            "name": {
-              "type": "string",
-              "description": "Component name"
+            "scheduleTimeline": {
+              "$ref": "#/definitions/scheduleTimeline"
             },
-            "type": {
-              "type": "string",
-              "enum": ["Service", "Module", "Library", "Plugin"],
-              "description": "Component type"
-            },
-            "description": {
-              "type": "string",
-              "description": "Component description"
-            },
-            "version": {
-              "type": "string",
-              "description": "Component version"
-            },
-            "repository": {
-              "type": "string",
-              "format": "uri",
-              "description": "Component source repository"
+            "cronExpression": {
+              "description": "Cron Expression in case of Custom scheduled Trigger",
+              "type": "string"
             }
           },
-          "required": ["name", "type"]
+          "required": ["scheduleTimeline"]
         },
-        "dataSource": {
-          "type": "object",
-          "properties": {
-            "entity": {
-              "$ref": "../../type/entityReference.json",
-              "description": "Reference to data entity (table, topic, etc.)"
-            },
-            "accessType": {
-              "type": "string",
-              "enum": ["read", "write", "readWrite"],
-              "description": "Type of data access"
-            },
-            "purpose": {
-              "type": "string",
-              "description": "Purpose of data access"
-            }
-          },
-          "required": ["entity", "accessType"]
+        "appType": {
+          "description": "This schema defines the type of application.",
+          "type": "string",
+          "enum": ["internal", "external"]
         },
-        "dependency": {
-          "type": "object",
-          "properties": {
-            "application": {
-              "$ref": "../../type/entityReference.json",
-              "description": "Dependent application or service"
-            },
-            "type": {
-              "type": "string",
-              "enum": ["required", "optional"],
-              "description": "Dependency type"
-            },
-            "description": {
-              "type": "string",
-              "description": "Dependency description"
-            }
-          },
-          "required": ["application"]
+        "agentType": {
+          "description": "This schema defines the type of application.",
+          "type": "string",
+          "enum": ["CollateAI", "CollateAITierAgent", "CollateAIQualityAgent", "Metadata"]
         },
-        "endpoint": {
-          "type": "object",
-          "properties": {
-            "url": {
-              "type": "string",
-              "format": "uri",
-              "description": "Endpoint URL"
-            },
-            "type": {
-              "type": "string",
-              "enum": ["REST", "GraphQL", "gRPC", "WebSocket", "SOAP"],
-              "description": "Endpoint type"
-            },
-            "description": {
-              "type": "string",
-              "description": "Endpoint description"
-            }
-          },
-          "required": ["url"]
+        "permissions": {
+          "description": "This schema defines the Permission used by Native Application.",
+          "type": "string",
+          "enum": ["All"]
+        },
+        "executionContext": {
+          "description": "Execution Configuration.",
+          "oneOf": [
+            {"$ref": "./liveExecutionContext.json"},
+            {"$ref": "./scheduledExecutionContext.json"}
+          ]
         }
       },
 
       "properties": {
         "id": {
-          "description": "Unique identifier",
+          "description": "Unique identifier of this application.",
           "$ref": "../../type/basic.json#/definitions/uuid"
         },
         "name": {
-          "description": "Application name",
+          "description": "Name of the Application.",
           "$ref": "../../type/basic.json#/definitions/entityName"
         },
-        "fullyQualifiedName": {
-          "description": "Fully qualified name: domain.application or just application",
-          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
-        },
         "displayName": {
-          "description": "Display name",
+          "description": "Display Name for the application.",
           "type": "string"
         },
         "description": {
-          "description": "Markdown description",
+          "description": "Description of the Application.",
           "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "applicationType": {
-          "description": "Type of application",
-          "$ref": "#/definitions/applicationType"
+        "features": {
+          "description": "Features of the Application.",
+          "$ref": "../../type/basic.json#/definitions/markdown"
         },
-        "deploymentType": {
-          "description": "Deployment type",
-          "$ref": "#/definitions/deploymentType"
+        "fullyQualifiedName": {
+          "description": "FullyQualifiedName same as `name`.",
+          "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+        },
+        "owners": {
+          "description": "Owners of this workflow.",
+          "$ref": "../../type/entityReferenceList.json",
+          "default": null
         },
         "version": {
-          "description": "Application version",
+          "description": "Metadata version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+        },
+        "updatedAt": {
+          "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+          "$ref": "../../type/basic.json#/definitions/timestamp"
+        },
+        "updatedBy": {
+          "description": "User who made the update.",
           "type": "string"
         },
-        "components": {
-          "description": "Application components or services",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/component"
-          }
+        "impersonatedBy": {
+          "description": "Bot user that performed the action on behalf of the actual user.",
+          "$ref": "../../type/basic.json#/definitions/impersonatedBy"
         },
-        "dataSources": {
-          "description": "Data sources accessed by application",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/dataSource"
-          }
+        "href": {
+          "description": "Link to the resource corresponding to this entity.",
+          "$ref": "../../type/basic.json#/definitions/href"
         },
-        "dependencies": {
-          "description": "Application dependencies",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/dependency"
-          }
+        "changeDescription": {
+          "description": "Change that lead to this version of the entity.",
+          "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
         },
-        "endpoints": {
-          "description": "Application endpoints",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/endpoint"
-          }
+        "deleted": {
+          "description": "When `true` indicates the entity has been soft deleted.",
+          "type": "boolean",
+          "default": false
         },
-        "repository": {
-          "description": "Source code repository",
+        "provider": {
+          "$ref": "../../type/basic.json#/definitions/providerType"
+        },
+        "developer": {
+          "description": "Developer For the Application.",
+          "type": "string"
+        },
+        "developerUrl": {
+          "description": "Url for the developer",
+          "type": "string"
+        },
+        "privacyPolicyUrl": {
+          "description": "Privacy Policy for the developer",
+          "type": "string"
+        },
+        "supportEmail": {
+          "description": "Support Email for the application",
+          "type": "string"
+        },
+        "className": {
+          "description": "Fully Qualified ClassName for the Schedule",
+          "type": "string"
+        },
+        "sourcePythonClass": {
+          "description": "Fully Qualified class name for the Python source that will execute the external application.",
+          "type": "string"
+        },
+        "appType": {
+          "description": "This schema defines the type of application.",
+          "$ref": "#/definitions/appType"
+        },
+        "agentType": {
+          "description": "This schema defines the type of the agent.",
+          "$ref": "#/definitions/agentType"
+        },
+        "scheduleType": {
+          "description": "This schema defines the Schedule Type of Application.",
+          "$ref": "#/definitions/scheduleType"
+        },
+        "permission": {
+          "description": "Permission used by Native Applications.",
+          "$ref": "#/definitions/permissions"
+        },
+        "bot": {
+          "description": "Bot User Associated with this application.",
+          "$ref": "../../type/entityReference.json",
+          "default": null
+        },
+        "runtime": {
+          "description": "Execution Configuration.",
+          "$ref": "#/definitions/executionContext"
+        },
+        "allowConfiguration": {
+          "description": "Allow users to configure the app from the UI. If `false`, the `configure` step will be hidden.",
+          "type": "boolean",
+          "default": true
+        },
+        "system": {
+          "description": "A system app cannot be uninstalled or modified.",
+          "type": "boolean",
+          "default": false
+        },
+        "appConfiguration": {
+          "description": "Application Configuration object.",
+          "$ref": "./configuration/applicationConfig.json#/definitions/appConfig"
+        },
+        "privateConfiguration": {
+          "description": "Application Private configuration loaded at runtime.",
+          "$ref": "./configuration/applicationConfig.json#/definitions/privateConfig"
+        },
+        "preview": {
+          "type": "boolean",
+          "description": "Flag to enable/disable preview for the application. If the app is in preview mode, it can't be installed.",
+          "default": false
+        },
+        "pipelines": {
+          "description": "References to pipelines deployed for this database service to extract metadata, usage, lineage etc..",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "appSchedule": {
+          "description": "In case the app supports scheduling, list of different app schedules",
+          "$ref": "#/definitions/appSchedule"
+        },
+        "openMetadataServerConnection": {
+          "$ref": "../services/connections/metadata/openMetadataConnection.json"
+        },
+        "appLogoUrl": {
+          "description": "Application Logo Url.",
           "type": "string",
           "format": "uri"
         },
-        "documentation": {
-          "description": "Documentation URL",
-          "type": "string",
-          "format": "uri"
-        },
-        "owner": {
-          "description": "Owner (user or team)",
-          "$ref": "../../type/entityReference.json"
-        },
-        "domain": {
-          "description": "Data domain",
-          "$ref": "../../type/entityReference.json"
-        },
-        "tags": {
-          "description": "Classification tags",
+        "appScreenshots": {
+          "description": "Application Screenshots.",
           "type": "array",
           "items": {
-            "$ref": "../../type/tagLabel.json"
-          }
+            "type": "string"
+          },
+          "uniqueItems": true
         },
-        "glossaryTerms": {
-          "description": "Business glossary terms",
-          "type": "array",
-          "items": {
-            "$ref": "../../type/entityReference.json"
-          }
+        "domains": {
+          "description": "Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "supportsInterrupt": {
+          "description": "If the app run can be interrupted as part of the execution.",
+          "type": "boolean",
+          "default": false
+        },
+        "eventSubscriptions": {
+          "description": "Event Subscriptions for the Application.",
+          "$ref": "../../type/entityReferenceList.json"
+        },
+        "supportsIngestionRunner": {
+          "description": "If the app support execution through the external runner.",
+          "type": "boolean",
+          "default": false
+        },
+        "ingestionRunner": {
+          "description": "The ingestion agent responsible for executing the ingestion pipeline. It will be defined at runtime based on the Ingestion Agent of the service.",
+          "$ref": "../../type/entityReference.json"
+        },
+        "allowConcurrentExecution": {
+          "description": "If true, multiple instances of this app can run concurrently. This is useful for apps like QueryRunner that support parallel executions with different configurations.",
+          "type": "boolean",
+          "default": false
         }
       },
 
-      "required": ["id", "name", "applicationType"]
+      "required": ["id", "name", "appType", "className", "scheduleType", "permission", "runtime"]
     }
     ```
 
-    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/schemas/entity/data/application.json)**
+    **[View Full JSON Schema →](https://github.com/open-metadata/OpenMetadata/blob/main/openmetadata-spec/src/main/resources/json/schema/entity/applications/app.json)**
 
 === "RDF"
 
@@ -437,155 +376,210 @@ View the complete Application schema in your preferred format:
     ```turtle
     @prefix om: <https://open-metadata.org/schema/> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    @prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-    # Application Class Definition
-    om:Application a owl:Class ;
-        rdfs:subClassOf om:DataAsset ;
-        rdfs:label "Application" ;
-        rdfs:comment "A software application or service that consumes or produces data" ;
+    # App Class Definition
+    om:App a owl:Class ;
+        rdfs:subClassOf om:Entity ;
+        rdfs:label "App" ;
+        rdfs:comment "An OpenMetadata application that extends and integrates with the platform" ;
         om:hierarchyLevel 1 .
 
-    # Properties
-    om:applicationName a owl:DatatypeProperty ;
-        rdfs:domain om:Application ;
+    # Core Properties
+    om:appName a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
         rdfs:range xsd:string ;
         rdfs:label "name" ;
-        rdfs:comment "Name of the application" .
+        rdfs:comment "Name of the app" .
+
+    om:displayName a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:string ;
+        rdfs:label "displayName" ;
+        rdfs:comment "Display name for the app" .
+
+    om:appDescription a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:string ;
+        rdfs:label "description" ;
+        rdfs:comment "Description of the app" .
+
+    om:features a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:string ;
+        rdfs:label "features" ;
+        rdfs:comment "Features of the app" .
 
     om:fullyQualifiedName a owl:DatatypeProperty ;
-        rdfs:domain om:Application ;
+        rdfs:domain om:App ;
         rdfs:range xsd:string ;
         rdfs:label "fullyQualifiedName" ;
-        rdfs:comment "Complete hierarchical name: domain.application" .
+        rdfs:comment "Fully qualified name same as name" .
 
-    om:applicationType a owl:DatatypeProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:ApplicationType ;
-        rdfs:label "applicationType" ;
-        rdfs:comment "Type (WebApplication, MobileApp, Microservice, etc.)" .
+    # App Type Properties
+    om:appType a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range om:AppType ;
+        rdfs:label "appType" ;
+        rdfs:comment "Type of app (internal or external)" .
 
-    om:deploymentType a owl:DatatypeProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:DeploymentType ;
-        rdfs:label "deploymentType" ;
-        rdfs:comment "Deployment type (Cloud, OnPremise, Hybrid, Edge)" .
+    om:agentType a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range om:AgentType ;
+        rdfs:label "agentType" ;
+        rdfs:comment "Type of agent (CollateAI, Metadata, etc.)" .
 
-    om:applicationVersion a owl:DatatypeProperty ;
-        rdfs:domain om:Application ;
+    om:scheduleType a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range om:ScheduleType ;
+        rdfs:label "scheduleType" ;
+        rdfs:comment "Schedule type (Live, Scheduled, ScheduledOrManual, NoSchedule, OnlyManual)" .
+
+    om:className a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
         rdfs:range xsd:string ;
-        rdfs:label "version" ;
-        rdfs:comment "Application version" .
+        rdfs:label "className" ;
+        rdfs:comment "Fully qualified class name for the schedule" .
 
-    om:hasComponent a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:Component ;
-        rdfs:label "hasComponent" ;
-        rdfs:comment "Components or services of this application" .
+    om:sourcePythonClass a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:string ;
+        rdfs:label "sourcePythonClass" ;
+        rdfs:comment "Fully qualified Python class for external app" .
 
-    om:accessesDataSource a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:DataAsset ;
-        rdfs:label "accessesDataSource" ;
-        rdfs:comment "Data sources accessed by application" .
+    # Developer Properties
+    om:developer a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:string ;
+        rdfs:label "developer" ;
+        rdfs:comment "Developer of the app" .
 
-    om:readsFrom a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:Table ;
-        rdfs:label "readsFrom" ;
-        rdfs:comment "Tables read by application" .
+    om:developerUrl a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:anyURI ;
+        rdfs:label "developerUrl" ;
+        rdfs:comment "URL for the developer" .
 
-    om:writesTo a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:Table ;
-        rdfs:label "writesTo" ;
-        rdfs:comment "Tables written by application" .
+    om:privacyPolicyUrl a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:anyURI ;
+        rdfs:label "privacyPolicyUrl" ;
+        rdfs:comment "Privacy policy URL" .
 
-    om:callsAPI a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:APIEndpoint ;
-        rdfs:label "callsAPI" ;
-        rdfs:comment "APIs called by application" .
+    om:supportEmail a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:string ;
+        rdfs:label "supportEmail" ;
+        rdfs:comment "Support email for the app" .
 
-    om:exposesAPI a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:APIEndpoint ;
-        rdfs:label "exposesAPI" ;
-        rdfs:comment "APIs exposed by application" .
+    om:appLogoUrl a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:anyURI ;
+        rdfs:label "appLogoUrl" ;
+        rdfs:comment "Logo URL for the app" .
 
-    om:publishesTo a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:Topic ;
-        rdfs:label "publishesTo" ;
-        rdfs:comment "Topics published to" .
+    # Configuration Properties
+    om:allowConfiguration a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "allowConfiguration" ;
+        rdfs:comment "Allow users to configure the app from UI" .
 
-    om:subscribesTo a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:Topic ;
-        rdfs:label "subscribesTo" ;
-        rdfs:comment "Topics subscribed to" .
+    om:system a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "system" ;
+        rdfs:comment "System app that cannot be uninstalled or modified" .
 
-    om:usesModel a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:MlModel ;
-        rdfs:label "usesModel" ;
-        rdfs:comment "ML models used by application" .
+    om:preview a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "preview" ;
+        rdfs:comment "Preview mode flag; if true, app cannot be installed" .
 
-    om:embedsDashboard a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:Dashboard ;
-        rdfs:label "embedsDashboard" ;
-        rdfs:comment "Dashboards embedded in application" .
+    om:supportsInterrupt a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "supportsInterrupt" ;
+        rdfs:comment "If the app run can be interrupted during execution" .
 
-    om:dependsOnApplication a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:Application ;
-        rdfs:label "dependsOnApplication" ;
-        rdfs:comment "Other applications this app depends on" .
+    om:supportsIngestionRunner a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "supportsIngestionRunner" ;
+        rdfs:comment "If the app supports execution through external runner" .
 
-    om:ownedBy a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:Owner ;
-        rdfs:label "ownedBy" ;
-        rdfs:comment "User or team that owns this application" .
+    om:allowConcurrentExecution a owl:DatatypeProperty ;
+        rdfs:domain om:App ;
+        rdfs:range xsd:boolean ;
+        rdfs:label "allowConcurrentExecution" ;
+        rdfs:comment "If true, multiple instances can run concurrently" .
 
-    om:hasTag a owl:ObjectProperty ;
-        rdfs:domain om:Application ;
-        rdfs:range om:Tag ;
-        rdfs:label "hasTag" ;
-        rdfs:comment "Classification tags applied to application" .
+    # Object Properties - Relationships
+    om:hasOwners a owl:ObjectProperty ;
+        rdfs:domain om:App ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "owners" ;
+        rdfs:comment "Owners of this app" .
 
-    # Component Class
-    om:Component a owl:Class ;
-        rdfs:label "Application Component" ;
-        rdfs:comment "A component or service within an application" .
+    om:belongsToDomains a owl:ObjectProperty ;
+        rdfs:domain om:App ;
+        rdfs:range om:EntityReference ;
+        rdfs:label "domains" ;
+        rdfs:comment "Domains the app belongs to" .
 
-    om:componentName a owl:DatatypeProperty ;
-        rdfs:domain om:Component ;
-        rdfs:range xsd:string .
+    om:hasBot a owl:ObjectProperty ;
+        rdfs:domain om:App ;
+        rdfs:range om:Bot ;
+        rdfs:label "bot" ;
+        rdfs:comment "Bot user associated with this app" .
 
-    om:componentType a owl:DatatypeProperty ;
-        rdfs:domain om:Component ;
-        rdfs:range om:ComponentType .
+    om:hasPipelines a owl:ObjectProperty ;
+        rdfs:domain om:App ;
+        rdfs:range om:Pipeline ;
+        rdfs:label "pipelines" ;
+        rdfs:comment "Pipelines deployed for this app" .
+
+    om:hasEventSubscriptions a owl:ObjectProperty ;
+        rdfs:domain om:App ;
+        rdfs:range om:EventSubscription ;
+        rdfs:label "eventSubscriptions" ;
+        rdfs:comment "Event subscriptions for the app" .
+
+    om:hasIngestionRunner a owl:ObjectProperty ;
+        rdfs:domain om:App ;
+        rdfs:range om:IngestionPipeline ;
+        rdfs:label "ingestionRunner" ;
+        rdfs:comment "Ingestion agent executing the pipeline" .
+
+    om:hasRuntime a owl:ObjectProperty ;
+        rdfs:domain om:App ;
+        rdfs:range om:ExecutionContext ;
+        rdfs:label "runtime" ;
+        rdfs:comment "Execution configuration context" .
+
+    om:hasAppSchedule a owl:ObjectProperty ;
+        rdfs:domain om:App ;
+        rdfs:range om:AppSchedule ;
+        rdfs:label "appSchedule" ;
+        rdfs:comment "Schedule configuration for the app" .
 
     # Example Instance
-    ex:ecommerce_web_app a om:Application ;
-        om:applicationName "ecommerce_web_app" ;
-        om:fullyQualifiedName "ecommerce.ecommerce_web_app" ;
-        om:displayName "E-commerce Web Application" ;
-        om:applicationType "WebApplication" ;
-        om:deploymentType "Cloud" ;
-        om:applicationVersion "2.5.0" ;
-        om:ownedBy ex:ecommerceTeam ;
-        om:hasTag ex:tierProduction ;
-        om:hasComponent ex:userService ;
-        om:hasComponent ex:orderService ;
-        om:readsFrom ex:customersTable ;
-        om:readsFrom ex:productsTable ;
-        om:writesTo ex:ordersTable ;
-        om:usesModel ex:productRecommender ;
-        om:embedsDashboard ex:salesDashboard .
+    ex:dataQualityApp a om:App ;
+        om:appName "DataQualityApp" ;
+        om:fullyQualifiedName "DataQualityApp" ;
+        om:displayName "Data Quality Application" ;
+        om:appDescription "Automated data quality checks and profiling" ;
+        om:appType "internal" ;
+        om:scheduleType "Scheduled" ;
+        om:className "org.openmetadata.service.apps.DataQualityApp" ;
+        om:developer "OpenMetadata" ;
+        om:developerUrl "https://open-metadata.org" ;
+        om:system true ;
+        om:allowConfiguration true ;
+        om:hasBot ex:dataQualityBot ;
+        om:belongsToDomains ex:dataQualityDomain .
     ```
 
     **[View Full RDF Ontology →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/ontology/openmetadata.ttl)**
@@ -602,13 +596,9 @@ View the complete Application schema in your preferred format:
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
 
-        "Application": "om:Application",
+        "App": "om:App",
         "name": {
-          "@id": "om:applicationName",
-          "@type": "xsd:string"
-        },
-        "fullyQualifiedName": {
-          "@id": "om:fullyQualifiedName",
+          "@id": "om:appName",
           "@type": "xsd:string"
         },
         "displayName": {
@@ -616,58 +606,116 @@ View the complete Application schema in your preferred format:
           "@type": "xsd:string"
         },
         "description": {
-          "@id": "om:description",
+          "@id": "om:appDescription",
           "@type": "xsd:string"
         },
-        "applicationType": {
-          "@id": "om:applicationType",
-          "@type": "@vocab"
-        },
-        "deploymentType": {
-          "@id": "om:deploymentType",
-          "@type": "@vocab"
-        },
-        "version": {
-          "@id": "om:applicationVersion",
+        "features": {
+          "@id": "om:features",
           "@type": "xsd:string"
         },
-        "components": {
-          "@id": "om:hasComponent",
-          "@type": "@id",
-          "@container": "@list"
+        "fullyQualifiedName": {
+          "@id": "om:fullyQualifiedName",
+          "@type": "xsd:string"
         },
-        "dataSources": {
-          "@id": "om:accessesDataSource",
+        "appType": {
+          "@id": "om:appType",
+          "@type": "@vocab"
+        },
+        "agentType": {
+          "@id": "om:agentType",
+          "@type": "@vocab"
+        },
+        "scheduleType": {
+          "@id": "om:scheduleType",
+          "@type": "@vocab"
+        },
+        "className": {
+          "@id": "om:className",
+          "@type": "xsd:string"
+        },
+        "sourcePythonClass": {
+          "@id": "om:sourcePythonClass",
+          "@type": "xsd:string"
+        },
+        "developer": {
+          "@id": "om:developer",
+          "@type": "xsd:string"
+        },
+        "developerUrl": {
+          "@id": "om:developerUrl",
+          "@type": "xsd:anyURI"
+        },
+        "privacyPolicyUrl": {
+          "@id": "om:privacyPolicyUrl",
+          "@type": "xsd:anyURI"
+        },
+        "supportEmail": {
+          "@id": "om:supportEmail",
+          "@type": "xsd:string"
+        },
+        "appLogoUrl": {
+          "@id": "om:appLogoUrl",
+          "@type": "xsd:anyURI"
+        },
+        "allowConfiguration": {
+          "@id": "om:allowConfiguration",
+          "@type": "xsd:boolean"
+        },
+        "system": {
+          "@id": "om:system",
+          "@type": "xsd:boolean"
+        },
+        "preview": {
+          "@id": "om:preview",
+          "@type": "xsd:boolean"
+        },
+        "supportsInterrupt": {
+          "@id": "om:supportsInterrupt",
+          "@type": "xsd:boolean"
+        },
+        "supportsIngestionRunner": {
+          "@id": "om:supportsIngestionRunner",
+          "@type": "xsd:boolean"
+        },
+        "allowConcurrentExecution": {
+          "@id": "om:allowConcurrentExecution",
+          "@type": "xsd:boolean"
+        },
+        "owners": {
+          "@id": "om:hasOwners",
           "@type": "@id",
           "@container": "@set"
         },
-        "dependencies": {
-          "@id": "om:dependsOnApplication",
+        "domains": {
+          "@id": "om:belongsToDomains",
           "@type": "@id",
           "@container": "@set"
         },
-        "endpoints": {
-          "@id": "om:hasEndpoint",
-          "@type": "@id",
-          "@container": "@set"
-        },
-        "owner": {
-          "@id": "om:ownedBy",
+        "bot": {
+          "@id": "om:hasBot",
           "@type": "@id"
         },
-        "domain": {
-          "@id": "om:inDomain",
+        "pipelines": {
+          "@id": "om:hasPipelines",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "eventSubscriptions": {
+          "@id": "om:hasEventSubscriptions",
+          "@type": "@id",
+          "@container": "@set"
+        },
+        "ingestionRunner": {
+          "@id": "om:hasIngestionRunner",
           "@type": "@id"
         },
-        "tags": {
-          "@id": "om:hasTag",
-          "@type": "@id",
-          "@container": "@set"
+        "runtime": {
+          "@id": "om:hasRuntime",
+          "@type": "@id"
         },
-        "glossaryTerms": {
-          "@id": "om:linkedToGlossaryTerm",
-          "@type": "@id",
-          "@container": "@set"
+        "appSchedule": {
+          "@id": "om:hasAppSchedule",
+          "@type": "@id"
         }
       }
     }
@@ -677,109 +725,101 @@ View the complete Application schema in your preferred format:
 
     ```json
     {
-      "@context": "https://open-metadata.org/context/application.jsonld",
-      "@type": "Application",
-      "@id": "https://example.com/applications/ecommerce_web_app",
+      "@context": "https://open-metadata.org/context/app.jsonld",
+      "@type": "App",
+      "@id": "https://open-metadata.org/apps/DataQualityApp",
 
-      "name": "ecommerce_web_app",
-      "fullyQualifiedName": "ecommerce.ecommerce_web_app",
-      "displayName": "E-commerce Web Application",
-      "description": "Customer-facing e-commerce platform for online shopping",
-      "applicationType": "WebApplication",
-      "deploymentType": "Cloud",
-      "version": "2.5.0",
+      "name": "DataQualityApp",
+      "fullyQualifiedName": "DataQualityApp",
+      "displayName": "Data Quality Application",
+      "description": "Automated data quality checks and profiling for all data assets",
+      "features": "- Data profiling\n- Quality metrics\n- Anomaly detection\n- Automated testing",
 
-      "components": [
+      "appType": "internal",
+      "scheduleType": "Scheduled",
+      "className": "org.openmetadata.service.apps.bundles.quality.DataQualityApp",
+
+      "developer": "OpenMetadata",
+      "developerUrl": "https://open-metadata.org",
+      "privacyPolicyUrl": "https://open-metadata.org/privacy",
+      "supportEmail": "support@open-metadata.org",
+      "appLogoUrl": "https://open-metadata.org/images/apps/data-quality.png",
+
+      "allowConfiguration": true,
+      "system": false,
+      "preview": false,
+      "supportsInterrupt": true,
+      "supportsIngestionRunner": false,
+      "allowConcurrentExecution": false,
+
+      "owners": [
         {
-          "@type": "Component",
-          "name": "user-service",
-          "type": "Service",
-          "description": "User authentication and management"
-        },
-        {
-          "@type": "Component",
-          "name": "order-service",
-          "type": "Service",
-          "description": "Order processing and fulfillment"
-        },
-        {
-          "@type": "Component",
-          "name": "recommendation-engine",
-          "type": "Service",
-          "description": "Product recommendation service"
+          "@id": "https://open-metadata.org/teams/data-governance",
+          "@type": "Team",
+          "name": "DataGovernanceTeam"
         }
       ],
 
-      "dataSources": [
+      "domains": [
         {
-          "entity": {
-            "@id": "https://example.com/tables/customers",
-            "@type": "Table"
-          },
-          "accessType": "read",
-          "purpose": "User profile data"
-        },
-        {
-          "entity": {
-            "@id": "https://example.com/tables/orders",
-            "@type": "Table"
-          },
-          "accessType": "readWrite",
-          "purpose": "Order management"
+          "@id": "https://open-metadata.org/domains/data-quality",
+          "@type": "Domain",
+          "name": "DataQuality"
         }
       ],
 
-      "endpoints": [
-        {
-          "url": "https://api.ecommerce.example.com",
-          "type": "REST",
-          "description": "Main REST API"
-        }
-      ],
-
-      "owner": {
-        "@id": "https://example.com/teams/ecommerce-platform",
-        "@type": "Team",
-        "name": "ecommerce-platform"
+      "bot": {
+        "@id": "https://open-metadata.org/bots/data-quality-bot",
+        "@type": "Bot",
+        "name": "data-quality-bot"
       },
 
-      "domain": {
-        "@id": "https://example.com/domains/ecommerce",
-        "@type": "Domain",
-        "name": "E-commerce"
+      "pipelines": [
+        {
+          "@id": "https://open-metadata.org/pipelines/quality-checks",
+          "@type": "Pipeline",
+          "name": "quality_checks_pipeline"
+        }
+      ],
+
+      "eventSubscriptions": [
+        {
+          "@id": "https://open-metadata.org/events/entity-created",
+          "@type": "EventSubscription",
+          "name": "entityCreated"
+        }
+      ],
+
+      "runtime": {
+        "@type": "ScheduledExecutionContext",
+        "scheduleTimeline": "Daily"
       },
 
-      "tags": [
-        {
-          "@id": "https://open-metadata.org/tags/Tier/Production",
-          "tagFQN": "Tier.Production"
-        },
-        {
-          "@id": "https://open-metadata.org/tags/PII/Sensitive",
-          "tagFQN": "PII.Sensitive"
-        }
-      ]
+      "appSchedule": {
+        "scheduleTimeline": "Daily",
+        "cronExpression": "0 2 * * *"
+      }
     }
     ```
 
-    **[View Full JSON-LD Context →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/contexts/application.jsonld)**
+    **[View Full JSON-LD Context →](https://github.com/open-metadata/OpenMetadataStandards/blob/main/rdf/contexts/app.jsonld)**
 
 ---
 
 ## Use Cases
 
-- Catalog all applications consuming data across the organization
-- Document application architecture and data dependencies
-- Track which applications access which data sources
-- Discover applications by business domain or data usage
-- Map data lineage from sources through applications to outputs
-- Monitor application data access patterns
-- Apply governance tags to customer-facing or PII-handling apps
-- Track application dependencies and integration points
-- Document APIs exposed and consumed
-- Enable impact analysis (what breaks if a table schema changes?)
-- Enforce data contracts between applications and data sources
-- Monitor application health and data quality
+- Install and manage OpenMetadata platform applications
+- Schedule automated metadata operations (profiling, quality checks, lineage)
+- Configure AI-powered agents for metadata management (CollateAI)
+- Deploy custom external applications that integrate with OpenMetadata
+- Automate governance workflows and policy enforcement
+- Subscribe to metadata events and trigger actions
+- Execute data quality checks on schedules
+- Run metadata ingestion pipelines through apps
+- Manage application lifecycles (install, configure, schedule, uninstall)
+- Control app permissions and bot user access
+- Preview apps before installation
+- Support concurrent execution for parallel processing apps
 
 ---
 
@@ -790,7 +830,7 @@ View the complete Application schema in your preferred format:
 #### `id` (uuid)
 **Type**: `string` (UUID format)
 **Required**: Yes (system-generated)
-**Description**: Unique identifier for this application instance
+**Description**: Unique identifier of this application
 
 ```json
 {
@@ -806,25 +846,11 @@ View the complete Application schema in your preferred format:
 **Pattern**: `^[^.]*$` (no dots allowed)
 **Min Length**: 1
 **Max Length**: 256
-**Description**: Name of the application (unqualified)
+**Description**: Name of the Application
 
 ```json
 {
-  "name": "ecommerce_web_app"
-}
-```
-
----
-
-#### `fullyQualifiedName` (fullyQualifiedEntityName)
-**Type**: `string`
-**Required**: Yes (system-generated)
-**Pattern**: `^((?!::).)*$`
-**Description**: Fully qualified name in the format `domain.application` or just `application`
-
-```json
-{
-  "fullyQualifiedName": "ecommerce.ecommerce_web_app"
+  "name": "DataQualityApp"
 }
 ```
 
@@ -833,11 +859,25 @@ View the complete Application schema in your preferred format:
 #### `displayName`
 **Type**: `string`
 **Required**: No
-**Description**: Human-readable display name
+**Description**: Display Name for the application
 
 ```json
 {
-  "displayName": "E-commerce Web Application"
+  "displayName": "Data Quality Application"
+}
+```
+
+---
+
+#### `fullyQualifiedName` (fullyQualifiedEntityName)
+**Type**: `string`
+**Required**: No (system-generated)
+**Pattern**: `^((?!::).)*$`
+**Description**: FullyQualifiedName same as `name`
+
+```json
+{
+  "fullyQualifiedName": "DataQualityApp"
 }
 ```
 
@@ -846,407 +886,363 @@ View the complete Application schema in your preferred format:
 #### `description` (markdown)
 **Type**: `string` (Markdown format)
 **Required**: No
-**Description**: Rich text description of the application's purpose and functionality
+**Description**: Description of the Application
 
 ```json
 {
-  "description": "# E-commerce Web Application\n\nCustomer-facing web application for online shopping.\n\n## Features\n- Product browsing and search\n- Shopping cart and checkout\n- User account management\n- Order tracking\n- Product recommendations\n\n## Technology Stack\n- Frontend: React + TypeScript\n- Backend: Node.js + Express\n- Database: PostgreSQL\n- Cache: Redis\n\n## SLA\n- Availability: 99.9%\n- Response time: < 200ms (p95)"
+  "description": "# Data Quality Application\n\nAutomated data quality checks and profiling for all data assets in OpenMetadata."
 }
 ```
 
 ---
 
-### Application Configuration
+#### `features` (markdown)
+**Type**: `string` (Markdown format)
+**Required**: No
+**Description**: Features of the Application
 
-#### `applicationType` (ApplicationType enum)
+```json
+{
+  "features": "## Key Features\n- Automated data profiling\n- Quality metrics computation\n- Anomaly detection\n- Automated test case generation"
+}
+```
+
+---
+
+### App Type Configuration
+
+#### `appType` (AppType enum)
 **Type**: `string` enum
 **Required**: Yes
 **Allowed Values**:
 
-- `WebApplication` - Web-based application
-- `MobileApp` - Mobile application (iOS, Android)
-- `DesktopApp` - Desktop application
-- `Microservice` - Microservice
-- `API` - API service
-- `BatchJob` - Batch processing job
-- `StreamingApp` - Stream processing application
-- `DataPipeline` - Data pipeline
-- `Other` - Other application type
+- `internal` - Built-in OpenMetadata application
+- `external` - Custom external application
 
 ```json
 {
-  "applicationType": "WebApplication"
+  "appType": "internal"
 }
 ```
 
 ---
 
-#### `deploymentType` (DeploymentType enum)
+#### `agentType` (AgentType enum)
 **Type**: `string` enum
 **Required**: No
+**Description**: Type of the agent
+
 **Allowed Values**:
 
-- `Cloud` - Cloud deployment (AWS, Azure, GCP)
-- `OnPremise` - On-premise deployment
-- `Hybrid` - Hybrid cloud/on-premise
-- `Edge` - Edge computing deployment
+- `CollateAI` - CollateAI agent
+- `CollateAITierAgent` - CollateAI Tier classification agent
+- `CollateAIQualityAgent` - CollateAI Quality agent
+- `Metadata` - Metadata agent
 
 ```json
 {
-  "deploymentType": "Cloud"
+  "agentType": "Metadata"
 }
 ```
 
 ---
 
-#### `version` (string)
+#### `scheduleType` (ScheduleType enum)
+**Type**: `string` enum
+**Required**: Yes
+**Description**: Schedule Type of Application
+
+**Allowed Values**:
+
+- `Live` - App with other trigger mechanisms
+- `Scheduled` - App with a schedule, cannot be run manually
+- `ScheduledOrManual` - App with a schedule, can be run manually
+- `NoSchedule` - App with no schedule, cannot be run manually
+- `OnlyManual` - App with no schedule but can be run manually
+
+```json
+{
+  "scheduleType": "Scheduled"
+}
+```
+
+---
+
+### Execution Configuration
+
+#### `className`
+**Type**: `string`
+**Required**: Yes
+**Description**: Fully Qualified ClassName for the Schedule
+
+```json
+{
+  "className": "org.openmetadata.service.apps.bundles.quality.DataQualityApp"
+}
+```
+
+---
+
+#### `sourcePythonClass`
 **Type**: `string`
 **Required**: No
-**Description**: Current version of the application
+**Description**: Fully Qualified class name for the Python source that will execute the external application
 
 ```json
 {
-  "version": "2.5.0"
+  "sourcePythonClass": "metadata.ingestion.source.pipeline.custom.MyCustomApp"
 }
 ```
 
 ---
 
-#### `repository` (uri)
-**Type**: `string` (URI format)
-**Required**: No
-**Description**: Source code repository URL
+#### `permission` (permissions enum)
+**Type**: `string` enum
+**Required**: Yes
+**Description**: Permission used by Native Applications
+
+**Allowed Values**:
+
+- `All` - Full permissions
 
 ```json
 {
-  "repository": "https://github.com/organization/ecommerce-web-app"
+  "permission": "All"
 }
 ```
 
 ---
 
-#### `documentation` (uri)
-**Type**: `string` (URI format)
-**Required**: No
-**Description**: Documentation URL
-
-```json
-{
-  "documentation": "https://docs.example.com/ecommerce-app"
-}
-```
-
----
-
-### Components
-
-#### `components[]` (Component[])
-**Type**: `array` of Component objects
-**Required**: No
-**Description**: Application components, microservices, or modules
-
-**Component Object Properties**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | Yes | Component name |
-| `type` | enum | Yes | Type: Service, Module, Library, Plugin |
-| `description` | string | No | Component description |
-| `version` | string | No | Component version |
-| `repository` | string (uri) | No | Component source repository |
-
-**Example**:
-
-```json
-{
-  "components": [
-    {
-      "name": "user-service",
-      "type": "Service",
-      "description": "User authentication and management service",
-      "version": "1.3.0",
-      "repository": "https://github.com/org/user-service"
-    },
-    {
-      "name": "order-service",
-      "type": "Service",
-      "description": "Order processing and fulfillment service",
-      "version": "2.1.0",
-      "repository": "https://github.com/org/order-service"
-    },
-    {
-      "name": "payment-service",
-      "type": "Service",
-      "description": "Payment processing integration",
-      "version": "1.5.2",
-      "repository": "https://github.com/org/payment-service"
-    },
-    {
-      "name": "recommendation-engine",
-      "type": "Service",
-      "description": "ML-powered product recommendations",
-      "version": "3.0.1"
-    }
-  ]
-}
-```
-
----
-
-### Data Sources
-
-#### `dataSources[]` (DataSource[])
-**Type**: `array` of DataSource objects
-**Required**: No
-**Description**: Data sources accessed by the application
-
-**DataSource Object Properties**:
-
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `entity` | EntityReference | Yes | Reference to data entity (Table, Topic, etc.) |
-| `accessType` | enum | Yes | Access type: read, write, readWrite |
-| `purpose` | string | No | Purpose of data access |
-
-**Example**:
-
-```json
-{
-  "dataSources": [
-    {
-      "entity": {
-        "id": "table-uuid-1",
-        "type": "table",
-        "name": "customers",
-        "fullyQualifiedName": "postgres_prod.ecommerce.public.customers"
-      },
-      "accessType": "read",
-      "purpose": "User profile data and authentication"
-    },
-    {
-      "entity": {
-        "id": "table-uuid-2",
-        "type": "table",
-        "name": "products",
-        "fullyQualifiedName": "postgres_prod.ecommerce.public.products"
-      },
-      "accessType": "read",
-      "purpose": "Product catalog display"
-    },
-    {
-      "entity": {
-        "id": "table-uuid-3",
-        "type": "table",
-        "name": "orders",
-        "fullyQualifiedName": "postgres_prod.ecommerce.public.orders"
-      },
-      "accessType": "readWrite",
-      "purpose": "Order creation and management"
-    },
-    {
-      "entity": {
-        "id": "table-uuid-4",
-        "type": "table",
-        "name": "user_sessions",
-        "fullyQualifiedName": "postgres_prod.ecommerce.public.user_sessions"
-      },
-      "accessType": "write",
-      "purpose": "User session tracking"
-    },
-    {
-      "entity": {
-        "id": "topic-uuid-1",
-        "type": "topic",
-        "name": "order_created",
-        "fullyQualifiedName": "kafka_prod.order_created"
-      },
-      "accessType": "write",
-      "purpose": "Publish order events"
-    },
-    {
-      "entity": {
-        "id": "topic-uuid-2",
-        "type": "topic",
-        "name": "payment_processed",
-        "fullyQualifiedName": "kafka_prod.payment_processed"
-      },
-      "accessType": "read",
-      "purpose": "Subscribe to payment events"
-    }
-  ]
-}
-```
-
----
-
-### Dependencies
-
-#### `dependencies[]` (Dependency[])
-**Type**: `array` of Dependency objects
-**Required**: No
-**Description**: Other applications or services this application depends on
-
-**Dependency Object**:
-
-```json
-{
-  "dependencies": [
-    {
-      "application": {
-        "id": "app-uuid-1",
-        "type": "application",
-        "name": "auth_service",
-        "fullyQualifiedName": "infrastructure.auth_service"
-      },
-      "type": "required",
-      "description": "Authentication and authorization"
-    },
-    {
-      "application": {
-        "id": "app-uuid-2",
-        "type": "application",
-        "name": "payment_gateway",
-        "fullyQualifiedName": "payments.payment_gateway"
-      },
-      "type": "required",
-      "description": "Payment processing"
-    },
-    {
-      "application": {
-        "id": "app-uuid-3",
-        "type": "application",
-        "name": "notification_service",
-        "fullyQualifiedName": "infrastructure.notification_service"
-      },
-      "type": "optional",
-      "description": "Email and SMS notifications"
-    },
-    {
-      "application": {
-        "id": "app-uuid-4",
-        "type": "application",
-        "name": "analytics_service",
-        "fullyQualifiedName": "analytics.analytics_service"
-      },
-      "type": "optional",
-      "description": "User behavior analytics"
-    }
-  ]
-}
-```
-
----
-
-### Endpoints
-
-#### `endpoints[]` (Endpoint[])
-**Type**: `array` of Endpoint objects
-**Required**: No
-**Description**: Application endpoints and URLs
-
-**Endpoint Object**:
-
-```json
-{
-  "endpoints": [
-    {
-      "url": "https://app.ecommerce.example.com",
-      "type": "REST",
-      "description": "Main web application"
-    },
-    {
-      "url": "https://api.ecommerce.example.com/v1",
-      "type": "REST",
-      "description": "Public REST API"
-    },
-    {
-      "url": "https://api.ecommerce.example.com/graphql",
-      "type": "GraphQL",
-      "description": "GraphQL API"
-    },
-    {
-      "url": "wss://ws.ecommerce.example.com",
-      "type": "WebSocket",
-      "description": "Real-time updates WebSocket"
-    }
-  ]
-}
-```
-
----
-
-### Governance Properties
-
-#### `owner` (EntityReference)
+#### `runtime` (executionContext)
 **Type**: `object`
-**Required**: No
-**Description**: User or team that owns this application
+**Required**: Yes
+**Description**: Execution Configuration (oneOf: LiveExecutionContext or ScheduledExecutionContext)
 
 ```json
 {
-  "owner": {
-    "id": "team-uuid",
-    "type": "team",
-    "name": "ecommerce-platform",
-    "displayName": "E-commerce Platform Team"
+  "runtime": {
+    "type": "ScheduledExecutionContext",
+    "scheduleTimeline": "Daily"
   }
 }
 ```
 
 ---
 
-#### `domain` (EntityReference)
-**Type**: `object`
+### Developer Information
+
+#### `developer`
+**Type**: `string`
 **Required**: No
-**Description**: Data domain this application belongs to
+**Description**: Developer For the Application
 
 ```json
 {
-  "domain": {
-    "id": "domain-uuid",
-    "type": "domain",
-    "name": "E-commerce",
-    "fullyQualifiedName": "E-commerce"
+  "developer": "OpenMetadata"
+}
+```
+
+---
+
+#### `developerUrl`
+**Type**: `string`
+**Required**: No
+**Description**: Url for the developer
+
+```json
+{
+  "developerUrl": "https://open-metadata.org"
+}
+```
+
+---
+
+#### `privacyPolicyUrl`
+**Type**: `string`
+**Required**: No
+**Description**: Privacy Policy for the developer
+
+```json
+{
+  "privacyPolicyUrl": "https://open-metadata.org/privacy-policy"
+}
+```
+
+---
+
+#### `supportEmail`
+**Type**: `string`
+**Required**: No
+**Description**: Support Email for the application
+
+```json
+{
+  "supportEmail": "support@open-metadata.org"
+}
+```
+
+---
+
+### UI and Branding
+
+#### `appLogoUrl`
+**Type**: `string` (URI format)
+**Required**: No
+**Description**: Application Logo Url
+
+```json
+{
+  "appLogoUrl": "https://open-metadata.org/images/apps/data-quality.png"
+}
+```
+
+---
+
+#### `appScreenshots[]`
+**Type**: `array` of strings
+**Required**: No
+**Description**: Application Screenshots (unique items)
+
+```json
+{
+  "appScreenshots": [
+    "https://example.com/screenshot1.png",
+    "https://example.com/screenshot2.png"
+  ]
+}
+```
+
+---
+
+### Configuration Options
+
+#### `allowConfiguration`
+**Type**: `boolean`
+**Required**: No
+**Default**: `true`
+**Description**: Allow users to configure the app from the UI. If `false`, the `configure` step will be hidden
+
+```json
+{
+  "allowConfiguration": true
+}
+```
+
+---
+
+#### `system`
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: A system app cannot be uninstalled or modified
+
+```json
+{
+  "system": false
+}
+```
+
+---
+
+#### `preview`
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: Flag to enable/disable preview for the application. If the app is in preview mode, it can't be installed
+
+```json
+{
+  "preview": false
+}
+```
+
+---
+
+#### `supportsInterrupt`
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: If the app run can be interrupted as part of the execution
+
+```json
+{
+  "supportsInterrupt": true
+}
+```
+
+---
+
+#### `supportsIngestionRunner`
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: If the app support execution through the external runner
+
+```json
+{
+  "supportsIngestionRunner": false
+}
+```
+
+---
+
+#### `allowConcurrentExecution`
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: If true, multiple instances of this app can run concurrently. This is useful for apps like QueryRunner that support parallel executions with different configurations
+
+```json
+{
+  "allowConcurrentExecution": false
+}
+```
+
+---
+
+### Scheduling
+
+#### `appSchedule` (AppSchedule)
+**Type**: `object`
+**Required**: No
+**Description**: In case the app supports scheduling, list of different app schedules
+
+**AppSchedule Properties**:
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `scheduleTimeline` | enum | Yes | Timeline: Hourly, Daily, Weekly, Monthly, Custom, None (default: Weekly) |
+| `cronExpression` | string | No | Cron Expression in case of Custom scheduled Trigger |
+
+**Example**:
+
+```json
+{
+  "appSchedule": {
+    "scheduleTimeline": "Daily",
+    "cronExpression": "0 2 * * *"
   }
 }
 ```
 
 ---
 
-#### `tags[]` (TagLabel[])
-**Type**: `array`
+### Relationships
+
+#### `owners[]` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: Classification tags applied to the application
+**Default**: `null`
+**Description**: Owners of this app (plural - note this is `owners` not `owner`)
 
 ```json
 {
-  "tags": [
+  "owners": [
     {
-      "tagFQN": "Tier.Production",
-      "description": "Production application",
-      "source": "Classification",
-      "labelType": "Manual",
-      "state": "Confirmed"
-    },
-    {
-      "tagFQN": "PII.Sensitive",
-      "description": "Handles customer PII",
-      "source": "Classification",
-      "labelType": "Manual",
-      "state": "Confirmed"
-    },
-    {
-      "tagFQN": "Compliance.SOC2",
-      "description": "SOC 2 compliant",
-      "source": "Classification",
-      "labelType": "Manual",
-      "state": "Confirmed"
-    },
-    {
-      "tagFQN": "CustomerFacing",
-      "source": "Classification",
-      "labelType": "Manual",
-      "state": "Confirmed"
+      "id": "team-uuid",
+      "type": "team",
+      "name": "data-governance-team",
+      "displayName": "Data Governance Team"
     }
   ]
 }
@@ -1254,206 +1250,425 @@ View the complete Application schema in your preferred format:
 
 ---
 
-#### `glossaryTerms[]` (GlossaryTerm[])
-**Type**: `array`
+#### `domains[]` (EntityReferenceList)
+**Type**: `array` of EntityReference
 **Required**: No
-**Description**: Business glossary terms linked to this application
+**Description**: Domains the asset belongs to. When not set, the asset inherits the domain from the parent it belongs to (plural - note this is `domains` not `domain`)
 
 ```json
 {
-  "glossaryTerms": [
+  "domains": [
     {
-      "fullyQualifiedName": "BusinessGlossary.CustomerFacingApplication"
-    },
-    {
-      "fullyQualifiedName": "BusinessGlossary.OnlineShopping"
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "DataQuality",
+      "fullyQualifiedName": "DataQuality"
     }
   ]
 }
 ```
+
+---
+
+#### `bot` (EntityReference)
+**Type**: `object`
+**Required**: No
+**Default**: `null`
+**Description**: Bot User Associated with this application
+
+```json
+{
+  "bot": {
+    "id": "bot-uuid",
+    "type": "bot",
+    "name": "data-quality-bot",
+    "fullyQualifiedName": "data-quality-bot"
+  }
+}
+```
+
+---
+
+#### `pipelines[]` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: References to pipelines deployed for this database service to extract metadata, usage, lineage etc.
+
+```json
+{
+  "pipelines": [
+    {
+      "id": "pipeline-uuid",
+      "type": "pipeline",
+      "name": "quality_checks_pipeline",
+      "fullyQualifiedName": "DataQualityApp.quality_checks_pipeline"
+    }
+  ]
+}
+```
+
+---
+
+#### `eventSubscriptions[]` (EntityReferenceList)
+**Type**: `array` of EntityReference
+**Required**: No
+**Description**: Event Subscriptions for the Application
+
+```json
+{
+  "eventSubscriptions": [
+    {
+      "id": "subscription-uuid",
+      "type": "eventsubscription",
+      "name": "entityCreated",
+      "fullyQualifiedName": "entityCreated"
+    }
+  ]
+}
+```
+
+---
+
+#### `ingestionRunner` (EntityReference)
+**Type**: `object`
+**Required**: No
+**Description**: The ingestion agent responsible for executing the ingestion pipeline. It will be defined at runtime based on the Ingestion Agent of the service
+
+```json
+{
+  "ingestionRunner": {
+    "id": "runner-uuid",
+    "type": "ingestionPipeline",
+    "name": "external-runner",
+    "fullyQualifiedName": "external-runner"
+  }
+}
+```
+
+---
+
+### Configuration
+
+#### `appConfiguration` (appConfig)
+**Type**: `object`
+**Required**: No
+**Description**: Application Configuration object
+
+```json
+{
+  "appConfiguration": {
+    "key1": "value1",
+    "key2": "value2"
+  }
+}
+```
+
+---
+
+#### `privateConfiguration` (privateConfig)
+**Type**: `object`
+**Required**: No
+**Description**: Application Private configuration loaded at runtime
+
+```json
+{
+  "privateConfiguration": {
+    "apiKey": "secret-key",
+    "credentials": "encrypted-credentials"
+  }
+}
+```
+
+---
+
+#### `openMetadataServerConnection`
+**Type**: `object`
+**Required**: No
+**Description**: Connection to OpenMetadata server
+
+```json
+{
+  "openMetadataServerConnection": {
+    "hostPort": "http://localhost:8585/api",
+    "authProvider": "openmetadata",
+    "securityConfig": {
+      "jwtToken": "token"
+    }
+  }
+}
+```
+
+---
+
+### Metadata Properties
+
+#### `version` (entityVersion)
+**Type**: `number`
+**Required**: No
+**Description**: Metadata version of the entity
+
+---
+
+#### `updatedAt` (timestamp)
+**Type**: `number`
+**Required**: No
+**Description**: Last update time corresponding to the new version of the entity in Unix epoch time milliseconds
+
+---
+
+#### `updatedBy`
+**Type**: `string`
+**Required**: No
+**Description**: User who made the update
+
+---
+
+#### `impersonatedBy`
+**Type**: `object`
+**Required**: No
+**Description**: Bot user that performed the action on behalf of the actual user
+
+---
+
+#### `href` (href)
+**Type**: `string`
+**Required**: No
+**Description**: Link to the resource corresponding to this entity
+
+---
+
+#### `changeDescription`
+**Type**: `object`
+**Required**: No
+**Description**: Change that lead to this version of the entity
+
+---
+
+#### `incrementalChangeDescription`
+**Type**: `object`
+**Required**: No
+**Description**: Change that lead to this version of the entity
+
+---
+
+#### `deleted`
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+**Description**: When `true` indicates the entity has been soft deleted
+
+---
+
+#### `provider` (providerType)
+**Type**: `enum`
+**Required**: No
+**Description**: Provider type
 
 ---
 
 ## Complete Examples
 
-### Example 1: E-commerce Web Application
+### Example 1: Data Quality App (Internal, Scheduled)
 
 ```json
 {
   "id": "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
-  "name": "ecommerce_web_app",
-  "fullyQualifiedName": "ecommerce.ecommerce_web_app",
-  "displayName": "E-commerce Web Application",
-  "description": "Customer-facing e-commerce platform",
-  "applicationType": "WebApplication",
-  "deploymentType": "Cloud",
-  "version": "2.5.0",
-  "repository": "https://github.com/org/ecommerce-web-app",
-  "documentation": "https://docs.example.com/ecommerce-app",
-  "components": [
-    {
-      "name": "user-service",
-      "type": "Service",
-      "description": "User authentication service"
-    },
-    {
-      "name": "order-service",
-      "type": "Service",
-      "description": "Order processing service"
-    }
-  ],
-  "dataSources": [
-    {
-      "entity": {
-        "type": "table",
-        "name": "customers",
-        "fullyQualifiedName": "postgres_prod.ecommerce.public.customers"
-      },
-      "accessType": "read",
-      "purpose": "User profile data"
-    },
-    {
-      "entity": {
-        "type": "table",
-        "name": "orders",
-        "fullyQualifiedName": "postgres_prod.ecommerce.public.orders"
-      },
-      "accessType": "readWrite",
-      "purpose": "Order management"
-    }
-  ],
-  "dependencies": [
-    {
-      "application": {
-        "type": "application",
-        "name": "auth_service"
-      },
-      "type": "required",
-      "description": "Authentication"
-    }
-  ],
-  "endpoints": [
-    {
-      "url": "https://app.ecommerce.example.com",
-      "type": "REST",
-      "description": "Main web app"
-    }
-  ],
-  "owner": {
-    "type": "team",
-    "name": "ecommerce-platform"
+  "name": "DataQualityApp",
+  "fullyQualifiedName": "DataQualityApp",
+  "displayName": "Data Quality Application",
+  "description": "Automated data quality checks and profiling for all data assets",
+  "features": "## Key Features\n- Data profiling\n- Quality metrics\n- Anomaly detection\n- Test case generation",
+
+  "appType": "internal",
+  "scheduleType": "Scheduled",
+  "permission": "All",
+  "className": "org.openmetadata.service.apps.bundles.quality.DataQualityApp",
+
+  "developer": "OpenMetadata",
+  "developerUrl": "https://open-metadata.org",
+  "privacyPolicyUrl": "https://open-metadata.org/privacy",
+  "supportEmail": "support@open-metadata.org",
+  "appLogoUrl": "https://open-metadata.org/images/apps/data-quality.png",
+
+  "allowConfiguration": true,
+  "system": false,
+  "preview": false,
+  "supportsInterrupt": true,
+  "supportsIngestionRunner": false,
+  "allowConcurrentExecution": false,
+
+  "runtime": {
+    "type": "ScheduledExecutionContext",
+    "scheduleTimeline": "Daily"
   },
-  "domain": {
-    "type": "domain",
-    "name": "E-commerce"
+
+  "appSchedule": {
+    "scheduleTimeline": "Daily",
+    "cronExpression": "0 2 * * *"
   },
-  "tags": [
-    {"tagFQN": "Tier.Production"},
-    {"tagFQN": "PII.Sensitive"}
+
+  "owners": [
+    {
+      "id": "team-uuid",
+      "type": "team",
+      "name": "data-governance"
+    }
+  ],
+
+  "domains": [
+    {
+      "id": "domain-uuid",
+      "type": "domain",
+      "name": "DataQuality"
+    }
+  ],
+
+  "bot": {
+    "id": "bot-uuid",
+    "type": "bot",
+    "name": "data-quality-bot"
+  },
+
+  "pipelines": [
+    {
+      "id": "pipeline-uuid",
+      "type": "pipeline",
+      "name": "quality_checks_pipeline"
+    }
+  ],
+
+  "eventSubscriptions": [
+    {
+      "id": "subscription-uuid",
+      "type": "eventsubscription",
+      "name": "entityCreated"
+    }
   ]
 }
 ```
 
-### Example 2: Mobile App
+### Example 2: CollateAI Agent (AI-Powered, Live)
 
 ```json
 {
   "id": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
-  "name": "shopping_mobile_app",
-  "fullyQualifiedName": "ecommerce.shopping_mobile_app",
-  "displayName": "Shopping Mobile App",
-  "description": "iOS and Android mobile shopping application",
-  "applicationType": "MobileApp",
-  "deploymentType": "Cloud",
-  "version": "3.2.1",
-  "dataSources": [
+  "name": "CollateAIAgent",
+  "fullyQualifiedName": "CollateAIAgent",
+  "displayName": "CollateAI Metadata Agent",
+  "description": "AI-powered metadata management and classification agent",
+  "features": "## Features\n- Automated tagging\n- Description generation\n- PII detection\n- Tier classification",
+
+  "appType": "internal",
+  "agentType": "CollateAI",
+  "scheduleType": "Live",
+  "permission": "All",
+  "className": "org.openmetadata.service.apps.bundles.ai.CollateAIApp",
+
+  "developer": "Collate",
+  "developerUrl": "https://getcollate.io",
+  "supportEmail": "support@getcollate.io",
+  "appLogoUrl": "https://getcollate.io/images/collate-ai-logo.png",
+
+  "allowConfiguration": true,
+  "system": true,
+  "preview": false,
+  "supportsInterrupt": false,
+  "supportsIngestionRunner": false,
+  "allowConcurrentExecution": true,
+
+  "runtime": {
+    "type": "LiveExecutionContext"
+  },
+
+  "owners": [
     {
-      "entity": {
-        "type": "apiEndpoint",
-        "name": "GET /products",
-        "fullyQualifiedName": "ecommerce_api.v1.products.get"
-      },
-      "accessType": "read",
-      "purpose": "Fetch product catalog"
+      "type": "team",
+      "name": "platform-team"
+    }
+  ],
+
+  "bot": {
+    "type": "bot",
+    "name": "collate-ai-bot"
+  },
+
+  "eventSubscriptions": [
+    {
+      "type": "eventsubscription",
+      "name": "entityCreated"
     },
     {
-      "entity": {
-        "type": "apiEndpoint",
-        "name": "POST /orders",
-        "fullyQualifiedName": "ecommerce_api.v1.orders.post"
-      },
-      "accessType": "write",
-      "purpose": "Create orders"
+      "type": "eventsubscription",
+      "name": "entityUpdated"
     }
-  ],
-  "dependencies": [
-    {
-      "application": {
-        "type": "application",
-        "name": "ecommerce_api"
-      },
-      "type": "required",
-      "description": "Backend API"
-    }
-  ],
-  "owner": {
-    "type": "team",
-    "name": "mobile-team"
-  },
-  "tags": [
-    {"tagFQN": "Tier.Production"},
-    {"tagFQN": "CustomerFacing"}
   ]
 }
 ```
 
-### Example 3: Recommendation Microservice
+### Example 3: Custom External App (External, Manual)
 
 ```json
 {
   "id": "8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e",
-  "name": "recommendation_service",
-  "fullyQualifiedName": "ml_services.recommendation_service",
-  "displayName": "Product Recommendation Service",
-  "description": "ML-powered product recommendation microservice",
-  "applicationType": "Microservice",
-  "deploymentType": "Cloud",
-  "version": "1.8.0",
-  "dataSources": [
-    {
-      "entity": {
-        "type": "table",
-        "name": "user_interactions",
-        "fullyQualifiedName": "postgres_prod.analytics.user_interactions"
-      },
-      "accessType": "read",
-      "purpose": "User behavior data"
-    },
-    {
-      "entity": {
-        "type": "mlmodel",
-        "name": "product_recommender",
-        "fullyQualifiedName": "sagemaker.product_recommender"
-      },
-      "accessType": "read",
-      "purpose": "ML model inference"
-    }
-  ],
-  "endpoints": [
-    {
-      "url": "https://recommendations.api.example.com/v1",
-      "type": "REST",
-      "description": "Recommendations API"
-    }
-  ],
-  "owner": {
-    "type": "team",
-    "name": "ml-platform"
+  "name": "CustomMetadataExporter",
+  "fullyQualifiedName": "CustomMetadataExporter",
+  "displayName": "Custom Metadata Exporter",
+  "description": "Export metadata to external CMDB system",
+
+  "appType": "external",
+  "scheduleType": "OnlyManual",
+  "permission": "All",
+  "className": "org.openmetadata.service.apps.NativeApplication",
+  "sourcePythonClass": "custom_apps.metadata_exporter.MetadataExporterApp",
+
+  "developer": "Acme Corp",
+  "developerUrl": "https://example.com",
+  "supportEmail": "support@example.com",
+
+  "allowConfiguration": true,
+  "system": false,
+  "preview": false,
+  "supportsInterrupt": true,
+  "supportsIngestionRunner": true,
+  "allowConcurrentExecution": false,
+
+  "runtime": {
+    "type": "ScheduledExecutionContext",
+    "scheduleTimeline": "None"
   },
-  "tags": [
-    {"tagFQN": "Tier.Production"},
-    {"tagFQN": "MLService"}
-  ]
+
+  "appConfiguration": {
+    "cmdbEndpoint": "https://cmdb.example.com/api",
+    "exportFormat": "json",
+    "includeLineage": true
+  },
+
+  "privateConfiguration": {
+    "apiKey": "${CMDB_API_KEY}",
+    "secretToken": "${CMDB_SECRET}"
+  },
+
+  "owners": [
+    {
+      "type": "team",
+      "name": "data-engineering"
+    }
+  ],
+
+  "bot": {
+    "type": "bot",
+    "name": "metadata-exporter-bot"
+  },
+
+  "ingestionRunner": {
+    "type": "ingestionPipeline",
+    "name": "external-runner-1"
+  },
+
+  "openMetadataServerConnection": {
+    "hostPort": "http://openmetadata:8585/api",
+    "authProvider": "openmetadata"
+  }
 }
 ```
 
@@ -1462,12 +1677,12 @@ View the complete Application schema in your preferred format:
 ## Custom Properties
 
 This entity supports custom properties through the `extension` field.
-Common custom properties include:
+Common custom properties for Apps include:
 
-- **Data Classification**: Sensitivity level
-- **Cost Center**: Billing allocation
-- **Retention Period**: Data retention requirements
-- **Application Owner**: Owning application/team
+- **Cost Center**: Billing allocation for app execution
+- **SLA Requirements**: Expected uptime and performance
+- **Approval Required**: Whether app installation requires approval
+- **Execution Priority**: Priority level for concurrent app execution
 
 See [Custom Properties](../../metadata-specifications/custom-properties.md)
 for details on defining and using custom properties.
@@ -1476,13 +1691,9 @@ for details on defining and using custom properties.
 
 ## Related Documentation
 
-- **[Table](../../data-assets/databases/table.md)** - Database tables accessed
-- **[API Endpoint](../../data-assets/apis/api-endpoint.md)** - APIs called and exposed
-- **[Topic](../../data-assets/messaging/topic.md)** - Message topics
-- **[Dashboard](../../data-assets/dashboards/dashboard.md)** - Embedded dashboards
-- **[ML Model](../../data-assets/ml/mlmodel.md)** - ML models used
-- **[Container](../../data-assets/storage/container.md)** - Storage containers
+- **[Pipeline](../../operations/pipelines/pipeline.md)** - Pipelines deployed by apps
+- **[Bot](../../operations/bots/bot.md)** - Bot users for app authentication
 - **[Domain](../../governance/domain.md)** - Business domains
-- **[Lineage](../../lineage/overview.md)** - Application lineage
-- **[Data Contracts](../../governance/data-contracts.md)** - Data contracts
-- **[Governance](../../governance/overview.md)** - Governance policies
+- **[Event Subscriptions](../../operations/events/event-subscription.md)** - Event-driven app triggers
+- **[Ingestion Pipeline](../../operations/pipelines/ingestion-pipeline.md)** - External ingestion runners
+- **[Governance](../../governance/overview.md)** - Governance policies and permissions
