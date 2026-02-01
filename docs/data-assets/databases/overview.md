@@ -72,7 +72,7 @@ A Database Service represents the connection to a database system. It contains c
 ### Database
 **Purpose**: Represents a logical database within a service
 
-A Database is a collection of schemas (or tables directly for databases without schema support). It represents a logical grouping of data within the database service.
+A Database is a collection of schemas. It represents a logical grouping of data within the database service. Even for databases that don't natively support schemas (e.g., MySQL), OpenMetadata maintains the full hierarchy by creating a `default` schema.
 
 **Examples**:
 
@@ -89,7 +89,7 @@ A Database is a collection of schemas (or tables directly for databases without 
 ### Database Schema
 **Purpose**: Organizes tables and stored procedures within a database
 
-A Schema is a namespace that contains tables, views, and stored procedures. Not all databases support schemas (e.g., MySQL uses databases as the top-level namespace), but for those that do (PostgreSQL, Snowflake, Oracle), schemas provide an additional layer of organization.
+A Schema is a namespace that contains tables, views, and stored procedures. Some databases like PostgreSQL, Snowflake, and Oracle have native schema support. For databases without explicit schema support (e.g., MySQL), OpenMetadata creates a `default` schema to maintain the consistent four-level hierarchy: `DatabaseService → Database → DatabaseSchema → Table/StoredProcedure`.
 
 **Examples**:
 
@@ -149,12 +149,12 @@ A Stored Procedure is a set of SQL statements that can be executed as a unit. St
 
 ### Pattern 1: Single Schema Database (MySQL)
 ```
-MySQL Service → ecommerce database → customers table
-                                   → orders table
-                                   → products table
+MySQL Service → ecommerce database → default schema → customers table
+                                                     → orders table
+                                                     → products table
 ```
 
-MySQL treats the database as the schema level, so tables are directly under databases.
+MySQL does not have explicit schema support. In OpenMetadata, a `default` schema is automatically created to preserve the four-level hierarchy (`DatabaseService → Database → DatabaseSchema → Table/StoredProcedure`).
 
 ### Pattern 2: Multi-Schema Database (PostgreSQL)
 ```
@@ -186,9 +186,10 @@ Here's how an e-commerce company might organize their database metadata:
 ```mermaid
 graph TD
     A[mysql-prod Service] --> B[ecommerce Database]
-    B --> C[customers Table]
-    B --> D[orders Table]
-    B --> E[products Table]
+    B --> B1[default Schema]
+    B1 --> C[customers Table]
+    B1 --> D[orders Table]
+    B1 --> E[products Table]
 
     F[postgres-analytics Service] --> G[warehouse Database]
     G --> H[staging Schema]

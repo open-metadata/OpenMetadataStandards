@@ -7,7 +7,7 @@
 
 ## Overview
 
-The **DatabaseSchema** entity represents a logical namespace within a database that groups related tables, views, and stored procedures. In PostgreSQL, these are schemas like `public` or `analytics`. In MySQL, the database itself acts as the schema. In Snowflake, these are schemas within a database.
+The **DatabaseSchema** entity represents a logical namespace within a database that groups related tables, views, and stored procedures. In PostgreSQL, these are schemas like `public` or `analytics`. In Snowflake, these are schemas within a database. For databases without explicit schema support (e.g., MySQL), OpenMetadata creates a `default` schema to maintain the consistent four-level hierarchy (`DatabaseService → Database → DatabaseSchema → Table/StoredProcedure`).
 
 **Hierarchy**:
 ```mermaid
