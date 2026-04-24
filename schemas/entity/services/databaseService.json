@@ -23,6 +23,7 @@
         "Postgres",
         "Timescale",
         "Mssql",
+        "MicrosoftAccess",
         "Oracle",
         "Athena",
         "Hive",
@@ -54,9 +55,9 @@
         "Couchbase",
         "Greenplum",
         "Doris",
+        "StarRocks",
         "UnityCatalog",
         "SAS",
-        "Iceberg",
         "Teradata",
         "SapErp",
         "Synapse",
@@ -64,7 +65,12 @@
         "Cockroach",
         "SSAS",
         "Epic",
-        "ServiceNow"
+        "ServiceNow",
+        "Dremio",
+        "MicrosoftFabric",
+        "BurstIQ",
+        "Informix",
+        "Iomete"
       ],
       "javaEnums": [
         {
@@ -90,6 +96,9 @@
         },
         {
           "name": "Mssql"
+        },
+        {
+          "name": "MicrosoftAccess"
         },
         {
           "name": "Oracle"
@@ -185,13 +194,13 @@
           "name": "Doris"
         },
         {
+          "name": "StarRocks"
+        },
+        {
           "name": "UnityCatalog"
         },
         {
           "name": "SAS"
-        },
-        {
-          "name": "Iceberg"
         },
         {
           "name": "Teradata"
@@ -216,6 +225,21 @@
         },
         {
           "name": "ServiceNow"
+        },
+        {
+          "name": "Dremio"
+        },
+        {
+          "name": "MicrosoftFabric"
+        },
+        {
+          "name": "BurstIQ"
+        },
+        {
+          "name": "Informix"
+        },
+        {
+          "name": "Iomete"
         }
       ]
     },
@@ -273,6 +297,9 @@
             },
             {
               "$ref": "./connections/database/mssqlConnection.json"
+            },
+            {
+              "$ref": "./connections/database/microsoftAccessConnection.json"
             },
             {
               "$ref": "./connections/database/mysqlConnection.json"
@@ -341,13 +368,13 @@
               "$ref": "./connections/database/dorisConnection.json"
             },
             {
+              "$ref": "./connections/database/starrocksConnection.json"
+            },
+            {
               "$ref": "./connections/database/unityCatalogConnection.json"
             },
             {
               "$ref": "./connections/database/sasConnection.json"
-            },
-            {
-              "$ref": "./connections/database/icebergConnection.json"
             },
             {
               "$ref": "./connections/database/teradataConnection.json"
@@ -372,6 +399,21 @@
             },
             {
               "$ref": "./connections/database/serviceNowConnection.json"
+            },
+            {
+              "$ref": "./connections/database/dremioConnection.json"
+            },
+            {
+              "$ref": "./connections/database/microsoftFabricConnection.json"
+            },
+            {
+              "$ref": "./connections/database/burstIQConnection.json"
+            },
+            {
+              "$ref": "./connections/database/informixConnection.json"
+            },
+            {
+              "$ref": "./connections/database/iometeConnection.json"
             }
           ]
         }
@@ -464,9 +506,17 @@
       "type": "boolean",
       "default": false
     },
+    "entityStatus": {
+      "description": "Status of the entity.",
+      "$ref": "../../type/status.json"
+    },
     "dataProducts" : {
       "description": "List of data products this entity is part of.",
       "$ref" : "../../type/entityReferenceList.json"
+    },
+    "dataContract": {
+      "description": "Reference to the data contract for this entity.",
+      "$ref": "../../type/entityReference.json"
     },
     "domains" : {
       "description": "Domains the Database service belongs to.",

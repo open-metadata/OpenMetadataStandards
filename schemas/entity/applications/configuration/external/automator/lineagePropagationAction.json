@@ -19,6 +19,13 @@
       "$ref": "#/definitions/lineagePropagationActionType",
       "default": "LineagePropagationAction"
     },
+    "propagationFilterMode": {
+      "title": "Propagation Filter Mode",
+      "description": "Determines how the filter selects entities. 'SOURCE' (default): filtered entities push their metadata downstream to all discovered entities via lineage. 'TARGET': filtered entities receive metadata from upstream lineage.",
+      "type": "string",
+      "enum": ["TARGET", "SOURCE"],
+      "default": "SOURCE"
+    },
     "propagateDescription": {
       "title": "Propagate Description",
       "description": "Propagate description through lineage",
@@ -79,6 +86,13 @@
       "type": "integer",
       "default": null
     },
+    "propagationDepthMode": {
+      "title": "Propagation Depth Mode",
+      "description": "Mode for calculating propagation depth. 'ROOT' calculates depth from root nodes (sources with no parents). 'DATA_ASSET' calculates depth relative to each data asset being processed, ensuring each asset only receives metadata from nodes within the specified number of hops upstream.",
+      "type": "string",
+      "enum": ["ROOT", "DATA_ASSET"],
+      "default": "ROOT"
+    },
     "propagationStopConfigs": {
       "title": "Propagation Stop Configurations",
       "description": "List of configurations to stop propagation based on conditions",
@@ -87,6 +101,12 @@
       "items": {
         "$ref": "propagationStopConfig.json"
       }
+    },
+    "useOptimizedPropagation": {
+      "title": "Use Optimized Propagation",
+      "description": "Use the optimized propagation algorithm that reduces memory usage and API calls. Recommended for large lineage graphs. If set to false, uses the original propagation algorithm. Default is true.",
+      "type": "boolean",
+      "default": true
     }
   },
   "required": ["type"],
