@@ -1,0 +1,36 @@
+{
+  "@context": [
+    "./base.jsonld",
+    {
+      "LearningResource": {
+        "@id": "om:LearningResource",
+        "@type": ["om:Entity", "foaf:Document"]
+      },
+      "resourceType": {
+        "@id": "om:resourceType",
+        "@type": "xsd:string"
+      },
+      "category": {
+        "@id": "om:resourceCategory",
+        "@type": "xsd:string"
+      },
+      "difficulty": {
+        "@id": "om:resourceDifficulty",
+        "@type": "xsd:string"
+      },
+      "url": {
+        "@id": "dct:source",
+        "@type": "@id"
+      },
+      "duration": {
+        "@id": "om:duration",
+        "@type": "xsd:string"
+      },
+      "surfaces": {
+        "@id": "om:productSurface",
+        "@type": "xsd:string",
+        "@container": "@set"
+      }
+    }
+  ]
+}

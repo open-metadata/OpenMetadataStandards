@@ -55,6 +55,14 @@
         "@id": "om:DriveService",
         "@type": ["om:Service", "dcat:DataService"]
       },
+      "LLMService": {
+        "@id": "om:LLMService",
+        "@type": ["om:Service", "dcat:DataService"]
+      },
+      "MCPService": {
+        "@id": "om:MCPService",
+        "@type": ["om:Service", "dcat:DataService"]
+      },
       "serviceType": {
         "@id": "om:serviceType",
         "@type": "xsd:string"
@@ -106,6 +114,14 @@
       },
       "apiConnection": {
         "@id": "om:hasAPIConnection",
+        "@type": "@json"
+      },
+      "llmConnection": {
+        "@id": "om:hasLLMConnection",
+        "@type": "@json"
+      },
+      "mcpConnection": {
+        "@id": "om:hasMCPConnection",
         "@type": "@json"
       }
     }

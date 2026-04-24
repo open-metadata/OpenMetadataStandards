@@ -297,3 +297,139 @@ om:UserTeamMembershipShape a sh:NodeShape ;
         sh:class om:Team ;
         sh:message "User can only be member of valid teams"@en ;
     ] .
+
+#################################################################
+# AI / LLM / MCP Shapes (OpenMetadata 1.13)
+#################################################################
+
+# LLM Model Shape
+om:LLMModelShape a sh:NodeShape ;
+    sh:targetClass om:LLMModel ;
+    sh:property [
+        sh:path om:modelType ;
+        sh:datatype xsd:string ;
+        sh:in ("BaseModel" "FineTuned" "Quantized" "Distilled" "Adapter" "Custom") ;
+        sh:maxCount 1 ;
+        sh:message "LLM model type must be one of the allowed values"@en ;
+    ] ;
+    sh:property [
+        sh:path om:modelCapability ;
+        sh:datatype xsd:string ;
+        sh:in ("TextGeneration" "CodeGeneration" "Embeddings" "Chat" "Vision" "Audio" "FunctionCalling" "ToolUse") ;
+        sh:message "Model capability must be one of the allowed values"@en ;
+    ] ;
+    sh:property [
+        sh:path om:baseModel ;
+        sh:class om:LLMModel ;
+        sh:maxCount 1 ;
+        sh:message "Base model must reference another LLM model"@en ;
+    ] .
+
+# AI Application Shape
+om:AIApplicationShape a sh:NodeShape ;
+    sh:targetClass om:AIApplication ;
+    sh:property [
+        sh:path om:applicationType ;
+        sh:datatype xsd:string ;
+        sh:in ("Chatbot" "Agent" "Copilot" "Assistant" "RAG" "CodeGenerator" "DataAnalyst" "AutomationBot" "MultiAgent" "Custom") ;
+        sh:maxCount 1 ;
+        sh:message "AI application type must be one of the allowed values"@en ;
+    ] ;
+    sh:property [
+        sh:path om:usesModel ;
+        sh:class om:LLMModel ;
+        sh:message "usesModel must reference valid LLM models"@en ;
+    ] ;
+    sh:property [
+        sh:path om:usesMCPServer ;
+        sh:class om:MCPServer ;
+        sh:message "usesMCPServer must reference valid MCP servers"@en ;
+    ] .
+
+# AI Governance Policy Shape
+om:AIGovernancePolicyShape a sh:NodeShape ;
+    sh:targetClass om:AIGovernancePolicy ;
+    sh:property [
+        sh:path om:policyType ;
+        sh:datatype xsd:string ;
+        sh:in ("ModelApproval" "DataAccess" "BiasThreshold" "ComplianceCheck" "CostControl" "PerformanceStandard" "SecurityControl") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "AI governance policy must have exactly one policy type"@en ;
+    ] .
+
+# MCP Server Shape
+om:MCPServerShape a sh:NodeShape ;
+    sh:targetClass om:MCPServer ;
+    sh:property [
+        sh:path om:serverType ;
+        sh:datatype xsd:string ;
+        sh:in ("DataAccess" "FileSystem" "WebAPI" "Database" "Cloud" "Security" "Development" "Communication" "Custom") ;
+        sh:maxCount 1 ;
+        sh:message "MCP server type must be one of the allowed values"@en ;
+    ] .
+
+# Agent Execution Shape
+om:AgentExecutionShape a sh:NodeShape ;
+    sh:targetClass om:AgentExecution ;
+    sh:property [
+        sh:path om:executionStatus ;
+        sh:datatype xsd:string ;
+        sh:in ("Running" "Success" "Failed" "Timeout" "Cancelled" "PartialSuccess") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Agent execution status must be exactly one of the allowed values"@en ;
+    ] ;
+    sh:property [
+        sh:path om:executedAgent ;
+        sh:class om:AIApplication ;
+        sh:maxCount 1 ;
+        sh:message "Agent execution can reference at most one AI application"@en ;
+    ] .
+
+# MCP Execution Shape
+om:MCPExecutionShape a sh:NodeShape ;
+    sh:targetClass om:MCPExecution ;
+    sh:property [
+        sh:path om:executionStatus ;
+        sh:datatype xsd:string ;
+        sh:in ("Running" "Success" "Failed" "Timeout" "Cancelled") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "MCP execution status must be exactly one of the allowed values"@en ;
+    ] ;
+    sh:property [
+        sh:path om:executedMCPServer ;
+        sh:class om:MCPServer ;
+        sh:maxCount 1 ;
+        sh:message "MCP execution can reference at most one MCP server"@en ;
+    ] .
+
+#################################################################
+# Learning Shape (OpenMetadata 1.13)
+#################################################################
+
+om:LearningResourceShape a sh:NodeShape ;
+    sh:targetClass om:LearningResource ;
+    sh:property [
+        sh:path om:resourceType ;
+        sh:datatype xsd:string ;
+        sh:in ("Storylane" "Video" "Article") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Learning resource type must be Storylane, Video, or Article"@en ;
+    ] ;
+    sh:property [
+        sh:path om:resourceCategory ;
+        sh:datatype xsd:string ;
+        sh:in ("Discovery" "Administration" "DataGovernance" "DataQuality" "Observability" "AI") ;
+        sh:maxCount 1 ;
+        sh:message "Learning resource category must be one of the allowed values"@en ;
+    ] ;
+    sh:property [
+        sh:path om:resourceDifficulty ;
+        sh:datatype xsd:string ;
+        sh:in ("Intro" "Intermediate" "Advanced") ;
+        sh:maxCount 1 ;
+        sh:message "Learning resource difficulty must be Intro, Intermediate, or Advanced"@en ;
+    ] .

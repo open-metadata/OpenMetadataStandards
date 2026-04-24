@@ -38,7 +38,9 @@
         "DataFactory",
         "Wherescape",
         "SSIS",
-        "Snowplow"
+        "Snowplow",
+        "Mulesoft",
+        "MicrosoftFabricPipeline"
       ],
       "javaEnums": [
         {
@@ -106,6 +108,12 @@
         },
         {
           "name": "Snowplow"
+        },
+        {
+          "name": "Mulesoft"
+        },
+        {
+          "name": "MicrosoftFabricPipeline"
         }
       ]
     },
@@ -185,6 +193,12 @@
             },
             {
               "$ref": "./connections/pipeline/snowplowConnection.json"
+            },
+            {
+              "$ref": "./connections/pipeline/mulesoftConnection.json"
+            },
+            {
+              "$ref": "./connections/pipeline/microsoftFabricPipelineConnection.json"
             }
           ]
         }
@@ -273,9 +287,17 @@
       "type": "boolean",
       "default": false
     },
+    "entityStatus": {
+      "description": "Status of the entity.",
+      "$ref": "../../type/status.json"
+    },
     "dataProducts" : {
       "description": "List of data products this entity is part of.",
       "$ref" : "../../type/entityReferenceList.json"
+    },
+    "dataContract": {
+      "description": "Reference to the data contract for this entity.",
+      "$ref": "../../type/entityReference.json"
     },
     "followers": {
       "description": "Followers of this entity.",

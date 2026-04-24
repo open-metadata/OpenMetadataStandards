@@ -1,0 +1,150 @@
+{
+  "@context": [
+    "./base.jsonld",
+    {
+      "LLMModel": {
+        "@id": "om:LLMModel",
+        "@type": ["om:DataAsset", "dcat:DataService"]
+      },
+      "AIApplication": {
+        "@id": "om:AIApplication",
+        "@type": ["om:DataAsset", "dcat:DataService"]
+      },
+      "AIGovernancePolicy": {
+        "@id": "om:AIGovernancePolicy",
+        "@type": ["om:Entity", "om:Policy"]
+      },
+      "PromptTemplate": {
+        "@id": "om:PromptTemplate",
+        "@type": "om:Entity"
+      },
+      "McpServer": {
+        "@id": "om:MCPServer",
+        "@type": ["om:DataAsset", "dcat:DataService"]
+      },
+      "AgentExecution": {
+        "@id": "om:AgentExecution",
+        "@type": ["om:Entity", "prov:Activity"]
+      },
+      "McpExecution": {
+        "@id": "om:MCPExecution",
+        "@type": ["om:Entity", "prov:Activity"]
+      },
+
+      "applicationType": {
+        "@id": "om:applicationType",
+        "@type": "xsd:string"
+      },
+      "developmentStage": {
+        "@id": "om:developmentStage",
+        "@type": "xsd:string"
+      },
+      "modelType": {
+        "@id": "om:modelType",
+        "@type": "xsd:string"
+      },
+      "modelCapabilities": {
+        "@id": "om:modelCapability",
+        "@type": "xsd:string",
+        "@container": "@set"
+      },
+      "baseModel": {
+        "@id": "om:baseModel",
+        "@type": "@id"
+      },
+      "trainingMetadata": {
+        "@id": "om:trainingMetadata",
+        "@type": "@json"
+      },
+      "policyType": {
+        "@id": "om:policyType",
+        "@type": "xsd:string"
+      },
+      "rules": {
+        "@id": "om:hasPolicyRule",
+        "@type": "@json",
+        "@container": "@set"
+      },
+      "serverType": {
+        "@id": "om:serverType",
+        "@type": "xsd:string"
+      },
+      "transportType": {
+        "@id": "om:transportType",
+        "@type": "xsd:string"
+      },
+      "tools": {
+        "@id": "om:hasMCPTool",
+        "@type": "@json",
+        "@container": "@set"
+      },
+      "resources": {
+        "@id": "om:hasMCPResource",
+        "@type": "@json",
+        "@container": "@set"
+      },
+      "prompts": {
+        "@id": "om:hasMCPPrompt",
+        "@type": "@json",
+        "@container": "@set"
+      },
+
+      "models": {
+        "@id": "om:usesModel",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "promptTemplates": {
+        "@id": "om:usesPromptTemplate",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "mcpServers": {
+        "@id": "om:usesMCPServer",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "governancePolicies": {
+        "@id": "om:governedBy",
+        "@type": "@id",
+        "@container": "@set"
+      },
+
+      "executionStatus": {
+        "@id": "om:executionStatus",
+        "@type": "xsd:string"
+      },
+      "startTime": {
+        "@id": "prov:startedAtTime",
+        "@type": "xsd:dateTime"
+      },
+      "endTime": {
+        "@id": "prov:endedAtTime",
+        "@type": "xsd:dateTime"
+      },
+      "agent": {
+        "@id": "om:executedAgent",
+        "@type": "@id"
+      },
+      "mcpServer": {
+        "@id": "om:executedMCPServer",
+        "@type": "@id"
+      },
+      "modelCalls": {
+        "@id": "om:hasModelCall",
+        "@type": "@json",
+        "@container": "@list"
+      },
+      "toolCalls": {
+        "@id": "om:hasToolCall",
+        "@type": "@json",
+        "@container": "@list"
+      },
+      "resourceAccesses": {
+        "@id": "om:hasResourceAccess",
+        "@type": "@json",
+        "@container": "@list"
+      }
+    }
+  ]
+}

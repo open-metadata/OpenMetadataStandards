@@ -24,11 +24,12 @@
 
 # OpenMetadata Complete Ontology
 om: a owl:Ontology ;
-    owl:versionInfo "1.0.0" ;
+    owl:versionInfo "1.13.0" ;
     dct:title "OpenMetadata Ontology" ;
     dct:description "Complete ontology for OpenMetadata covering all entities and relationships" ;
     dct:creator "OpenMetadata Team" ;
     dct:created "2025-08-24"^^xsd:date ;
+    dct:modified "2026-04-23"^^xsd:date ;
     dct:license <https://www.apache.org/licenses/LICENSE-2.0> ;
     owl:imports dcat: , prov: , skos: .
 
@@ -108,6 +109,16 @@ om:ObservabilityService a owl:Class ;
 om:DriveService a owl:Class ;
     rdfs:label "Drive Service" ;
     rdfs:comment "File and document storage service" ;
+    rdfs:subClassOf om:Service, dcat:DataService .
+
+om:LLMService a owl:Class ;
+    rdfs:label "LLM Service" ;
+    rdfs:comment "Service managing Large Language Model providers (OpenAI, Anthropic, Bedrock, VertexAI, Ollama, etc.)" ;
+    rdfs:subClassOf om:Service, dcat:DataService .
+
+om:MCPService a owl:Class ;
+    rdfs:label "MCP Service" ;
+    rdfs:comment "Service for discovering and managing MCP (Model Context Protocol) servers" ;
     rdfs:subClassOf om:Service, dcat:DataService .
 
 #################################################################
@@ -213,6 +224,68 @@ om:Worksheet a owl:Class ;
     rdfs:label "Worksheet" ;
     rdfs:comment "Worksheet within a spreadsheet" ;
     rdfs:subClassOf om:DataAsset .
+
+#################################################################
+# AI / LLM / MCP Classes (OpenMetadata 1.13)
+#################################################################
+
+om:LLMModel a owl:Class ;
+    rdfs:label "LLM Model" ;
+    rdfs:comment "Registered Large Language Model deployment, fine-tune, or base model referenced by AI applications and agents" ;
+    rdfs:subClassOf om:DataAsset, dcat:DataService .
+
+om:AIApplication a owl:Class ;
+    rdfs:label "AI Application" ;
+    rdfs:comment "AI system such as a chatbot, agent, copilot, RAG application or multi-agent pipeline that may use multiple LLM models and tools" ;
+    rdfs:subClassOf om:DataAsset, dcat:DataService .
+
+om:AIGovernancePolicy a owl:Class ;
+    rdfs:label "AI Governance Policy" ;
+    rdfs:comment "Policy rules for AI/LLM usage, compliance, and risk management (model approval, data access, bias thresholds, cost controls, etc.)" ;
+    rdfs:subClassOf om:Entity, om:Policy .
+
+om:PromptTemplate a owl:Class ;
+    rdfs:label "Prompt Template" ;
+    rdfs:comment "Reusable prompt template with variables, system prompts and examples for consistent AI behavior" ;
+    rdfs:subClassOf om:Entity .
+
+om:MCPServer a owl:Class ;
+    rdfs:label "MCP Server" ;
+    rdfs:comment "Model Context Protocol server deployment that exposes tools, resources and prompts to AI applications" ;
+    rdfs:subClassOf om:DataAsset, dcat:DataService .
+
+om:AgentExecution a owl:Class ;
+    rdfs:label "Agent Execution" ;
+    rdfs:comment "Single execution run of an AI agent, tracking inputs, outputs, lineage, metrics and errors for observability and governance" ;
+    rdfs:subClassOf om:Entity, prov:Activity .
+
+om:MCPExecution a owl:Class ;
+    rdfs:label "MCP Execution" ;
+    rdfs:comment "Single execution session of an MCP server, tracking tool calls, resource accesses, prompt uses and data lineage for audit and compliance" ;
+    rdfs:subClassOf om:Entity, prov:Activity .
+
+#################################################################
+# Learning Classes (OpenMetadata 1.13)
+#################################################################
+
+om:LearningResource a owl:Class ;
+    rdfs:label "Learning Resource" ;
+    rdfs:comment "Learning resource such as an in-product tutorial, Storylane walkthrough, video or article contextualized for product surfaces" ;
+    rdfs:subClassOf om:Entity, foaf:Document .
+
+#################################################################
+# Column Context Classes (OpenMetadata 1.13)
+#################################################################
+
+om:TableColumn a owl:Class ;
+    rdfs:label "Table Column" ;
+    rdfs:comment "Table column context type used to attach custom properties to columns of a Table" ;
+    rdfs:subClassOf om:Column .
+
+om:DashboardDataModelColumn a owl:Class ;
+    rdfs:label "Dashboard Data Model Column" ;
+    rdfs:comment "Dashboard data model column context type used to attach custom properties to columns of a DashboardDataModel" ;
+    rdfs:subClassOf om:Column .
 
 #################################################################
 # Metadata & Governance Classes
@@ -1805,4 +1878,122 @@ om:dataModelType a owl:DatatypeProperty ;
     rdfs:label "data model type" ;
     rdfs:comment "Type of data model (TableauDataModel, SupersetDataModel, MetabaseDataModel, LookMlView, LookMlExplore, PowerBIDataModel, QlikDataModel)" ;
     rdfs:domain om:DashboardDataModel ;
+    rdfs:range xsd:string .
+
+#################################################################
+# AI / LLM / MCP Properties (OpenMetadata 1.13)
+#################################################################
+
+om:modelType a owl:DatatypeProperty ;
+    rdfs:label "model type" ;
+    rdfs:comment "Type of LLM model (BaseModel, FineTuned, Quantized, Distilled, Adapter, Custom)" ;
+    rdfs:domain om:LLMModel ;
+    rdfs:range xsd:string .
+
+om:baseModel a owl:ObjectProperty ;
+    rdfs:label "base model" ;
+    rdfs:comment "Base model this model was trained or fine-tuned from" ;
+    rdfs:domain om:LLMModel ;
+    rdfs:range om:LLMModel .
+
+om:modelCapability a owl:DatatypeProperty ;
+    rdfs:label "model capability" ;
+    rdfs:comment "Capability exposed by the LLM model (TextGeneration, CodeGeneration, Embeddings, Chat, Vision, Audio, FunctionCalling, ToolUse)" ;
+    rdfs:domain om:LLMModel ;
+    rdfs:range xsd:string .
+
+om:applicationType a owl:DatatypeProperty ;
+    rdfs:label "application type" ;
+    rdfs:comment "Type of AI application (Chatbot, Agent, Copilot, Assistant, RAG, CodeGenerator, DataAnalyst, AutomationBot, MultiAgent, Custom)" ;
+    rdfs:domain om:AIApplication ;
+    rdfs:range xsd:string .
+
+om:developmentStage a owl:DatatypeProperty ;
+    rdfs:label "development stage" ;
+    rdfs:domain om:AIApplication ;
+    rdfs:range xsd:string .
+
+om:usesModel a owl:ObjectProperty ;
+    rdfs:label "uses model" ;
+    rdfs:comment "AI application or agent execution uses an LLM model" ;
+    rdfs:subPropertyOf prov:used ;
+    rdfs:range om:LLMModel .
+
+om:usesPromptTemplate a owl:ObjectProperty ;
+    rdfs:label "uses prompt template" ;
+    rdfs:subPropertyOf prov:used ;
+    rdfs:range om:PromptTemplate .
+
+om:usesMCPServer a owl:ObjectProperty ;
+    rdfs:label "uses MCP server" ;
+    rdfs:comment "AI application uses an MCP server for tools, resources or prompts" ;
+    rdfs:subPropertyOf prov:used ;
+    rdfs:domain om:AIApplication ;
+    rdfs:range om:MCPServer .
+
+om:governedBy a owl:ObjectProperty ;
+    rdfs:label "governed by" ;
+    rdfs:comment "AI application, LLM model or MCP server is governed by an AI governance policy" ;
+    rdfs:range om:AIGovernancePolicy .
+
+om:policyType a owl:DatatypeProperty ;
+    rdfs:label "policy type" ;
+    rdfs:comment "Type of AI governance policy (ModelApproval, DataAccess, BiasThreshold, ComplianceCheck, CostControl, PerformanceStandard, SecurityControl)" ;
+    rdfs:domain om:AIGovernancePolicy ;
+    rdfs:range xsd:string .
+
+om:serverType a owl:DatatypeProperty ;
+    rdfs:label "MCP server type" ;
+    rdfs:comment "Type of MCP server (DataAccess, FileSystem, WebAPI, Database, Cloud, Security, Development, Communication, Custom)" ;
+    rdfs:domain om:MCPServer ;
+    rdfs:range xsd:string .
+
+om:transportType a owl:DatatypeProperty ;
+    rdfs:label "MCP transport type" ;
+    rdfs:comment "Transport protocol used by the MCP server" ;
+    rdfs:domain om:MCPServer ;
+    rdfs:range xsd:string .
+
+om:executionStatus a owl:DatatypeProperty ;
+    rdfs:label "execution status" ;
+    rdfs:comment "Status of an agent or MCP execution (Running, Success, Failed, Timeout, Cancelled, PartialSuccess)" ;
+    rdfs:range xsd:string .
+
+om:executedAgent a owl:ObjectProperty ;
+    rdfs:label "executed agent" ;
+    rdfs:comment "Agent execution was an execution of this AI application" ;
+    rdfs:domain om:AgentExecution ;
+    rdfs:range om:AIApplication .
+
+om:executedMCPServer a owl:ObjectProperty ;
+    rdfs:label "executed MCP server" ;
+    rdfs:comment "MCP execution was an execution of this MCP server" ;
+    rdfs:domain om:MCPExecution ;
+    rdfs:range om:MCPServer .
+
+om:templateVariable a owl:DatatypeProperty ;
+    rdfs:label "template variable" ;
+    rdfs:domain om:PromptTemplate ;
+    rdfs:range xsd:string .
+
+#################################################################
+# Learning Properties (OpenMetadata 1.13)
+#################################################################
+
+om:resourceType a owl:DatatypeProperty ;
+    rdfs:label "learning resource type" ;
+    rdfs:comment "Kind of learning asset (Storylane, Video, Article)" ;
+    rdfs:domain om:LearningResource ;
+    rdfs:range xsd:string .
+
+om:resourceCategory a owl:DatatypeProperty ;
+    rdfs:label "learning resource category" ;
+    rdfs:comment "Primary topic grouping (Discovery, Administration, DataGovernance, DataQuality, Observability, AI)" ;
+    rdfs:domain om:LearningResource ;
+    rdfs:range xsd:string .
+
+om:resourceDifficulty a owl:DatatypeProperty ;
+    rdfs:label "learning resource difficulty" ;
+    rdfs:comment "Suggested proficiency tier (Intro, Intermediate, Advanced)" ;
+    rdfs:domain om:LearningResource ;
     rdfs:range xsd:string .
