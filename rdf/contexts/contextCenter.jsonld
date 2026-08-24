@@ -1,0 +1,148 @@
+{
+  "@context": [
+    "./base.jsonld",
+    {
+      "ContextFile": {
+        "@id": "om:ContextFile",
+        "@type": ["om:DataAsset", "foaf:Document"]
+      },
+      "ContextFileContent": {
+        "@id": "om:ContextFileContent",
+        "@type": ["om:Entity", "foaf:Document"]
+      },
+      "Folder": {
+        "@id": "om:Folder",
+        "@type": ["om:DataAsset", "dcat:Catalog"]
+      },
+      "Page": {
+        "@id": "om:Page",
+        "@type": ["om:DataAsset", "foaf:Document"]
+      },
+      "Article": {
+        "@id": "om:Article",
+        "@type": "foaf:Document"
+      },
+      "QuickLink": {
+        "@id": "om:QuickLink",
+        "@type": "foaf:Document"
+      },
+      "Asset": {
+        "@id": "om:AttachmentAsset",
+        "@type": ["om:Entity", "dcat:Distribution"]
+      },
+      "ContextMemory": {
+        "@id": "om:ContextMemory",
+        "@type": "om:Entity"
+      },
+      "fileType": {
+        "@id": "om:fileType",
+        "@type": "xsd:string"
+      },
+      "fileSize": {
+        "@id": "om:fileSize",
+        "@type": "xsd:integer"
+      },
+      "contentType": {
+        "@id": "om:contentType",
+        "@type": "xsd:string"
+      },
+      "processingStatus": {
+        "@id": "om:processingStatus",
+        "@type": "xsd:string"
+      },
+      "folder": {
+        "@id": "om:inFolder",
+        "@type": "@id"
+      },
+      "headContentId": {
+        "@id": "om:currentContent",
+        "@type": "@id"
+      },
+      "contextFile": {
+        "@id": "om:contentForFile",
+        "@type": "@id"
+      },
+      "pageCount": {
+        "@id": "om:pageCount",
+        "@type": "xsd:integer"
+      },
+      "memoryCount": {
+        "@id": "om:memoryCount",
+        "@type": "xsd:integer"
+      },
+      "pageType": {
+        "@id": "om:pageType",
+        "@type": "xsd:string"
+      },
+      "page": {
+        "@id": "om:pageContent",
+        "@type": "@json"
+      },
+      "url": {
+        "@id": "om:contextUrl",
+        "@type": "xsd:anyURI"
+      },
+      "fileName": {
+        "@id": "om:fileName",
+        "@type": "xsd:string"
+      },
+      "assetType": {
+        "@id": "om:assetType",
+        "@type": "xsd:string"
+      },
+      "entityLink": {
+        "@id": "om:entityLink",
+        "@type": "xsd:string"
+      },
+      "memoryType": {
+        "@id": "om:memoryType",
+        "@type": "xsd:string"
+      },
+      "memoryScope": {
+        "@id": "om:memoryScope",
+        "@type": "xsd:string"
+      },
+      "status": {
+        "@id": "om:memoryStatus",
+        "@type": "xsd:string"
+      },
+      "primaryEntity": {
+        "@id": "om:primaryEntity",
+        "@type": "@id"
+      },
+      "relatedEntities": {
+        "@id": "om:relatedEntity",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "sourceEntity": {
+        "@id": "om:sourceEntity",
+        "@type": "@id"
+      },
+      "question": {
+        "@id": "om:memoryQuestion",
+        "@type": "xsd:string"
+      },
+      "answer": {
+        "@id": "om:memoryAnswer",
+        "@type": "xsd:string"
+      },
+      "pinned": {
+        "@id": "om:isPinned",
+        "@type": "xsd:boolean"
+      },
+      "usageCount": {
+        "@id": "om:memoryUsageCount",
+        "@type": "xsd:integer"
+      },
+      "lastUsedAt": {
+        "@id": "om:lastUsedAt",
+        "@type": "xsd:long"
+      },
+      "shareConfig": {
+        "@id": "om:shareConfig",
+        "@type": "@json"
+      }
+    }
+  ]
+}

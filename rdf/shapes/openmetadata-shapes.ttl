@@ -1,5 +1,6 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix om: <https://open-metadata.org/ontology/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix dcat: <http://www.w3.org/ns/dcat#> .
@@ -432,4 +433,274 @@ om:LearningResourceShape a sh:NodeShape ;
         sh:in ("Intro" "Intermediate" "Advanced") ;
         sh:maxCount 1 ;
         sh:message "Learning resource difficulty must be Intro, Intermediate, or Advanced"@en ;
+    ] .
+
+#################################################################
+# AI Governance Shapes (OpenMetadata 2.0)
+#################################################################
+
+om:AIGovernanceFrameworkShape a sh:NodeShape ;
+    sh:targetClass om:AIGovernanceFramework ;
+    sh:property [
+        sh:path om:frameworkSource ;
+        sh:datatype xsd:string ;
+        sh:in ("BuiltIn" "Custom" "ForkedFrom") ;
+        sh:maxCount 1 ;
+        sh:message "AI governance framework source must be BuiltIn, Custom, or ForkedFrom"@en ;
+    ] ;
+    sh:property [
+        sh:path om:assessmentCadence ;
+        sh:datatype xsd:string ;
+        sh:in ("Monthly" "Quarterly" "SemiAnnual" "Annual") ;
+        sh:maxCount 1 ;
+        sh:message "Assessment cadence must be a supported cadence"@en ;
+    ] .
+
+om:AIFrameworkControlShape a sh:NodeShape ;
+    sh:targetClass om:AIFrameworkControl ;
+    sh:property [
+        sh:path om:hasGovernanceFramework ;
+        sh:class om:AIGovernanceFramework ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "AI framework control must belong to exactly one framework"@en ;
+    ] ;
+    sh:property [
+        sh:path om:controlCategory ;
+        sh:datatype xsd:string ;
+        sh:in ("Risk" "Process" "Data" "Transparency" "Quality" "Governance") ;
+        sh:maxCount 1 ;
+        sh:message "AI framework control category must be supported"@en ;
+    ] .
+
+om:AuditReportShape a sh:NodeShape ;
+    sh:targetClass om:AuditReport ;
+    sh:property [
+        sh:path om:reportScope ;
+        sh:datatype xsd:string ;
+        sh:in ("Estate" "Domain" "Asset") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit report must have exactly one supported scope"@en ;
+    ] ;
+    sh:property [
+        sh:path om:reportFormat ;
+        sh:datatype xsd:string ;
+        sh:in ("Json" "Pdf" "Both") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit report format must be Json, Pdf, or Both"@en ;
+    ] ;
+    sh:property [
+        sh:path om:reportStatus ;
+        sh:datatype xsd:string ;
+        sh:in ("Queued" "Running" "Completed" "Failed" "Cancelled") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Audit report must have exactly one supported status"@en ;
+    ] .
+
+#################################################################
+# Context Center Shapes (OpenMetadata 2.0)
+#################################################################
+
+om:ContextMemoryShape a sh:NodeShape ;
+    sh:targetClass om:ContextMemory ;
+    sh:property [
+        sh:path om:memoryType ;
+        sh:datatype xsd:string ;
+        sh:in ("Preference" "UseCase" "Note" "Runbook" "Faq") ;
+        sh:maxCount 1 ;
+        sh:message "Context memory type must be supported"@en ;
+    ] ;
+    sh:property [
+        sh:path om:memoryScope ;
+        sh:datatype xsd:string ;
+        sh:in ("UserGlobal" "EntityScoped") ;
+        sh:maxCount 1 ;
+        sh:message "Context memory scope must be UserGlobal or EntityScoped"@en ;
+    ] ;
+    sh:property [
+        sh:path om:memoryStatus ;
+        sh:datatype xsd:string ;
+        sh:in ("Draft" "Active" "Archived") ;
+        sh:maxCount 1 ;
+        sh:message "Context memory status must be Draft, Active, or Archived"@en ;
+    ] .
+
+om:ContextFileShape a sh:NodeShape ;
+    sh:targetClass om:ContextFile ;
+    sh:property [
+        sh:path om:fileType ;
+        sh:datatype xsd:string ;
+        sh:in ("PDF" "Spreadsheet" "Presentation" "Image" "Document" "CSV" "Text" "Archive" "Other") ;
+        sh:maxCount 1 ;
+        sh:message "Context file type must be supported"@en ;
+    ] ;
+    sh:property [
+        sh:path om:fileSize ;
+        sh:datatype xsd:nonNegativeInteger ;
+        sh:maxCount 1 ;
+        sh:message "Context file size must be non-negative"@en ;
+    ] .
+
+om:PageShape a sh:NodeShape ;
+    sh:targetClass om:Page ;
+    sh:property [
+        sh:path om:pageType ;
+        sh:datatype xsd:string ;
+        sh:in ("Article" "QuickLink") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Context Center page type must be Article or QuickLink"@en ;
+    ] .
+
+om:AttachmentAssetShape a sh:NodeShape ;
+    sh:targetClass om:AttachmentAsset ;
+    sh:property [
+        sh:path om:fileName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Attachment asset must have exactly one file name"@en ;
+    ] ;
+    sh:property [
+        sh:path om:assetType ;
+        sh:datatype xsd:string ;
+        sh:in ("Inline" "External") ;
+        sh:maxCount 1 ;
+        sh:message "Attachment asset type must be Inline or External"@en ;
+    ] .
+
+#################################################################
+# Collaboration and Activity Shapes (OpenMetadata 2.0)
+#################################################################
+
+om:GovernanceTaskShape a sh:NodeShape ;
+    sh:targetClass om:GovernanceTask ;
+    sh:property [
+        sh:path om:taskCategory ;
+        sh:datatype xsd:string ;
+        sh:in ("Approval" "DataAccess" "MetadataUpdate" "Incident" "Review" "Custom") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Task must have exactly one supported category"@en ;
+    ] ;
+    sh:property [
+        sh:path om:taskType ;
+        sh:datatype xsd:string ;
+        sh:in ("GlossaryApproval" "RequestApproval" "DataAccessRequest" "DescriptionUpdate" "TagUpdate" "OwnershipUpdate" "TierUpdate" "DomainUpdate" "Suggestion" "TestCaseResolution" "IncidentResolution" "PipelineReview" "DataQualityReview" "RecognizerFeedbackApproval" "CustomTask") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Task must have exactly one supported type"@en ;
+    ] ;
+    sh:property [
+        sh:path om:taskStatus ;
+        sh:datatype xsd:string ;
+        sh:in ("Open" "InProgress" "Pending" "Approved" "Granted" "ManualRevoke" "Rejected" "Completed" "Cancelled" "Failed" "Revoked" "Expired") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Task must have exactly one supported status"@en ;
+    ] ;
+    sh:property [
+        sh:path om:taskPriority ;
+        sh:datatype xsd:string ;
+        sh:in ("Critical" "High" "Medium" "Low") ;
+        sh:maxCount 1 ;
+        sh:message "Task priority must be Critical, High, Medium, or Low"@en ;
+    ] .
+
+om:TaskFormSchemaShape a sh:NodeShape ;
+    sh:targetClass om:TaskFormSchema ;
+    sh:property [
+        sh:path om:taskType ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Task form schema must identify exactly one task type"@en ;
+    ] ;
+    sh:property [
+        sh:path om:formSchema ;
+        sh:datatype rdf:JSON ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Task form schema must provide one JSON form schema"@en ;
+    ] .
+
+om:AnnouncementShape a sh:NodeShape ;
+    sh:targetClass om:Announcement ;
+    sh:property [
+        sh:path om:announcementStatus ;
+        sh:datatype xsd:string ;
+        sh:in ("Active" "Expired" "Scheduled") ;
+        sh:maxCount 1 ;
+        sh:message "Announcement status must be Active, Expired, or Scheduled"@en ;
+    ] ;
+    sh:property [
+        sh:path om:startsAt ;
+        sh:datatype xsd:long ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Announcement must have exactly one start time"@en ;
+    ] ;
+    sh:property [
+        sh:path om:endsAt ;
+        sh:datatype xsd:long ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Announcement must have exactly one end time"@en ;
+    ] .
+
+om:ActivityEventShape a sh:NodeShape ;
+    sh:targetClass om:ActivityEvent ;
+    sh:property [
+        sh:path om:activityEventType ;
+        sh:datatype xsd:string ;
+        sh:in ("EntityCreated" "EntityUpdated" "EntityDeleted" "EntitySoftDeleted" "EntityRestored" "DescriptionUpdated" "TagsUpdated" "OwnerUpdated" "DomainUpdated" "TierUpdated" "CustomPropertyUpdated" "ColumnDescriptionUpdated" "ColumnTagsUpdated" "TestCaseStatusChanged" "PipelineStatusChanged") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Activity event must have exactly one supported event type"@en ;
+    ] ;
+    sh:property [
+        sh:path om:activityEntity ;
+        sh:class om:Entity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Activity event must reference exactly one entity"@en ;
+    ] ;
+    sh:property [
+        sh:path om:activityTimestamp ;
+        sh:datatype xsd:long ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Activity event must have exactly one timestamp"@en ;
+    ] .
+
+om:ActivityStreamConfigShape a sh:NodeShape ;
+    sh:targetClass om:ActivityStreamConfig ;
+    sh:property [
+        sh:path om:activityScope ;
+        sh:datatype xsd:string ;
+        sh:in ("global" "domain") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Activity stream scope must be global or domain"@en ;
+    ] ;
+    sh:property [
+        sh:path om:isEnabled ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Activity stream configuration must explicitly set enabled"@en ;
+    ] .
+
+om:IntakeFormShape a sh:NodeShape ;
+    sh:targetClass om:IntakeForm ;
+    sh:property [
+        sh:path om:targetEntityType ;
+        sh:datatype xsd:string ;
+        sh:in ("dataProduct" "domain" "glossaryTerm") ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Intake form target must be dataProduct, domain, or glossaryTerm"@en ;
     ] .

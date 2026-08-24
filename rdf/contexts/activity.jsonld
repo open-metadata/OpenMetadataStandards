@@ -1,0 +1,82 @@
+{
+  "@context": [
+    "./base.jsonld",
+    {
+      "ActivityEvent": {
+        "@id": "om:ActivityEvent",
+        "@type": ["om:Entity", "prov:Activity"]
+      },
+      "ActivityStreamConfig": {
+        "@id": "om:ActivityStreamConfig",
+        "@type": "om:Entity"
+      },
+      "eventType": {
+        "@id": "om:activityEventType",
+        "@type": "xsd:string"
+      },
+      "entity": {
+        "@id": "om:activityEntity",
+        "@type": "@id"
+      },
+      "about": {
+        "@id": "om:entityLink",
+        "@type": "xsd:string"
+      },
+      "actor": {
+        "@id": "om:activityActor",
+        "@type": "@id"
+      },
+      "timestamp": {
+        "@id": "om:activityTimestamp",
+        "@type": "xsd:long"
+      },
+      "summary": {
+        "@id": "om:activitySummary",
+        "@type": "xsd:string"
+      },
+      "oldValue": {
+        "@id": "om:oldValue",
+        "@type": "xsd:string"
+      },
+      "newValue": {
+        "@id": "om:newValue",
+        "@type": "xsd:string"
+      },
+      "reactions": {
+        "@id": "om:reaction",
+        "@type": "@json",
+        "@container": "@list"
+      },
+      "scope": {
+        "@id": "om:activityScope",
+        "@type": "xsd:string"
+      },
+      "scopeReference": {
+        "@id": "om:activityScopeReference",
+        "@type": "@id"
+      },
+      "enabled": {
+        "@id": "om:isEnabled",
+        "@type": "xsd:boolean"
+      },
+      "retentionDays": {
+        "@id": "om:retentionDays",
+        "@type": "xsd:integer"
+      },
+      "excludeEventTypes": {
+        "@id": "om:excludedActivityEventType",
+        "@type": "xsd:string",
+        "@container": "@set"
+      },
+      "excludeEntityTypes": {
+        "@id": "om:excludedActivityEntityType",
+        "@type": "xsd:string",
+        "@container": "@set"
+      },
+      "visibility": {
+        "@id": "om:activityVisibility",
+        "@type": "xsd:string"
+      }
+    }
+  ]
+}

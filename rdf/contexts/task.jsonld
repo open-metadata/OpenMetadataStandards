@@ -1,0 +1,100 @@
+{
+  "@context": [
+    "./base.jsonld",
+    {
+      "Task": {
+        "@id": "om:GovernanceTask",
+        "@type": ["om:Entity", "prov:Activity"]
+      },
+      "TaskFormSchema": {
+        "@id": "om:TaskFormSchema",
+        "@type": "om:Entity"
+      },
+      "taskId": {
+        "@id": "om:taskIdentifier",
+        "@type": "xsd:string"
+      },
+      "category": {
+        "@id": "om:taskCategory",
+        "@type": "xsd:string"
+      },
+      "taskType": {
+        "@id": "om:taskType",
+        "@type": "xsd:string"
+      },
+      "status": {
+        "@id": "om:taskStatus",
+        "@type": "xsd:string"
+      },
+      "priority": {
+        "@id": "om:taskPriority",
+        "@type": "xsd:string"
+      },
+      "about": {
+        "@id": "om:isAbout",
+        "@type": "@id"
+      },
+      "createdBy": {
+        "@id": "om:createdBy",
+        "@type": "@id"
+      },
+      "assignees": {
+        "@id": "om:assignedTo",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "reviewers": {
+        "@id": "om:reviewedBy",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "watchers": {
+        "@id": "om:watchedBy",
+        "@type": "@id",
+        "@container": "@set"
+      },
+      "dueDate": {
+        "@id": "om:dueDate",
+        "@type": "xsd:long"
+      },
+      "payload": {
+        "@id": "om:taskPayload",
+        "@type": "@json"
+      },
+      "resolution": {
+        "@id": "om:taskResolution",
+        "@type": "@json"
+      },
+      "comments": {
+        "@id": "om:taskComment",
+        "@type": "@json",
+        "@container": "@list"
+      },
+      "taskFormSchemaId": {
+        "@id": "om:usesTaskFormSchema",
+        "@type": "@id"
+      },
+      "workflowInstanceId": {
+        "@id": "om:workflowInstance",
+        "@type": "@id"
+      },
+      "availableTransitions": {
+        "@id": "om:availableTransition",
+        "@type": "@json",
+        "@container": "@list"
+      },
+      "formSchema": {
+        "@id": "om:formSchema",
+        "@type": "@json"
+      },
+      "uiSchema": {
+        "@id": "om:uiSchema",
+        "@type": "@json"
+      },
+      "transitionForms": {
+        "@id": "om:transitionForms",
+        "@type": "@json"
+      }
+    }
+  ]
+}

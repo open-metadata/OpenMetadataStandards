@@ -6,7 +6,11 @@ Comprehensive JSON Schema specifications for OpenMetadata entities, types, APIs,
 
 ## Overview
 
-OpenMetadata Standards includes **700+ JSON Schema** files that define the structure, validation rules, and documentation for all metadata entities and types.
+OpenMetadata Standards 2.0 includes **911 JSON Schema** files that define the structure, validation rules, and documentation for all metadata entities and types.
+
+The snapshot is synchronized from OpenMetadata's `2.0.0-release` tag. See the
+[2.0 schema change inventory](../reference/schema-changes-2.0.md) for provenance, compatibility
+notes, and the complete file-level delta.
 
 ## Schema Categories
 

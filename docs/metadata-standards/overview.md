@@ -109,7 +109,7 @@ OpenMetadata Standards are expressed in multiple complementary formats:
 **Human-readable, machine-validatable schemas**
 
 - JSON Schema Draft-07 specification
-- 700+ schemas covering all metadata entities
+- 911 schemas covering entities, APIs, configuration, ingestion, events, and reusable types
 - Strongly typed with validation rules
 - IDE autocomplete support
 - Used by OpenMetadata APIs

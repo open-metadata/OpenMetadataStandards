@@ -1,0 +1,36 @@
+{
+  "@context": [
+    "./base.jsonld",
+    {
+      "Announcement": {
+        "@id": "om:Announcement",
+        "@type": "om:Entity"
+      },
+      "entityLink": {
+        "@id": "om:entityLink",
+        "@type": "xsd:string"
+      },
+      "startTime": {
+        "@id": "om:startsAt",
+        "@type": "xsd:long"
+      },
+      "endTime": {
+        "@id": "om:endsAt",
+        "@type": "xsd:long"
+      },
+      "status": {
+        "@id": "om:announcementStatus",
+        "@type": "xsd:string"
+      },
+      "createdBy": {
+        "@id": "om:createdBy",
+        "@type": "@id"
+      },
+      "reactions": {
+        "@id": "om:reaction",
+        "@type": "@json",
+        "@container": "@list"
+      }
+    }
+  ]
+}

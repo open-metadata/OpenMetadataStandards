@@ -11,6 +11,7 @@
 [![Deploy Docs](https://github.com/open-metadata/OpenMetadataStandards/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/open-metadata/OpenMetadataStandards/actions/workflows/deploy-docs.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://openmetadatastandards.org)
+[![Standards Version](https://img.shields.io/badge/version-2.0.0-7147E8.svg)](https://openmetadatastandards.org/reference/changelog/)
 [![Slack](https://img.shields.io/badge/slack-join-orange.svg)](https://slack.open-metadata.org)
 [![GitHub Stars](https://img.shields.io/github/stars/open-metadata/OpenMetadataStandards?style=social)](https://github.com/open-metadata/OpenMetadataStandards/stargazers)
 
@@ -43,7 +44,7 @@ Built with **open standards** and designed for **interoperability**, OpenMetadat
 <td width="50%">
 
 ### 🎯 JSON Schemas
-**700+ comprehensive schemas** covering:
+**911 comprehensive schemas** covering:
 - **Entities**: Tables, databases, topics, dashboards, pipelines, ML models, APIs
 - **Types**: Rich type system with custom properties
 - **APIs**: Complete OpenAPI specifications
@@ -139,6 +140,8 @@ Enterprise-grade governance schemas:
 - **📖 Glossaries** - Business terminology with hierarchies and relationships
 - **🏷️ Classifications & Tags** - Automated and manual classification systems
 - **📋 Policies** - Access control, data policies, and compliance rules
+- **🤖 AI Governance** - Frameworks, controls, evidence reports, and model governance
+- **🧾 Intake Forms** - Consistent, validated governance requests
 - **📏 Metrics** - Business metrics and KPI definitions
 - **📝 Data Contracts** - Schema contracts and SLAs
 
@@ -169,12 +172,13 @@ People and organizational metadata:
 - **Users & Teams** - Hierarchical team structures
 - **Roles & Policies** - Fine-grained access control
 - **Personas** - User personas for targeted experiences
+- **Tasks & Activity** - First-class task lifecycles, announcements, and activity streams
 - **Domains** - Business domain organization
 - **Ownership** - Asset ownership and stewardship
 
 ### 🔌 Service Integration
 
-84+ connector schemas for data sources:
+150 connection schemas for data sources:
 
 - **Databases**: PostgreSQL, MySQL, Oracle, SQL Server, Snowflake, BigQuery, Redshift, etc.
 - **Warehouses**: Databricks, Synapse, Teradata, Vertica, etc.
@@ -345,7 +349,7 @@ Visit [docs.open-metadata.org](https://docs.open-metadata.org) for full installa
 
 ```
 OpenMetadataStandards/
-├── 📁 schemas/                    # 700+ JSON Schema files
+├── 📁 schemas/                    # 911 JSON Schema files
 │   ├── entity/
 │   │   ├── data/                 # Data entities (tables, topics, etc.)
 │   │   ├── services/             # Service configurations
@@ -536,11 +540,11 @@ Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
 ### 📦 Content Statistics
 
-- **700+ JSON Schemas** covering all major metadata entities
+- **911 JSON Schemas** covering all major metadata entities
 - **200+ API Operations** fully documented
 - **100+ Entity Types** with comprehensive properties
 - **50+ Test Definitions** for data quality
-- **84+ Service Connectors** schemas
+- **150 Connection Schemas** across database, dashboard, messaging, pipeline, storage, and other services
 - **Full RDF/OWL Ontology** with SHACL validation
 
 </div>
@@ -552,7 +556,7 @@ Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 OpenMetadata Standards is licensed under the **Apache License, Version 2.0**.
 
 ```
-Copyright 2021-2025 OpenMetadata
+Copyright 2021-2026 OpenMetadata
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
