@@ -29,6 +29,7 @@ OpenMetadata Standards provide a **unified, open-source metadata model** that de
 - Prompts, templates, and prompt engineering
 - Vector databases and embeddings
 - AI applications and integrations
+- AI governance frameworks, controls, compliance evidence, and audit reports
 
 **Data Governance & Quality:**
 - Data quality tests, suites, and profiles
@@ -38,10 +39,13 @@ OpenMetadata Standards provide a **unified, open-source metadata model** that de
 - Teams, users, roles, and ownership
 - Domains and data products
 
-!!! info "AI Governance Initiative"
-    OpenMetadata is pioneering **AI Governance** by extending metadata standards to cover the entire AI lifecycle - from LLMs and agents to prompts and vector databases. This enables organizations to govern AI systems with the same rigor as traditional data assets.
+!!! info "AI Governance in OpenMetadata 2.0"
+    OpenMetadata 2.0 includes **AI Governance** standards across the entire AI lifecycle — from
+    LLMs, agents, prompts, and vector databases to governance frameworks, controls, compliance
+    evidence, policy evaluation, approval workflows, and audit reports. Organizations can govern
+    AI systems with the same rigor as traditional data assets.
 
-    **Learn more**: [AI Governance Roadmap](https://github.com/open-metadata/OpenMetadata/issues/23853)
+    **Explore the 2.0 details**: [AI Governance schemas and APIs](../breaking-changes/data-governance.md#ai-governance-studio)
 
 ### What This Enables
 
