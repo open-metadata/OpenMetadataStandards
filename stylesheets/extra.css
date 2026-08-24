@@ -619,4 +619,27 @@ img:hover {
   margin: 0.2rem 0 !important;
 }
 
+/* Breaking-change classification badges */
+.md-typeset .om-breaking,
+.md-typeset .om-behavioral,
+.md-typeset .om-deprecated,
+.md-typeset .om-additive {
+  vertical-align: -0.15em;
+  height: 1.15em;
+  width: 1.15em;
+}
+
+.md-typeset .om-breaking { color: #d3302f; }
+.md-typeset .om-behavioral { color: #c77700; }
+.md-typeset .om-deprecated { color: #6a4bb0; }
+.md-typeset .om-additive { color: #2e7d32; }
+
+[data-md-color-scheme="slate"] .md-typeset .om-breaking { color: #ff6b6b; }
+[data-md-color-scheme="slate"] .md-typeset .om-behavioral { color: #ffb74d; }
+[data-md-color-scheme="slate"] .md-typeset .om-deprecated { color: #b39ddb; }
+[data-md-color-scheme="slate"] .md-typeset .om-additive { color: #81c784; }
+
+.md-typeset table:not([class]) td code {
+  word-break: break-word;
+}
 
