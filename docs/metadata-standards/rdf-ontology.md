@@ -17,6 +17,14 @@ Full OWL 2 ontology covering:
 - Relationships and constraints
 - Annotations and documentation
 
+The ontology version follows the schema snapshot. Version **2.0.0** adds semantic coverage for:
+
+- AI governance frameworks, controls, and audit reports
+- Context Center pages, files, folders, attachments, and memories
+- First-class governance tasks, task form schemas, and announcements
+- Activity Stream events and configuration
+- Governance intake forms
+
 ## Features
 
 ### Knowledge Graph Integration

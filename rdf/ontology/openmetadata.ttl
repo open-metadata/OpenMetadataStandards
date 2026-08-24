@@ -24,12 +24,12 @@
 
 # OpenMetadata Complete Ontology
 om: a owl:Ontology ;
-    owl:versionInfo "1.13.0" ;
+    owl:versionInfo "2.0.0" ;
     dct:title "OpenMetadata Ontology" ;
     dct:description "Complete ontology for OpenMetadata covering all entities and relationships" ;
     dct:creator "OpenMetadata Team" ;
     dct:created "2025-08-24"^^xsd:date ;
-    dct:modified "2026-04-23"^^xsd:date ;
+    dct:modified "2026-08-24"^^xsd:date ;
     dct:license <https://www.apache.org/licenses/LICENSE-2.0> ;
     owl:imports dcat: , prov: , skos: .
 
@@ -226,6 +226,50 @@ om:Worksheet a owl:Class ;
     rdfs:subClassOf om:DataAsset .
 
 #################################################################
+# Context Center Classes (OpenMetadata 2.0)
+#################################################################
+
+om:ContextFile a owl:Class ;
+    rdfs:label "Context File" ;
+    rdfs:comment "Uploaded file stored in the Context Center and processed for search and AI context" ;
+    rdfs:subClassOf om:DataAsset, foaf:Document .
+
+om:ContextFileContent a owl:Class ;
+    rdfs:label "Context File Content" ;
+    rdfs:comment "Versioned content snapshot belonging to a Context File" ;
+    rdfs:subClassOf om:Entity, foaf:Document .
+
+om:Folder a owl:Class ;
+    rdfs:label "Context Center Folder" ;
+    rdfs:comment "Hierarchical container for Context Center files" ;
+    rdfs:subClassOf om:DataAsset, dcat:Catalog .
+
+om:Page a owl:Class ;
+    rdfs:label "Context Center Page" ;
+    rdfs:comment "Knowledge page represented as an article or quick link" ;
+    rdfs:subClassOf om:DataAsset, foaf:Document .
+
+om:Article a owl:Class ;
+    rdfs:label "Article" ;
+    rdfs:comment "Rich-text content of a Context Center page" ;
+    rdfs:subClassOf foaf:Document .
+
+om:QuickLink a owl:Class ;
+    rdfs:label "Quick Link" ;
+    rdfs:comment "External link content of a Context Center page" ;
+    rdfs:subClassOf foaf:Document .
+
+om:AttachmentAsset a owl:Class ;
+    rdfs:label "Attachment Asset" ;
+    rdfs:comment "Uploaded attachment associated with an OpenMetadata entity" ;
+    rdfs:subClassOf om:Entity, dcat:Distribution .
+
+om:ContextMemory a owl:Class ;
+    rdfs:label "Context Memory" ;
+    rdfs:comment "Reusable memory for Context Center and AI-assisted retrieval" ;
+    rdfs:subClassOf om:Entity .
+
+#################################################################
 # AI / LLM / MCP Classes (OpenMetadata 1.13)
 #################################################################
 
@@ -263,6 +307,21 @@ om:MCPExecution a owl:Class ;
     rdfs:label "MCP Execution" ;
     rdfs:comment "Single execution session of an MCP server, tracking tool calls, resource accesses, prompt uses and data lineage for audit and compliance" ;
     rdfs:subClassOf om:Entity, prov:Activity .
+
+om:AIGovernanceFramework a owl:Class ;
+    rdfs:label "AI Governance Framework" ;
+    rdfs:comment "Workspace-level framework that groups controls and drives AI compliance assessments" ;
+    rdfs:subClassOf om:Entity .
+
+om:AIFrameworkControl a owl:Class ;
+    rdfs:label "AI Framework Control" ;
+    rdfs:comment "Individual control within an AI governance framework" ;
+    rdfs:subClassOf om:Entity .
+
+om:AuditReport a owl:Class ;
+    rdfs:label "AI Governance Audit Report" ;
+    rdfs:comment "Evidence pack generated for a governance framework, domain, or AI asset" ;
+    rdfs:subClassOf om:Entity, prov:Entity .
 
 #################################################################
 # Learning Classes (OpenMetadata 1.13)
@@ -318,6 +377,11 @@ om:DataProduct a owl:Class ;
 
 om:Domain a owl:Class ;
     rdfs:label "Domain" ;
+    rdfs:subClassOf om:Entity .
+
+om:IntakeForm a owl:Class ;
+    rdfs:label "Governance Intake Form" ;
+    rdfs:comment "Form contract that adds required governance fields for a supported entity type" ;
     rdfs:subClassOf om:Entity .
 
 #################################################################
@@ -449,6 +513,31 @@ om:Thread a owl:Class ;
 
 om:Post a owl:Class ;
     rdfs:label "Post" ;
+    rdfs:subClassOf om:Entity .
+
+om:GovernanceTask a owl:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "Actionable work item with assignments and lifecycle state for governance workflows" ;
+    rdfs:subClassOf om:Entity, prov:Activity .
+
+om:TaskFormSchema a owl:Class ;
+    rdfs:label "Task Form Schema" ;
+    rdfs:comment "JSON Schema and UI schema used to create or resolve a task" ;
+    rdfs:subClassOf om:Entity .
+
+om:Announcement a owl:Class ;
+    rdfs:label "Announcement" ;
+    rdfs:comment "Time-bound notification associated with a catalog entity" ;
+    rdfs:subClassOf om:Entity .
+
+om:ActivityEvent a owl:Class ;
+    rdfs:label "Activity Event" ;
+    rdfs:comment "Lightweight user-facing activity notification, separate from the audit trail" ;
+    rdfs:subClassOf om:Entity, prov:Activity .
+
+om:ActivityStreamConfig a owl:Class ;
+    rdfs:label "Activity Stream Configuration" ;
+    rdfs:comment "Global or domain-level configuration for activity generation, visibility, and retention" ;
     rdfs:subClassOf om:Entity .
 
 #################################################################
@@ -1976,6 +2065,46 @@ om:templateVariable a owl:DatatypeProperty ;
     rdfs:domain om:PromptTemplate ;
     rdfs:range xsd:string .
 
+om:trainingMetadata a owl:DatatypeProperty ;
+    rdfs:label "training metadata" ;
+    rdfs:domain om:LLMModel ;
+    rdfs:range rdf:JSON .
+
+om:hasPolicyRule a owl:DatatypeProperty ;
+    rdfs:label "has policy rule" ;
+    rdfs:domain om:AIGovernancePolicy ;
+    rdfs:range rdf:JSON .
+
+om:hasMCPTool a owl:DatatypeProperty ;
+    rdfs:label "has MCP tool" ;
+    rdfs:domain om:MCPServer ;
+    rdfs:range rdf:JSON .
+
+om:hasMCPResource a owl:DatatypeProperty ;
+    rdfs:label "has MCP resource" ;
+    rdfs:domain om:MCPServer ;
+    rdfs:range rdf:JSON .
+
+om:hasMCPPrompt a owl:DatatypeProperty ;
+    rdfs:label "has MCP prompt" ;
+    rdfs:domain om:MCPServer ;
+    rdfs:range rdf:JSON .
+
+om:hasModelCall a owl:DatatypeProperty ;
+    rdfs:label "has model call" ;
+    rdfs:domain om:AgentExecution ;
+    rdfs:range rdf:JSON .
+
+om:hasToolCall a owl:DatatypeProperty ;
+    rdfs:label "has tool call" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:AgentExecution om:MCPExecution ) ] ;
+    rdfs:range rdf:JSON .
+
+om:hasResourceAccess a owl:DatatypeProperty ;
+    rdfs:label "has resource access" ;
+    rdfs:domain om:MCPExecution ;
+    rdfs:range rdf:JSON .
+
 #################################################################
 # Learning Properties (OpenMetadata 1.13)
 #################################################################
@@ -1996,4 +2125,416 @@ om:resourceDifficulty a owl:DatatypeProperty ;
     rdfs:label "learning resource difficulty" ;
     rdfs:comment "Suggested proficiency tier (Intro, Intermediate, Advanced)" ;
     rdfs:domain om:LearningResource ;
+    rdfs:range xsd:string .
+
+#################################################################
+# AI Governance Properties (OpenMetadata 2.0)
+#################################################################
+
+om:hasGovernanceFramework a owl:ObjectProperty ;
+    rdfs:label "has governance framework" ;
+    rdfs:comment "AI governance framework associated with a control or audit report" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:AIFrameworkControl om:AuditReport ) ] ;
+    rdfs:range om:AIGovernanceFramework .
+
+om:frameworkSource a owl:DatatypeProperty ;
+    rdfs:label "framework source" ;
+    rdfs:domain om:AIGovernanceFramework ;
+    rdfs:range xsd:string .
+
+om:frameworkRegion a owl:DatatypeProperty ;
+    rdfs:label "framework region" ;
+    rdfs:domain om:AIGovernanceFramework ;
+    rdfs:range xsd:string .
+
+om:assessmentCadence a owl:DatatypeProperty ;
+    rdfs:label "assessment cadence" ;
+    rdfs:domain om:AIGovernanceFramework ;
+    rdfs:range xsd:string .
+
+om:autoApplyRules a owl:DatatypeProperty ;
+    rdfs:label "auto-apply rules" ;
+    rdfs:domain om:AIGovernanceFramework ;
+    rdfs:range rdf:JSON .
+
+om:controlCategory a owl:DatatypeProperty ;
+    rdfs:label "control category" ;
+    rdfs:domain om:AIFrameworkControl ;
+    rdfs:range xsd:string .
+
+om:evidenceRequirement a owl:DatatypeProperty ;
+    rdfs:label "evidence requirement" ;
+    rdfs:domain om:AIFrameworkControl ;
+    rdfs:range xsd:string .
+
+om:reportScope a owl:DatatypeProperty ;
+    rdfs:label "audit report scope" ;
+    rdfs:domain om:AuditReport ;
+    rdfs:range xsd:string .
+
+om:reportFormat a owl:DatatypeProperty ;
+    rdfs:label "audit report format" ;
+    rdfs:domain om:AuditReport ;
+    rdfs:range xsd:string .
+
+om:reportStatus a owl:DatatypeProperty ;
+    rdfs:label "audit report status" ;
+    rdfs:domain om:AuditReport ;
+    rdfs:range xsd:string .
+
+om:scopeTarget a owl:ObjectProperty ;
+    rdfs:label "scope target" ;
+    rdfs:domain om:AuditReport ;
+    rdfs:range om:Entity .
+
+om:requestedBy a owl:ObjectProperty ;
+    rdfs:label "requested by" ;
+    rdfs:domain om:AuditReport ;
+    rdfs:range prov:Agent .
+
+om:reportArtifact a owl:DatatypeProperty ;
+    rdfs:label "report artifact" ;
+    rdfs:domain om:AuditReport ;
+    rdfs:range rdf:JSON .
+
+#################################################################
+# Context Center Properties (OpenMetadata 2.0)
+#################################################################
+
+om:fileType a owl:DatatypeProperty ;
+    rdfs:label "file type" ;
+    rdfs:domain om:ContextFile ;
+    rdfs:range xsd:string .
+
+om:fileSize a owl:DatatypeProperty ;
+    rdfs:label "file size" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:ContextFile om:ContextFileContent om:AttachmentAsset ) ] ;
+    rdfs:range xsd:nonNegativeInteger .
+
+om:contentType a owl:DatatypeProperty ;
+    rdfs:label "content type" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:ContextFile om:ContextFileContent om:AttachmentAsset ) ] ;
+    rdfs:range xsd:string .
+
+om:processingStatus a owl:DatatypeProperty ;
+    rdfs:label "processing status" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:ContextFile om:ContextFileContent om:Page ) ] ;
+    rdfs:range xsd:string .
+
+om:inFolder a owl:ObjectProperty ;
+    rdfs:label "in folder" ;
+    rdfs:domain om:ContextFile ;
+    rdfs:range om:Folder .
+
+om:currentContent a owl:ObjectProperty ;
+    rdfs:label "current content" ;
+    rdfs:domain om:ContextFile ;
+    rdfs:range om:ContextFileContent .
+
+om:contentForFile a owl:ObjectProperty ;
+    rdfs:label "content for file" ;
+    rdfs:domain om:ContextFileContent ;
+    rdfs:range om:ContextFile .
+
+om:pageCount a owl:DatatypeProperty ;
+    rdfs:label "page count" ;
+    rdfs:domain om:ContextFile ;
+    rdfs:range xsd:nonNegativeInteger .
+
+om:memoryCount a owl:DatatypeProperty ;
+    rdfs:label "memory count" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:ContextFile om:Page ) ] ;
+    rdfs:range xsd:nonNegativeInteger .
+
+om:pageType a owl:DatatypeProperty ;
+    rdfs:label "page type" ;
+    rdfs:domain om:Page ;
+    rdfs:range xsd:string .
+
+om:pageContent a owl:DatatypeProperty ;
+    rdfs:label "page content" ;
+    rdfs:domain om:Page ;
+    rdfs:range rdf:JSON .
+
+om:contextUrl a owl:DatatypeProperty ;
+    rdfs:label "context URL" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:ContextFile om:QuickLink om:AttachmentAsset ) ] ;
+    rdfs:range xsd:anyURI .
+
+om:memoryType a owl:DatatypeProperty ;
+    rdfs:label "memory type" ;
+    rdfs:domain om:ContextMemory ;
+    rdfs:range xsd:string .
+
+om:memoryScope a owl:DatatypeProperty ;
+    rdfs:label "memory scope" ;
+    rdfs:domain om:ContextMemory ;
+    rdfs:range xsd:string .
+
+om:memoryStatus a owl:DatatypeProperty ;
+    rdfs:label "memory status" ;
+    rdfs:domain om:ContextMemory ;
+    rdfs:range xsd:string .
+
+om:primaryEntity a owl:ObjectProperty ;
+    rdfs:label "primary entity" ;
+    rdfs:domain om:ContextMemory ;
+    rdfs:range om:Entity .
+
+om:relatedEntity a owl:ObjectProperty ;
+    rdfs:label "related entity" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:ContextMemory om:Page ) ] ;
+    rdfs:range om:Entity .
+
+om:sourceEntity a owl:ObjectProperty ;
+    rdfs:label "source entity" ;
+    rdfs:domain om:ContextMemory ;
+    rdfs:range om:Entity .
+
+om:memoryQuestion a owl:DatatypeProperty ;
+    rdfs:label "memory question" ;
+    rdfs:domain om:ContextMemory ;
+    rdfs:range xsd:string .
+
+om:memoryAnswer a owl:DatatypeProperty ;
+    rdfs:label "memory answer" ;
+    rdfs:domain om:ContextMemory ;
+    rdfs:range xsd:string .
+
+om:isPinned a owl:DatatypeProperty ;
+    rdfs:label "is pinned" ;
+    rdfs:domain om:ContextMemory ;
+    rdfs:range xsd:boolean .
+
+om:memoryUsageCount a owl:DatatypeProperty ;
+    rdfs:label "memory usage count" ;
+    rdfs:domain om:ContextMemory ;
+    rdfs:range xsd:nonNegativeInteger .
+
+om:lastUsedAt a owl:DatatypeProperty ;
+    rdfs:label "last used at" ;
+    rdfs:domain om:ContextMemory ;
+    rdfs:range xsd:long .
+
+om:shareConfig a owl:DatatypeProperty ;
+    rdfs:label "share configuration" ;
+    rdfs:domain om:ContextMemory ;
+    rdfs:range rdf:JSON .
+
+om:assetType a owl:DatatypeProperty ;
+    rdfs:label "attachment asset type" ;
+    rdfs:domain om:AttachmentAsset ;
+    rdfs:range xsd:string .
+
+om:fileName a owl:DatatypeProperty ;
+    rdfs:label "file name" ;
+    rdfs:domain om:AttachmentAsset ;
+    rdfs:range xsd:string .
+
+#################################################################
+# Collaboration and Activity Properties (OpenMetadata 2.0)
+#################################################################
+
+om:taskCategory a owl:DatatypeProperty ;
+    rdfs:label "task category" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range xsd:string .
+
+om:taskIdentifier a owl:DatatypeProperty ;
+    rdfs:label "task identifier" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range xsd:string .
+
+om:taskType a owl:DatatypeProperty ;
+    rdfs:label "task type" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:GovernanceTask om:TaskFormSchema ) ] ;
+    rdfs:range xsd:string .
+
+om:taskStatus a owl:DatatypeProperty ;
+    rdfs:label "task status" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range xsd:string .
+
+om:taskPriority a owl:DatatypeProperty ;
+    rdfs:label "task priority" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range xsd:string .
+
+om:assignedTo a owl:ObjectProperty ;
+    rdfs:label "assigned to" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range prov:Agent .
+
+om:reviewedBy a owl:ObjectProperty ;
+    rdfs:label "reviewed by" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range prov:Agent .
+
+om:watchedBy a owl:ObjectProperty ;
+    rdfs:label "watched by" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range prov:Agent .
+
+om:dueDate a owl:DatatypeProperty ;
+    rdfs:label "due date" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range xsd:long .
+
+om:taskPayload a owl:DatatypeProperty ;
+    rdfs:label "task payload" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range rdf:JSON .
+
+om:taskResolution a owl:DatatypeProperty ;
+    rdfs:label "task resolution" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range rdf:JSON .
+
+om:taskComment a owl:DatatypeProperty ;
+    rdfs:label "task comment" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range rdf:JSON .
+
+om:usesTaskFormSchema a owl:ObjectProperty ;
+    rdfs:label "uses task form schema" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range om:TaskFormSchema .
+
+om:workflowInstance a owl:ObjectProperty ;
+    rdfs:label "workflow instance" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range om:Entity .
+
+om:availableTransition a owl:DatatypeProperty ;
+    rdfs:label "available transition" ;
+    rdfs:domain om:GovernanceTask ;
+    rdfs:range rdf:JSON .
+
+om:formSchema a owl:DatatypeProperty ;
+    rdfs:label "form schema" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:TaskFormSchema om:IntakeForm ) ] ;
+    rdfs:range rdf:JSON .
+
+om:uiSchema a owl:DatatypeProperty ;
+    rdfs:label "UI schema" ;
+    rdfs:domain om:TaskFormSchema ;
+    rdfs:range rdf:JSON .
+
+om:transitionForms a owl:DatatypeProperty ;
+    rdfs:label "transition forms" ;
+    rdfs:domain om:TaskFormSchema ;
+    rdfs:range rdf:JSON .
+
+om:announcementStatus a owl:DatatypeProperty ;
+    rdfs:label "announcement status" ;
+    rdfs:domain om:Announcement ;
+    rdfs:range xsd:string .
+
+om:startsAt a owl:DatatypeProperty ;
+    rdfs:label "starts at" ;
+    rdfs:domain om:Announcement ;
+    rdfs:range xsd:long .
+
+om:endsAt a owl:DatatypeProperty ;
+    rdfs:label "ends at" ;
+    rdfs:domain om:Announcement ;
+    rdfs:range xsd:long .
+
+om:entityLink a owl:DatatypeProperty ;
+    rdfs:label "entity link" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:Announcement om:AttachmentAsset om:ActivityEvent ) ] ;
+    rdfs:range xsd:string .
+
+om:reaction a owl:DatatypeProperty ;
+    rdfs:label "reaction" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:Announcement om:ActivityEvent ) ] ;
+    rdfs:range rdf:JSON .
+
+om:activityEventType a owl:DatatypeProperty ;
+    rdfs:label "activity event type" ;
+    rdfs:domain om:ActivityEvent ;
+    rdfs:range xsd:string .
+
+om:activityEntity a owl:ObjectProperty ;
+    rdfs:label "activity entity" ;
+    rdfs:domain om:ActivityEvent ;
+    rdfs:range om:Entity .
+
+om:activityActor a owl:ObjectProperty ;
+    rdfs:label "activity actor" ;
+    rdfs:domain om:ActivityEvent ;
+    rdfs:range prov:Agent .
+
+om:activityTimestamp a owl:DatatypeProperty ;
+    rdfs:label "activity timestamp" ;
+    rdfs:domain om:ActivityEvent ;
+    rdfs:range xsd:long .
+
+om:activitySummary a owl:DatatypeProperty ;
+    rdfs:label "activity summary" ;
+    rdfs:domain om:ActivityEvent ;
+    rdfs:range xsd:string .
+
+om:oldValue a owl:DatatypeProperty ;
+    rdfs:label "old value" ;
+    rdfs:domain om:ActivityEvent ;
+    rdfs:range xsd:string .
+
+om:newValue a owl:DatatypeProperty ;
+    rdfs:label "new value" ;
+    rdfs:domain om:ActivityEvent ;
+    rdfs:range xsd:string .
+
+om:activityScope a owl:DatatypeProperty ;
+    rdfs:label "activity stream scope" ;
+    rdfs:domain om:ActivityStreamConfig ;
+    rdfs:range xsd:string .
+
+om:activityScopeReference a owl:ObjectProperty ;
+    rdfs:label "activity scope reference" ;
+    rdfs:domain om:ActivityStreamConfig ;
+    rdfs:range om:Domain .
+
+om:excludedActivityEventType a owl:DatatypeProperty ;
+    rdfs:label "excluded activity event type" ;
+    rdfs:domain om:ActivityStreamConfig ;
+    rdfs:range xsd:string .
+
+om:excludedActivityEntityType a owl:DatatypeProperty ;
+    rdfs:label "excluded activity entity type" ;
+    rdfs:domain om:ActivityStreamConfig ;
+    rdfs:range xsd:string .
+
+om:activityVisibility a owl:DatatypeProperty ;
+    rdfs:label "activity stream visibility" ;
+    rdfs:domain om:ActivityStreamConfig ;
+    rdfs:range xsd:string .
+
+om:retentionDays a owl:DatatypeProperty ;
+    rdfs:label "retention days" ;
+    rdfs:domain om:ActivityStreamConfig ;
+    rdfs:range xsd:positiveInteger .
+
+#################################################################
+# Governance Intake Properties (OpenMetadata 2.0)
+#################################################################
+
+om:targetEntityType a owl:DatatypeProperty ;
+    rdfs:label "target entity type" ;
+    rdfs:domain om:IntakeForm ;
+    rdfs:range xsd:string .
+
+om:isEnabled a owl:DatatypeProperty ;
+    rdfs:label "is enabled" ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( om:IntakeForm om:ActivityStreamConfig ) ] ;
+    rdfs:range xsd:boolean .
+
+om:formField a owl:DatatypeProperty ;
+    rdfs:label "form field" ;
+    rdfs:domain om:IntakeForm ;
+    rdfs:range rdf:JSON .
+
+om:requiredField a owl:DatatypeProperty ;
+    rdfs:label "required field" ;
+    rdfs:domain om:IntakeForm ;
     rdfs:range xsd:string .

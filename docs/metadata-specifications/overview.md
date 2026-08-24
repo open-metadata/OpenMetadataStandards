@@ -99,7 +99,7 @@ Every entity in OpenMetadata Standards is expressed in three complementary forma
 
 **Draft-07 validation schemas**
 
-- 700+ entity schemas
+- 911 schemas across entities, APIs, configuration, ingestion, events, and reusable types
 - Strongly typed definitions
 - Required/optional fields
 - Constraints and patterns

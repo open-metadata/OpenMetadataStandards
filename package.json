@@ -1,6 +1,6 @@
 {
   "name": "openmetadata-standards",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "OpenMetadata Standards - Schemas, Ontologies, and Specifications for Metadata Management",
   "main": "index.js",
   "scripts": {

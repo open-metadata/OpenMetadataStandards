@@ -22,6 +22,10 @@ Define and enforce constraints on metadata:
 
 Ensure metadata meets organizational standards and requirements.
 
+Version 2.0 includes shapes for the new AI governance, Context Center, Task, Announcement,
+Activity Stream, attachment, and intake-form classes, including their required fields and enum
+constraints.
+
 ### Standards Compliance
 
 Built on W3C SHACL specification for RDF validation.

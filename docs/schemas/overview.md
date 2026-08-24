@@ -1,7 +1,7 @@
 
 # JSON Schemas Overview
 
-OpenMetadata Standards provides 700+ JSON schemas organized into logical categories. These schemas define the structure and validation rules for all metadata in the OpenMetadata ecosystem.
+OpenMetadata Standards 2.0 provides 911 JSON schemas organized into logical categories. These schemas define the structure and validation rules for all metadata in the OpenMetadata ecosystem.
 
 ## Schema Categories
 

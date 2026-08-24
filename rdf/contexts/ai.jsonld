@@ -30,6 +30,18 @@
         "@id": "om:MCPExecution",
         "@type": ["om:Entity", "prov:Activity"]
       },
+      "AIGovernanceFramework": {
+        "@id": "om:AIGovernanceFramework",
+        "@type": "om:Entity"
+      },
+      "AIFrameworkControl": {
+        "@id": "om:AIFrameworkControl",
+        "@type": "om:Entity"
+      },
+      "AuditReport": {
+        "@id": "om:AuditReport",
+        "@type": ["om:Entity", "prov:Entity"]
+      },
 
       "applicationType": {
         "@id": "om:applicationType",
@@ -108,6 +120,60 @@
         "@id": "om:governedBy",
         "@type": "@id",
         "@container": "@set"
+      },
+      "framework": {
+        "@id": "om:hasGovernanceFramework",
+        "@type": "@id"
+      },
+      "source": {
+        "@id": "om:frameworkSource",
+        "@type": "xsd:string"
+      },
+      "region": {
+        "@id": "om:frameworkRegion",
+        "@type": "xsd:string"
+      },
+      "assessmentCadence": {
+        "@id": "om:assessmentCadence",
+        "@type": "xsd:string"
+      },
+      "autoApply": {
+        "@id": "om:autoApplyRules",
+        "@type": "@json"
+      },
+      "category": {
+        "@id": "om:controlCategory",
+        "@type": "xsd:string"
+      },
+      "evidenceRequirements": {
+        "@id": "om:evidenceRequirement",
+        "@type": "xsd:string",
+        "@container": "@set"
+      },
+      "scope": {
+        "@id": "om:reportScope",
+        "@type": "xsd:string"
+      },
+      "scopeTarget": {
+        "@id": "om:scopeTarget",
+        "@type": "@id"
+      },
+      "format": {
+        "@id": "om:reportFormat",
+        "@type": "xsd:string"
+      },
+      "status": {
+        "@id": "om:reportStatus",
+        "@type": "xsd:string"
+      },
+      "requestedBy": {
+        "@id": "om:requestedBy",
+        "@type": "@id"
+      },
+      "artifacts": {
+        "@id": "om:reportArtifact",
+        "@type": "@json",
+        "@container": "@list"
       },
 
       "executionStatus": {

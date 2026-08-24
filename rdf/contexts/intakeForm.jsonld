@@ -1,0 +1,29 @@
+{
+  "@context": [
+    "./base.jsonld",
+    {
+      "IntakeForm": {
+        "@id": "om:IntakeForm",
+        "@type": "om:Entity"
+      },
+      "entityType": {
+        "@id": "om:targetEntityType",
+        "@type": "xsd:string"
+      },
+      "enabled": {
+        "@id": "om:isEnabled",
+        "@type": "xsd:boolean"
+      },
+      "formFields": {
+        "@id": "om:formField",
+        "@type": "@json",
+        "@container": "@list"
+      },
+      "requiredFields": {
+        "@id": "om:requiredField",
+        "@type": "xsd:string",
+        "@container": "@set"
+      }
+    }
+  ]
+}

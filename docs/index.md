@@ -9,7 +9,7 @@ keywords: OpenMetadata, metadata standards, JSON Schema, RDF, OWL ontology, data
 <div class="hero-section" markdown>
 
 <div style="display: inline-block; background: linear-gradient(135deg, #7147E8 0%, #8D6AF1 100%); color: white; padding: 0.4rem 1rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(113, 71, 232, 0.3);">
-📦 Version 1.13.0 — April 2026
+📦 Version 2.0.0 — August 2026
 </div>
 
 ## Open Standard for Metadata
@@ -24,7 +24,7 @@ Welcome to the official home of OpenMetadata Standards - **unified metadata stan
 
 OpenMetadata Standards is an open-source project that provides **unified metadata standards and schemas** for comprehensive metadata management across the data ecosystem. It delivers:
 
-- **700+ JSON Schemas** - Comprehensive schemas covering entities, APIs, configurations, events, and more
+- **911 JSON Schemas** - Comprehensive schemas covering entities, APIs, configurations, events, and more
 - **RDF Ontologies** - Semantic web standards for linked metadata and knowledge graphs
 - **SHACL Shapes** - Validation constraints for ensuring data quality and compliance
 - **JSON-LD Contexts** - Semantic contexts for interoperability with other systems
@@ -157,10 +157,11 @@ OpenMetadata Standards powers a wide range of metadata management use cases:
 
 ## Schema Statistics
 
-- **Total Schemas**: 707 JSON schemas
+- **Total Schemas**: 911 JSON schemas
 - **Entity Types**: 100+ entity schemas
 - **Type Definitions**: 200+ reusable type definitions
-- **API Endpoints**: 50+ API operation schemas
+- **API Schemas**: 180 request, response, and operation schemas
+- **Connection Schemas**: 150 service connection schemas
 - **Event Types**: 30+ event schemas
 - **Configuration Options**: 100+ configuration schemas
 

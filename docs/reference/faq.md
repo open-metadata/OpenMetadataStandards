@@ -14,7 +14,7 @@ A: Use JSON Schema validators with the schema files.
 ## Schemas
 
 **Q: How many schemas are included?**  
-A: 700+ JSON schemas plus RDF ontologies.
+A: Version 2.0.0 includes 911 JSON schemas plus RDF ontologies.
 
 **Q: Are schemas versioned?**  
 A: Yes, using semantic versioning.

@@ -15,8 +15,6 @@ The core **OpenMetadata Ontology** (`rdf/ontology/openmetadata.ttl`) defines:
 - **Constraints**: Domain and range restrictions
 - **Annotations**: Rich metadata about the ontology itself
 
-**Size**: ~48KB, comprehensive coverage of all OpenMetadata concepts
-
 **Format**: Turtle (TTL) - human-readable RDF syntax
 
 ### Provenance Ontology
@@ -42,8 +40,6 @@ The **OpenMetadata SHACL Shapes** (`rdf/shapes/openmetadata-shapes.ttl`) provide
 
 **Based on**: [W3C SHACL](https://www.w3.org/TR/shacl/)
 
-**Size**: ~9KB of validation shapes
-
 ### JSON-LD Contexts
 
 **JSON-LD Contexts** (`rdf/contexts/*.jsonld`) enable:
@@ -57,13 +53,20 @@ The **OpenMetadata SHACL Shapes** (`rdf/shapes/openmetadata-shapes.ttl`) provide
 **Available contexts**:
 
 - `base.jsonld` - Core context definitions
+- `activity.jsonld` - Activity Stream events and configuration
+- `ai.jsonld` - AI, LLM, MCP, and AI governance
+- `announcement.jsonld` - Standalone announcements
+- `contextCenter.jsonld` - Context Center content and memories
 - `dataAsset.jsonld` - Data asset context (basic)
 - `dataAsset-complete.jsonld` - Complete data asset context
 - `entityRelationship.jsonld` - Relationship context
 - `governance.jsonld` - Governance context
+- `intakeForm.jsonld` - Governance intake forms
+- `learning.jsonld` - Learning resources
 - `operations.jsonld` - Operational context
 - `quality.jsonld` - Data quality context
 - `service.jsonld` - Service context
+- `task.jsonld` - First-class tasks and task forms
 - `team.jsonld` - Team and user context
 - `thread.jsonld` - Discussion thread context
 
