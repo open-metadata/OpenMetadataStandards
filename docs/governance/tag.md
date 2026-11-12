@@ -951,6 +951,13 @@ View the complete Tag schema in your preferred format:
 }
 ```
 
+**Recognizer `target`** (enum, default: `content`): what the recognizer analyzes for classification.
+
+- `content`: Uses sample data from the column
+- `column_name`: Classifies based on the column's name
+
+**Recognizer type** (`recognizerType` enum, default: `pattern`): `pattern`, `exact_terms`, `context`, `predefined`, `custom`
+
 ---
 
 #### `autoClassificationEnabled` (boolean)
@@ -1649,7 +1656,7 @@ When a tag is applied to a data asset, it creates a **TagLabel** with additional
 | `tagFQN` | string | Fully qualified tag name |
 | `description` | string | Tag description (inherited) |
 | `source` | enum | Source: `Classification`, `Glossary` |
-| `labelType` | enum | Type: `Manual`, `Propagated`, `Automated`, `Derived` |
+| `labelType` | enum | Type: `Manual`, `Propagated`, `Automated`, `Derived`, `Generated` (default: `Manual`) |
 | `state` | enum | State: `Suggested`, `Confirmed` |
 
 ---

@@ -184,6 +184,7 @@ View the complete DataModel schema in your preferred format:
             "TableauEmbeddedDatasource",
             "SupersetDataModel",
             "MetabaseDataModel",
+            "ModeDataModel",
             "LookMlView",
             "LookMlExplore",
             "PowerBIDataModel",
@@ -433,6 +434,7 @@ View the complete DataModel schema in your preferred format:
             om:DataModelType_TableauEmbeddedDatasource
             om:DataModelType_SupersetDataModel
             om:DataModelType_MetabaseDataModel
+            om:DataModelType_ModeDataModel
             om:DataModelType_LookMlView
             om:DataModelType_LookMlExplore
             om:DataModelType_PowerBIDataModel
@@ -708,6 +710,7 @@ View the complete DataModel schema in your preferred format:
 - `TableauEmbeddedDatasource` - Tableau embedded datasource
 - `SupersetDataModel` - Superset data model
 - `MetabaseDataModel` - Metabase data model
+- `ModeDataModel` - Mode data model
 - `LookMlView` - Looker LookML view
 - `LookMlExplore` - Looker LookML explore
 - `PowerBIDataModel` - Power BI data model

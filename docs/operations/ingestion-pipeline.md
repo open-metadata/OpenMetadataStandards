@@ -26,6 +26,7 @@ Ingestion types include:
 - **ElasticSearch Reindex**: Reindex metadata in ElasticSearch
 - **DBT Ingestion**: Ingest dbt models and lineage
 - **Application Ingestion**: Application-specific metadata ingestion
+- **Policy Agent**: Pipeline of type `policyAgent`
 
 ## Hierarchy
 
@@ -165,7 +166,8 @@ graph TD
             "dataInsight",
             "elasticSearchReindex",
             "dbt",
-            "application"
+            "application",
+            "policyAgent"
           ]
         },
         "pipelineStatus": {
@@ -186,7 +188,8 @@ graph TD
                 "success",
                 "failed",
                 "running",
-                "partialSuccess"
+                "partialSuccess",
+                "stopped"
               ]
             },
             "startDate": {
@@ -665,6 +668,10 @@ graph TD
         rdfs:label "Application" ;
         skos:definition "Pipeline for application-specific ingestion" .
 
+    om-ingestion:PolicyAgent a om-ingestion:PipelineType ;
+        rdfs:label "Policy Agent" ;
+        skos:definition "Pipeline of type policyAgent" .
+
     # Pipeline State Individuals
     om-ingestion:Queued a om-ingestion:PipelineState ;
         rdfs:label "Queued" ;
@@ -685,6 +692,10 @@ graph TD
     om-ingestion:PartialSuccess a om-ingestion:PipelineState ;
         rdfs:label "Partial Success" ;
         skos:definition "Pipeline run completed with some errors" .
+
+    om-ingestion:Stopped a om-ingestion:PipelineState ;
+        rdfs:label "Stopped" ;
+        skos:definition "Pipeline run was stopped" .
     ```
 
 === "JSON-LD Context"
@@ -1078,6 +1089,11 @@ Execute data quality tests:
 | **profiler** | Collects data profiles and statistics | Weekly | Data profiles, column statistics |
 | **TestSuite** | Executes data quality tests | Multiple times daily | Test results |
 | **dbt** | Ingests dbt models and lineage | Daily after dbt runs | DBT models, tests, lineage |
+| **autoClassification** | Automatically classifies data assets | As needed | Classification tags |
+| **dataInsight** | Generates data insights and analytics | As needed | Data insight reports |
+| **elasticSearchReindex** | Reindexes metadata in ElasticSearch | As needed | Updated search indexes |
+| **application** | Application-specific metadata ingestion | As needed | Application-specific output |
+| **policyAgent** | Policy agent pipeline | As needed | Not specified in the schema |
 
 ## Pipeline States
 
@@ -1088,6 +1104,7 @@ Execute data quality tests:
 | **success** | Pipeline completed successfully | Review metrics |
 | **failed** | Pipeline encountered errors | Check logs, retry |
 | **partialSuccess** | Pipeline completed with some errors | Review warnings |
+| **stopped** | Pipeline run was stopped | Review logs, rerun if needed |
 
 ## Airflow Configuration
 

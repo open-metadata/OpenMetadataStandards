@@ -267,6 +267,7 @@ View the complete GlossaryTerm schema in your preferred format:
     - `Draft` - Term is being defined
     - `In Review` - Term is under review
     - `Approved` - Term has been reviewed and approved
+    - `Archived` - Term is archived
     - `Deprecated` - Term is no longer recommended for use
     - `Rejected` - Term was rejected during review
     - `Unprocessed` - Default status for new terms
@@ -322,7 +323,7 @@ View the complete GlossaryTerm schema in your preferred format:
         rdfs:domain om:GlossaryTerm ;
         rdfs:range om:EntityStatus ;
         rdfs:label "entityStatus" ;
-        rdfs:comment "Approval status: Draft, In Review, Approved, Deprecated, Rejected, Unprocessed" .
+        rdfs:comment "Approval status: Draft, In Review, Approved, Archived, Deprecated, Rejected, Unprocessed" .
 
     om:belongsToGlossary a owl:ObjectProperty ;
         rdfs:domain om:GlossaryTerm ;
@@ -406,6 +407,7 @@ View the complete GlossaryTerm schema in your preferred format:
             om:DraftStatus
             om:InReviewStatus
             om:ApprovedStatus
+            om:ArchivedStatus
             om:DeprecatedStatus
             om:RejectedStatus
             om:UnprocessedStatus
@@ -873,6 +875,42 @@ View the complete GlossaryTerm schema in your preferred format:
 
 ---
 
+#### `conceptMappings[]` (ConceptMapping[])
+**Type**: `array` of concept mapping objects
+**Required**: No (default: `[]`)
+**Description**: Optional mappings to external concepts (for example, SKOS alignments)
+
+**ConceptMapping Object**:
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `conceptIri` | uri | Yes | External concept IRI to map this glossary term to |
+| `mappingType` | enum | Yes | Type of mapping used for the external concept alignment |
+| `schemeIri` | uri | No | Optional external concept scheme IRI for the mapped concept |
+| `source` | string | No | Optional source label or catalog for the external concept |
+
+**mappingType Allowed Values**:
+
+- `EXACT_MATCH`
+- `CLOSE_MATCH`
+- `BROAD_MATCH`
+- `NARROW_MATCH`
+- `RELATED_MATCH`
+- `SAME_AS`
+
+```json
+{
+  "conceptMappings": [
+    {
+      "conceptIri": "http://example.org/concepts/customer",
+      "mappingType": "EXACT_MATCH"
+    }
+  ]
+}
+```
+
+---
+
 #### `entityStatus` (EntityStatus enum)
 **Type**: `string` enum
 **Required**: No (default: `Unprocessed`)
@@ -881,6 +919,7 @@ View the complete GlossaryTerm schema in your preferred format:
 - `Draft` - Term is being defined
 - `In Review` - Term is under review
 - `Approved` - Term has been reviewed and approved
+- `Archived` - Term is archived
 - `Deprecated` - Term is no longer recommended for use
 - `Rejected` - Term was rejected during review
 - `Unprocessed` - Default status for new terms
@@ -1889,7 +1928,7 @@ GET /v1/glossaryTerms/search
 Query Parameters:
   - q: Search query
   - glossary: Filter by glossary
-  - entityStatus: Filter by status (Draft, In Review, Approved, Deprecated, Rejected, Unprocessed)
+  - entityStatus: Filter by status (Draft, In Review, Approved, Archived, Deprecated, Rejected, Unprocessed)
   - fields: Fields to include
   - limit: Number of results
   - from: Offset for pagination

@@ -32,6 +32,7 @@ graph TD
 
 - **Google Drive** - Google Workspace cloud file storage and collaboration
 - **SharePoint** - Microsoft SharePoint document libraries and sites
+- **Sftp** - SFTP server file access
 - **CustomDrive** - Custom drive service implementations
 
 **Drive-Specific Features**:
@@ -145,6 +146,7 @@ View the complete DriveService schema in your preferred format:
           "enum": [
             "GoogleDrive",
             "SharePoint",
+            "Sftp",
             "CustomDrive"
           ],
           "javaEnums": [
@@ -153,6 +155,9 @@ View the complete DriveService schema in your preferred format:
             },
             {
               "name": "SharePoint"
+            },
+            {
+              "name": "Sftp"
             },
             {
               "name": "CustomDrive"
@@ -596,6 +601,14 @@ connection:
 - Teams integration
 - Co-authoring in Office apps
 - Compliance and retention policies
+
+### Sftp
+
+**Configuration**:
+
+```yaml
+serviceType: Sftp
+```
 
 ### CustomDrive
 

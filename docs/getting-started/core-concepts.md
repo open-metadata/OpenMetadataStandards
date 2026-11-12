@@ -294,6 +294,8 @@ Tags can be:
 - **Manual**: Applied by users
 - **Automated**: Applied by rules
 - **Propagated**: Inherited from parents
+- **Derived**: Derived using the associated tag relationship
+- **Generated**
 
 ## Glossaries
 

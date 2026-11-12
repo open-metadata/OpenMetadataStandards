@@ -54,15 +54,17 @@ View the complete DatabaseService schema in your preferred format:
           "type": "string",
           "enum": [
             "BigQuery", "BigTable", "Mysql", "Redshift", "Snowflake",
-            "Postgres", "Timescale", "Mssql", "Oracle", "Athena",
+            "Postgres", "Timescale", "Mssql", "MicrosoftAccess", "Oracle", "Athena",
             "Hive", "Impala", "Presto", "Trino", "Vertica",
             "Glue", "MariaDB", "Druid", "Db2", "Clickhouse",
             "Databricks", "AzureSQL", "DynamoDB", "SingleStore", "SQLite",
             "DeltaLake", "Salesforce", "PinotDB", "Datalake", "DomoDatabase",
-            "QueryLog", "CustomDatabase", "Dbt", "SapHana", "MongoDB",
-            "Cassandra", "Couchbase", "Greenplum", "Doris", "UnityCatalog",
-            "SAS", "Iceberg", "Teradata", "SapErp", "Synapse",
-            "Exasol", "Cockroach", "SSAS", "Epic", "ServiceNow"
+            "QueryLog", "CustomDatabase", "Dbt", "SapHana", "SapSuccessFactors",
+            "MongoDB", "Cassandra", "Couchbase", "Greenplum", "Doris",
+            "StarRocks", "UnityCatalog", "SAS", "Teradata", "SapErp",
+            "Synapse", "Exasol", "Cockroach", "SSAS", "Epic",
+            "ServiceNow", "Dremio", "MicrosoftFabric", "BurstIQ", "Informix",
+            "Iomete", "QuestDB", "SapBw4Hana"
           ]
         },
         "databaseConnection": {
@@ -335,7 +337,7 @@ View the complete DatabaseService schema in your preferred format:
             om:Hive
             om:Databricks
             om:MongoDB
-            # ... and 55+ more types
+            # ... and more types (see Allowed Values)
         ) .
 
     # Example Instance
@@ -615,6 +617,7 @@ View the complete DatabaseService schema in your preferred format:
 - `Postgres` - PostgreSQL database
 - `Timescale` - Timescale database
 - `Mssql` - Microsoft SQL Server
+- `MicrosoftAccess` - Microsoft Access
 - `Oracle` - Oracle database
 - `Athena` - Amazon Athena
 - `Hive` - Apache Hive
@@ -641,14 +644,15 @@ View the complete DatabaseService schema in your preferred format:
 - `CustomDatabase` - Custom Database
 - `Dbt` - dbt (data build tool)
 - `SapHana` - SAP HANA
+- `SapSuccessFactors` - SAP SuccessFactors
 - `MongoDB` - MongoDB NoSQL database
 - `Cassandra` - Apache Cassandra
 - `Couchbase` - Couchbase
 - `Greenplum` - Greenplum
 - `Doris` - Apache Doris
+- `StarRocks` - StarRocks
 - `UnityCatalog` - Unity Catalog
 - `SAS` - SAS
-- `Iceberg` - Apache Iceberg
 - `Teradata` - Teradata
 - `SapErp` - SAP ERP
 - `Synapse` - Azure Synapse
@@ -657,6 +661,13 @@ View the complete DatabaseService schema in your preferred format:
 - `SSAS` - SQL Server Analysis Services
 - `Epic` - Epic
 - `ServiceNow` - ServiceNow
+- `Dremio` - Dremio
+- `MicrosoftFabric` - Microsoft Fabric
+- `BurstIQ` - BurstIQ
+- `Informix` - IBM Informix
+- `Iomete` - IOMETE
+- `QuestDB` - QuestDB
+- `SapBw4Hana` - SAP BW/4HANA
 
 ```json
 {

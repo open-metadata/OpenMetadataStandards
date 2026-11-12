@@ -128,9 +128,10 @@ View the complete PipelineService schema in your preferred format:
             "Airbyte", "Fivetran", "Flink", "Dagster",
             "Nifi", "DomoPipeline", "CustomPipeline",
             "DatabricksPipeline", "Spline", "Spark",
-            "OpenLineage", "KafkaConnect", "DBTCloud",
+            "OpenLineage", "Prefect", "KafkaConnect", "DBTCloud",
             "Matillion", "Stitch", "DataFactory",
-            "Wherescape", "SSIS", "Snowplow"
+            "Wherescape", "SSIS", "Snowplow", "Mulesoft",
+            "MicrosoftFabricPipeline", "SapBw4HanaPipeline"
           ]
         },
         "pipelineConnection": {
@@ -405,6 +406,7 @@ View the complete PipelineService schema in your preferred format:
             om:Spline
             om:Spark
             om:OpenLineage
+            om:Prefect
             om:KafkaConnect
             om:DBTCloud
             om:Matillion
@@ -413,6 +415,9 @@ View the complete PipelineService schema in your preferred format:
             om:Wherescape
             om:SSIS
             om:Snowplow
+            om:Mulesoft
+            om:MicrosoftFabricPipeline
+            om:SapBw4HanaPipeline
         ) .
 
     # Example Instance
@@ -706,6 +711,7 @@ View the complete PipelineService schema in your preferred format:
 - `Spline` - Spline lineage
 - `Spark` - Apache Spark
 - `OpenLineage` - OpenLineage
+- `Prefect` - Prefect
 - `KafkaConnect` - Kafka Connect
 - `DBTCloud` - dbt Cloud
 - `Matillion` - Matillion ETL
@@ -714,6 +720,9 @@ View the complete PipelineService schema in your preferred format:
 - `Wherescape` - WhereScape
 - `SSIS` - SQL Server Integration Services
 - `Snowplow` - Snowplow Analytics
+- `Mulesoft` - MuleSoft
+- `MicrosoftFabricPipeline` - Microsoft Fabric pipelines
+- `SapBw4HanaPipeline` - SAP BW/4HANA pipelines
 
 ```json
 {

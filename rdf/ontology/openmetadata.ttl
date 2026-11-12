@@ -1378,6 +1378,24 @@ om:lifecycleStage a owl:DatatypeProperty ;
     rdfs:domain om:DataProduct ;
     rdfs:range xsd:string .
 
+om:dataProductType a owl:DatatypeProperty ;
+    rdfs:label "data product type" ;
+    rdfs:comment "Type of the data product, aligned with ODPS v4.1 (RAW_DATA, DERIVED_DATA, DATASET, REPORTS, ANALYTIC_VIEW, VISUALISATION_3D, ALGORITHM, DECISION_SUPPORT, AUTOMATED_DECISION_MAKING, DATA_ENHANCED_PRODUCT, DATA_DRIVEN_SERVICE, DATA_ENABLED_PERFORMANCE, BI_DIRECTIONAL)" ;
+    rdfs:domain om:DataProduct ;
+    rdfs:range xsd:string .
+
+om:visibility a owl:DatatypeProperty ;
+    rdfs:label "visibility" ;
+    rdfs:comment "Who can discover the data product (PRIVATE, INVITATION, ORGANISATION, DATASPACE, PUBLIC)" ;
+    rdfs:domain om:DataProduct ;
+    rdfs:range xsd:string .
+
+om:portfolioPriority a owl:DatatypeProperty ;
+    rdfs:label "portfolio priority" ;
+    rdfs:comment "Importance of the data product in the portfolio (CRITICAL, HIGH, MEDIUM, LOW)" ;
+    rdfs:domain om:DataProduct ;
+    rdfs:range xsd:string .
+
 om:hasSLA a owl:ObjectProperty ;
     rdfs:label "has SLA" ;
     rdfs:comment "Service Level Agreement for the data product" ;

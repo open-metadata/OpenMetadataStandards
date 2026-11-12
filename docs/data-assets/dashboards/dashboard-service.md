@@ -154,7 +154,7 @@ View the complete DashboardService schema in your preferred format:
             "PowerBI", "PowerBIReportServer", "Mode", "CustomDashboard",
             "DomoDashboard", "QuickSight", "QlikSense", "Lightdash",
             "MicroStrategy", "QlikCloud", "Sigma", "ThoughtSpot",
-            "Grafana", "Hex"
+            "Grafana", "Hex", "Ssrs", "SapS4Hana", "Omni"
           ]
         },
         "dashboardConnection": {
@@ -438,6 +438,9 @@ View the complete DashboardService schema in your preferred format:
             om:ThoughtSpot
             om:Grafana
             om:Hex
+            om:Ssrs
+            om:SapS4Hana
+            om:Omni
         ) .
 
     # Example Instance
@@ -747,6 +750,9 @@ View the complete DashboardService schema in your preferred format:
 - `ThoughtSpot` - ThoughtSpot
 - `Grafana` - Grafana
 - `Hex` - Hex
+- `Ssrs` - SQL Server Reporting Services
+- `SapS4Hana` - SAP S/4HANA
+- `Omni` - Omni
 
 ```json
 {

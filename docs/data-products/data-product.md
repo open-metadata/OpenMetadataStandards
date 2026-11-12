@@ -251,6 +251,36 @@ View the complete Data Product schema in your preferred format:
           ],
           "default": "DEVELOPMENT"
         },
+        "dataProductType": {
+          "description": "Type of the data product, aligned with the Open Data Product Standard (ODPS) v4.1 type taxonomy.",
+          "type": "string",
+          "enum": [
+            "RAW_DATA",
+            "DERIVED_DATA",
+            "DATASET",
+            "REPORTS",
+            "ANALYTIC_VIEW",
+            "VISUALISATION_3D",
+            "ALGORITHM",
+            "DECISION_SUPPORT",
+            "AUTOMATED_DECISION_MAKING",
+            "DATA_ENHANCED_PRODUCT",
+            "DATA_DRIVEN_SERVICE",
+            "DATA_ENABLED_PERFORMANCE",
+            "BI_DIRECTIONAL"
+          ]
+        },
+        "visibility": {
+          "description": "Visibility level of the data product. Controls who can discover and access this data product. Promotion to more open levels (e.g., ORGANISATION, PUBLIC) should go through the governance workflow.",
+          "type": "string",
+          "enum": ["PRIVATE", "INVITATION", "ORGANISATION", "DATASPACE", "PUBLIC"],
+          "default": "PRIVATE"
+        },
+        "portfolioPriority": {
+          "description": "Portfolio-level priority of this data product, indicating its importance in the organization's data product portfolio.",
+          "type": "string",
+          "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
+        },
         "portType": {
           "description": "Type of the data product port",
           "type": "string",
@@ -443,8 +473,20 @@ View the complete Data Product schema in your preferred format:
           "default": []
         },
         "lifecycleStage": {
-          "description": "Current lifecycle stage of the data product",
+          "description": "Current lifecycle stage of the data product. Driven by the governance workflow, not directly user-editable.",
           "$ref": "#/definitions/lifecycleStage"
+        },
+        "dataProductType": {
+          "description": "Type of the data product, aligned with ODPS v4.1.",
+          "$ref": "#/definitions/dataProductType"
+        },
+        "visibility": {
+          "description": "Visibility level of the data product in the marketplace.",
+          "$ref": "#/definitions/visibility"
+        },
+        "portfolioPriority": {
+          "description": "Portfolio-level priority of this data product.",
+          "$ref": "#/definitions/portfolioPriority"
         },
         "sla": {
           "description": "Service Level Agreement for this data product",
@@ -1114,6 +1156,84 @@ View the complete Data Product schema in your preferred format:
 }
 ```
 
+The lifecycle stage is driven by the governance workflow and is not directly user-editable.
+
+---
+
+### Classification Properties
+
+#### `dataProductType` (DataProductType enum)
+**Type**: `string` enum
+**Required**: No
+**Description**: Type of the data product, aligned with the [Open Data Product Specification (ODPS)](https://opendataproducts.org/) v4.1 type taxonomy
+**Allowed Values**:
+
+| Value | Label in UI | Description |
+|---|---|---|
+| `RAW_DATA` | Raw Data | Unprocessed source data as collected, with no transformation applied |
+| `DERIVED_DATA` | Derived Data | Data produced by transforming, cleaning, or combining other data |
+| `DATASET` | Dataset | A curated collection of data packaged for reuse |
+| `REPORTS` | Reports | Prepared reports that present data to business users |
+| `ANALYTIC_VIEW` | Analytic View | A modeled view of data built for analysis and reporting |
+| `VISUALISATION_3D` | 3D Visualisation | Data presented as three-dimensional visual models |
+| `ALGORITHM` | Algorithm | A data-driven algorithm or model offered as a product |
+| `DECISION_SUPPORT` | Decision Support | Insights and recommendations that help people make decisions |
+| `AUTOMATED_DECISION_MAKING` | Automated Decision Making | Data used to make decisions automatically, without human input |
+| `DATA_ENHANCED_PRODUCT` | Data-Enhanced Product | A product that is improved by embedded data |
+| `DATA_DRIVEN_SERVICE` | Data-Driven Service | A service whose core functionality is powered by data |
+| `DATA_ENABLED_PERFORMANCE` | Data-Enabled Performance | Data used to improve the performance of a process or system |
+| `BI_DIRECTIONAL` | Bi-Directional | Data exchanged in both directions between provider and consumer |
+
+```json
+{
+  "dataProductType": "DATASET"
+}
+```
+
+---
+
+#### `visibility` (Visibility enum)
+**Type**: `string` enum
+**Required**: No
+**Default**: `PRIVATE`
+**Description**: Controls who can discover and access the data product. Promotion to more open levels (for example `ORGANISATION` or `PUBLIC`) should go through the governance workflow.
+**Allowed Values**:
+
+| Value | Description |
+|---|---|
+| `PRIVATE` | Visible to the creator only |
+| `INVITATION` | Visible to invited users |
+| `ORGANISATION` | Visible to all users in the organization |
+| `DATASPACE` | Intended for the organization and its partner organizations in a shared data space |
+| `PUBLIC` | Visible to anyone |
+
+```json
+{
+  "visibility": "ORGANISATION"
+}
+```
+
+---
+
+#### `portfolioPriority` (PortfolioPriority enum)
+**Type**: `string` enum
+**Required**: No
+**Description**: Portfolio-level priority of the data product, indicating its importance in the organization's data product portfolio
+**Allowed Values**:
+
+| Value | Description |
+|---|---|
+| `CRITICAL` | Business-critical. Many teams or key processes depend on it |
+| `HIGH` | Important and widely used |
+| `MEDIUM` | Moderately important or used by a limited set of teams |
+| `LOW` | Useful but not essential, or used rarely |
+
+```json
+{
+  "portfolioPriority": "HIGH"
+}
+```
+
 ---
 
 #### `style` (Style)
@@ -1622,6 +1742,9 @@ View the complete Data Product schema in your preferred format:
   "displayName": "Customer 360 Data Product",
   "description": "# Customer 360\n\nUnified customer view combining CRM, behavioral, and transactional data for comprehensive customer analytics.\n\n## Purpose\nProvide 360-degree customer insights for marketing segmentation, sales prioritization, and support personalization.\n\n## Key Features\n- Real-time customer profiles updated hourly\n- ML-based customer segmentation (10 segments)\n- Churn prediction with 85% accuracy\n- Lifetime value estimates\n- Interaction history across all channels\n\n## Data Sources\n- Salesforce CRM (customer master)\n- Google Analytics (web behavior)\n- Zendesk (support tickets)\n- Stripe (transaction history)\n\n## Access Methods\n- **REST API**: `https://api.example.com/v2/customers`\n- **SQL**: `SELECT * FROM data_products.customer360.customer_unified`\n- **Dashboard**: Customer Insights Dashboard in Tableau\n\n## Support\n- **Slack**: #customer360-support\n- **Email**: customer-analytics@example.com\n- **SLA**: 4-hour response time during business hours",
   "lifecycleStage": "PRODUCTION",
+  "dataProductType": "DATASET",
+  "visibility": "ORGANISATION",
+  "portfolioPriority": "HIGH",
   "style": {
     "color": "#F59E0B",
     "iconURL": "https://example.com/icons/customer360.svg"
@@ -1790,7 +1913,7 @@ Content-Type: application/json
   "name": "Customer360",
   "displayName": "Customer 360 Data Product",
   "description": "Unified customer view for analytics",
-  "dataProductType": "Data",
+  "dataProductType": "DATASET",
   "domain": "Sales",
   "owners": [
     {
