@@ -5,7 +5,26 @@ Version history and changes for OpenMetadata Standards.
 
 ---
 
-## Version 2.0.0 (Current)
+## Version 2.0.7 (Current)
+
+**Standards Snapshot Date**: November 12, 2026
+
+### Schema Snapshot
+
+- Synchronized all 915 JSON schemas from OpenMetadata
+  [`2.0.7-release`](https://github.com/open-metadata/OpenMetadata/releases/tag/2.0.7-release)
+  at commit [`744c5236`](https://github.com/open-metadata/OpenMetadata/commit/744c5236bf840e131f091614450a7e892f877382).
+- Compared with the 2.0.0 snapshot: 4 schemas added and 40 modified.
+
+### Documentation
+
+- Documented the allowed values of the Data Product `dataProductType`, `visibility` and `portfolioPriority` fields.
+- Added missing enum values to the entity pages, including table, metric, data model, service, ingestion pipeline, change event and policy operation types.
+- Synchronized the embedded Data Product schema and updated the port documentation to match the 2.0.7 API.
+
+---
+
+## Version 2.0.0
 
 **Release Date**: August 24, 2026
 

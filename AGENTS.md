@@ -23,9 +23,11 @@ Never invent or hand-edit values in `schemas/`. If a schema here differs from th
 
 ## Keeping schemas in sync
 
-1. Copy the changed files from `openmetadata-spec/src/main/resources/json/schema/` into `schemas/`, keeping the same relative paths.
-2. Add new schema files. Remove schema files that no longer exist upstream.
-3. Compare the schemas ignoring formatting-only differences (such as the `$schema` draft URL and generic suffixes on `javaType` or `EntityInterface`) so that only real content changes are reviewed.
+1. Pin the upstream release tag and commit that the site will describe (for example `2.0.7-release`). Read the schemas from that tag, not from `main`, so the site never describes unreleased changes.
+2. Copy the changed files from `openmetadata-spec/src/main/resources/json/schema/` at that tag into `schemas/`, keeping the same relative paths.
+3. Add new schema files. Remove schema files that no longer exist upstream.
+4. Compare the schemas so that real content changes can be reviewed. Only ignore differences that cannot change meaning, such as whitespace or key order. Treat a change to the `$schema` draft URL as a semantic change: draft versions apply validation keywords differently (for example, draft-07 ignores keywords placed next to a `$ref`, while draft 2020-12 applies them), so a dialect change needs an explicit compatibility review.
+5. Update the public snapshot information: the version label in `docs/index.md`, the version badge in `README.md`, and a new section in `docs/reference/changelog.md` that records the release tag, the upstream commit, the schema count, and the number of schemas added, modified, and removed.
 
 ## Updating entity pages in `docs/`
 
