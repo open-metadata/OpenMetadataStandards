@@ -94,12 +94,12 @@ jobs:
           mkdocs build --strict 2>&1 | tee build.log
 
           # Check for warnings (excluding git-related warnings)
-          WARNING_COUNT=$(grep "WARNING" build.log | grep -v "git_follow\|git logs" | wc -l)
+          WARNING_COUNT=$(grep "^WARNING" build.log | grep -v "git_follow\|git logs" | wc -l)
           echo "warning_count=$WARNING_COUNT" >> $GITHUB_OUTPUT
 
           if [ $WARNING_COUNT -gt 0 ]; then
             echo "❌ Found $WARNING_COUNT warnings in documentation build"
-            grep "WARNING" build.log | grep -v "git_follow\|git logs"
+            grep "^WARNING" build.log | grep -v "git_follow\|git logs"
             exit 1
           fi
 
@@ -186,7 +186,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f "build.log" ]; then
-            WARNING_COUNT=$(grep "WARNING" build.log | grep -v "git_follow\|git logs" | wc -l || echo "0")
+            WARNING_COUNT=$(grep "^WARNING" build.log | grep -v "git_follow\|git logs" | wc -l || echo "0")
             ERROR_COUNT=$(grep "ERROR" build.log | wc -l || echo "0")
 
             echo "### Build Results" >> $GITHUB_STEP_SUMMARY
