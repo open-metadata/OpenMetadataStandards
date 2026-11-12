@@ -172,11 +172,12 @@ View the complete MessagingService schema in your preferred format:
           "description": "Type of messaging service - Kafka or Pulsar.",
           "type": "string",
           "javaInterfaces": ["org.openmetadata.schema.EnumInterface"],
-          "enum": ["Kafka", "Redpanda", "Kinesis", "CustomMessaging"],
+          "enum": ["Kafka", "Redpanda", "Kinesis", "PubSub", "CustomMessaging"],
           "javaEnums": [
             { "name": "Kafka" },
             { "name": "Redpanda" },
             { "name": "Kinesis" },
+            { "name": "PubSub" },
             { "name": "CustomMessaging" }
           ]
         },
@@ -425,6 +426,7 @@ View the complete MessagingService schema in your preferred format:
             om:Kafka
             om:Redpanda
             om:Kinesis
+            om:PubSub
             om:CustomMessaging
         ) .
 
@@ -686,6 +688,7 @@ View the complete MessagingService schema in your preferred format:
 - `Kafka` - Apache Kafka
 - `Redpanda` - Redpanda
 - `Kinesis` - Amazon Kinesis
+- `PubSub` - Google Pub/Sub
 - `CustomMessaging` - Custom messaging service
 
 ```json

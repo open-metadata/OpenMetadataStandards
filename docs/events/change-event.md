@@ -55,6 +55,20 @@ graph TB
 
 **Click on any node to learn more about that event type.**
 
+### Event Type Values
+
+**Schema**: `type/changeEventType.json`
+
+The `eventType` field accepts the following values:
+
+- Entity: `entityCreated`, `entityUpdated`, `entityFieldsChanged`, `entityNoChange`, `entitySoftDeleted`, `entityDeleted`, `entityRestored`
+- Thread and post: `threadCreated`, `threadUpdated`, `postCreated`, `postUpdated`
+- Task: `taskCreated`, `taskUpdated`, `taskResolved`, `taskClosed`
+- Test case: `logicalTestCaseAdded`
+- Suggestion: `suggestionCreated`, `suggestionUpdated`, `suggestionAccepted`, `suggestionRejected`, `suggestionDeleted`
+- User: `userLogin`, `userLogout`
+- Lineage: `entityLineageAdded`, `entityLineageDeleted`, `entityLineageUpdated`
+
 ## Change Event Flow
 
 ```mermaid

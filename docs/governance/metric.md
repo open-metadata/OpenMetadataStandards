@@ -213,6 +213,10 @@ View the complete Metric schema in your preferred format:
             "MODE",
             "STANDARD_DEVIATION",
             "VARIANCE",
+            "SIMPLE",
+            "CUMULATIVE",
+            "DERIVED",
+            "CONVERSION",
             "OTHER"
           ]
         },
@@ -518,6 +522,10 @@ View the complete Metric schema in your preferred format:
             om:MetricType_MODE
             om:MetricType_STANDARD_DEVIATION
             om:MetricType_VARIANCE
+            om:MetricType_SIMPLE
+            om:MetricType_CUMULATIVE
+            om:MetricType_DERIVED
+            om:MetricType_CONVERSION
             om:MetricType_OTHER
         ) .
 
@@ -840,6 +848,10 @@ View the complete Metric schema in your preferred format:
 - `MODE` - Mode value
 - `STANDARD_DEVIATION` - Standard deviation
 - `VARIANCE` - Variance
+- `SIMPLE`
+- `CUMULATIVE`
+- `DERIVED`
+- `CONVERSION`
 - `OTHER` - Other metric type
 
 ```json
@@ -928,6 +940,34 @@ View the complete Metric schema in your preferred format:
     "language": "SQL",
     "code": "SELECT COUNT(DISTINCT user_id) FROM user_activity WHERE activity_date >= CURRENT_DATE - INTERVAL '30 days'"
   }
+}
+```
+
+---
+
+#### `dimensions[]` (MetricDimension[])
+**Type**: `array` of `object`
+**Required**: No
+**Description**: Dimensions associated with the metric from a semantic layer
+
+**MetricDimension Properties**:
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | Yes | Name of the dimension |
+| `fullyQualifiedName` | fullyQualifiedEntityName | No | Fully qualified name of the dimension, in the format `metricFQN.dimension.<name>` |
+| `type` | enum | No | Type of the dimension. Allowed values: `CATEGORICAL`, `TIME` |
+| `description` | string | No | Description of the dimension |
+| `expression` | string | No | Expression used to compute the dimension |
+
+```json
+{
+  "dimensions": [
+    {
+      "name": "country",
+      "type": "CATEGORICAL"
+    }
+  ]
 }
 ```
 

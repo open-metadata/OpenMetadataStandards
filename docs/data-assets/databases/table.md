@@ -50,7 +50,7 @@ View the complete Table schema in your preferred format:
           "enum": [
             "Regular", "External", "Dynamic", "View", "SecureView",
             "MaterializedView", "Iceberg", "Local", "Partitioned",
-            "Foreign", "Transient", "Stream"
+            "Foreign", "Transient", "Stream", "Stage", "SemanticView"
           ]
         },
         "tableConstraint": {
@@ -283,6 +283,8 @@ View the complete Table schema in your preferred format:
             om:ForeignTable
             om:TransientTable
             om:StreamTable
+            om:StageTable
+            om:SemanticViewTable
         ) .
 
     # Example Instance
@@ -690,6 +692,8 @@ View the complete Table schema in your preferred format:
 - `Foreign` - Foreign table
 - `Transient` - Transient table (Snowflake)
 - `Stream` - Stream table (Snowflake)
+- `Stage`
+- `SemanticView`
 
 ```json
 {
@@ -733,6 +737,8 @@ View the complete Table schema in your preferred format:
 **Type**: `object`
 **Required**: No (required for views)
 **Description**: SQL query defining the view
+
+`modelType` allowed values: `DBT`, `DDL` (currently only DBT and DDL model types are supported)
 
 ```json
 {
@@ -1059,6 +1065,16 @@ View the complete Table schema in your preferred format:
   }
 }
 ```
+
+**partitionIntervalType Allowed Values**:
+
+- `TIME-UNIT`
+- `INTEGER-RANGE`
+- `INGESTION-TIME`
+- `COLUMN-VALUE`
+- `INJECTED`
+- `ENUM`
+- `OTHER`
 
 ---
 
@@ -1568,8 +1584,8 @@ Additional standard properties available:
 - **retentionPeriod**: Data retention period (ISO 8601 duration format)
 - **compressionEnabled**: Whether compression is enabled
 - **compressionCodec**: Compression algorithm (LZ4, ZSTD, Snappy, etc.)
-- **compressionStrategy**: Compression configuration including type, segment/order columns, and level
-- **fileFormat**: File format for file/datalake tables (csv, parquet, json, avro, etc.)
+- **compressionStrategy**: Compression configuration including type, segment/order columns, and level. The `compressionType` allowed values are `AUTOMATIC` (Snowflake/BigQuery), `MANUAL` (Redshift), and `POLICY_BASED` (TimescaleDB)
+- **fileFormat**: File format for file/datalake tables. Allowed values: `csv`, `csv.gz`, `tsv`, `avro`, `parquet`, `pq`, `pqt`, `parq`, `parquet.snappy`, `json`, `json.gz`, `json.zip`, `jsonl`, `jsonl.gz`, `jsonl.zip`, `MF4`
 - **sourceUrl**: Source URL of table
 - **sourceHash**: Source hash of the entity
 - **processedLineage**: Whether lineage has been processed

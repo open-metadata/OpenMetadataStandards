@@ -184,6 +184,7 @@ View the complete DataModel schema in your preferred format:
             "TableauEmbeddedDatasource",
             "SupersetDataModel",
             "MetabaseDataModel",
+            "ModeDataModel",
             "LookMlView",
             "LookMlExplore",
             "PowerBIDataModel",
@@ -191,8 +192,12 @@ View the complete DataModel schema in your preferred format:
             "QuickSightDataModel",
             "SigmaDataModel",
             "PowerBIDataFlow",
+            "PowerBIDatamart",
             "MicroStrategyDataset",
-            "ThoughtSpotDataModel"
+            "ThoughtSpotDataModel",
+            "SapS4HanaCdsView",
+            "SsrsDataModel",
+            "OmniDataModel"
           ]
         }
       },
@@ -433,6 +438,7 @@ View the complete DataModel schema in your preferred format:
             om:DataModelType_TableauEmbeddedDatasource
             om:DataModelType_SupersetDataModel
             om:DataModelType_MetabaseDataModel
+            om:DataModelType_ModeDataModel
             om:DataModelType_LookMlView
             om:DataModelType_LookMlExplore
             om:DataModelType_PowerBIDataModel
@@ -440,8 +446,12 @@ View the complete DataModel schema in your preferred format:
             om:DataModelType_QuickSightDataModel
             om:DataModelType_SigmaDataModel
             om:DataModelType_PowerBIDataFlow
+            om:DataModelType_PowerBIDatamart
             om:DataModelType_MicroStrategyDataset
             om:DataModelType_ThoughtSpotDataModel
+            om:DataModelType_SapS4HanaCdsView
+            om:DataModelType_SsrsDataModel
+            om:DataModelType_OmniDataModel
         ) .
 
     # Example Instance
@@ -708,6 +718,7 @@ View the complete DataModel schema in your preferred format:
 - `TableauEmbeddedDatasource` - Tableau embedded datasource
 - `SupersetDataModel` - Superset data model
 - `MetabaseDataModel` - Metabase data model
+- `ModeDataModel` - Mode data model
 - `LookMlView` - Looker LookML view
 - `LookMlExplore` - Looker LookML explore
 - `PowerBIDataModel` - Power BI data model
@@ -715,8 +726,12 @@ View the complete DataModel schema in your preferred format:
 - `QuickSightDataModel` - QuickSight data model
 - `SigmaDataModel` - Sigma data model
 - `PowerBIDataFlow` - Power BI dataflow
+- `PowerBIDatamart` - Power BI datamart
 - `MicroStrategyDataset` - MicroStrategy dataset
 - `ThoughtSpotDataModel` - ThoughtSpot data model
+- `SapS4HanaCdsView` - SAP S/4HANA CDS view
+- `SsrsDataModel` - SSRS data model
+- `OmniDataModel` - Omni data model
 
 ```json
 {

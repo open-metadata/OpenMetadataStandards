@@ -67,12 +67,17 @@ Typed relationship between entities:
 
 ### Relationship Types
 
+The `relationshipType` enum captures all the relationships between catalog entities. Allowed values:
+
+`contains`, `createdBy`, `repliedTo`, `isAbout`, `addressedTo`, `mentionedIn`, `testedBy`, `uses`, `owns`, `parentOf`, `has`, `follows`, `joinedWith`, `upstream`, `appliedTo`, `relatedTo`, `reviews`, `reactedTo`, `voted`, `expert`, `editedBy`, `defaultsTo`, `relatesTo`, `inputPort`, `outputPort`, `assignedTo`
+
+Selected values:
+
 - `contains`: Hierarchical containment
 - `uses`: Usage dependency
 - `owns`: Ownership
 - `createdBy`: Creation attribution
 - `upstream`: Lineage (data flows from)
-- `downstream`: Lineage (data flows to)
 
 ## Tag Label
 
@@ -102,6 +107,9 @@ Tag assignment to an entity:
 - `Automated`: Rule-based
 - `Propagated`: Inherited from parent
 - `Derived`: ML/pattern-detected
+- `Generated`
+
+Default: `Manual`
 
 ## Change Description
 

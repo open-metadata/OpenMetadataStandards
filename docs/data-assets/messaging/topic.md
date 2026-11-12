@@ -450,6 +450,7 @@ View the complete Topic schema in your preferred format:
             om:AvroSchema
             om:ProtobufSchema
             om:JSONSchema
+            om:OtherSchema
             om:NoSchema
         ) .
 
@@ -766,6 +767,7 @@ View the complete Topic schema in your preferred format:
 - `Avro` - Apache Avro schema
 - `Protobuf` - Protocol Buffers schema
 - `JSON` - JSON Schema
+- `Other` - Other schema type
 - `None` - No schema enforcement
 
 ```json

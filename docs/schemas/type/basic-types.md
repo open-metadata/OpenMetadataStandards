@@ -214,6 +214,18 @@ Constrained string values:
 }
 ```
 
+### Status
+
+**Schema**: `type/basic.json#/definitions/status`
+
+State of an action over API. Allowed values:
+
+- `success`
+- `failure`
+- `aborted`
+- `partialSuccess`
+- `running`
+
 ## Validation Patterns
 
 ### Name Pattern

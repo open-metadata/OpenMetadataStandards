@@ -233,9 +233,12 @@ View the complete Data Product schema in your preferred format:
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "DataProduct",
       "description": "A `Data Product` or `Data as a Product` is a logical unit that contains all components to process and store data for analytical or data-intensive use cases made available to data consumers.",
+      "$comment": "@om-entity-type",
       "type": "object",
       "javaType": "org.openmetadata.schema.entity.domains.DataProduct",
-
+      "javaInterfaces": [
+        "org.openmetadata.schema.EntityInterface"
+      ],
       "definitions": {
         "lifecycleStage": {
           "description": "Lifecycle stage of the data product",
@@ -251,10 +254,54 @@ View the complete Data Product schema in your preferred format:
           ],
           "default": "DEVELOPMENT"
         },
+        "dataProductType": {
+          "description": "Type of the data product, aligned with the Open Data Product Standard (ODPS) v4.1 type taxonomy.",
+          "type": "string",
+          "enum": [
+            "RAW_DATA",
+            "DERIVED_DATA",
+            "DATASET",
+            "REPORTS",
+            "ANALYTIC_VIEW",
+            "VISUALISATION_3D",
+            "ALGORITHM",
+            "DECISION_SUPPORT",
+            "AUTOMATED_DECISION_MAKING",
+            "DATA_ENHANCED_PRODUCT",
+            "DATA_DRIVEN_SERVICE",
+            "DATA_ENABLED_PERFORMANCE",
+            "BI_DIRECTIONAL"
+          ]
+        },
+        "visibility": {
+          "description": "Visibility level of the data product. Controls who can discover and access this data product. Promotion to more open levels (e.g., ORGANISATION, PUBLIC) should go through the governance workflow.",
+          "type": "string",
+          "enum": [
+            "PRIVATE",
+            "INVITATION",
+            "ORGANISATION",
+            "DATASPACE",
+            "PUBLIC"
+          ],
+          "default": "PRIVATE"
+        },
+        "portfolioPriority": {
+          "description": "Portfolio-level priority of this data product, indicating its importance in the organization's data product portfolio.",
+          "type": "string",
+          "enum": [
+            "CRITICAL",
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+          ]
+        },
         "portType": {
           "description": "Type of the data product port",
           "type": "string",
-          "enum": ["INPUT", "OUTPUT"]
+          "enum": [
+            "INPUT",
+            "OUTPUT"
+          ]
         },
         "portProtocol": {
           "description": "Protocol used by the port for data access",
@@ -325,7 +372,12 @@ View the complete Data Product schema in your preferred format:
               "$ref": "../../type/entityReference.json"
             }
           },
-          "required": ["name", "portType"]
+          "required": [
+            "name",
+            "portType",
+            "dataAsset"
+          ],
+          "additionalProperties": false
         },
         "slaDefinition": {
           "description": "Service Level Agreement definition",
@@ -334,7 +386,12 @@ View the complete Data Product schema in your preferred format:
             "tier": {
               "description": "SLA tier (e.g., GOLD, SILVER, BRONZE)",
               "type": "string",
-              "enum": ["GOLD", "SILVER", "BRONZE", "CUSTOM"]
+              "enum": [
+                "GOLD",
+                "SILVER",
+                "BRONZE",
+                "CUSTOM"
+              ]
             },
             "availability": {
               "description": "Expected availability percentage (e.g., 99.9)",
@@ -356,10 +413,10 @@ View the complete Data Product schema in your preferred format:
               "minimum": 0,
               "maximum": 100
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
-
       "properties": {
         "id": {
           "description": "Unique ID of the Data Product",
@@ -424,27 +481,24 @@ View the complete Data Product schema in your preferred format:
         "assets": {
           "description": "Data assets collection that is part of this data product.",
           "$ref": "../../type/entityReferenceList.json",
-          "deprecated": true
-        },
-        "inputPorts": {
-          "description": "Input ports for consuming data into this data product",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/dataProductPort"
-          },
-          "default": []
-        },
-        "outputPorts": {
-          "description": "Output ports for exposing data from this data product",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/dataProductPort"
-          },
-          "default": []
+          "deprecated": true,
+          "$comment": "@deprecated Use GET /v1/dataProducts/{id}/assets API endpoint for paginated access to data product assets"
         },
         "lifecycleStage": {
-          "description": "Current lifecycle stage of the data product",
+          "description": "Current lifecycle stage of the data product. Driven by the governance workflow — not directly user-editable.",
           "$ref": "#/definitions/lifecycleStage"
+        },
+        "dataProductType": {
+          "description": "Type of the data product (ODPS-aligned taxonomy).",
+          "$ref": "#/definitions/dataProductType"
+        },
+        "visibility": {
+          "description": "Visibility level of the data product in the marketplace.",
+          "$ref": "#/definitions/visibility"
+        },
+        "portfolioPriority": {
+          "description": "Portfolio-level priority of this data product.",
+          "$ref": "#/definitions/portfolioPriority"
         },
         "sla": {
           "description": "Service Level Agreement for this data product",
@@ -452,13 +506,11 @@ View the complete Data Product schema in your preferred format:
         },
         "consumesFrom": {
           "description": "Other data products that this product consumes data from",
-          "$ref": "../../type/entityReferenceList.json",
-          "default": []
+          "$ref": "../../type/entityReferenceList.json"
         },
         "providesTo": {
           "description": "Other data products that consume data from this product",
-          "$ref": "../../type/entityReferenceList.json",
-          "default": []
+          "$ref": "../../type/entityReferenceList.json"
         },
         "tags": {
           "description": "Tags associated with the Data Product.",
@@ -484,13 +536,24 @@ View the complete Data Product schema in your preferred format:
           "description": "Followers of this entity.",
           "$ref": "../../type/entityReferenceList.json"
         },
+        "votes": {
+          "description": "Votes on the entity.",
+          "$ref": "../../type/votes.json"
+        },
+        "certification": {
+          "$ref": "../../type/assetCertification.json"
+        },
         "entityStatus": {
           "description": "Status of the Data Product.",
           "$ref": "../../type/status.json"
         }
       },
-
-      "required": ["id", "name", "description"]
+      "required": [
+        "id",
+        "name",
+        "description"
+      ],
+      "additionalProperties": false
     }
     ```
 
@@ -909,48 +972,6 @@ View the complete Data Product schema in your preferred format:
         }
       ],
 
-      "inputPorts": [
-        {
-          "@type": "DataProductPort",
-          "name": "crm_input",
-          "displayName": "CRM Data Input",
-          "portType": "INPUT",
-          "protocol": "JDBC",
-          "format": "JSON",
-          "endpoint": "jdbc:postgresql://crm-db.example.com:5432/crm"
-        },
-        {
-          "@type": "DataProductPort",
-          "name": "events_input",
-          "displayName": "Event Stream Input",
-          "portType": "INPUT",
-          "protocol": "KAFKA",
-          "format": "AVRO",
-          "endpoint": "kafka://events.example.com:9092/customer-events"
-        }
-      ],
-
-      "outputPorts": [
-        {
-          "@type": "DataProductPort",
-          "name": "customer_api",
-          "displayName": "Customer API",
-          "portType": "OUTPUT",
-          "protocol": "REST",
-          "format": "JSON",
-          "endpoint": "https://api.example.com/v2/customers"
-        },
-        {
-          "@type": "DataProductPort",
-          "name": "customer_table",
-          "displayName": "Customer Table",
-          "portType": "OUTPUT",
-          "protocol": "JDBC",
-          "format": "PARQUET",
-          "endpoint": "jdbc:postgresql://analytics.example.com:5432/customer360"
-        }
-      ],
-
       "consumesFrom": [
         {
           "@id": "https://example.com/dataproducts/crm-master",
@@ -1114,6 +1135,87 @@ View the complete Data Product schema in your preferred format:
 }
 ```
 
+The lifecycle stage is driven by the governance workflow and is not directly user-editable.
+
+---
+
+### Classification Properties
+
+#### `dataProductType` (DataProductType enum)
+**Type**: `string` enum
+**Required**: No
+**Description**: Type of the data product, aligned with the [Open Data Product Specification (ODPS)](https://opendataproducts.org/) v4.1 type taxonomy
+**Allowed Values**:
+
+| Value | Label in UI | Description |
+|---|---|---|
+| `RAW_DATA` | Raw Data | Unprocessed source data as collected, with no transformation applied |
+| `DERIVED_DATA` | Derived Data | Data produced by transforming, cleaning, or combining other data |
+| `DATASET` | Dataset | A curated collection of data packaged for reuse |
+| `REPORTS` | Reports | Prepared reports that present data to business users |
+| `ANALYTIC_VIEW` | Analytic View | A modeled view of data built for analysis and reporting |
+| `VISUALISATION_3D` | 3D Visualisation | Data presented as three-dimensional visual models |
+| `ALGORITHM` | Algorithm | A data-driven algorithm or model offered as a product |
+| `DECISION_SUPPORT` | Decision Support | Insights and recommendations that help people make decisions |
+| `AUTOMATED_DECISION_MAKING` | Automated Decision Making | Data used to make decisions automatically, without human input |
+| `DATA_ENHANCED_PRODUCT` | Data-Enhanced Product | A product that is improved by embedded data |
+| `DATA_DRIVEN_SERVICE` | Data-Driven Service | A service whose core functionality is powered by data |
+| `DATA_ENABLED_PERFORMANCE` | Data-Enabled Performance | Data used to improve the performance of a process or system |
+| `BI_DIRECTIONAL` | Bi-Directional | Data exchanged in both directions between provider and consumer |
+
+```json
+{
+  "dataProductType": "DATASET"
+}
+```
+
+---
+
+#### `visibility` (Visibility enum)
+**Type**: `string` enum
+**Required**: No
+**Default**: `PRIVATE`
+**Description**: Classifies the intended audience of the data product. Promotion to more open levels (for example `ORGANISATION` or `PUBLIC`) should go through the governance workflow.
+
+!!! note
+    `visibility` is an audience classification. It does not enforce access by itself. Actual access depends on authentication and the permissions configured through policies and roles, so a user with a policy that allows reading data products can read a `PRIVATE` data product, and selecting `PUBLIC` does not grant unauthenticated access.
+**Allowed Values**:
+
+| Value | Description |
+|---|---|
+| `PRIVATE` | Intended for the creator only |
+| `INVITATION` | Intended for invited users |
+| `ORGANISATION` | Intended for all users in the organization |
+| `DATASPACE` | Intended for the organization and its partner organizations in a shared data space |
+| `PUBLIC` | Intended for anyone |
+
+```json
+{
+  "visibility": "ORGANISATION"
+}
+```
+
+---
+
+#### `portfolioPriority` (PortfolioPriority enum)
+**Type**: `string` enum
+**Required**: No
+**Description**: Portfolio-level priority of the data product, indicating its importance in the organization's data product portfolio
+**Allowed Values**:
+
+| Value | Description |
+|---|---|
+| `CRITICAL` | Business-critical. Many teams or key processes depend on it |
+| `HIGH` | Important and widely used |
+| `MEDIUM` | Moderately important or used by a limited set of teams |
+| `LOW` | Useful but not essential, or used rarely |
+
+```json
+{
+  "portfolioPriority": "HIGH"
+}
+```
+
 ---
 
 #### `style` (Style)
@@ -1250,79 +1352,22 @@ View the complete Data Product schema in your preferred format:
 
 ### Port Properties
 
-#### `inputPorts[]` (DataProductPort[])
-**Type**: `array` of DataProductPort objects
-**Required**: No
-**Default**: `[]`
-**Description**: Input ports for consuming data into this data product
+Input ports and output ports are not properties of the `DataProduct` entity. They are relationships to data assets, managed and read through dedicated API endpoints. Each port is returned as the full entity of the data asset it points to.
 
-```json
-{
-  "inputPorts": [
-    {
-      "name": "crm_input",
-      "displayName": "CRM Data Input",
-      "description": "Input port for CRM data",
-      "portType": "INPUT",
-      "protocol": "JDBC",
-      "format": "JSON",
-      "endpoint": "jdbc:postgresql://crm-db.example.com:5432/crm",
-      "dataAsset": {
-        "id": "table-uuid",
-        "type": "table",
-        "name": "crm_customers"
-      }
-    }
-  ]
-}
-```
+| Operation | Endpoint |
+|---|---|
+| Add input ports | `PUT /v1/dataProducts/{name}/inputPorts/add` |
+| Remove input ports | `PUT /v1/dataProducts/{name}/inputPorts/remove` |
+| Add output ports | `PUT /v1/dataProducts/{name}/outputPorts/add` |
+| Remove output ports | `PUT /v1/dataProducts/{name}/outputPorts/remove` |
+| List input ports | `GET /v1/dataProducts/{id}/inputPorts` |
+| List output ports | `GET /v1/dataProducts/{id}/outputPorts` |
+| List both with independent pagination | `GET /v1/dataProducts/{id}/portsView` |
 
-**Port Properties**:
-- `name` (string, required): Name of the port
-- `displayName` (string): Display name of the port
-- `description` (string): Description of the port
-- `portType` (enum, required): Type of port - `INPUT` or `OUTPUT`
-- `protocol` (enum): Protocol - `REST`, `GRPC`, `GRAPHQL`, `JDBC`, `KAFKA`, `FILE`, `S3`, `AZURE_BLOB`, `GCS`, `WEBHOOK`, `CUSTOM`
-- `format` (enum): Data format - `JSON`, `CSV`, `PARQUET`, `AVRO`, `ORC`, `XML`, `PROTOBUF`, `DELTA`, `ICEBERG`, `CUSTOM`
-- `endpoint` (string): Endpoint URL or connection string
-- `dataAsset` (EntityReference): Reference to the data asset exposed through this port
+- **Input ports**: Data assets consumed by the data product.
+- **Output ports**: Data assets produced or exposed by the data product.
 
----
-
-#### `outputPorts[]` (DataProductPort[])
-**Type**: `array` of DataProductPort objects
-**Required**: No
-**Default**: `[]`
-**Description**: Output ports for exposing data from this data product
-
-```json
-{
-  "outputPorts": [
-    {
-      "name": "customer_api",
-      "displayName": "Customer API",
-      "description": "REST API for customer data access",
-      "portType": "OUTPUT",
-      "protocol": "REST",
-      "format": "JSON",
-      "endpoint": "https://api.example.com/v2/customers"
-    },
-    {
-      "name": "customer_table",
-      "displayName": "Customer Data Table",
-      "portType": "OUTPUT",
-      "protocol": "JDBC",
-      "format": "PARQUET",
-      "endpoint": "jdbc:postgresql://analytics.example.com:5432/customer360",
-      "dataAsset": {
-        "id": "table-uuid",
-        "type": "table",
-        "name": "customer_unified"
-      }
-    }
-  ]
-}
-```
+The `portsView` response follows the `DataProductPortsView` schema (`api/domains/dataProductPortsView.json`) and contains `entity`, `inputPorts` and `outputPorts`, where each port list is a paginated set of `data` and `paging`.
 
 ---
 
@@ -1582,8 +1627,8 @@ View the complete Data Product schema in your preferred format:
   "incrementalChangeDescription": {
     "fieldsAdded": [
       {
-        "name": "outputPorts[0]",
-        "newValue": "{\"name\":\"customer_api\",\"portType\":\"OUTPUT\"}"
+        "name": "tags[0]",
+        "newValue": "{\"tagFQN\":\"PII.Sensitive\",\"source\":\"Classification\"}"
       }
     ],
     "fieldsUpdated": [],
@@ -1622,6 +1667,9 @@ View the complete Data Product schema in your preferred format:
   "displayName": "Customer 360 Data Product",
   "description": "# Customer 360\n\nUnified customer view combining CRM, behavioral, and transactional data for comprehensive customer analytics.\n\n## Purpose\nProvide 360-degree customer insights for marketing segmentation, sales prioritization, and support personalization.\n\n## Key Features\n- Real-time customer profiles updated hourly\n- ML-based customer segmentation (10 segments)\n- Churn prediction with 85% accuracy\n- Lifetime value estimates\n- Interaction history across all channels\n\n## Data Sources\n- Salesforce CRM (customer master)\n- Google Analytics (web behavior)\n- Zendesk (support tickets)\n- Stripe (transaction history)\n\n## Access Methods\n- **REST API**: `https://api.example.com/v2/customers`\n- **SQL**: `SELECT * FROM data_products.customer360.customer_unified`\n- **Dashboard**: Customer Insights Dashboard in Tableau\n\n## Support\n- **Slack**: #customer360-support\n- **Email**: customer-analytics@example.com\n- **SLA**: 4-hour response time during business hours",
   "lifecycleStage": "PRODUCTION",
+  "dataProductType": "DATASET",
+  "visibility": "ORGANISATION",
+  "portfolioPriority": "HIGH",
   "style": {
     "color": "#F59E0B",
     "iconURL": "https://example.com/icons/customer360.svg"
@@ -1662,46 +1710,6 @@ View the complete Data Product schema in your preferred format:
       "type": "user",
       "name": "review.lead",
       "displayName": "Review Lead"
-    }
-  ],
-  "inputPorts": [
-    {
-      "name": "crm_input",
-      "displayName": "CRM Data Input",
-      "description": "Input port for CRM customer data",
-      "portType": "INPUT",
-      "protocol": "JDBC",
-      "format": "JSON",
-      "endpoint": "jdbc:postgresql://crm-db.example.com:5432/crm"
-    },
-    {
-      "name": "events_input",
-      "displayName": "Event Stream Input",
-      "description": "Real-time customer events from Kafka",
-      "portType": "INPUT",
-      "protocol": "KAFKA",
-      "format": "AVRO",
-      "endpoint": "kafka://events.example.com:9092/customer-events"
-    }
-  ],
-  "outputPorts": [
-    {
-      "name": "customer_api",
-      "displayName": "Customer REST API",
-      "description": "REST API for customer data access",
-      "portType": "OUTPUT",
-      "protocol": "REST",
-      "format": "JSON",
-      "endpoint": "https://api.example.com/v2/customers"
-    },
-    {
-      "name": "customer_table",
-      "displayName": "Customer Unified Table",
-      "description": "Unified customer table in data warehouse",
-      "portType": "OUTPUT",
-      "protocol": "JDBC",
-      "format": "PARQUET",
-      "endpoint": "jdbc:postgresql://analytics.example.com:5432/customer360"
     }
   ],
   "consumesFrom": [
@@ -1790,20 +1798,15 @@ Content-Type: application/json
   "name": "Customer360",
   "displayName": "Customer 360 Data Product",
   "description": "Unified customer view for analytics",
-  "dataProductType": "Data",
-  "domain": "Sales",
+  "dataProductType": "DATASET",
+  "domains": ["Sales"],
   "owners": [
     {
       "type": "team",
       "id": "team-uuid"
     }
   ],
-  "experts": [
-    {
-      "type": "user",
-      "id": "user-uuid"
-    }
-  ]
+  "experts": ["alice.smith"]
 }
 ```
 

@@ -696,6 +696,7 @@ Supported operations that can be controlled by policies:
 - `ViewTestCaseFailedRowsSample`: View test case failed rows sample
 - `ViewCustomFields`: View custom fields
 - `ViewScim`: View SCIM information
+- `ViewTestDefinitionLibrary`: View the test definition library
 
 ### Create Operations
 - `Create`: Create new entities
@@ -703,11 +704,13 @@ Supported operations that can be controlled by policies:
 - `CreateIngestionPipelineAutomator`: Create ingestion pipeline automators
 - `CreateTests`: Create test cases
 - `CreateScim`: Create SCIM entries
+- `CreateTask`: Create tasks
 
 ### Edit Operations
 - `EditAll`: Edit all metadata
 - `EditDescription`: Edit description
 - `EditDisplayName`: Edit display name
+- `EditDomains`: Edit domains
 - `EditTags`: Edit tags
 - `EditGlossaryTerms`: Edit glossary terms
 - `EditOwners`: Edit ownership
@@ -730,6 +733,11 @@ Supported operations that can be controlled by policies:
 - `EditStatus`: Edit status
 - `EditIngestionPipelineStatus`: Edit ingestion pipeline status
 - `EditUserNotificationTemplate`: Edit user notification templates
+- `EditTask`: Edit tasks
+- `EditTestDefinitionLibrary`: Edit the test definition library
+- `ResolveTask`: Resolve tasks
+- `CloseTask`: Close tasks
+- `ReassignTask`: Reassign tasks
 
 ### Bulk Operations
 - `BulkUpdate`: Update multiple entities at once
@@ -746,6 +754,7 @@ Supported operations that can be controlled by policies:
 - `GenerateToken`: Generate authentication tokens
 - `EditScim`: Edit SCIM information
 - `Impersonate`: Impersonate users
+- `AuditLogs`: Access audit logs
 - `All`: All operations
 
 ## Policy Evaluation
