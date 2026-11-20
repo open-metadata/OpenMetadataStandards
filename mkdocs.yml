@@ -64,7 +64,7 @@ extra_javascript:
 extra:
   version:
     provider: openmetadata
-    default: 2.0.0
+    default: 2.1.0
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/open-metadata/OpenMetadata
@@ -227,6 +227,7 @@ nav:
       - Data Contracts:
           - Overview: data-contracts/overview.md
           - Data Contract: data-contracts/data-contract.md
+          - ODCS Data Contract: data-contracts/odcs.md
       - Teams & Users:
           - Overview: teams-users/overview.md
           - User: teams-users/user.md
@@ -239,13 +240,52 @@ nav:
       - Data Products:
           - Overview: data-products/overview.md
           - Data Product: data-products/data-product.md
+          - ODPS Data Product: data-products/odps.md
       - Operations:
           - Overview: operations/overview.md
           - Ingestion Pipeline: operations/ingestion-pipeline.md
           - Webhook: operations/webhook.md
+          - OpenLineage: integrations/openlineage.md
           - Applications:
               - Overview: operations/applications/overview.md
               - Application: operations/applications/application.md
+      - AI Entities:
+          - AI Application: ai/ai-application.md
+          - Agent Execution: ai/agent-execution.md
+          - AI Framework Control: ai/ai-framework-control.md
+          - AI Governance Framework: ai/ai-governance-framework.md
+          - AI Governance Policy: ai/ai-governance-policy.md
+          - Audit Report: ai/audit-report.md
+          - LLM Model: ai/llm-model.md
+          - MCP Execution: ai/mcp-execution.md
+          - MCP Server: ai/mcp-server.md
+          - Prompt Template: ai/prompt-template.md
+          - AI Compliance: ai/ai-compliance.md
+      - Collaboration and Context:
+          - Context Memory: collaboration/context-memory.md
+          - Context File: collaboration/context-file.md
+          - Page: collaboration/page.md
+          - Learning Resource: collaboration/learning-resource.md
+          - Activity Event: collaboration/activity-event.md
+          - Activity Stream Config: collaboration/activity-stream-config.md
+          - Task: collaboration/task.md
+          - Automation Workflow: collaboration/workflow.md
+          - Query Runner Response: collaboration/query-runner-response.md
+      - Governance Workflows:
+          - Workflows and Intake: governance/workflows.md
+          - Intake Form: governance/intake-form.md
+          - Workflow Definition: governance/workflow-definition.md
+          - Workflow Instance: governance/workflow-instance.md
+      - Data Insights:
+          - Charts and KPIs: analytics/data-insights.md
+      - Services:
+          - LLM Service: services/llm-service.md
+          - Metadata Service: services/metadata-service.md
+          - Service Type: services/service-type.md
+          - Progress Update: services/progress-update.md
+          - Resource Permission: services/resource-permission.md
+      - Shared Types:
+          - Enum Types: schemas/type/shared-enums.md
       - Events:
           - Overview: events/overview.md
           - Change Event: events/change-event.md
@@ -291,5 +331,6 @@ nav:
   - Reference:
       - Glossary: reference/glossary.md
       - FAQ: reference/faq.md
+      - Schema Enum Reference: reference/schema-enums.md
       - Change Log: reference/changelog.md
       - License: reference/license.md

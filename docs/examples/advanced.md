@@ -248,7 +248,7 @@ Complete ML pipeline with feature engineering and model serving:
     "name": "churn_prediction_pipeline",
     "displayName": "Customer Churn Prediction Pipeline",
     "description": "End-to-end ML pipeline for customer churn prediction",
-    "pipelineType": "ML",
+    "pipelineType": "application",
     "service": {
       "id": "airflow-ml-uuid",
       "type": "pipelineService"

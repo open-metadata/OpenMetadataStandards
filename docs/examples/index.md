@@ -124,7 +124,7 @@ Practical examples demonstrating OpenMetadata Standards usage across all entity 
   "name": "customer_etl",
   "displayName": "Customer Data ETL",
   "description": "Daily ETL pipeline for customer data",
-  "pipelineType": "ETL",
+  "pipelineType": "metadata",
   "service": {
     "id": "airflow-prod-uuid",
     "type": "pipelineService",

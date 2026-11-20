@@ -379,6 +379,47 @@ View the complete Data Product schema in your preferred format:
           ],
           "additionalProperties": false
         },
+        "dataProductPort": {
+          "description": "Port definition for data product input/output",
+          "type": "object",
+          "properties": {
+            "name": {
+              "description": "Name of the port",
+              "type": "string"
+            },
+            "displayName": {
+              "description": "Display name of the port",
+              "type": "string"
+            },
+            "description": {
+              "description": "Description of the port",
+              "type": "string"
+            },
+            "portType": {
+              "$ref": "#/definitions/portType"
+            },
+            "protocol": {
+              "$ref": "#/definitions/portProtocol"
+            },
+            "format": {
+              "$ref": "#/definitions/portFormat"
+            },
+            "endpoint": {
+              "description": "Endpoint URL or connection string",
+              "type": "string"
+            },
+            "dataAsset": {
+              "description": "Reference to the data asset exposed through this port",
+              "$ref": "../../type/entityReference.json"
+            }
+          },
+          "required": [
+            "name",
+            "portType",
+            "dataAsset"
+          ],
+          "additionalProperties": false
+        },
         "slaDefinition": {
           "description": "Service Level Agreement definition",
           "type": "object",
@@ -641,50 +682,15 @@ View the complete Data Product schema in your preferred format:
     # Properties - Ports
     om:hasInputPort a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
-        rdfs:range om:DataProductPort ;
+        rdfs:range om:InputPort ;
         rdfs:label "inputPorts" ;
         rdfs:comment "Input ports for consuming data into this data product" .
 
     om:hasOutputPort a owl:ObjectProperty ;
         rdfs:domain om:DataProduct ;
-        rdfs:range om:DataProductPort ;
+        rdfs:range om:OutputPort ;
         rdfs:label "outputPorts" ;
         rdfs:comment "Output ports for exposing data from this data product" .
-
-    # Data Product Port Class
-    om:DataProductPort a owl:Class ;
-        rdfs:label "Data Product Port" ;
-        rdfs:comment "Port definition for data product input/output" .
-
-    om:portName a owl:DatatypeProperty ;
-        rdfs:domain om:DataProductPort ;
-        rdfs:range xsd:string ;
-        rdfs:label "name" ;
-        rdfs:comment "Name of the port" .
-
-    om:portType a owl:DatatypeProperty ;
-        rdfs:domain om:DataProductPort ;
-        rdfs:range om:PortType ;
-        rdfs:label "portType" ;
-        rdfs:comment "Type of the data product port: INPUT or OUTPUT" .
-
-    om:portProtocol a owl:DatatypeProperty ;
-        rdfs:domain om:DataProductPort ;
-        rdfs:range om:PortProtocol ;
-        rdfs:label "protocol" ;
-        rdfs:comment "Protocol used by the port: REST, GRPC, GRAPHQL, JDBC, KAFKA, FILE, S3, AZURE_BLOB, GCS, WEBHOOK, CUSTOM" .
-
-    om:portFormat a owl:DatatypeProperty ;
-        rdfs:domain om:DataProductPort ;
-        rdfs:range om:PortFormat ;
-        rdfs:label "format" ;
-        rdfs:comment "Data format: JSON, CSV, PARQUET, AVRO, ORC, XML, PROTOBUF, DELTA, ICEBERG, CUSTOM" .
-
-    om:portEndpoint a owl:DatatypeProperty ;
-        rdfs:domain om:DataProductPort ;
-        rdfs:range xsd:string ;
-        rdfs:label "endpoint" ;
-        rdfs:comment "Endpoint URL or connection string" .
 
     # Properties - Dependencies
     om:consumesFrom a owl:ObjectProperty ;
@@ -797,19 +803,13 @@ View the complete Data Product schema in your preferred format:
         om:hasFollower ex:janeDoe ;
         om:hasSLA ex:customer360SLA .
 
-    ex:crmInputPort a om:DataProductPort ;
+    ex:crmInputPort a om:InputPort ;
         om:portName "crm_input" ;
-        om:portType om:PortType_INPUT ;
-        om:portProtocol om:PortProtocol_JDBC ;
-        om:portFormat om:PortFormat_JSON ;
-        om:portEndpoint "jdbc:postgresql://crm-db.example.com:5432/crm" .
+        om:portDataAsset ex:customerTable .
 
-    ex:apiOutputPort a om:DataProductPort ;
+    ex:apiOutputPort a om:OutputPort ;
         om:portName "customer_api" ;
-        om:portType om:PortType_OUTPUT ;
-        om:portProtocol om:PortProtocol_REST ;
-        om:portFormat om:PortFormat_JSON ;
-        om:portEndpoint "https://api.example.com/v2/customers" .
+        om:portDataAsset ex:customerApi .
 
     ex:customer360SLA a om:SLADefinition ;
         om:slaTier om:SLATier_GOLD ;
