@@ -1,6 +1,6 @@
 {
   "$id": "https://open-metadata.org/schema/metadataIngestion/messagingServiceAutoClassificationPipeline.json",
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "MessagingServiceAutoClassificationPipeline",
   "description": "MessagingService AutoClassification Pipeline Configuration.",
   "type": "object",
@@ -52,10 +52,11 @@
       "maximum": 100
     },
     "sampleDataCount": {
-      "description": "No. of messages to fetch during sample data ingestion. Values above 1000 are capped at 1000.",
+      "description": "No. of messages to fetch during sample data ingestion.",
       "type": "integer",
       "default": 50,
       "minimum": 1,
+      "maximum": 1000,
       "title": "Sample Data Count"
     },
     "classificationLanguage": {

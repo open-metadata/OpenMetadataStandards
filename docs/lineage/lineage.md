@@ -754,6 +754,21 @@ Integration with OpenLineage standard:
 - Standardized lineage events
 - Integration with OpenLineage-compatible tools
 
+OpenLineage broker connections support Kafka and AWS Kinesis configurations.
+
+#### Kafka broker configuration
+
+| Field | Allowed values | Default |
+|---|---|---|
+| `consumerOffsets` | `earliest`, `latest` | `earliest` |
+| `securityProtocol` | `PLAINTEXT`, `SASL_PLAINTEXT`, `SSL`, `SASL_SSL` | `PLAINTEXT` |
+
+#### Kinesis broker configuration
+
+| Field | Allowed values | Default |
+|---|---|---|
+| `consumerOffsets` | `TRIM_HORIZON`, `LATEST` | `TRIM_HORIZON` |
+
 ### ExternalTableLineage
 Lineage for external tables:
 - External table references

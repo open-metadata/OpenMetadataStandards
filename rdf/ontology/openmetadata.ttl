@@ -1347,25 +1347,6 @@ om:portName a owl:DatatypeProperty ;
     rdfs:domain [ a owl:Class ; owl:unionOf ( om:InputPort om:OutputPort ) ] ;
     rdfs:range xsd:string .
 
-om:portProtocol a owl:DatatypeProperty ;
-    rdfs:label "port protocol" ;
-    rdfs:comment "Protocol used by the port (REST, GRPC, KAFKA, etc.)" ;
-    rdfs:domain [ a owl:Class ; owl:unionOf ( om:InputPort om:OutputPort ) ] ;
-    rdfs:range xsd:string .
-
-om:portFormat a owl:DatatypeProperty ;
-    rdfs:label "port format" ;
-    rdfs:comment "Data format supported by the port (JSON, CSV, PARQUET, etc.)" ;
-    rdfs:domain [ a owl:Class ; owl:unionOf ( om:InputPort om:OutputPort ) ] ;
-    rdfs:range xsd:string .
-
-om:portEndpoint a owl:DatatypeProperty ;
-    rdfs:label "port endpoint" ;
-    rdfs:subPropertyOf dcat:endpointURL ;
-    rdfs:comment "Endpoint URL or connection string for the port" ;
-    rdfs:domain [ a owl:Class ; owl:unionOf ( om:InputPort om:OutputPort ) ] ;
-    rdfs:range xsd:anyURI .
-
 om:portDataAsset a owl:ObjectProperty ;
     rdfs:label "port data asset" ;
     rdfs:comment "Data asset exposed through this port" ;

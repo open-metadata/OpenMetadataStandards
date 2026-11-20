@@ -5,7 +5,28 @@ Version history and changes for OpenMetadata Standards.
 
 ---
 
-## Version 2.0.7 (Current)
+## Version 2.1.0 RC2 (Current)
+
+**Standards Snapshot Date**: November 20, 2026
+
+### Schema Snapshot
+
+- Synchronized all 1129 JSON schemas from the OpenMetadata
+  [`2.1.0-rc2-release`](https://github.com/open-metadata/OpenMetadata/releases/tag/2.1.0-rc2-release)
+  at commit [`53d1553e`](https://github.com/open-metadata/OpenMetadata/commit/53d1553e1e24c120043115c0ab9520b9d38a5005).
+- Compared with the 2.0.7 snapshot: 220 schemas added, 909 modified, and 6 removed.
+
+### Release Candidate Status
+
+This snapshot tracks `2.1.0-rc2-release` because no final `2.1.0-release` tag was available at the time of synchronization. Replace this snapshot with the final release tag and commit when one is published.
+
+### Documentation
+
+- Added documentation pages for new 2.1.0 entity and shared type surfaces.
+- Continued enum documentation and RDF/JSON-LD port-model alignment for Data Product asset relationships.
+- Recorded Kafka and Kinesis OpenLineage broker enum values and policy resource permission access values.
+
+## Version 2.0.7
 
 **Standards Snapshot Date**: November 12, 2026
 

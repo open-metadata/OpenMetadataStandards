@@ -765,6 +765,18 @@ Policies are evaluated in the following order:
 2. **Explicit Allow**: If any rule explicitly allows access, access is allowed
 3. **Default Deny**: If no rule matches, access is denied by default
 
+### Resource Permission Values
+
+Resource permission evaluation uses these access values:
+
+| Value | Meaning |
+|---|---|
+| `deny` | A matching rule denies the operation. |
+| `allow` | A matching rule allows the operation. |
+| `conditionalDeny` | The operation is denied when the rule's conditions can be evaluated. |
+| `conditionalAllow` | The operation is allowed when the rule's conditions can be evaluated. |
+| `notAllow` | No rule matches, or insufficient information prevents a conditional decision. |
+
 ### Condition Expressions
 
 Rules can include condition expressions using Spring Expression Language (SpEL) based on entity, resource, and environmental attributes:
